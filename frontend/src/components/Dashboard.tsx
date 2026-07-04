@@ -13,28 +13,33 @@ const statusLabels: Record<Campaign['status'], string> = {
   cancelled: 'Abgebrochen',
 }
 
+const statusColor: Record<Campaign['status'], string> = {
+  draft: 'text-text-secondary',
+  scheduled: 'text-status-warning',
+  running: 'text-status-success',
+  completed: 'text-text-secondary',
+  cancelled: 'text-status-danger',
+}
+
 export default function Dashboard({ campaigns }: DashboardProps) {
   if (campaigns.length === 0) {
-    return <p style={{ color: 'var(--color-fg-muted)' }}>Noch keine Kampagnen vorhanden.</p>
+    return (
+      <p className="text-text-secondary">
+        Noch keine Kampagne gestartet &rarr; Erste Kampagne anlegen.
+      </p>
+    )
   }
 
   return (
-    <div style={{ display: 'grid', gap: 'var(--space-md)', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))' }}>
+    <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))' }}>
       {campaigns.map((campaign) => (
         <Link
           key={campaign.id}
           to={`/results/${campaign.id}`}
-          style={{
-            border: '1px solid var(--color-border)',
-            borderRadius: 'var(--radius-md)',
-            padding: 'var(--space-md)',
-            color: 'inherit',
-            textDecoration: 'none',
-            background: 'var(--color-bg-subtle)',
-          }}
+          className="rounded-md border border-border bg-surface p-4 text-text-primary no-underline hover:border-accent"
         >
-          <strong>{campaign.name}</strong>
-          <div style={{ color: 'var(--color-fg-muted)', marginTop: 'var(--space-xs)' }}>
+          <strong className="font-semibold">{campaign.name}</strong>
+          <div className={`mt-1 font-mono text-sm ${statusColor[campaign.status]}`}>
             {statusLabels[campaign.status]}
           </div>
         </Link>

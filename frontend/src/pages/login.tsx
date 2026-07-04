@@ -29,23 +29,11 @@ export default function LoginPage() {
   }
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexDirection: 'column',
-        gap: 'var(--space-md)',
-      }}
-    >
-      <h1>PhishAware</h1>
+    <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-bg text-text-primary">
+      <h1 className="text-2xl font-semibold">PhishAware</h1>
 
-      <form
-        onSubmit={handleSubmit}
-        style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-sm)', width: 280 }}
-      >
-        <label style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-xs)' }}>
+      <form onSubmit={handleSubmit} className="flex w-72 flex-col gap-3">
+        <label className="flex flex-col gap-1 text-sm">
           E-Mail
           <input
             type="email"
@@ -53,45 +41,34 @@ export default function LoginPage() {
             onChange={(e) => setEmail(e.target.value)}
             required
             autoFocus
+            className="rounded-md border border-border bg-surface px-3 py-2 text-text-primary"
           />
         </label>
 
-        <label style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-xs)' }}>
+        <label className="flex flex-col gap-1 text-sm">
           Passwort
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            className="rounded-md border border-border bg-surface px-3 py-2 text-text-primary"
           />
         </label>
 
-        {error && <p style={{ color: 'var(--color-danger)', margin: 0 }}>{error}</p>}
+        {error && <p className="m-0 text-sm text-status-danger">{error}</p>}
 
         <button
           type="submit"
           disabled={submitting}
-          style={{
-            background: 'var(--color-accent)',
-            color: 'var(--color-accent-fg)',
-            padding: '10px 20px',
-            borderRadius: 'var(--radius-md)',
-            border: 'none',
-            cursor: 'pointer',
-          }}
+          className="rounded-md bg-accent px-5 py-2 font-medium text-white disabled:opacity-60"
         >
           {submitting ? 'Wird geprueft...' : 'Anmelden'}
         </button>
       </form>
 
       {oidcEnabled && (
-        <a
-          href={loginUrl()}
-          style={{
-            color: 'var(--color-fg-muted)',
-            textDecoration: 'underline',
-          }}
-        >
+        <a href={loginUrl()} className="text-sm text-text-secondary underline">
           Mit Single Sign-On anmelden
         </a>
       )}

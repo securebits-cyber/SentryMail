@@ -13,15 +13,15 @@ export default function ResultsPage() {
     api.get<CampaignResult>(`/results/${campaignId}`).then((res) => setResult(res.data))
   }, [campaignId])
 
-  if (!result) return <p>Lade Ergebnisse...</p>
+  if (!result) return <p className="text-text-secondary">Lade Ergebnisse...</p>
 
   return (
     <>
-      <h1>Ergebnisse</h1>
+      <h1 className="mb-4 text-xl font-semibold">Ergebnisse</h1>
       <ResultsTable result={result} />
       <a
         href={`${import.meta.env.VITE_API_URL}/results/${campaignId}/export`}
-        style={{ display: 'inline-block', marginTop: 'var(--space-md)' }}
+        className="mt-4 inline-block text-accent underline"
       >
         Als CSV exportieren
       </a>

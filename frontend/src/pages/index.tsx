@@ -14,11 +14,11 @@ export default function DashboardPage() {
       .finally(() => setLoading(false))
   }, [])
 
-  if (loading) return <p>Lade Kampagnen...</p>
+  if (loading) return <p className="text-text-secondary">Lade Kampagnen...</p>
 
   return (
     <>
-      <h1>Dashboard</h1>
+      <h1 className="mb-4 text-xl font-semibold">Dashboard</h1>
       <Dashboard campaigns={campaigns} />
     </>
   )

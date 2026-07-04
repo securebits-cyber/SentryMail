@@ -14,14 +14,12 @@ const rows: Array<{ label: string; key: keyof CampaignResult }> = [
 
 export default function ResultsTable({ result }: ResultsTableProps) {
   return (
-    <table style={{ borderCollapse: 'collapse', minWidth: 320 }}>
+    <table className="min-w-[320px] border-collapse">
       <tbody>
         {rows.map(({ label, key }) => (
-          <tr key={key} style={{ borderBottom: '1px solid var(--color-border)' }}>
-            <td style={{ padding: 'var(--space-sm) var(--space-md) var(--space-sm) 0', color: 'var(--color-fg-muted)' }}>
-              {label}
-            </td>
-            <td style={{ padding: 'var(--space-sm) 0', fontWeight: 600 }}>{result[key]}</td>
+          <tr key={key} className="border-b border-border">
+            <td className="py-2 pr-4 text-text-secondary">{label}</td>
+            <td className="py-2 font-mono text-base font-semibold text-text-primary">{result[key]}</td>
           </tr>
         ))}
       </tbody>

@@ -27,13 +27,13 @@ export default function CampaignsPage() {
 
   return (
     <>
-      <h1>Neue Kampagne</h1>
+      <h1 className="mb-4 text-xl font-semibold">Neue Kampagne</h1>
       {templates.length === 0 ? (
-        <p style={{ color: 'var(--color-fg-muted)' }}>Erst ein Template anlegen, bevor eine Kampagne erstellt werden kann.</p>
+        <p className="text-text-secondary">Erst ein Template anlegen, bevor eine Kampagne erstellt werden kann.</p>
       ) : (
         <CampaignForm templates={templates} onSubmit={handleSubmit} submitting={submitting} />
       )}
-      {message && <p style={{ marginTop: 'var(--space-md)' }}>{message}</p>}
+      {message && <p className="mt-4">{message}</p>}
     </>
   )
 }
