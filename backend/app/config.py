@@ -1,0 +1,57 @@
+"""Anwendungs-Konfiguration.
+
+Alle umgebungsspezifischen Werte kommen ausschliesslich aus .env.
+Keine Defaults fuer Secrets/Provider-Zugangsdaten - die App startet
+bewusst nicht ohne gesetzte .env-Werte (siehe CLAUDE.MD).
+"""
+from functools import lru_cache
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env", case_sensitive=True, extra="ignore")
+
+    # App
+    APP_DOMAIN: str = "localhost"
+    ENVIRONMENT: str = "production"
+    LOG_LEVEL: str = "INFO"
+    CORS_ORIGINS: str = "http://localhost:5173"
+
+    @property
+    def cors_origins_list(self) -> list[str]:
+        return [origin.strip() for origin in self.CORS_ORIGINS.split(",") if origin.strip()]
+
+    # Database
+    DATABASE_URL: str
+
+    # Redis
+    REDIS_URL: str
+
+    # Security
+    SECRET_KEY: str
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+
+    # OIDC (beliebiger Provider: Authentik, Keycloak, Entra ID, Okta, ...)
+    OIDC_ISSUER: str
+    OIDC_CLIENT_ID: str
+    OIDC_CLIENT_SECRET: str
+    OIDC_REDIRECT_URI: str
+
+    # SMTP (beliebiger Anbieter - nichts hier hart hinterlegt)
+    SMTP_HOST: str
+    SMTP_PORT: int = 587
+    SMTP_USERNAME: str
+    SMTP_PASSWORD: str
+    SMTP_FROM_NAME: str = "PhishAware Training"
+    SMTP_FROM_EMAIL: str
+    SMTP_USE_TLS: bool = True
+    SMTP_VERIFY_SSL: bool = True
+    SMTP_TIMEOUT: int = 10
+    SMTP_BATCH_DELAY: int = 2  # Sekunden zwischen Batches - an Anbieter-Limit anpassen
+
+
+@lru_cache()
+def get_settings() -> Settings:
+    return Settings()
