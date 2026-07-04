@@ -3,6 +3,7 @@ import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, EmailStr
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.auth.permissions import require_admin
@@ -12,6 +13,15 @@ from app.schemas import UserOut
 from app.utils.passwords import hash_password
 
 router = APIRouter(prefix="/users", tags=["users"])
+
+
+def _active_admin_count(db: Session) -> int:
+    return (
+        db.query(func.count(User.id))
+        .filter(User.role == UserRole.ADMIN, User.is_active.is_(True))
+        .scalar()
+        or 0
+    )
 
 
 class UserCreate(BaseModel):
@@ -67,6 +77,17 @@ def update_user(
     user = _get_or_404(db, user_id)
     if user.id == current_user.id and payload.is_active is False:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Eigenes Konto nicht deaktivieren")
+
+    # Letzten aktiven Admin nicht per Deaktivieren/Herabstufen entfernen.
+    demoting = payload.role is not None and payload.role != UserRole.ADMIN
+    deactivating = payload.is_active is False
+    if user.role == UserRole.ADMIN and user.is_active and (demoting or deactivating):
+        if _active_admin_count(db) <= 1:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Der letzte aktive Admin darf nicht deaktiviert oder herabgestuft werden",
+            )
+
     data = payload.model_dump(exclude_unset=True)
     password = data.pop("password", None)
     for field, value in data.items():
@@ -83,5 +104,10 @@ def delete_user(user_id: uuid.UUID, db: Session = Depends(get_db), current_user:
     user = _get_or_404(db, user_id)
     if user.id == current_user.id:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Eigenes Konto nicht loeschbar")
+    if user.role == UserRole.ADMIN and user.is_active and _active_admin_count(db) <= 1:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Der letzte aktive Admin kann nicht geloescht werden",
+        )
     db.delete(user)
     db.commit()

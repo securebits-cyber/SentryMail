@@ -5,6 +5,12 @@ import type { User } from '../types'
 const fieldClass = 'rounded-md border border-border bg-surface px-3 py-2 text-text-primary'
 const labelClass = 'flex flex-col gap-1 text-sm'
 
+/** Fehlermeldung des Backends (detail) herausziehen, sonst Fallback. */
+function errText(e: unknown, fallback: string): string {
+  const detail = (e as { response?: { data?: { detail?: unknown } } })?.response?.data?.detail
+  return typeof detail === 'string' ? detail : fallback
+}
+
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
@@ -54,8 +60,8 @@ export default function UsersPage() {
     try {
       await api.patch(`/users/${user.id}`, { is_active: !user.is_active })
       load()
-    } catch {
-      setMessage({ kind: 'error', text: 'Status konnte nicht geändert werden.' })
+    } catch (e) {
+      setMessage({ kind: 'error', text: errText(e, 'Status konnte nicht geändert werden.') })
     }
   }
 
@@ -65,8 +71,8 @@ export default function UsersPage() {
     try {
       await api.delete(`/users/${user.id}`)
       load()
-    } catch {
-      setMessage({ kind: 'error', text: 'Benutzer konnte nicht gelöscht werden.' })
+    } catch (e) {
+      setMessage({ kind: 'error', text: errText(e, 'Benutzer konnte nicht gelöscht werden.') })
     }
   }
 
