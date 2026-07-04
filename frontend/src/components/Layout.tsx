@@ -1,4 +1,4 @@
-import { FileText, LayoutDashboard, LogOut, Mail, Moon, Server, Settings, Sun, Users } from 'lucide-react'
+import { FileText, Globe, LayoutDashboard, LogOut, Mail, Moon, Server, Settings, Sun, Users } from 'lucide-react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { useTheme } from '../hooks/useTheme'
 import { logout } from '../services/auth'
@@ -8,6 +8,7 @@ const mainNav = [
   { to: '/templates', label: 'Vorlagen', icon: FileText, end: false },
   { to: '/groups', label: 'Gruppen', icon: Users, end: false },
   { to: '/sending-profiles', label: 'Sending Profiles', icon: Server, end: false },
+  { to: '/landing-pages', label: 'Landing Pages', icon: Globe, end: false },
   { to: '/campaigns', label: 'Kampagnen', icon: Mail, end: false },
 ]
 

@@ -53,6 +53,17 @@ export interface SendingProfile {
   updated_at: string
 }
 
+export interface LandingPage {
+  id: string
+  name: string
+  html_content: string
+  capture_credentials: boolean
+  capture_passwords: boolean
+  redirect_url: string | null
+  created_at: string
+  updated_at: string
+}
+
 export interface GroupMember {
   id?: string
   email: string

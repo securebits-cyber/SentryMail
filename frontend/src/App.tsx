@@ -4,6 +4,7 @@ import Layout from './components/Layout'
 import CampaignsPage from './pages/campaigns'
 import GroupsPage from './pages/groups'
 import DashboardPage from './pages/index'
+import LandingPagesPage from './pages/landing-pages'
 import LoginPage from './pages/login'
 import ResultsPage from './pages/results'
 import SendingProfilesPage from './pages/sending-profiles'
@@ -41,6 +42,7 @@ export default function App() {
           <Route path="/templates" element={<TemplatesPage />} />
           <Route path="/groups" element={<GroupsPage />} />
           <Route path="/sending-profiles" element={<SendingProfilesPage />} />
+          <Route path="/landing-pages" element={<LandingPagesPage />} />
           <Route path="/campaigns" element={<CampaignsPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/results/:campaignId" element={<ResultsPage />} />

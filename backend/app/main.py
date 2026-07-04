@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 
-from app.api import campaigns, groups, health, results, sending_profiles, settings as settings_api, templates, tracking
+from app.api import campaigns, groups, health, landing_pages, results, sending_profiles, settings as settings_api, templates, tracking
 from app.api import users as users_api
 from app.auth import local as local_auth
 from app.auth.oidc import oidc_enabled
@@ -56,6 +56,7 @@ app.include_router(users_api.router)
 app.include_router(settings_api.router)
 app.include_router(sending_profiles.router)
 app.include_router(groups.router)
+app.include_router(landing_pages.router)
 app.include_router(campaigns.router)
 app.include_router(templates.router)
 app.include_router(results.router)
