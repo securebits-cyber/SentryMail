@@ -1,0 +1,145 @@
+import { FormEvent, useState } from 'react'
+import type { GroupSummary, LandingPage, SendingProfile, Template } from '../types'
+
+export interface CampaignWizardValues {
+  name: string
+  template_id: string
+  sending_profile_id: string | null
+  landing_page_id: string | null
+  group_ids: string[]
+  scheduled_at: string | null
+}
+
+interface CampaignWizardProps {
+  templates: Template[]
+  profiles: SendingProfile[]
+  pages: LandingPage[]
+  groups: GroupSummary[]
+  onSubmit: (values: CampaignWizardValues) => void
+  onCancel: () => void
+  submitting?: boolean
+}
+
+const fieldClass = 'rounded-md border border-border bg-surface px-3 py-2 text-text-primary'
+const labelClass = 'flex flex-col gap-1 text-sm'
+
+export default function CampaignWizard({
+  templates,
+  profiles,
+  pages,
+  groups,
+  onSubmit,
+  onCancel,
+  submitting,
+}: CampaignWizardProps) {
+  const [name, setName] = useState('')
+  const [templateId, setTemplateId] = useState(templates[0]?.id ?? '')
+  const [profileId, setProfileId] = useState('')
+  const [pageId, setPageId] = useState('')
+  const [groupIds, setGroupIds] = useState<string[]>([])
+  const [scheduledAt, setScheduledAt] = useState('')
+
+  function toggleGroup(id: string) {
+    setGroupIds((prev) => (prev.includes(id) ? prev.filter((g) => g !== id) : [...prev, id]))
+  }
+
+  function handleSubmit(event: FormEvent) {
+    event.preventDefault()
+    onSubmit({
+      name,
+      template_id: templateId,
+      sending_profile_id: profileId || null,
+      landing_page_id: pageId || null,
+      group_ids: groupIds,
+      scheduled_at: scheduledAt ? new Date(scheduledAt).toISOString() : null,
+    })
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="flex max-w-2xl flex-col gap-4">
+      <label className={labelClass}>
+        Name
+        <input value={name} onChange={(e) => setName(e.target.value)} required className={fieldClass} />
+      </label>
+
+      <label className={labelClass}>
+        Vorlage
+        <select value={templateId} onChange={(e) => setTemplateId(e.target.value)} required className={fieldClass}>
+          {templates.map((t) => (
+            <option key={t.id} value={t.id}>
+              {t.name}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      <label className={labelClass}>
+        Sending Profile
+        <select value={profileId} onChange={(e) => setProfileId(e.target.value)} className={fieldClass}>
+          <option value="">— Globales SMTP (.env) —</option>
+          {profiles.map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.name}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      <label className={labelClass}>
+        Landing Page
+        <select value={pageId} onChange={(e) => setPageId(e.target.value)} className={fieldClass}>
+          <option value="">— keine —</option>
+          {pages.map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.name}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      <div className="flex flex-col gap-1 text-sm">
+        <span>Gruppen</span>
+        {groups.length === 0 ? (
+          <span className="text-text-secondary">Keine Gruppe vorhanden — erst unter „Gruppen" anlegen.</span>
+        ) : (
+          <div className="flex flex-col gap-1 rounded-md border border-border p-3">
+            {groups.map((g) => (
+              <label key={g.id} className="flex items-center gap-2">
+                <input type="checkbox" checked={groupIds.includes(g.id)} onChange={() => toggleGroup(g.id)} />
+                {g.name}
+                <span className="font-mono text-xs text-text-secondary">({g.member_count})</span>
+              </label>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <label className={labelClass}>
+        Geplanter Versand (optional)
+        <input
+          type="datetime-local"
+          value={scheduledAt}
+          onChange={(e) => setScheduledAt(e.target.value)}
+          className={fieldClass}
+        />
+      </label>
+
+      <div className="flex gap-2">
+        <button
+          type="submit"
+          disabled={submitting || groupIds.length === 0}
+          className="rounded-md bg-accent px-5 py-2 font-medium text-white disabled:opacity-60"
+        >
+          {submitting ? 'Wird angelegt...' : 'Kampagne anlegen'}
+        </button>
+        <button
+          type="button"
+          onClick={onCancel}
+          className="rounded-md border border-border px-5 py-2 text-text-primary hover:bg-bg"
+        >
+          Abbrechen
+        </button>
+      </div>
+    </form>
+  )
+}
