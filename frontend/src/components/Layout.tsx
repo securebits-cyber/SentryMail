@@ -1,4 +1,4 @@
-import { FileText, Globe, LayoutDashboard, LogOut, Mail, Moon, Server, Settings, Sun, UserCog, Users } from 'lucide-react'
+import { CircleUser, FileText, Globe, LayoutDashboard, LogOut, Mail, Moon, Server, Settings, Sun, UserCog, Users } from 'lucide-react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { useTheme } from '../hooks/useTheme'
 import { logout } from '../services/auth'
@@ -14,6 +14,7 @@ const mainNav = [
 
 // Am unteren Rand der Sidebar, getrennt vom Haupt-Workflow (Admin-Bereich).
 const bottomNav = [
+  { to: '/profile', label: 'Mein Profil', icon: CircleUser, end: false },
   { to: '/users', label: 'Benutzer', icon: UserCog, end: false },
   { to: '/settings', label: 'Einstellungen', icon: Settings, end: false },
 ]
