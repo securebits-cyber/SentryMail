@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useState } from 'react'
+import { ChangeEvent, FormEvent, useEffect, useState } from 'react'
 import { Trash2 } from 'lucide-react'
 import type { Group } from '../types'
 
@@ -24,14 +24,21 @@ interface GroupFormProps {
 const fieldClass = 'rounded-md border border-border bg-surface px-3 py-2 text-text-primary'
 const labelClass = 'flex flex-col gap-1 text-sm'
 
-/** Erwartet CSV mit Spalten: email,first_name,last_name,position (Header optional). */
+/**
+ * Erwartet CSV mit Spalten: email,first_name,last_name,position (Header optional).
+ * Trennzeichen wird pro Zeile erkannt: Semikolon (deutsche Excel-Exporte), Tab
+ * oder Komma. Nur Zeilen mit einer erkennbaren E-Mail werden uebernommen.
+ */
 function parseCsv(csv: string): GroupMemberInput[] {
   return csv
-    .split('\n')
+    .split(/\r?\n/)
     .map((line) => line.trim())
-    .filter((line) => line.length > 0 && !line.toLowerCase().startsWith('email'))
+    .filter((line) => line.length > 0)
+    // Header-Zeile ueberspringen: keine "@"-Adresse, nennt aber "mail".
+    .filter((line) => line.includes('@') || !/mail/i.test(line))
     .map((line) => {
-      const [email, first_name, last_name, position] = line.split(',').map((v) => v?.trim())
+      const delim = line.includes(';') ? ';' : line.includes('\t') ? '\t' : ','
+      const [email, first_name, last_name, position] = line.split(delim).map((v) => v?.trim())
       return {
         email,
         first_name: first_name || undefined,
@@ -39,13 +46,14 @@ function parseCsv(csv: string): GroupMemberInput[] {
         position: position || undefined,
       }
     })
-    .filter((m) => m.email)
+    .filter((m) => m.email && m.email.includes('@'))
 }
 
 export default function GroupForm({ initial, onSubmit, onCancel, submitting }: GroupFormProps) {
   const [name, setName] = useState('')
   const [members, setMembers] = useState<GroupMemberInput[]>([])
   const [csv, setCsv] = useState('')
+  const [csvMsg, setCsvMsg] = useState<string | null>(null)
 
   useEffect(() => {
     setName(initial?.name ?? '')
@@ -62,18 +70,32 @@ export default function GroupForm({ initial, onSubmit, onCancel, submitting }: G
 
   function addFromCsv() {
     const parsed = parseCsv(csv)
-    if (parsed.length === 0) return
+    if (parsed.length === 0) {
+      setCsvMsg('Keine gültige Zeile erkannt. Format: email,vorname,nachname,position (Komma oder Semikolon).')
+      return
+    }
     // Dedup per E-Mail (case-insensitive) gegen bereits vorhandene.
     const seen = new Set(members.map((m) => m.email.toLowerCase()))
     const merged = [...members]
+    let added = 0
     for (const p of parsed) {
       if (!seen.has(p.email.toLowerCase())) {
         seen.add(p.email.toLowerCase())
         merged.push(p)
+        added += 1
       }
     }
     setMembers(merged)
     setCsv('')
+    const skipped = parsed.length - added
+    setCsvMsg(`${added} Empfänger hinzugefügt${skipped > 0 ? ` (${skipped} Duplikate übersprungen)` : ''}.`)
+  }
+
+  function handleFile(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0]
+    if (!file) return
+    file.text().then((text) => setCsv(text))
+    event.target.value = '' // gleiche Datei erneut waehlbar machen
   }
 
   function removeMember(email: string) {
@@ -102,14 +124,19 @@ export default function GroupForm({ initial, onSubmit, onCancel, submitting }: G
           className={`${fieldClass} font-mono text-sm`}
         />
       </label>
-      <div>
+      <div className="flex flex-wrap items-center gap-3">
         <button
           type="button"
           onClick={addFromCsv}
-          className="rounded-md border border-border px-4 py-2 text-sm text-text-primary hover:bg-bg"
+          className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-white"
         >
           Aus CSV hinzufügen
         </button>
+        <label className="cursor-pointer rounded-md border border-border px-4 py-2 text-sm text-text-primary hover:bg-bg">
+          CSV-Datei…
+          <input type="file" accept=".csv,text/csv,text/plain" onChange={handleFile} className="hidden" />
+        </label>
+        {csvMsg && <span className="text-sm text-text-secondary">{csvMsg}</span>}
       </div>
 
       <div>
