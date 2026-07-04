@@ -254,3 +254,33 @@ class LdapImportResult(BaseModel):
     detail: str
     found: int = 0
     added: int = 0
+
+
+# --- Landing Pages ---
+
+class LandingPageBase(BaseModel):
+    name: str
+    html_content: str
+    capture_credentials: bool = False
+    capture_passwords: bool = False
+    redirect_url: str | None = None
+
+
+class LandingPageCreate(LandingPageBase):
+    pass
+
+
+class LandingPageUpdate(BaseModel):
+    name: str | None = None
+    html_content: str | None = None
+    capture_credentials: bool | None = None
+    capture_passwords: bool | None = None
+    redirect_url: str | None = None
+
+
+class LandingPageOut(LandingPageBase):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    created_at: datetime
+    updated_at: datetime

@@ -218,6 +218,27 @@ class Group(Base):
         return len(self.members)
 
 
+class LandingPage(Base):
+    """Landing Page (GoPhish: 'Page') - Ziel des Links aus der Phishing-Mail.
+
+    Optionales Erfassen abgeschickter Formulardaten (capture_credentials) und
+    Passwoerter (capture_passwords) sowie Weiterleitung nach dem Absenden.
+    Das eigentliche Ausliefern/Capturen wird im Campaign-Schritt verdrahtet.
+    """
+
+    __tablename__ = "landing_pages"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    html_content: Mapped[str] = mapped_column(Text, nullable=False)
+    capture_credentials: Mapped[bool] = mapped_column(default=False, nullable=False)
+    capture_passwords: Mapped[bool] = mapped_column(default=False, nullable=False)
+    redirect_url: Mapped[str | None] = mapped_column(String(1024), nullable=True)
+    created_by_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+
 class GroupMember(Base):
     __tablename__ = "group_members"
 
