@@ -10,6 +10,7 @@ import ResultsPage from './pages/results'
 import SendingProfilesPage from './pages/sending-profiles'
 import SettingsPage from './pages/settings'
 import TemplatesPage from './pages/templates'
+import UsersPage from './pages/users'
 import { consumeTokenFromUrlFragment, isAuthenticated } from './services/auth'
 
 function RequireAuth({ children }: { children: ReactElement }) {
@@ -44,6 +45,7 @@ export default function App() {
           <Route path="/sending-profiles" element={<SendingProfilesPage />} />
           <Route path="/landing-pages" element={<LandingPagesPage />} />
           <Route path="/campaigns" element={<CampaignsPage />} />
+          <Route path="/users" element={<UsersPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/results/:campaignId" element={<ResultsPage />} />
         </Route>

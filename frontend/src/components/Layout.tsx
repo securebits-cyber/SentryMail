@@ -1,4 +1,4 @@
-import { FileText, Globe, LayoutDashboard, LogOut, Mail, Moon, Server, Settings, Sun, Users } from 'lucide-react'
+import { FileText, Globe, LayoutDashboard, LogOut, Mail, Moon, Server, Settings, Sun, UserCog, Users } from 'lucide-react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { useTheme } from '../hooks/useTheme'
 import { logout } from '../services/auth'
@@ -12,8 +12,11 @@ const mainNav = [
   { to: '/campaigns', label: 'Kampagnen', icon: Mail, end: false },
 ]
 
-// Am unteren Rand der Sidebar, getrennt vom Haupt-Workflow.
-const bottomNav = [{ to: '/settings', label: 'Einstellungen', icon: Settings, end: false }]
+// Am unteren Rand der Sidebar, getrennt vom Haupt-Workflow (Admin-Bereich).
+const bottomNav = [
+  { to: '/users', label: 'Benutzer', icon: UserCog, end: false },
+  { to: '/settings', label: 'Einstellungen', icon: Settings, end: false },
+]
 
 const linkClass = ({ isActive }: { isActive: boolean }) =>
   `flex items-center gap-2 rounded-md px-3 py-2 text-sm ${

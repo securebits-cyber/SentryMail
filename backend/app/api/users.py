@@ -1,4 +1,6 @@
 """Admin-verwaltete lokale Benutzerkonten (kein Self-Signup)."""
+import uuid
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, EmailStr
 from sqlalchemy.orm import Session
@@ -17,6 +19,20 @@ class UserCreate(BaseModel):
     full_name: str
     password: str
     role: UserRole = UserRole.USER
+
+
+class UserUpdate(BaseModel):
+    full_name: str | None = None
+    role: UserRole | None = None
+    is_active: bool | None = None
+    password: str | None = None
+
+
+def _get_or_404(db: Session, user_id: uuid.UUID) -> User:
+    user = db.get(User, user_id)
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Benutzer nicht gefunden")
+    return user
 
 
 @router.get("", response_model=list[UserOut])
@@ -39,3 +55,33 @@ def create_user(payload: UserCreate, db: Session = Depends(get_db), _: User = De
     db.commit()
     db.refresh(user)
     return user
+
+
+@router.patch("/{user_id}", response_model=UserOut)
+def update_user(
+    user_id: uuid.UUID,
+    payload: UserUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin),
+):
+    user = _get_or_404(db, user_id)
+    if user.id == current_user.id and payload.is_active is False:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Eigenes Konto nicht deaktivieren")
+    data = payload.model_dump(exclude_unset=True)
+    password = data.pop("password", None)
+    for field, value in data.items():
+        setattr(user, field, value)
+    if password:
+        user.password_hash = hash_password(password)
+    db.commit()
+    db.refresh(user)
+    return user
+
+
+@router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_user(user_id: uuid.UUID, db: Session = Depends(get_db), current_user: User = Depends(require_admin)):
+    user = _get_or_404(db, user_id)
+    if user.id == current_user.id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Eigenes Konto nicht loeschbar")
+    db.delete(user)
+    db.commit()

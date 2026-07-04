@@ -53,6 +53,15 @@ export interface SendingProfile {
   updated_at: string
 }
 
+export interface User {
+  id: string
+  email: string
+  full_name: string
+  role: 'admin' | 'user'
+  is_active: boolean
+  created_at: string
+}
+
 export interface LandingPage {
   id: string
   name: string
