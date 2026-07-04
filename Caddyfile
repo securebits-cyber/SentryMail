@@ -1,0 +1,25 @@
+# PhishAware – Caddyfile (generisch)
+#
+# APP_DOMAIN kommt aus der .env / docker-compose Environment.
+# Ist es eine echte Domain, holt Caddy automatisch ein Let's-Encrypt-Zertifikat.
+# Ist es "localhost" (Dev-Default), laeuft Caddy ohne TLS.
+
+{$APP_DOMAIN} {
+    encode gzip
+
+    # Backend-API
+    handle /api/* {
+        uri strip_prefix /api
+        reverse_proxy backend:8000
+    }
+
+    # Tracking-Endpoints (Pixel, Click, Form-Submission)
+    handle /track/* {
+        reverse_proxy backend:8000
+    }
+
+    # Frontend (alles andere)
+    handle {
+        reverse_proxy frontend:5173
+    }
+}
