@@ -76,63 +76,71 @@ class SMTPClient:
         logger.info("Connected to SMTP %s:%s", self.host, self.port)
         return client
 
-    async def send_batch(
-        self,
-        campaign_id: str,
-        recipients: list[dict],
-        template_html: str,
-        subject: str,
-        tracking_pixel_base_url: str,
-    ) -> dict[str, int]:
-        """Sendet einen Batch von Emails mit Ratelimiting (SMTP_BATCH_DELAY)."""
-        results = {"success": 0, "failed": 0}
-        client = await self.connect()
-
-        try:
-            for i, recipient in enumerate(recipients):
-                tracking_token = recipient["tracking_token"]
-                tracking_pixel_url = f"{tracking_pixel_base_url}/pixel?t={tracking_token}"
-                click_tracking_link = f"{tracking_pixel_base_url}/click?t={tracking_token}&url={{url}}"
-
-                jinja_template = Template(template_html)
-                html_body = jinja_template.render(
-                    recipient_name=recipient.get("first_name", ""),
-                    recipient_email=recipient.get("email", ""),
-                    click_link=click_tracking_link,
-                )
-
-                msg = MIMEMultipart("alternative")
-                msg["Subject"] = Header(subject, "utf-8")
-                msg["From"] = f"{self.from_name} <{self.from_email}>"
-                msg["To"] = recipient["email"]
-                msg["X-Mailer"] = "PhishAware"
-
-                text_body = f"Hallo {recipient.get('first_name', 'User')},\n\n[Bitte HTML-faehigen Mail-Client nutzen]"
-                msg.attach(MIMEText(text_body, "plain", "utf-8"))
-
-                html_with_pixel = f"{html_body}\n<img src='{tracking_pixel_url}' width='1' height='1' alt='' />"
-                msg.attach(MIMEText(html_with_pixel, "html", "utf-8"))
-
-                try:
-                    await client.send_message(msg, sender=self.from_email)
-                    results["success"] += 1
-                except Exception as e:
-                    results["failed"] += 1
-                    logger.error("Zustellung an %s fehlgeschlagen: %s", recipient["email"], e)
-
-                # Rate-Limiting - viele Anbieter begrenzen Versand pro Stunde.
-                # SMTP_BATCH_DELAY in .env an den jeweiligen Anbieter anpassen.
-                if (i + 1) % 5 == 0:
-                    await asyncio.sleep(settings.SMTP_BATCH_DELAY)
-
-        finally:
-            await client.quit()
-
-        logger.info("Batch fuer Campaign %s abgeschlossen: %s success, %s failed", campaign_id, results["success"], results["failed"])
-        return results
-
-
 smtp_client = SMTPClient()
+
+
+async def send_campaign_messages(
+    *,
+    host: str,
+    port: int,
+    tls_mode: str,
+    validate_certs: bool,
+    username: str | None,
+    password: str | None,
+    from_email: str,
+    from_name: str,
+    subject: str,
+    template_html: str,
+    recipients: list[dict],
+    landing_url_base: str,
+    pixel_url_base: str,
+) -> dict[str, int]:
+    """Versendet eine Kampagne ueber ein explizites SMTP-Profil.
+
+    Pro Empfaenger wird ``{{ click_link }}`` auf die Landing-Page-URL (mit
+    Tracking-Token) gerendert und ein Tracking-Pixel eingebettet. Ratelimiting
+    ueber SMTP_BATCH_DELAY.
+    """
+    results = {"success": 0, "failed": 0}
+    client = await _open_smtp(
+        host=host, port=port, tls_mode=tls_mode, validate_certs=validate_certs,
+        username=username, password=password,
+    )
+    try:
+        for i, recipient in enumerate(recipients):
+            token = recipient["tracking_token"]
+            click_link = f"{landing_url_base}?t={token}"
+            pixel_url = f"{pixel_url_base}/pixel?t={token}"
+
+            html_body = Template(template_html).render(
+                recipient_name=recipient.get("first_name", ""),
+                recipient_email=recipient.get("email", ""),
+                click_link=click_link,
+            )
+
+            msg = MIMEMultipart("alternative")
+            msg["Subject"] = Header(subject, "utf-8")
+            msg["From"] = f"{from_name} <{from_email}>"
+            msg["To"] = recipient["email"]
+            msg["X-Mailer"] = "PhishAware"
+            msg.attach(MIMEText(f"Hallo {recipient.get('first_name', '')},", "plain", "utf-8"))
+            html_with_pixel = f"{html_body}\n<img src='{pixel_url}' width='1' height='1' alt='' />"
+            msg.attach(MIMEText(html_with_pixel, "html", "utf-8"))
+
+            try:
+                await client.send_message(msg, sender=from_email)
+                results["success"] += 1
+            except Exception as e:  # noqa: BLE001
+                results["failed"] += 1
+                logger.error("Zustellung an %s fehlgeschlagen: %s", recipient["email"], e)
+
+            if (i + 1) % 5 == 0:
+                await asyncio.sleep(settings.SMTP_BATCH_DELAY)
+    finally:
+        await client.quit()
+
+    logger.info("Kampagnen-Batch: %s ok, %s fehlgeschlagen", results["success"], results["failed"])
+    return results
 
 
 async def test_smtp_connection() -> bool:

@@ -1,15 +1,20 @@
-"""Oeffentliche Tracking-Endpunkte: Pixel, Klick, Formular-Submission.
+"""Oeffentliche Tracking-Endpunkte: Pixel, Landing Page, Formular-Submission.
 
-Bewusst ohne Authentifizierung - werden von den Kampagnen-Mails der
-Empfaenger aufgerufen (siehe docs/phishing-awareness-smtp-konfiguration.md).
+Bewusst ohne Authentifizierung - werden von den Empfaengern der Kampagnen-Mails
+aufgerufen. Erfasst wird nur, DASS jemand geoeffnet/geklickt/abgeschickt hat
+(Awareness-Signal); die eingegebenen Formulardaten werden bewusst nicht
+gespeichert.
 """
 from fastapi import APIRouter, Depends, Request
-from fastapi.responses import RedirectResponse, Response
+from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from sqlalchemy.orm import Session
 
+from app.config import get_settings
 from app.database import get_db
-from app.models import TrackingEventType
+from app.models import Recipient, TrackingEventType
 from app.services.tracking import record_event
+
+settings = get_settings()
 
 router = APIRouter(prefix="/track", tags=["tracking"])
 
@@ -18,38 +23,67 @@ _TRANSPARENT_PIXEL = bytes.fromhex(
     "47494638396101000100800000000000ffffff21f90401000000002c00000000010001000002024401003b"
 )
 
+_DEFAULT_PAGE = (
+    "<!doctype html><html lang='de'><meta charset='utf-8'>"
+    "<title>Hinweis</title><body style='font-family:sans-serif;max-width:640px;margin:4rem auto'>"
+    "<h1>Sicherheits-Hinweis</h1><p>Diese Seite war Teil eines Phishing-Awareness-Tests.</p></body></html>"
+)
+
+
+def _client_meta(request: Request) -> tuple[str | None, str | None]:
+    return (request.client.host if request.client else None), request.headers.get("user-agent")
+
 
 @router.get("/pixel")
 def track_open(t: str, request: Request, db: Session = Depends(get_db)):
-    record_event(
-        db,
-        tracking_token=t,
-        event_type=TrackingEventType.OPENED,
-        ip_address=request.client.host if request.client else None,
-        user_agent=request.headers.get("user-agent"),
-    )
+    ip, ua = _client_meta(request)
+    record_event(db, tracking_token=t, event_type=TrackingEventType.OPENED, ip_address=ip, user_agent=ua)
     return Response(content=_TRANSPARENT_PIXEL, media_type="image/gif")
 
 
 @router.get("/click")
 def track_click(t: str, url: str, request: Request, db: Session = Depends(get_db)):
-    record_event(
-        db,
-        tracking_token=t,
-        event_type=TrackingEventType.CLICKED,
-        ip_address=request.client.host if request.client else None,
-        user_agent=request.headers.get("user-agent"),
-    )
+    ip, ua = _client_meta(request)
+    record_event(db, tracking_token=t, event_type=TrackingEventType.CLICKED, ip_address=ip, user_agent=ua)
     return RedirectResponse(url=url)
+
+
+@router.get("/landing", response_class=HTMLResponse)
+def track_landing(t: str, request: Request, db: Session = Depends(get_db)):
+    """Zaehlt den Klick und liefert die Landing Page der Kampagne aus."""
+    ip, ua = _client_meta(request)
+    record_event(db, tracking_token=t, event_type=TrackingEventType.CLICKED, ip_address=ip, user_agent=ua)
+
+    recipient = db.query(Recipient).filter(Recipient.tracking_token == t).first()
+    page = recipient.campaign.landing_page if recipient is not None else None
+    html = page.html_content if page is not None else _DEFAULT_PAGE
+
+    # Alle Formulare auf die Submit-Erfassung umbiegen (mit Tracking-Token).
+    inject = (
+        "<script>document.addEventListener('DOMContentLoaded',function(){"
+        "document.querySelectorAll('form').forEach(function(f){"
+        f"f.setAttribute('action','/track/submit?t={t}');f.setAttribute('method','POST');"
+        "});});</script>"
+    )
+    if "</body>" in html:
+        html = html.replace("</body>", inject + "</body>", 1)
+    else:
+        html = html + inject
+    return HTMLResponse(content=html)
 
 
 @router.post("/submit")
 def track_submit(t: str, request: Request, db: Session = Depends(get_db)):
-    record_event(
-        db,
-        tracking_token=t,
-        event_type=TrackingEventType.SUBMITTED,
-        ip_address=request.client.host if request.client else None,
-        user_agent=request.headers.get("user-agent"),
-    )
-    return {"status": "recorded"}
+    """Erfasst das Absenden (Awareness-Signal) und leitet weiter."""
+    ip, ua = _client_meta(request)
+    record_event(db, tracking_token=t, event_type=TrackingEventType.SUBMITTED, ip_address=ip, user_agent=ua)
+
+    recipient = db.query(Recipient).filter(Recipient.tracking_token == t).first()
+    page = recipient.campaign.landing_page if recipient is not None else None
+    target = (page.redirect_url if page is not None else None) or f"https://{settings.APP_DOMAIN}/track/done"
+    return RedirectResponse(url=target, status_code=303)
+
+
+@router.get("/done", response_class=HTMLResponse)
+def track_done():
+    return HTMLResponse(content=_DEFAULT_PAGE)

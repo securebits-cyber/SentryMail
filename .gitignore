@@ -49,3 +49,5 @@ Thumbs.db
 *.log
 tmp/
 *.tmp
+CLAUDE.MD
+docs
