@@ -290,3 +290,24 @@ class LandingPageOut(LandingPageBase):
     id: uuid.UUID
     created_at: datetime
     updated_at: datetime
+
+
+# --- Dashboard / Uebersicht ---
+
+class DashboardSummary(BaseModel):
+    campaigns: int
+    recipients: int
+    sent: int
+    opened: int
+    clicked: int
+    submitted: int
+
+
+class FailedRecipient(BaseModel):
+    email: str
+    first_name: str | None
+    last_name: str | None
+    campaign_id: uuid.UUID
+    campaign_name: str
+    status: str  # "submitted" (Daten abgeschickt) oder "clicked" (Link geklickt)
+    occurred_at: datetime

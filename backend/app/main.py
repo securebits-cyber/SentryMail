@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 
-from app.api import campaigns, groups, health, landing_pages, results, sending_profiles, settings as settings_api, templates, tracking
+from app.api import campaigns, dashboard, groups, health, landing_pages, results, sending_profiles, settings as settings_api, templates, tracking
 from app.api import users as users_api
 from app.auth import local as local_auth
 from app.auth.oidc import oidc_enabled
@@ -49,6 +49,7 @@ def auth_config() -> dict[str, bool]:
 
 
 app.include_router(health.router)
+app.include_router(dashboard.router)
 app.include_router(local_auth.router)
 if oidc_enabled:
     app.include_router(oidc_router)
