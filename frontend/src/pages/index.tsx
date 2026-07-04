@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import Badge from '../components/Badge'
 import PageHeader from '../components/PageHeader'
 import { api } from '../services/api'
 
@@ -68,7 +69,7 @@ export default function DashboardPage() {
 
       <div className="mb-8 grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))' }}>
         {tiles.map(({ key, label, tone }) => (
-          <div key={key} className={`rounded-lg border p-4 ${toneTile[tone]}`}>
+          <div key={key} className={`elevated rounded-lg border p-4 ${toneTile[tone]}`}>
             <div className="text-sm text-text-secondary">{label}</div>
             <div className={`mt-1 font-mono text-3xl font-semibold ${toneNumber[tone]}`}>{summary?.[key] ?? 0}</div>
           </div>
@@ -102,8 +103,10 @@ export default function DashboardPage() {
                       {f.campaign_name}
                     </Link>
                   </td>
-                  <td className={`py-2 pr-4 ${f.status === 'submitted' ? 'text-status-danger' : 'text-status-warning'}`}>
-                    {f.status === 'submitted' ? 'Daten abgeschickt' : 'Link geklickt'}
+                  <td className="py-2 pr-4">
+                    <Badge tone={f.status === 'submitted' ? 'danger' : 'warning'}>
+                      {f.status === 'submitted' ? 'Daten abgeschickt' : 'Link geklickt'}
+                    </Badge>
                   </td>
                   <td className="py-2 font-mono text-sm text-text-secondary">
                     {new Date(f.occurred_at).toLocaleString('de-DE')}

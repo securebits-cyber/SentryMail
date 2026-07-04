@@ -1,4 +1,5 @@
 import { FormEvent, useEffect, useState } from 'react'
+import Badge from '../components/Badge'
 import PageHeader from '../components/PageHeader'
 import { api } from '../services/api'
 import type { User } from '../types'
@@ -98,7 +99,7 @@ export default function UsersPage() {
       )}
 
       {creating && (
-        <form onSubmit={handleCreate} className="mb-6 flex max-w-2xl flex-col gap-3 rounded-md border border-border p-4">
+        <form onSubmit={handleCreate} className="elevated mb-6 flex max-w-2xl flex-col gap-3 rounded-md border border-border bg-surface p-4">
           <div className="flex gap-3">
             <label className={`${labelClass} flex-1`}>
               E-Mail
@@ -153,9 +154,15 @@ export default function UsersPage() {
                 <tr key={user.id} className="border-b border-border">
                   <td className="py-2 pr-4 font-mono text-sm">{user.email}</td>
                   <td className="py-2 pr-4">{user.full_name}</td>
-                  <td className="py-2 pr-4 text-text-secondary">{user.role === 'admin' ? 'Admin' : 'Benutzer'}</td>
-                  <td className={`py-2 pr-4 ${user.is_active ? 'text-status-success' : 'text-status-danger'}`}>
-                    {user.is_active ? 'Aktiv' : 'Inaktiv'}
+                  <td className="py-2 pr-4">
+                    <Badge tone={user.role === 'admin' ? 'accent' : 'neutral'}>
+                      {user.role === 'admin' ? 'Admin' : 'Benutzer'}
+                    </Badge>
+                  </td>
+                  <td className="py-2 pr-4">
+                    <Badge tone={user.is_active ? 'success' : 'danger'}>
+                      {user.is_active ? 'Aktiv' : 'Inaktiv'}
+                    </Badge>
                   </td>
                   <td className="py-2 text-right whitespace-nowrap">
                     <button onClick={() => toggleActive(user)} className="mr-3 text-text-secondary hover:text-accent hover:underline">

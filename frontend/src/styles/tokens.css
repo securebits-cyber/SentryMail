@@ -124,6 +124,16 @@ button:disabled {
   background-image: linear-gradient(135deg, var(--color-accent), var(--color-accent-2));
 }
 
+/* Karten-Elevation: dezente Tiefe. Im Dark-Mode kraeftiger, da Schatten dort
+   sonst kaum sichtbar sind. */
+.elevated {
+  box-shadow: 0 1px 2px rgba(16, 21, 26, 0.05), 0 2px 8px rgba(16, 21, 26, 0.06);
+}
+
+:root[data-theme='dark'] .elevated {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
 * {
   transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease;
 }

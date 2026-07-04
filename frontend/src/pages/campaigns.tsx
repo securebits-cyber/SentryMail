@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import Badge, { BadgeTone } from '../components/Badge'
 import CampaignWizard, { CampaignWizardValues } from '../components/CampaignWizard'
 import PageHeader from '../components/PageHeader'
 import { api } from '../services/api'
@@ -11,6 +12,14 @@ const statusLabels: Record<Campaign['status'], string> = {
   running: 'Läuft',
   completed: 'Abgeschlossen',
   cancelled: 'Abgebrochen',
+}
+
+const statusTone: Record<Campaign['status'], BadgeTone> = {
+  draft: 'neutral',
+  scheduled: 'warning',
+  running: 'accent',
+  completed: 'success',
+  cancelled: 'danger',
 }
 
 export default function CampaignsPage() {
@@ -135,8 +144,8 @@ export default function CampaignsPage() {
               {campaigns.map((campaign) => (
                 <tr key={campaign.id} className="border-b border-border">
                   <td className="py-2 pr-4">{campaign.name}</td>
-                  <td className="py-2 pr-4 font-mono text-sm text-text-secondary">
-                    {statusLabels[campaign.status]}
+                  <td className="py-2 pr-4">
+                    <Badge tone={statusTone[campaign.status]}>{statusLabels[campaign.status]}</Badge>
                   </td>
                   <td className="py-2 text-right whitespace-nowrap">
                     <button onClick={() => handleSend(campaign)} className="mr-3 text-status-success hover:underline">

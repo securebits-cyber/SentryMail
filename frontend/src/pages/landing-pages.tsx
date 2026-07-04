@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import Badge from '../components/Badge'
 import LandingPageForm, { LandingPageFormValues } from '../components/LandingPageForm'
 import PageHeader from '../components/PageHeader'
 import { api } from '../services/api'
@@ -105,12 +106,14 @@ export default function LandingPagesPage() {
               {pages.map((page) => (
                 <tr key={page.id} className="border-b border-border">
                   <td className="py-2 pr-4">{page.name}</td>
-                  <td className="py-2 pr-4 text-text-secondary">
-                    {page.capture_credentials
-                      ? page.capture_passwords
-                        ? 'Daten + Passwörter'
-                        : 'Nur Daten'
-                      : 'Aus'}
+                  <td className="py-2 pr-4">
+                    <Badge tone={page.capture_credentials ? 'accent' : 'neutral'}>
+                      {page.capture_credentials
+                        ? page.capture_passwords
+                          ? 'Daten + Passwörter'
+                          : 'Nur Daten'
+                        : 'Aus'}
+                    </Badge>
                   </td>
                   <td className="py-2 pr-4 font-mono text-sm text-text-secondary">
                     {new Date(page.updated_at).toLocaleString('de-DE')}
