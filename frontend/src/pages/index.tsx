@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import PageHeader from '../components/PageHeader'
 import { api } from '../services/api'
 
 interface Summary {
@@ -63,7 +64,7 @@ export default function DashboardPage() {
 
   return (
     <>
-      <h1 className="mb-4 text-xl font-semibold">Dashboard</h1>
+      <PageHeader title="Dashboard" subtitle="Überblick über Kampagnen und Awareness-Ergebnisse" />
 
       <div className="mb-8 grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))' }}>
         {tiles.map(({ key, label, tone }) => (

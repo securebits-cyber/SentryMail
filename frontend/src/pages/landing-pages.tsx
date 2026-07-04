@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import LandingPageForm, { LandingPageFormValues } from '../components/LandingPageForm'
+import PageHeader from '../components/PageHeader'
 import { api } from '../services/api'
 import type { LandingPage } from '../types'
 
@@ -54,9 +55,7 @@ export default function LandingPagesPage() {
   if (mode.kind !== 'list') {
     return (
       <>
-        <h1 className="mb-4 text-xl font-semibold">
-          {mode.kind === 'edit' ? 'Landing Page bearbeiten' : 'Neue Landing Page'}
-        </h1>
+        <PageHeader title={mode.kind === 'edit' ? 'Landing Page bearbeiten' : 'Neue Landing Page'} />
         {error && <p className="mb-3 text-sm text-status-danger">{error}</p>}
         <LandingPageForm
           initial={mode.kind === 'edit' ? mode.page : null}
@@ -73,15 +72,17 @@ export default function LandingPagesPage() {
 
   return (
     <>
-      <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Landing Pages</h1>
-        <button
-          onClick={() => setMode({ kind: 'create' })}
-          className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-white"
-        >
-          Neue Landing Page
-        </button>
-      </div>
+      <PageHeader
+        title="Landing Pages"
+        actions={
+          <button
+            onClick={() => setMode({ kind: 'create' })}
+            className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-white"
+          >
+            Neue Landing Page
+          </button>
+        }
+      />
 
       {error && <p className="mb-3 text-sm text-status-danger">{error}</p>}
 

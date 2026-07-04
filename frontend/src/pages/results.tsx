@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
+import PageHeader from '../components/PageHeader'
 import ResultsTable from '../components/ResultsTable'
 import { api } from '../services/api'
 import type { CampaignResult } from '../types'
@@ -17,7 +18,7 @@ export default function ResultsPage() {
 
   return (
     <>
-      <h1 className="mb-4 text-xl font-semibold">Ergebnisse</h1>
+      <PageHeader title="Ergebnisse" />
       <ResultsTable result={result} />
       <a
         href={`${import.meta.env.VITE_API_URL}/results/${campaignId}/export`}

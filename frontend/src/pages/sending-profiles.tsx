@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import PageHeader from '../components/PageHeader'
 import SendingProfileForm, { SendingProfileFormValues } from '../components/SendingProfileForm'
 import { api } from '../services/api'
 import type { SendingProfile } from '../types'
@@ -69,9 +70,7 @@ export default function SendingProfilesPage() {
   if (mode.kind !== 'list') {
     return (
       <>
-        <h1 className="mb-4 text-xl font-semibold">
-          {mode.kind === 'edit' ? 'Sending Profile bearbeiten' : 'Neues Sending Profile'}
-        </h1>
+        <PageHeader title={mode.kind === 'edit' ? 'Sending Profile bearbeiten' : 'Neues Sending Profile'} />
         {message && (
           <p className={`mb-3 text-sm ${message.kind === 'error' ? 'text-status-danger' : 'text-text-secondary'}`}>
             {message.text}
@@ -92,15 +91,17 @@ export default function SendingProfilesPage() {
 
   return (
     <>
-      <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Sending Profiles</h1>
-        <button
-          onClick={() => setMode({ kind: 'create' })}
-          className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-white"
-        >
-          Neues Profil
-        </button>
-      </div>
+      <PageHeader
+        title="Sending Profiles"
+        actions={
+          <button
+            onClick={() => setMode({ kind: 'create' })}
+            className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-white"
+          >
+            Neues Profil
+          </button>
+        }
+      />
 
       {message && (
         <p className={`mb-3 text-sm ${message.kind === 'error' ? 'text-status-danger' : 'text-text-secondary'}`}>

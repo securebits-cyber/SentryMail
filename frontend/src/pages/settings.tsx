@@ -1,4 +1,5 @@
 import { FormEvent, useEffect, useState } from 'react'
+import PageHeader from '../components/PageHeader'
 import { api } from '../services/api'
 import type { LdapConfig } from '../types'
 
@@ -73,10 +74,10 @@ export default function SettingsPage() {
 
   return (
     <>
-      <h1 className="mb-1 text-xl font-semibold">Einstellungen</h1>
-      <p className="mb-6 text-sm text-text-secondary">
-        LDAP-Anbindung für den Empfänger-Import. Zugangsdaten werden verschlüsselt gespeichert.
-      </p>
+      <PageHeader
+        title="Einstellungen"
+        subtitle="LDAP-Anbindung für den Empfänger-Import. Zugangsdaten werden verschlüsselt gespeichert."
+      />
 
       {message && (
         <p className={`mb-4 text-sm ${message.kind === 'error' ? 'text-status-danger' : 'text-text-secondary'}`}>

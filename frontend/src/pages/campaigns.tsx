@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import CampaignWizard, { CampaignWizardValues } from '../components/CampaignWizard'
+import PageHeader from '../components/PageHeader'
 import { api } from '../services/api'
 import type { Campaign, GroupSummary, LandingPage, SendingProfile, Template } from '../types'
 
@@ -78,7 +79,7 @@ export default function CampaignsPage() {
   if (creating) {
     return (
       <>
-        <h1 className="mb-4 text-xl font-semibold">Neue Kampagne</h1>
+        <PageHeader title="Neue Kampagne" />
         {templates.length === 0 && (
           <p className="mb-3 text-sm text-status-danger">Erst eine Vorlage anlegen.</p>
         )}
@@ -97,16 +98,18 @@ export default function CampaignsPage() {
 
   return (
     <>
-      <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Kampagnen</h1>
-        <button
-          onClick={() => setCreating(true)}
-          disabled={templates.length === 0}
-          className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
-        >
-          Neue Kampagne
-        </button>
-      </div>
+      <PageHeader
+        title="Kampagnen"
+        actions={
+          <button
+            onClick={() => setCreating(true)}
+            disabled={templates.length === 0}
+            className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+          >
+            Neue Kampagne
+          </button>
+        }
+      />
 
       {message && (
         <p className={`mb-3 text-sm ${message.kind === 'error' ? 'text-status-danger' : 'text-text-secondary'}`}>

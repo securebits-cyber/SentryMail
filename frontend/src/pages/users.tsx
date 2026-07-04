@@ -1,4 +1,5 @@
 import { FormEvent, useEffect, useState } from 'react'
+import PageHeader from '../components/PageHeader'
 import { api } from '../services/api'
 import type { User } from '../types'
 
@@ -78,15 +79,17 @@ export default function UsersPage() {
 
   return (
     <>
-      <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Benutzer</h1>
-        <button
-          onClick={() => setCreating((v) => !v)}
-          className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-white"
-        >
-          {creating ? 'Schließen' : 'Neuer Benutzer'}
-        </button>
-      </div>
+      <PageHeader
+        title="Benutzer"
+        actions={
+          <button
+            onClick={() => setCreating((v) => !v)}
+            className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-white"
+          >
+            {creating ? 'Schließen' : 'Neuer Benutzer'}
+          </button>
+        }
+      />
 
       {message && (
         <p className={`mb-3 text-sm ${message.kind === 'error' ? 'text-status-danger' : 'text-text-secondary'}`}>

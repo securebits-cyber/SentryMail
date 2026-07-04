@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import PageHeader from '../components/PageHeader'
 import TemplateForm, { TemplateFormValues } from '../components/TemplateForm'
 import { api } from '../services/api'
 import type { Template } from '../types'
@@ -54,9 +55,7 @@ export default function TemplatesPage() {
   if (mode.kind !== 'list') {
     return (
       <>
-        <h1 className="mb-4 text-xl font-semibold">
-          {mode.kind === 'edit' ? 'Vorlage bearbeiten' : 'Neue Vorlage'}
-        </h1>
+        <PageHeader title={mode.kind === 'edit' ? 'Vorlage bearbeiten' : 'Neue Vorlage'} />
         {error && <p className="mb-3 text-sm text-status-danger">{error}</p>}
         <TemplateForm
           initial={mode.kind === 'edit' ? mode.template : null}
@@ -73,15 +72,17 @@ export default function TemplatesPage() {
 
   return (
     <>
-      <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Vorlagen</h1>
-        <button
-          onClick={() => setMode({ kind: 'create' })}
-          className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-white"
-        >
-          Neue Vorlage
-        </button>
-      </div>
+      <PageHeader
+        title="Vorlagen"
+        actions={
+          <button
+            onClick={() => setMode({ kind: 'create' })}
+            className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-white"
+          >
+            Neue Vorlage
+          </button>
+        }
+      />
 
       {error && <p className="mb-3 text-sm text-status-danger">{error}</p>}
 
