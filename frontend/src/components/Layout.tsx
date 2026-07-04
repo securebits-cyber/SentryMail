@@ -4,7 +4,7 @@ import { useTheme } from '../hooks/useTheme'
 import { logout } from '../services/auth'
 
 const mainNav = [
-  { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
+  { to: '/', label: 'Control-Center', icon: LayoutDashboard, end: true },
   { to: '/templates', label: 'Vorlagen', icon: FileText, end: false },
   { to: '/groups', label: 'Gruppen', icon: Users, end: false },
   { to: '/sending-profiles', label: 'Sending Profiles', icon: Server, end: false },

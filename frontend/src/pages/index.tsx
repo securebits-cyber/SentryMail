@@ -64,7 +64,7 @@ export default function DashboardPage() {
 
   return (
     <>
-      <PageHeader title="Dashboard" subtitle="Überblick über Kampagnen und Awareness-Ergebnisse" />
+      <PageHeader title="Control-Center" subtitle="Überblick über Kampagnen und Awareness-Ergebnisse" />
 
       <div className="mb-8 grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))' }}>
         {tiles.map(({ key, label, tone }) => (
