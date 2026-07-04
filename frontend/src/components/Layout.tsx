@@ -19,8 +19,10 @@ const bottomNav = [
 ]
 
 const linkClass = ({ isActive }: { isActive: boolean }) =>
-  `flex items-center gap-2 rounded-md px-3 py-2 text-sm ${
-    isActive ? 'bg-accent text-white' : 'text-text-secondary hover:bg-bg hover:text-text-primary'
+  `flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors ${
+    isActive
+      ? 'bg-accent/12 font-medium text-accent'
+      : 'text-text-secondary hover:bg-bg hover:text-text-primary'
   }`
 
 function NavItems({ items }: { items: typeof mainNav }) {
@@ -43,14 +45,20 @@ export default function Layout() {
     <div className="flex min-h-screen bg-bg text-text-primary">
       <aside className="flex w-56 shrink-0 flex-col justify-between border-r border-border bg-surface">
         <div>
-          <div className="px-4 py-5 text-lg font-semibold">PhishAware</div>
-          <nav className="flex flex-col gap-1 px-2">
+          <div className="flex items-center gap-2 px-4 py-5">
+            <span className="h-6 w-6 rounded-md bg-accent" aria-hidden />
+            <span className="text-lg font-semibold tracking-tight">PhishAware</span>
+          </div>
+          <nav className="flex flex-col gap-1 px-3">
             <NavItems items={mainNav} />
           </nav>
         </div>
 
         <div>
-          <nav className="flex flex-col gap-1 px-2 pb-2">
+          <div className="px-3 pb-1 text-xs font-medium uppercase tracking-wider text-text-secondary">
+            Verwaltung
+          </div>
+          <nav className="flex flex-col gap-1 px-3 pb-2">
             <NavItems items={bottomNav} />
           </nav>
           <div className="flex items-center justify-between gap-2 border-t border-border p-3">
