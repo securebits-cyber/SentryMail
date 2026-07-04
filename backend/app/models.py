@@ -72,6 +72,8 @@ class Template(Base):
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     subject: Mapped[str] = mapped_column(String(998), nullable=False)
     html_content: Mapped[str] = mapped_column(Text, nullable=False)
+    # Optionaler Plain-Text-Teil (wird als text/plain-Alternative gesendet).
+    text_content: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_by_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())

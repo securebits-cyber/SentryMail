@@ -27,6 +27,7 @@ class TemplateBase(BaseModel):
     name: str
     subject: str
     html_content: str
+    text_content: str | None = None
 
 
 class TemplateCreate(TemplateBase):
@@ -37,6 +38,7 @@ class TemplateUpdate(BaseModel):
     name: str | None = None
     subject: str | None = None
     html_content: str | None = None
+    text_content: str | None = None
 
 
 class TemplateOut(TemplateBase):

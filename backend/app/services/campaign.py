@@ -45,7 +45,12 @@ async def send_campaign(db: Session, campaign: Campaign) -> dict[str, int]:
     recipients = db.query(Recipient).filter(Recipient.campaign_id == campaign.id, Recipient.sent_at.is_(None)).all()
 
     recipient_payload = [
-        {"email": r.email, "first_name": r.first_name, "tracking_token": r.tracking_token}
+        {
+            "email": r.email,
+            "first_name": r.first_name,
+            "last_name": r.last_name,
+            "tracking_token": r.tracking_token,
+        }
         for r in recipients
     ]
 
@@ -54,6 +59,7 @@ async def send_campaign(db: Session, campaign: Campaign) -> dict[str, int]:
         **_smtp_params(campaign),
         subject=campaign.template.subject,
         template_html=campaign.template.html_content,
+        template_text=campaign.template.text_content,
         recipients=recipient_payload,
         landing_url_base=f"{base}/landing",
         pixel_url_base=base,

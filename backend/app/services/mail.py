@@ -91,6 +91,7 @@ async def send_campaign_messages(
     from_name: str,
     subject: str,
     template_html: str,
+    template_text: str | None,
     recipients: list[dict],
     landing_url_base: str,
     pixel_url_base: str,
@@ -112,18 +113,29 @@ async def send_campaign_messages(
             click_link = f"{landing_url_base}?t={token}"
             pixel_url = f"{pixel_url_base}/pixel?t={token}"
 
-            html_body = Template(template_html).render(
-                recipient_name=recipient.get("first_name", ""),
-                recipient_email=recipient.get("email", ""),
-                click_link=click_link,
+            # Personalisierungs-Variablen (plus Legacy-Aliase).
+            ctx = {
+                "first_name": recipient.get("first_name") or "",
+                "last_name": recipient.get("last_name") or "",
+                "email": recipient.get("email") or "",
+                "link": click_link,
+                "recipient_name": recipient.get("first_name") or "",
+                "recipient_email": recipient.get("email") or "",
+                "click_link": click_link,
+            }
+            html_body = Template(template_html).render(**ctx)
+            text_body = (
+                Template(template_text).render(**ctx)
+                if template_text
+                else f"Hallo {ctx['first_name']},"
             )
 
             msg = MIMEMultipart("alternative")
-            msg["Subject"] = Header(subject, "utf-8")
+            msg["Subject"] = Header(Template(subject).render(**ctx), "utf-8")
             msg["From"] = f"{from_name} <{from_email}>"
             msg["To"] = recipient["email"]
             msg["X-Mailer"] = "PhishAware"
-            msg.attach(MIMEText(f"Hallo {recipient.get('first_name', '')},", "plain", "utf-8"))
+            msg.attach(MIMEText(text_body, "plain", "utf-8"))
             html_with_pixel = f"{html_body}\n<img src='{pixel_url}' width='1' height='1' alt='' />"
             msg.attach(MIMEText(html_with_pixel, "html", "utf-8"))
 

@@ -7,6 +7,7 @@ export interface Template {
   name: string
   subject: string
   html_content: string
+  text_content: string | null
   created_by_id: string
   created_at: string
   updated_at: string
