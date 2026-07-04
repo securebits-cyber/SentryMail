@@ -111,3 +111,51 @@ class CampaignResultOut(BaseModel):
     opened: int
     clicked: int
     submitted: int
+
+
+# --- Sending Profile (SMTP) ---
+
+class SendingProfileBase(BaseModel):
+    name: str
+    host: str
+    port: int = 587
+    username: str | None = None
+    from_email: EmailStr
+    from_name: str
+    use_tls: bool = True
+    ignore_cert_errors: bool = False
+
+
+class SendingProfileCreate(SendingProfileBase):
+    # Passwort ist write-only: wird verschluesselt gespeichert, nie zurueckgegeben.
+    password: str | None = None
+
+
+class SendingProfileUpdate(BaseModel):
+    name: str | None = None
+    host: str | None = None
+    port: int | None = None
+    username: str | None = None
+    password: str | None = None
+    from_email: EmailStr | None = None
+    from_name: str | None = None
+    use_tls: bool | None = None
+    ignore_cert_errors: bool | None = None
+
+
+class SendingProfileOut(SendingProfileBase):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    has_password: bool
+    created_at: datetime
+    updated_at: datetime
+
+
+class SendingProfileTestRequest(BaseModel):
+    email: EmailStr
+
+
+class SendingProfileTestResult(BaseModel):
+    success: bool
+    detail: str

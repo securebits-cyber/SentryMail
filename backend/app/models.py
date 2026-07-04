@@ -133,3 +133,32 @@ class TrackingEvent(Base):
     user_agent: Mapped[str | None] = mapped_column(String(512), nullable=True)
 
     recipient: Mapped["Recipient"] = relationship(back_populates="tracking_events")
+
+
+class SendingProfile(Base):
+    """Wiederverwendbares SMTP-Versandprofil (GoPhish: 'Sending Profile').
+
+    Das Passwort liegt verschluesselt (Fernet) in ``password_encrypted``, nie
+    im Klartext - siehe app/utils/crypto.py.
+    """
+
+    __tablename__ = "sending_profiles"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    host: Mapped[str] = mapped_column(String(255), nullable=False)
+    port: Mapped[int] = mapped_column(default=587, nullable=False)
+    username: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    password_encrypted: Mapped[str | None] = mapped_column(Text, nullable=True)
+    from_email: Mapped[str] = mapped_column(String(320), nullable=False)
+    from_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    use_tls: Mapped[bool] = mapped_column(default=True, nullable=False)
+    ignore_cert_errors: Mapped[bool] = mapped_column(default=False, nullable=False)
+    created_by_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+    @property
+    def has_password(self) -> bool:
+        """Fuer die API-Ausgabe: ob ein Passwort hinterlegt ist (ohne es preiszugeben)."""
+        return self.password_encrypted is not None

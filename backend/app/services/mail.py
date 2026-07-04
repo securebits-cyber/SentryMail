@@ -116,3 +116,53 @@ async def test_smtp_connection() -> bool:
     except Exception as e:
         logger.error("SMTP-Verbindung fehlgeschlagen: %s", e)
         return False
+
+
+async def send_test_email(
+    *,
+    host: str,
+    port: int,
+    username: str | None,
+    password: str | None,
+    from_email: str,
+    from_name: str,
+    use_tls: bool,
+    validate_certs: bool,
+    to_email: str,
+) -> tuple[bool, str]:
+    """Sendet eine Test-Mail ueber ein explizit uebergebenes SMTP-Profil.
+
+    Wird vom Sending-Profile-Test-Endpoint genutzt und ist unabhaengig von der
+    globalen .env-Konfiguration. Gibt (Erfolg, Detailmeldung) zurueck.
+    """
+    try:
+        client = SMTP(
+            hostname=host,
+            port=port,
+            timeout=settings.SMTP_TIMEOUT,
+            use_tls=use_tls,
+            validate_certs=validate_certs,
+        )
+        await client.connect()
+        if username and password:
+            await client.login(username, password)
+
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = Header("PhishAware Test-Mail", "utf-8")
+        msg["From"] = f"{from_name} <{from_email}>"
+        msg["To"] = to_email
+        msg["X-Mailer"] = "PhishAware"
+        msg.attach(
+            MIMEText(
+                "Dies ist eine Test-Mail von PhishAware. Das Sending Profile funktioniert.",
+                "plain",
+                "utf-8",
+            )
+        )
+        await client.send_message(msg, mail_from=from_email)
+        await client.quit()
+        logger.info("Test-Mail ueber %s:%s an %s gesendet", host, port, to_email)
+        return True, f"Test-Mail an {to_email} gesendet."
+    except Exception as e:
+        logger.error("Test-Mail ueber %s:%s fehlgeschlagen: %s", host, port, e)
+        return False, f"Fehler: {e}"

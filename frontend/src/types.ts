@@ -37,3 +37,18 @@ export interface CampaignResult {
   clicked: number
   submitted: number
 }
+
+export interface SendingProfile {
+  id: string
+  name: string
+  host: string
+  port: number
+  username: string | null
+  from_email: string
+  from_name: string
+  use_tls: boolean
+  ignore_cert_errors: boolean
+  has_password: boolean
+  created_at: string
+  updated_at: string
+}

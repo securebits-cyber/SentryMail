@@ -5,6 +5,7 @@ import CampaignsPage from './pages/campaigns'
 import DashboardPage from './pages/index'
 import LoginPage from './pages/login'
 import ResultsPage from './pages/results'
+import SendingProfilesPage from './pages/sending-profiles'
 import TemplatesPage from './pages/templates'
 import { consumeTokenFromUrlFragment, isAuthenticated } from './services/auth'
 
@@ -36,6 +37,7 @@ export default function App() {
         >
           <Route path="/" element={<DashboardPage />} />
           <Route path="/templates" element={<TemplatesPage />} />
+          <Route path="/sending-profiles" element={<SendingProfilesPage />} />
           <Route path="/campaigns" element={<CampaignsPage />} />
           <Route path="/results/:campaignId" element={<ResultsPage />} />
         </Route>
