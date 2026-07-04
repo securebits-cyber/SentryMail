@@ -1,0 +1,80 @@
+/*
+ * PhishAware Design-Tokens (Provisorium).
+ * docs/phishing-awareness-design-system.md existiert noch nicht - dies ist ein
+ * schlankes, eigenes Token-System (IBM Plex Sans/Mono, Light/Dark via
+ * [data-theme]), kein Ersatz fuer die spaetere verbindliche Design-Doku.
+ */
+
+@font-face {
+  font-family: 'IBM Plex Sans';
+  src: local('IBM Plex Sans');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'IBM Plex Mono';
+  src: local('IBM Plex Mono');
+  font-display: swap;
+}
+
+:root {
+  --font-sans: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  --color-bg: #ffffff;
+  --color-bg-subtle: #f4f5f7;
+  --color-fg: #14161a;
+  --color-fg-muted: #5b6270;
+  --color-border: #dfe3e8;
+  --color-accent: #2563eb;
+  --color-accent-fg: #ffffff;
+  --color-danger: #dc2626;
+  --color-success: #16a34a;
+
+  --radius-md: 6px;
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+}
+
+:root[data-theme='dark'] {
+  --color-bg: #0f1115;
+  --color-bg-subtle: #181b21;
+  --color-fg: #e5e7eb;
+  --color-fg-muted: #9aa1ac;
+  --color-border: #2a2f38;
+  --color-accent: #5b8def;
+  --color-accent-fg: #0f1115;
+  --color-danger: #f87171;
+  --color-success: #4ade80;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --color-bg: #0f1115;
+    --color-bg-subtle: #181b21;
+    --color-fg: #e5e7eb;
+    --color-fg-muted: #9aa1ac;
+    --color-border: #2a2f38;
+    --color-accent: #5b8def;
+    --color-accent-fg: #0f1115;
+    --color-danger: #f87171;
+    --color-success: #4ade80;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background: var(--color-bg);
+  color: var(--color-fg);
+}
+
+code, pre {
+  font-family: var(--font-mono);
+}
