@@ -1,5 +1,6 @@
 import { CircleUser, FileText, Globe, LayoutDashboard, LogOut, Mail, Moon, Server, Settings, Sun, UserCog, Users } from 'lucide-react'
 import { NavLink, Outlet } from 'react-router-dom'
+import { useMe } from '../hooks/useMe'
 import { useTheme } from '../hooks/useTheme'
 import { logout } from '../services/auth'
 
@@ -12,9 +13,11 @@ const mainNav = [
   { to: '/campaigns', label: 'Kampagnen', icon: Mail, end: false },
 ]
 
-// Am unteren Rand der Sidebar, getrennt vom Haupt-Workflow (Admin-Bereich).
-const bottomNav = [
-  { to: '/profile', label: 'Mein Profil', icon: CircleUser, end: false },
+// Fuer alle Nutzer sichtbar.
+const profileNav = [{ to: '/profile', label: 'Mein Profil', icon: CircleUser, end: false }]
+
+// Nur fuer Admins.
+const adminNav = [
   { to: '/users', label: 'Benutzer', icon: UserCog, end: false },
   { to: '/settings', label: 'Einstellungen', icon: Settings, end: false },
 ]
@@ -41,6 +44,8 @@ function NavItems({ items }: { items: typeof mainNav }) {
 
 export default function Layout() {
   const { theme, toggleTheme } = useTheme()
+  const me = useMe()
+  const isAdmin = me?.role === 'admin'
 
   return (
     <div className="flex min-h-screen bg-bg text-text-primary">
@@ -56,12 +61,19 @@ export default function Layout() {
         </div>
 
         <div>
-          <div className="px-3 pb-1 text-xs font-medium uppercase tracking-wider text-text-secondary">
-            Verwaltung
-          </div>
-          <nav className="flex flex-col gap-1 px-3 pb-2">
-            <NavItems items={bottomNav} />
+          <nav className="flex flex-col gap-1 px-3">
+            <NavItems items={profileNav} />
           </nav>
+          {isAdmin && (
+            <>
+              <div className="mt-2 px-3 pb-1 text-xs font-medium uppercase tracking-wider text-text-secondary">
+                Verwaltung
+              </div>
+              <nav className="flex flex-col gap-1 px-3 pb-2">
+                <NavItems items={adminNav} />
+              </nav>
+            </>
+          )}
           <div className="flex items-center justify-between gap-2 border-t border-border p-3">
             <button
               onClick={toggleTheme}
