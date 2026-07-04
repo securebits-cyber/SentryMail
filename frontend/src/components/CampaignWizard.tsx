@@ -37,7 +37,8 @@ export default function CampaignWizard({
   const [profileId, setProfileId] = useState('')
   const [pageId, setPageId] = useState('')
   const [groupIds, setGroupIds] = useState<string[]>([])
-  const [scheduledAt, setScheduledAt] = useState('')
+  const [scheduleDate, setScheduleDate] = useState('')
+  const [scheduleTime, setScheduleTime] = useState('')
 
   function toggleGroup(id: string) {
     setGroupIds((prev) => (prev.includes(id) ? prev.filter((g) => g !== id) : [...prev, id]))
@@ -45,13 +46,17 @@ export default function CampaignWizard({
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault()
+    // Datum + Uhrzeit zu einem ISO-Zeitstempel kombinieren (Uhrzeit optional -> 00:00).
+    const scheduledAt = scheduleDate
+      ? new Date(`${scheduleDate}T${scheduleTime || '00:00'}`).toISOString()
+      : null
     onSubmit({
       name,
       template_id: templateId,
       sending_profile_id: profileId || null,
       landing_page_id: pageId || null,
       group_ids: groupIds,
-      scheduled_at: scheduledAt ? new Date(scheduledAt).toISOString() : null,
+      scheduled_at: scheduledAt,
     })
   }
 
@@ -114,15 +119,24 @@ export default function CampaignWizard({
         )}
       </div>
 
-      <label className={labelClass}>
-        Geplanter Versand (optional)
-        <input
-          type="datetime-local"
-          value={scheduledAt}
-          onChange={(e) => setScheduledAt(e.target.value)}
-          className={fieldClass}
-        />
-      </label>
+      <div className="flex flex-col gap-1 text-sm">
+        <span>Geplanter Versand (optional)</span>
+        <div className="flex gap-3">
+          <input
+            type="date"
+            value={scheduleDate}
+            onChange={(e) => setScheduleDate(e.target.value)}
+            className={`${fieldClass} flex-1`}
+          />
+          <input
+            type="time"
+            value={scheduleTime}
+            onChange={(e) => setScheduleTime(e.target.value)}
+            disabled={!scheduleDate}
+            className={`${fieldClass} w-36 disabled:opacity-50`}
+          />
+        </div>
+      </div>
 
       <div className="flex gap-2">
         <button
