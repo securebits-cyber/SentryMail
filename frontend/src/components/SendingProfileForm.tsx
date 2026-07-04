@@ -1,6 +1,8 @@
 import { FormEvent, useEffect, useState } from 'react'
 import type { SendingProfile } from '../types'
 
+export type TlsMode = 'none' | 'starttls' | 'ssl'
+
 export interface SendingProfileFormValues {
   name: string
   host: string
@@ -9,7 +11,7 @@ export interface SendingProfileFormValues {
   password?: string
   from_email: string
   from_name: string
-  use_tls: boolean
+  tls_mode: TlsMode
   ignore_cert_errors: boolean
 }
 
@@ -31,7 +33,7 @@ export default function SendingProfileForm({ initial, onSubmit, onCancel, submit
   const [password, setPassword] = useState('')
   const [fromEmail, setFromEmail] = useState('')
   const [fromName, setFromName] = useState('')
-  const [useTls, setUseTls] = useState(true)
+  const [tlsMode, setTlsMode] = useState<TlsMode>('starttls')
   const [ignoreCertErrors, setIgnoreCertErrors] = useState(false)
 
   useEffect(() => {
@@ -42,7 +44,7 @@ export default function SendingProfileForm({ initial, onSubmit, onCancel, submit
     setPassword('')
     setFromEmail(initial?.from_email ?? '')
     setFromName(initial?.from_name ?? '')
-    setUseTls(initial?.use_tls ?? true)
+    setTlsMode(initial?.tls_mode ?? 'starttls')
     setIgnoreCertErrors(initial?.ignore_cert_errors ?? false)
   }, [initial])
 
@@ -55,7 +57,7 @@ export default function SendingProfileForm({ initial, onSubmit, onCancel, submit
       username,
       from_email: fromEmail,
       from_name: fromName,
-      use_tls: useTls,
+      tls_mode: tlsMode,
       ignore_cert_errors: ignoreCertErrors,
     }
     // Passwort nur mitschicken, wenn etwas eingegeben wurde (leer = unveraendert lassen).
@@ -115,9 +117,16 @@ export default function SendingProfileForm({ initial, onSubmit, onCancel, submit
         </label>
       </div>
 
-      <label className="flex items-center gap-2 text-sm">
-        <input type="checkbox" checked={useTls} onChange={(e) => setUseTls(e.target.checked)} />
-        TLS verwenden
+      <label className={labelClass}>
+        Verschlüsselung
+        <select value={tlsMode} onChange={(e) => setTlsMode(e.target.value as TlsMode)} className={fieldClass}>
+          <option value="starttls">STARTTLS (Port 587)</option>
+          <option value="ssl">SSL/TLS (Port 465)</option>
+          <option value="none">Keine (Port 25)</option>
+        </select>
+        <span className="text-xs text-text-secondary">
+          Muss zum Port passen: 587 → STARTTLS, 465 → SSL/TLS, 25 → keine.
+        </span>
       </label>
       <label className="flex items-center gap-2 text-sm">
         <input type="checkbox" checked={ignoreCertErrors} onChange={(e) => setIgnoreCertErrors(e.target.checked)} />

@@ -100,7 +100,7 @@ async def test_profile(
         password=password,
         from_email=profile.from_email,
         from_name=profile.from_name,
-        use_tls=profile.use_tls,
+        tls_mode=profile.tls_mode,
         validate_certs=not profile.ignore_cert_errors,
         to_email=payload.email,
     )

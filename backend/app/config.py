@@ -53,7 +53,8 @@ class Settings(BaseSettings):
     SMTP_PASSWORD: str
     SMTP_FROM_NAME: str = "PhishAware Training"
     SMTP_FROM_EMAIL: str
-    SMTP_USE_TLS: bool = True
+    # TLS-Modus: "none" (Port 25), "starttls" (Port 587), "ssl" (implizit, Port 465)
+    SMTP_TLS_MODE: str = "starttls"
     SMTP_VERIFY_SSL: bool = True
     SMTP_TIMEOUT: int = 10
     SMTP_BATCH_DELAY: int = 2  # Sekunden zwischen Batches - an Anbieter-Limit anpassen

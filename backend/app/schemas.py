@@ -1,6 +1,7 @@
 """Pydantic Schemas fuer Request/Response-Validierung."""
 import uuid
 from datetime import datetime
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, EmailStr
 
@@ -122,7 +123,8 @@ class SendingProfileBase(BaseModel):
     username: str | None = None
     from_email: EmailStr
     from_name: str
-    use_tls: bool = True
+    # "none" (Port 25), "starttls" (Port 587), "ssl" (Port 465)
+    tls_mode: Literal["none", "starttls", "ssl"] = "starttls"
     ignore_cert_errors: bool = False
 
 
@@ -139,7 +141,7 @@ class SendingProfileUpdate(BaseModel):
     password: str | None = None
     from_email: EmailStr | None = None
     from_name: str | None = None
-    use_tls: bool | None = None
+    tls_mode: Literal["none", "starttls", "ssl"] | None = None
     ignore_cert_errors: bool | None = None
 
 

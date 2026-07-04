@@ -46,7 +46,7 @@ export interface SendingProfile {
   username: string | null
   from_email: string
   from_name: string
-  use_tls: boolean
+  tls_mode: 'none' | 'starttls' | 'ssl'
   ignore_cert_errors: boolean
   has_password: boolean
   created_at: string

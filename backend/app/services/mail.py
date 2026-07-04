@@ -19,6 +19,36 @@ logger = logging.getLogger(__name__)
 settings = get_settings()
 
 
+async def _open_smtp(
+    *,
+    host: str,
+    port: int,
+    tls_mode: str,
+    validate_certs: bool,
+    username: str | None = None,
+    password: str | None = None,
+    timeout: int | None = None,
+) -> SMTP:
+    """Oeffnet eine SMTP-Verbindung mit korrektem TLS-Handling.
+
+    tls_mode: "ssl" = implizites TLS (Port 465), "starttls" = STARTTLS (Port 587),
+    "none" = unverschluesselt (Port 25). Das falsche Verfahren auf dem falschen
+    Port fuehrt sonst zu Fehlern wie WRONG_VERSION_NUMBER.
+    """
+    client = SMTP(
+        hostname=host,
+        port=port,
+        timeout=timeout or settings.SMTP_TIMEOUT,
+        use_tls=(tls_mode == "ssl"),
+        start_tls=(tls_mode == "starttls"),
+        validate_certs=validate_certs,
+    )
+    await client.connect()
+    if username and password:
+        await client.login(username, password)
+    return client
+
+
 class SMTPClient:
     """Async SMTP Client - funktioniert mit jedem Standard-SMTP-Anbieter."""
 
@@ -29,21 +59,20 @@ class SMTPClient:
         self.password = settings.SMTP_PASSWORD
         self.from_email = settings.SMTP_FROM_EMAIL
         self.from_name = settings.SMTP_FROM_NAME
-        self.use_tls = settings.SMTP_USE_TLS
+        self.tls_mode = settings.SMTP_TLS_MODE
         self.verify_ssl = settings.SMTP_VERIFY_SSL
         self.timeout = settings.SMTP_TIMEOUT
 
     async def connect(self) -> SMTP:
-        client = SMTP(
-            hostname=self.host,
+        client = await _open_smtp(
+            host=self.host,
             port=self.port,
-            timeout=self.timeout,
-            use_tls=self.use_tls,
+            tls_mode=self.tls_mode,
             validate_certs=self.verify_ssl,
+            username=self.username,
+            password=self.password,
+            timeout=self.timeout,
         )
-        await client.connect()
-        if self.username and self.password:
-            await client.login(self.username, self.password)
         logger.info("Connected to SMTP %s:%s", self.host, self.port)
         return client
 
@@ -85,7 +114,7 @@ class SMTPClient:
                 msg.attach(MIMEText(html_with_pixel, "html", "utf-8"))
 
                 try:
-                    await client.send_message(msg, mail_from=self.from_email)
+                    await client.send_message(msg, sender=self.from_email)
                     results["success"] += 1
                 except Exception as e:
                     results["failed"] += 1
@@ -126,7 +155,7 @@ async def send_test_email(
     password: str | None,
     from_email: str,
     from_name: str,
-    use_tls: bool,
+    tls_mode: str,
     validate_certs: bool,
     to_email: str,
 ) -> tuple[bool, str]:
@@ -136,16 +165,14 @@ async def send_test_email(
     globalen .env-Konfiguration. Gibt (Erfolg, Detailmeldung) zurueck.
     """
     try:
-        client = SMTP(
-            hostname=host,
+        client = await _open_smtp(
+            host=host,
             port=port,
-            timeout=settings.SMTP_TIMEOUT,
-            use_tls=use_tls,
+            tls_mode=tls_mode,
             validate_certs=validate_certs,
+            username=username,
+            password=password,
         )
-        await client.connect()
-        if username and password:
-            await client.login(username, password)
 
         msg = MIMEMultipart("alternative")
         msg["Subject"] = Header("PhishAware Test-Mail", "utf-8")
@@ -159,7 +186,7 @@ async def send_test_email(
                 "utf-8",
             )
         )
-        await client.send_message(msg, mail_from=from_email)
+        await client.send_message(msg, sender=from_email)
         await client.quit()
         logger.info("Test-Mail ueber %s:%s an %s gesendet", host, port, to_email)
         return True, f"Test-Mail an {to_email} gesendet."
