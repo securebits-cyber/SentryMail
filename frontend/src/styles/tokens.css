@@ -39,6 +39,8 @@
   --color-text-primary: #12151A;
   --color-text-secondary: #5B6472;
   --color-accent: #0F7173;
+  /* Zweite Akzentfarbe fuer Verlaeufe (Teal -> Emerald) */
+  --color-accent-2: #17A398;
 
   --color-status-success: #1A7F4B;
   --color-status-warning: #B7791F;
@@ -52,6 +54,7 @@
   --color-text-primary: #E7EAEE;
   --color-text-secondary: #8B93A3;
   --color-accent: #2DD4CF;
+  --color-accent-2: #5EEAD4;
 
   --color-status-success: #34D399;
   --color-status-warning: #FBBF24;
@@ -113,6 +116,12 @@ button:not(:disabled):hover {
 
 button:disabled {
   cursor: not-allowed;
+}
+
+/* Primaeraktionen (und das Markenzeichen) bekommen einen dezenten
+   Teal->Emerald-Verlauf - etwas mehr Farbe, ohne grell zu wirken. */
+.bg-accent {
+  background-image: linear-gradient(135deg, var(--color-accent), var(--color-accent-2));
 }
 
 * {

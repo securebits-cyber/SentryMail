@@ -32,11 +32,19 @@ const tiles: { key: keyof Summary; label: string; tone: Tone }[] = [
   { key: 'submitted', label: 'Daten abgeschickt', tone: 'danger' },
 ]
 
-const toneClass: Record<Tone, string> = {
+const toneNumber: Record<Tone, string> = {
   neutral: 'text-text-primary',
   accent: 'text-accent',
   warning: 'text-status-warning',
   danger: 'text-status-danger',
+}
+
+// Dezent getönter Kachel-Hintergrund je nach Bedeutung (etwas mehr Farbe).
+const toneTile: Record<Tone, string> = {
+  neutral: 'border-border bg-surface',
+  accent: 'border-accent/25 bg-accent/8',
+  warning: 'border-status-warning/30 bg-status-warning/10',
+  danger: 'border-status-danger/30 bg-status-danger/10',
 }
 
 export default function DashboardPage() {
@@ -59,9 +67,9 @@ export default function DashboardPage() {
 
       <div className="mb-8 grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))' }}>
         {tiles.map(({ key, label, tone }) => (
-          <div key={key} className="rounded-md border border-border bg-surface p-4">
+          <div key={key} className={`rounded-lg border p-4 ${toneTile[tone]}`}>
             <div className="text-sm text-text-secondary">{label}</div>
-            <div className={`mt-1 font-mono text-3xl font-semibold ${toneClass[tone]}`}>{summary?.[key] ?? 0}</div>
+            <div className={`mt-1 font-mono text-3xl font-semibold ${toneNumber[tone]}`}>{summary?.[key] ?? 0}</div>
           </div>
         ))}
       </div>
