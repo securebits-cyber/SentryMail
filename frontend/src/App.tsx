@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactElement } from 'react'
 import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom'
 import Layout from './components/Layout'
 import CampaignsPage from './pages/campaigns'
@@ -7,7 +7,7 @@ import LoginPage from './pages/login'
 import ResultsPage from './pages/results'
 import { consumeTokenFromUrlFragment, isAuthenticated } from './services/auth'
 
-function RequireAuth({ children }: { children: JSX.Element }) {
+function RequireAuth({ children }: { children: ReactElement }) {
   if (!isAuthenticated()) return <Navigate to="/login" replace />
   return children
 }

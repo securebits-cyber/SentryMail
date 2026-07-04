@@ -17,9 +17,13 @@ down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
-user_role = postgresql.ENUM("admin", "user", name="user_role")
-campaign_status = postgresql.ENUM("draft", "scheduled", "running", "completed", "cancelled", name="campaign_status")
-tracking_event_type = postgresql.ENUM("sent", "opened", "clicked", "submitted", name="tracking_event_type")
+user_role = postgresql.ENUM("admin", "user", name="user_role", create_type=False)
+campaign_status = postgresql.ENUM(
+    "draft", "scheduled", "running", "completed", "cancelled", name="campaign_status", create_type=False
+)
+tracking_event_type = postgresql.ENUM(
+    "sent", "opened", "clicked", "submitted", name="tracking_event_type", create_type=False
+)
 
 
 def upgrade() -> None:
