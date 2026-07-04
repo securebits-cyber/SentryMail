@@ -1,8 +1,8 @@
 /**
- * Auth-Helper fuer den generischen OIDC-Flow.
- * Der Login selbst ist ein Full-Page-Redirect zu Backend -> OIDC-Provider.
- * Nach dem Callback liefert das Backend das Session-JWT im URL-Fragment
- * zurueck (nicht als Query-Parameter, damit es nicht in Zugriffslogs landet).
+ * Auth-Helper: lokaler Login (primaer) sowie optionaler OIDC-Flow (Zweitmethode).
+ * OIDC ist ein Full-Page-Redirect zu Backend -> OIDC-Provider. Nach dem Callback
+ * liefert das Backend das Session-JWT im URL-Fragment zurueck (nicht als
+ * Query-Parameter, damit es nicht in Zugriffslogs landet).
  */
 const TOKEN_STORAGE_KEY = 'phishaware-token'
 
@@ -10,6 +10,25 @@ const apiUrl = import.meta.env.VITE_API_URL
 
 export function loginUrl(): string {
   return `${apiUrl}/auth/login`
+}
+
+export async function getAuthConfig(): Promise<{ oidc_enabled: boolean }> {
+  const response = await fetch(`${apiUrl}/auth/config`)
+  if (!response.ok) return { oidc_enabled: false }
+  return response.json()
+}
+
+export async function loginLocal(email: string, password: string): Promise<void> {
+  const response = await fetch(`${apiUrl}/auth/local/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password }),
+  })
+  if (!response.ok) {
+    throw new Error('E-Mail oder Passwort ist falsch')
+  }
+  const data: { access_token: string } = await response.json()
+  setToken(data.access_token)
 }
 
 export function getToken(): string | null {

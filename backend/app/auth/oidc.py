@@ -19,14 +19,20 @@ from app.utils.security import create_access_token
 logger = logging.getLogger(__name__)
 settings = get_settings()
 
+# OIDC ist optional: lokaler Login (siehe app/auth/local.py) ist die primaere
+# Anmeldemethode, OIDC eine optionale Zweitmethode. Nur aktiv, wenn OIDC_ISSUER
+# konfiguriert ist - sonst kann die App auch ganz ohne IdP betrieben werden.
+oidc_enabled = settings.OIDC_ISSUER is not None
+
 oauth = OAuth()
-oauth.register(
-    name="oidc",
-    server_metadata_url=f"{settings.OIDC_ISSUER.rstrip('/')}/.well-known/openid-configuration",
-    client_id=settings.OIDC_CLIENT_ID,
-    client_secret=settings.OIDC_CLIENT_SECRET,
-    client_kwargs={"scope": "openid profile email"},
-)
+if oidc_enabled:
+    oauth.register(
+        name="oidc",
+        server_metadata_url=f"{settings.OIDC_ISSUER.rstrip('/')}/.well-known/openid-configuration",
+        client_id=settings.OIDC_CLIENT_ID,
+        client_secret=settings.OIDC_CLIENT_SECRET,
+        client_kwargs={"scope": "openid profile email"},
+    )
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 

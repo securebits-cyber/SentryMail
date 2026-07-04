@@ -33,11 +33,18 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
-    # OIDC (beliebiger Provider: Authentik, Keycloak, Entra ID, Okta, ...)
-    OIDC_ISSUER: str
-    OIDC_CLIENT_ID: str
-    OIDC_CLIENT_SECRET: str
-    OIDC_REDIRECT_URI: str
+    # Lokaler Login: optionaler Bootstrap des ersten Admin-Kontos beim Start.
+    # Nur wirksam, solange noch kein User mit dieser E-Mail existiert.
+    INITIAL_ADMIN_EMAIL: str | None = None
+    INITIAL_ADMIN_PASSWORD: str | None = None
+
+    # OIDC (optional, beliebiger Provider: Authentik, Keycloak, Entra ID, Okta, ...)
+    # Lokaler Login ist die primaere Anmeldemethode - OIDC ist eine optionale
+    # Zweitmethode und wird nur aktiviert, wenn OIDC_ISSUER gesetzt ist.
+    OIDC_ISSUER: str | None = None
+    OIDC_CLIENT_ID: str | None = None
+    OIDC_CLIENT_SECRET: str | None = None
+    OIDC_REDIRECT_URI: str | None = None
 
     # SMTP (beliebiger Anbieter - nichts hier hart hinterlegt)
     SMTP_HOST: str
