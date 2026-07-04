@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.auth.permissions import get_current_user
 from app.database import get_db
-from app.models import Campaign, Recipient, User
+from app.models import Campaign, GroupMember, Recipient, User
 from app.schemas import CampaignCreate, CampaignOut, CampaignUpdate
 from app.services.campaign import send_campaign
 from app.utils.security import generate_tracking_token
@@ -24,19 +24,36 @@ def create_campaign(payload: CampaignCreate, db: Session = Depends(get_db), curr
     campaign = Campaign(
         name=payload.name,
         template_id=payload.template_id,
+        sending_profile_id=payload.sending_profile_id,
+        landing_page_id=payload.landing_page_id,
         scheduled_at=payload.scheduled_at,
         created_by_id=current_user.id,
     )
     db.add(campaign)
     db.flush()
 
-    for recipient in payload.recipients:
+    # Empfaenger aus den gewaehlten Gruppen + direkt uebergebene, dedupliziert per E-Mail.
+    seen: set[str] = set()
+    sources: list[tuple[str, str | None, str | None]] = []
+
+    if payload.group_ids:
+        members = db.query(GroupMember).filter(GroupMember.group_id.in_(payload.group_ids)).all()
+        for m in members:
+            sources.append((m.email, m.first_name, m.last_name))
+    for r in payload.recipients:
+        sources.append((r.email, r.first_name, r.last_name))
+
+    for email, first_name, last_name in sources:
+        key = email.lower()
+        if key in seen:
+            continue
+        seen.add(key)
         db.add(
             Recipient(
                 campaign_id=campaign.id,
-                email=recipient.email,
-                first_name=recipient.first_name,
-                last_name=recipient.last_name,
+                email=email,
+                first_name=first_name,
+                last_name=last_name,
                 tracking_token=generate_tracking_token(),
             )
         )

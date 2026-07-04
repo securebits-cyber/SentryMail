@@ -86,6 +86,12 @@ class Campaign(Base):
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     template_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("templates.id"), nullable=False)
+    # Optional: ohne Sending Profile faellt der Versand auf das globale .env-SMTP
+    # zurueck; ohne Landing Page zeigt der Klick-Link auf keine eigene Seite.
+    sending_profile_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("sending_profiles.id"), nullable=True
+    )
+    landing_page_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("landing_pages.id"), nullable=True)
     status: Mapped[CampaignStatus] = mapped_column(
         Enum(CampaignStatus, name="campaign_status", values_callable=lambda enum_cls: [e.value for e in enum_cls]),
         default=CampaignStatus.DRAFT,
@@ -97,6 +103,8 @@ class Campaign(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     template: Mapped["Template"] = relationship(back_populates="campaigns")
+    sending_profile: Mapped["SendingProfile | None"] = relationship()
+    landing_page: Mapped["LandingPage | None"] = relationship()
     created_by: Mapped["User"] = relationship(back_populates="campaigns")
     recipients: Mapped[list["Recipient"]] = relationship(back_populates="campaign", cascade="all, delete-orphan")
 

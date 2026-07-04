@@ -71,16 +71,22 @@ class RecipientOut(BaseModel):
 class CampaignBase(BaseModel):
     name: str
     template_id: uuid.UUID
+    sending_profile_id: uuid.UUID | None = None
+    landing_page_id: uuid.UUID | None = None
     scheduled_at: datetime | None = None
 
 
 class CampaignCreate(CampaignBase):
+    # Empfaenger kommen aus den gewaehlten Gruppen und/oder direkt uebergeben.
+    group_ids: list[uuid.UUID] = []
     recipients: list[RecipientCreate] = []
 
 
 class CampaignUpdate(BaseModel):
     name: str | None = None
     template_id: uuid.UUID | None = None
+    sending_profile_id: uuid.UUID | None = None
+    landing_page_id: uuid.UUID | None = None
     status: CampaignStatus | None = None
     scheduled_at: datetime | None = None
 
