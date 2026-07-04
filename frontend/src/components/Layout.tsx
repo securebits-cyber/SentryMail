@@ -1,10 +1,11 @@
-import { LayoutDashboard, LogOut, Mail, Moon, Sun } from 'lucide-react'
+import { FileText, LayoutDashboard, LogOut, Mail, Moon, Sun } from 'lucide-react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { useTheme } from '../hooks/useTheme'
 import { logout } from '../services/auth'
 
 const navItems = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
+  { to: '/templates', label: 'Vorlagen', icon: FileText, end: false },
   { to: '/campaigns', label: 'Kampagnen', icon: Mail, end: false },
 ]
 

@@ -5,6 +5,7 @@ import CampaignsPage from './pages/campaigns'
 import DashboardPage from './pages/index'
 import LoginPage from './pages/login'
 import ResultsPage from './pages/results'
+import TemplatesPage from './pages/templates'
 import { consumeTokenFromUrlFragment, isAuthenticated } from './services/auth'
 
 function RequireAuth({ children }: { children: ReactElement }) {
@@ -34,6 +35,7 @@ export default function App() {
           }
         >
           <Route path="/" element={<DashboardPage />} />
+          <Route path="/templates" element={<TemplatesPage />} />
           <Route path="/campaigns" element={<CampaignsPage />} />
           <Route path="/results/:campaignId" element={<ResultsPage />} />
         </Route>
