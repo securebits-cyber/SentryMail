@@ -54,10 +54,11 @@ services:
     container_name: phishaware-web
     environment:
       VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
+      APP_DOMAIN: ${APP_DOMAIN:-localhost}
     depends_on:
       - backend
     ports:
-      - "5173:5173"
+      - "${FRONTEND_BIND_ADDRESS:-0.0.0.0}:5173:5173"
     volumes:
       - ./frontend/src:/app/src
     command: npm run dev
@@ -68,10 +69,12 @@ services:
     image: caddy:2-alpine
     container_name: phishaware-proxy
     ports:
-      - "80:80"
-      - "443:443"
+      - "${FRONTEND_BIND_ADDRESS:-0.0.0.0}:80:80"
+      - "${FRONTEND_BIND_ADDRESS:-0.0.0.0}:443:443"
     environment:
+      CADDY_SITE_ADDRESS: ${CADDY_SITE_ADDRESS:-localhost}
       APP_DOMAIN: ${APP_DOMAIN:-localhost}
+      TLS_DIRECTIVE: ${TLS_DIRECTIVE:-}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data

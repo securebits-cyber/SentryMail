@@ -1,10 +1,28 @@
 # PhishAware – Caddyfile (generisch)
 #
-# APP_DOMAIN kommt aus der .env / docker-compose Environment.
-# Ist es eine echte Domain, holt Caddy automatisch ein Let's-Encrypt-Zertifikat.
-# Ist es "localhost" (Dev-Default), laeuft Caddy ohne TLS.
+# CADDY_SITE_ADDRESS bestimmt, worauf Caddy hoert und ob TLS aktiv ist
+# (kommt aus .env / docker-compose, Default "localhost"):
+#
+#   - Echte, oeffentlich erreichbare Domain (z. B. "phish.example.com")
+#       -> automatisches Let's-Encrypt-Zertifikat.
+#         Fuer intern/VPN-only Domains, die Let's Encrypt nicht validieren kann,
+#         zusaetzlich TLS_DIRECTIVE="tls internal" (selbstsigniert) setzen.
+#   - ":80" (Catch-all, reines HTTP, kein TLS/Redirect, matcht jeden Host)
+#       -> sinnvoll, wenn ein vorgelagerter Reverse Proxy (z. B. Netbird/Cloudflare)
+#         TLS bereits zum Client terminiert und uns per HTTP anspricht. Solche
+#         Proxies setzen den Host-Header oft auf unsere IP statt auf die Domain -
+#         darum hier bewusst kein Host-gebundener Site-Block. TLS_DIRECTIVE leer lassen.
+#
+# APP_DOMAIN wird beim Weiterreichen ans Frontend als Host-Header gesetzt, damit
+# Vites allowedHosts-Pruefung (server.allowedHosts) unabhaengig davon greift, mit
+# welchem Host-Header der vorgelagerte Proxy uns anspricht.
 
-{$APP_DOMAIN} {
+{$CADDY_SITE_ADDRESS:localhost} {
+    {$TLS_DIRECTIVE}
+    log {
+        output stdout
+        format console
+    }
     encode gzip
 
     # Backend-API
@@ -20,6 +38,8 @@
 
     # Frontend (alles andere)
     handle {
-        reverse_proxy frontend:5173
+        reverse_proxy frontend:5173 {
+            header_up Host {$APP_DOMAIN:localhost}
+        }
     }
 }
