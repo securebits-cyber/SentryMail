@@ -73,10 +73,30 @@ code, pre {
   font-family: var(--font-mono);
 }
 
+/* Buttons fuehlen sich ueberall interaktiv an: Zeiger-Cursor + sichtbarer,
+   theme-tauglicher Hover (leichtes Abdunkeln in Light, Aufhellen in Dark). */
+button:not(:disabled) {
+  cursor: pointer;
+  transition: filter 150ms ease, background-color 180ms ease, color 180ms ease, border-color 180ms ease;
+}
+
+button:not(:disabled):hover {
+  filter: brightness(0.93);
+}
+
+:root[data-theme='dark'] button:not(:disabled):hover {
+  filter: brightness(1.18);
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
 * {
   transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  * { transition: none; }
+  *,
+  button:not(:disabled) { transition: none; }
 }

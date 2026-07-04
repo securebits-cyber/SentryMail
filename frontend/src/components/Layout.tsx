@@ -58,7 +58,10 @@ export default function Layout() {
               {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
             </button>
             <button
-              onClick={logout}
+              onClick={() => {
+                logout()
+                window.location.assign('/login')
+              }}
               className="flex flex-1 items-center justify-center gap-2 rounded-md border border-border px-3 py-2 text-sm text-text-primary hover:bg-bg"
             >
               <LogOut size={16} />
