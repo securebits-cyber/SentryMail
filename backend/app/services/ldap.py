@@ -69,3 +69,46 @@ def test_connection(params: LdapParams) -> tuple[bool, str]:
     except Exception as e:  # noqa: BLE001 - dem Nutzer die Rohmeldung zeigen
         logger.warning("LDAP-Test fehlgeschlagen: %s", e)
         return False, f"Fehler: {e}"
+
+
+def fetch_users(params: LdapParams) -> list[dict]:
+    """Sucht alle passenden Nutzer und liefert [{email, first_name, last_name}].
+
+    Nutzt Paged Search, um auch groessere Verzeichnisse vollstaendig zu laden.
+    Nur Eintraege mit vorhandener E-Mail werden zurueckgegeben.
+    """
+    conn = _connect(params)
+    users: list[dict] = []
+    try:
+        entries = conn.extend.standard.paged_search(
+            search_base=params.base_dn,
+            search_filter=params.user_filter,
+            attributes=[params.attr_email, params.attr_first_name, params.attr_last_name],
+            paged_size=500,
+            generator=True,
+        )
+        for entry_dict in entries:
+            attrs = entry_dict.get("attributes")
+            if not attrs:
+                continue
+            email = attrs.get(params.attr_email)
+            if isinstance(email, (list, tuple)):
+                email = email[0] if email else None
+            if not email:
+                continue
+            first = attrs.get(params.attr_first_name)
+            last = attrs.get(params.attr_last_name)
+            if isinstance(first, (list, tuple)):
+                first = first[0] if first else None
+            if isinstance(last, (list, tuple)):
+                last = last[0] if last else None
+            users.append(
+                {
+                    "email": str(email),
+                    "first_name": str(first) if first else None,
+                    "last_name": str(last) if last else None,
+                }
+            )
+    finally:
+        conn.unbind()
+    return users

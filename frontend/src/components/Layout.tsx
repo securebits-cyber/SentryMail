@@ -1,15 +1,36 @@
-import { FileText, LayoutDashboard, LogOut, Mail, Moon, Server, Settings, Sun } from 'lucide-react'
+import { FileText, LayoutDashboard, LogOut, Mail, Moon, Server, Settings, Sun, Users } from 'lucide-react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { useTheme } from '../hooks/useTheme'
 import { logout } from '../services/auth'
 
-const navItems = [
+const mainNav = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
   { to: '/templates', label: 'Vorlagen', icon: FileText, end: false },
+  { to: '/groups', label: 'Gruppen', icon: Users, end: false },
   { to: '/sending-profiles', label: 'Sending Profiles', icon: Server, end: false },
   { to: '/campaigns', label: 'Kampagnen', icon: Mail, end: false },
-  { to: '/settings', label: 'Einstellungen', icon: Settings, end: false },
 ]
+
+// Am unteren Rand der Sidebar, getrennt vom Haupt-Workflow.
+const bottomNav = [{ to: '/settings', label: 'Einstellungen', icon: Settings, end: false }]
+
+const linkClass = ({ isActive }: { isActive: boolean }) =>
+  `flex items-center gap-2 rounded-md px-3 py-2 text-sm ${
+    isActive ? 'bg-accent text-white' : 'text-text-secondary hover:bg-bg hover:text-text-primary'
+  }`
+
+function NavItems({ items }: { items: typeof mainNav }) {
+  return (
+    <>
+      {items.map(({ to, label, icon: Icon, end }) => (
+        <NavLink key={to} to={to} end={end} className={linkClass}>
+          <Icon size={16} />
+          {label}
+        </NavLink>
+      ))}
+    </>
+  )
+}
 
 export default function Layout() {
   const { theme, toggleTheme } = useTheme()
@@ -20,41 +41,30 @@ export default function Layout() {
         <div>
           <div className="px-4 py-5 text-lg font-semibold">PhishAware</div>
           <nav className="flex flex-col gap-1 px-2">
-            {navItems.map(({ to, label, icon: Icon, end }) => (
-              <NavLink
-                key={to}
-                to={to}
-                end={end}
-                className={({ isActive }) =>
-                  `flex items-center gap-2 rounded-md px-3 py-2 text-sm ${
-                    isActive
-                      ? 'bg-accent text-white'
-                      : 'text-text-secondary hover:bg-bg hover:text-text-primary'
-                  }`
-                }
-              >
-                <Icon size={16} />
-                {label}
-              </NavLink>
-            ))}
+            <NavItems items={mainNav} />
           </nav>
         </div>
 
-        <div className="flex items-center justify-between gap-2 border-t border-border p-3">
-          <button
-            onClick={toggleTheme}
-            aria-label="Farbmodus umschalten"
-            className="flex h-8 w-8 items-center justify-center rounded-md border border-border text-text-primary hover:bg-bg"
-          >
-            {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
-          </button>
-          <button
-            onClick={logout}
-            className="flex flex-1 items-center justify-center gap-2 rounded-md border border-border px-3 py-2 text-sm text-text-primary hover:bg-bg"
-          >
-            <LogOut size={16} />
-            Logout
-          </button>
+        <div>
+          <nav className="flex flex-col gap-1 px-2 pb-2">
+            <NavItems items={bottomNav} />
+          </nav>
+          <div className="flex items-center justify-between gap-2 border-t border-border p-3">
+            <button
+              onClick={toggleTheme}
+              aria-label="Farbmodus umschalten"
+              className="flex h-8 w-8 items-center justify-center rounded-md border border-border text-text-primary hover:bg-bg"
+            >
+              {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+            </button>
+            <button
+              onClick={logout}
+              className="flex flex-1 items-center justify-center gap-2 rounded-md border border-border px-3 py-2 text-sm text-text-primary hover:bg-bg"
+            >
+              <LogOut size={16} />
+              Logout
+            </button>
+          </div>
         </div>
       </aside>
 

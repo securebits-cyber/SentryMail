@@ -200,3 +200,57 @@ class LdapConfigOut(BaseModel):
 class LdapTestResult(BaseModel):
     success: bool
     detail: str
+
+
+# --- Groups (Empfaengerlisten) ---
+
+class GroupMemberIn(BaseModel):
+    email: EmailStr
+    first_name: str | None = None
+    last_name: str | None = None
+    position: str | None = None
+
+
+class GroupMemberOut(GroupMemberIn):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+
+
+class GroupCreate(BaseModel):
+    name: str
+    members: list[GroupMemberIn] = []
+
+
+class GroupUpdate(BaseModel):
+    name: str | None = None
+    # Wenn gesetzt, ersetzt die Mitgliederliste vollstaendig.
+    members: list[GroupMemberIn] | None = None
+
+
+class GroupOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    name: str
+    created_at: datetime
+    updated_at: datetime
+    members: list[GroupMemberOut] = []
+
+
+class GroupSummary(BaseModel):
+    """Kompakte Listenansicht ohne die Mitglieder-Details."""
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    name: str
+    member_count: int
+    created_at: datetime
+    updated_at: datetime
+
+
+class LdapImportResult(BaseModel):
+    success: bool
+    detail: str
+    found: int = 0
+    added: int = 0

@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactElement } from 'react'
 import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom'
 import Layout from './components/Layout'
 import CampaignsPage from './pages/campaigns'
+import GroupsPage from './pages/groups'
 import DashboardPage from './pages/index'
 import LoginPage from './pages/login'
 import ResultsPage from './pages/results'
@@ -38,6 +39,7 @@ export default function App() {
         >
           <Route path="/" element={<DashboardPage />} />
           <Route path="/templates" element={<TemplatesPage />} />
+          <Route path="/groups" element={<GroupsPage />} />
           <Route path="/sending-profiles" element={<SendingProfilesPage />} />
           <Route path="/campaigns" element={<CampaignsPage />} />
           <Route path="/settings" element={<SettingsPage />} />

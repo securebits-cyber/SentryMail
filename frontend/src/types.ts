@@ -53,6 +53,30 @@ export interface SendingProfile {
   updated_at: string
 }
 
+export interface GroupMember {
+  id?: string
+  email: string
+  first_name?: string | null
+  last_name?: string | null
+  position?: string | null
+}
+
+export interface Group {
+  id: string
+  name: string
+  created_at: string
+  updated_at: string
+  members: GroupMember[]
+}
+
+export interface GroupSummary {
+  id: string
+  name: string
+  member_count: number
+  created_at: string
+  updated_at: string
+}
+
 export interface LdapConfig {
   enabled: boolean
   host: string

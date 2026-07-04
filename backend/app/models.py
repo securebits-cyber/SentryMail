@@ -192,3 +192,41 @@ class LdapConfig(Base):
     @property
     def has_bind_password(self) -> bool:
         return self.bind_password_encrypted is not None
+
+
+class Group(Base):
+    """Wiederverwendbare Empfaengerliste (GoPhish: 'Group').
+
+    Mitglieder koennen per CSV oder LDAP importiert werden. Beim Start einer
+    Kampagne werden sie in campaign-eigene Recipients kopiert.
+    """
+
+    __tablename__ = "recipient_groups"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    created_by_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+    members: Mapped[list["GroupMember"]] = relationship(
+        back_populates="group", cascade="all, delete-orphan"
+    )
+
+    @property
+    def member_count(self) -> int:
+        return len(self.members)
+
+
+class GroupMember(Base):
+    __tablename__ = "group_members"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    group_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("recipient_groups.id"), nullable=False)
+    email: Mapped[str] = mapped_column(String(320), nullable=False)
+    first_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    last_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    position: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+    group: Mapped["Group"] = relationship(back_populates="members")
