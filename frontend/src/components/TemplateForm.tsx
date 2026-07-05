@@ -9,7 +9,8 @@ export interface TemplateFormValues {
 }
 
 interface TemplateFormProps {
-  initial?: Template | null
+  initial?: TemplateFormValues | Template | null
+  isEdit?: boolean
   onSubmit: (values: TemplateFormValues) => void
   onCancel: () => void
   submitting?: boolean
@@ -39,7 +40,7 @@ function fillSample(text: string): string {
   )
 }
 
-export default function TemplateForm({ initial, onSubmit, onCancel, submitting }: TemplateFormProps) {
+export default function TemplateForm({ initial, isEdit, onSubmit, onCancel, submitting }: TemplateFormProps) {
   const [name, setName] = useState('')
   const [subject, setSubject] = useState('')
   const [htmlContent, setHtmlContent] = useState('')
@@ -131,7 +132,7 @@ export default function TemplateForm({ initial, onSubmit, onCancel, submitting }
           disabled={submitting}
           className="rounded-md bg-accent px-5 py-2 font-medium text-white disabled:opacity-60"
         >
-          {submitting ? 'Speichern...' : initial ? 'Änderungen speichern' : 'Vorlage anlegen'}
+          {submitting ? 'Speichern...' : isEdit ? 'Änderungen speichern' : 'Vorlage anlegen'}
         </button>
         <button
           type="button"
