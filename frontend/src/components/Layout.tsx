@@ -1,10 +1,18 @@
-import { CircleUser, FileText, Globe, LayoutDashboard, LogOut, Mail, Moon, Server, Settings, Sun, UserCog, Users } from 'lucide-react'
+import { Blocks, CircleUser, FileText, Globe, LayoutDashboard, LogOut, Mail, Moon, Server, Settings, Sun, UserCog, Users, type LucideIcon } from 'lucide-react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { useMe } from '../hooks/useMe'
 import { useTheme } from '../hooks/useTheme'
 import { logout } from '../services/auth'
 
-const mainNav = [
+interface NavItem {
+  to: string
+  label: string
+  icon: LucideIcon
+  end: boolean
+  badge?: string
+}
+
+const mainNav: NavItem[] = [
   { to: '/', label: 'Control-Center', icon: LayoutDashboard, end: true },
   { to: '/templates', label: 'Vorlagen', icon: FileText, end: false },
   { to: '/groups', label: 'Gruppen', icon: Users, end: false },
@@ -14,13 +22,14 @@ const mainNav = [
 ]
 
 // Fuer alle Nutzer sichtbar.
-const profileNav = [{ to: '/profile', label: 'Mein Profil', icon: CircleUser, end: false }]
+const profileNav: NavItem[] = [{ to: '/profile', label: 'Mein Profil', icon: CircleUser, end: false }]
 
 // Nur fuer Admins. Die Einstellungsbereiche haben eine eigene zweite
 // Sidebar-Spalte (siehe SettingsLayout), Netbird-Stil.
-const adminNav = [
+const adminNav: NavItem[] = [
   { to: '/users', label: 'Benutzer', icon: UserCog, end: false },
   { to: '/settings', label: 'Einstellungen', icon: Settings, end: false },
+  { to: '/integrations', label: 'Integrationen', icon: Blocks, end: false, badge: 'Enterprise' },
 ]
 
 const linkClass = ({ isActive }: { isActive: boolean }) =>
@@ -30,13 +39,18 @@ const linkClass = ({ isActive }: { isActive: boolean }) =>
       : 'text-text-secondary hover:bg-bg hover:text-text-primary'
   }`
 
-function NavItems({ items }: { items: typeof mainNav }) {
+function NavItems({ items }: { items: NavItem[] }) {
   return (
     <>
-      {items.map(({ to, label, icon: Icon, end }) => (
+      {items.map(({ to, label, icon: Icon, end, badge }) => (
         <NavLink key={to} to={to} end={end} className={linkClass}>
           <Icon size={16} />
           {label}
+          {badge && (
+            <span className="ml-auto rounded-full bg-[#16c60c] px-1.5 py-0.5 text-[10px] font-semibold uppercase leading-none tracking-wide text-white shadow-[0_0_6px_rgba(22,198,12,0.6)]">
+              {badge}
+            </span>
+          )}
         </NavLink>
       ))}
     </>
