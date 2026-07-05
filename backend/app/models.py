@@ -114,6 +114,29 @@ class SecurityConfig(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
 
+class LicenseState(Base):
+    """Lizenzstatus (Singleton). Cached das zuletzt gueltige, signierte Lease.
+
+    Der Lizenzschluessel liegt verschluesselt (Fernet); die Entitlements werden
+    aus dem verifizierten Lease abgeleitet. Ohne Lizenz laeuft der Core als
+    reiner Open-Core (keine Add-ons).
+    """
+
+    __tablename__ = "license_state"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    instance_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), default=uuid.uuid4, nullable=False)
+    license_key_encrypted: Mapped[str | None] = mapped_column(Text, nullable=True)
+    lease_jwt: Mapped[str | None] = mapped_column(Text, nullable=True)
+    features: Mapped[list] = mapped_column(JSONB, nullable=False, default=list, server_default="[]")
+    customer: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)  # Lease exp = Grace-Ende
+    license_expires: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    last_checked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    last_status: Mapped[str] = mapped_column(String(32), default="no_license", nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+
 class Template(Base):
     __tablename__ = "templates"
 

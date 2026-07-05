@@ -1,4 +1,6 @@
 """FastAPI-Einstiegspunkt."""
+import asyncio
+import logging
 from contextlib import asynccontextmanager
 
 from fastapi import Depends, FastAPI
@@ -6,17 +8,37 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from starlette.middleware.sessions import SessionMiddleware
 
-from app.api import audit, campaigns, dashboard, groups, health, landing_pages, me as me_api, results, sending_profiles, settings as settings_api, templates, tracking
+from app.api import audit, campaigns, dashboard, groups, health, landing_pages, license as license_api, me as me_api, results, sending_profiles, settings as settings_api, templates, tracking
 from app.api import users as users_api
 from app.auth import local as local_auth
 from app.auth.oidc import is_oidc_enabled
 from app.auth.oidc import router as oidc_router
 from app.config import get_settings
 from app.database import SessionLocal, get_db
+from app.services import license as license_service
 from app.utils.logging import configure_logging
 
 configure_logging()
 settings = get_settings()
+logger = logging.getLogger(__name__)
+
+
+def _refresh_license_once() -> None:
+    db = SessionLocal()
+    try:
+        license_service.refresh_license(db)
+    finally:
+        db.close()
+
+
+async def _license_refresh_loop() -> None:
+    interval = max(1, settings.LICENSE_REFRESH_INTERVAL_HOURS) * 3600
+    while True:
+        try:
+            await asyncio.to_thread(_refresh_license_once)
+        except Exception:  # noqa: BLE001 - Loop soll nie sterben
+            logger.exception("Lizenz-Refresh fehlgeschlagen")
+        await asyncio.sleep(interval)
 
 
 @asynccontextmanager
@@ -24,9 +46,16 @@ async def lifespan(_: FastAPI):
     db = SessionLocal()
     try:
         local_auth.ensure_bootstrap_admin(db)
+        license_service.get_or_create_license_state(db)
     finally:
         db.close()
-    yield
+
+    refresh_task = asyncio.create_task(_license_refresh_loop()) if settings.LICENSE_SERVER_URL else None
+    try:
+        yield
+    finally:
+        if refresh_task is not None:
+            refresh_task.cancel()
 
 
 app = FastAPI(title="HumanShield.APP API", version="0.1.0", lifespan=lifespan)
@@ -64,3 +93,4 @@ app.include_router(campaigns.router)
 app.include_router(templates.router)
 app.include_router(results.router)
 app.include_router(tracking.router)
+app.include_router(license_api.router)

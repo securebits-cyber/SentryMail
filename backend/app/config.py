@@ -59,6 +59,12 @@ class Settings(BaseSettings):
     SMTP_TIMEOUT: int = 10
     SMTP_BATCH_DELAY: int = 2  # Sekunden zwischen Batches - an Anbieter-Limit anpassen
 
+    # Lizenzierung / Add-ons (Online-Aktivierung). Leer = reiner Open-Core-Betrieb ohne Add-ons.
+    LICENSE_SERVER_URL: str = ""
+    LICENSE_KEY: str = ""  # optionaler .env-Seed; kann auch im Dashboard gepflegt werden
+    LICENSE_PRODUCT: str = "humanshield.app"
+    LICENSE_REFRESH_INTERVAL_HOURS: int = 24
+
 
 @lru_cache()
 def get_settings() -> Settings:
