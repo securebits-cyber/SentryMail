@@ -1,3 +1,5 @@
+import { useI18n } from '../i18n'
+
 // Einfache, abhaengigkeitsfreie Passwort-Staerke-Heuristik (Laenge + Zeichenklassen).
 // Kein Ersatz fuer serverseitige Policy — nur eine visuelle Hilfe fuer den Nutzer.
 export function passwordScore(pw: string): number {
@@ -14,13 +16,14 @@ export function passwordScore(pw: string): number {
 
 const meta = [
   null,
-  { label: 'Schwach', bar: 'bg-status-danger', text: 'text-status-danger' },
-  { label: 'Mittel', bar: 'bg-status-warning', text: 'text-status-warning' },
-  { label: 'Gut', bar: 'bg-accent', text: 'text-accent' },
-  { label: 'Stark', bar: 'bg-status-success', text: 'text-status-success' },
+  { key: 'pwm.weak', bar: 'bg-status-danger', text: 'text-status-danger' },
+  { key: 'pwm.medium', bar: 'bg-status-warning', text: 'text-status-warning' },
+  { key: 'pwm.good', bar: 'bg-accent', text: 'text-accent' },
+  { key: 'pwm.strong', bar: 'bg-status-success', text: 'text-status-success' },
 ] as const
 
 export default function PasswordStrengthMeter({ password }: { password: string }) {
+  const { t } = useI18n()
   if (!password) return null
   const score = passwordScore(password)
   const m = meta[score]!
@@ -31,7 +34,9 @@ export default function PasswordStrengthMeter({ password }: { password: string }
           <span key={i} className={`h-1 flex-1 rounded-full transition-colors ${i <= score ? m.bar : 'bg-border'}`} />
         ))}
       </div>
-      <p className={`mt-1 text-xs ${m.text}`}>Passwortstärke: {m.label}</p>
+      <p className={`mt-1 text-xs ${m.text}`}>
+        {t('pwm.strength')}: {t(m.key)}
+      </p>
     </div>
   )
 }

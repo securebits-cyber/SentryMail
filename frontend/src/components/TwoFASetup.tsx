@@ -1,5 +1,6 @@
 import { KeyRound, Mail, Smartphone } from 'lucide-react'
 import { useState } from 'react'
+import { useI18n } from '../i18n'
 import { api } from '../services/api'
 import type { TotpSetup, TwoFAActivated } from '../types'
 
@@ -18,6 +19,7 @@ function detail(e: unknown, fallback: string): string {
  * erzwungenen Login). Ruft onDone mit Backup-Codes + optionalem Voll-Token auf.
  */
 export default function TwoFASetup({ onDone, onCancel }: { onDone: (a: TwoFAActivated) => void; onCancel: () => void }) {
+  const { t } = useI18n()
   const [stage, setStage] = useState<'choose' | 'totp' | 'email' | 'backup'>('choose')
   const [totp, setTotp] = useState<TotpSetup | null>(null)
   const [code, setCode] = useState('')
@@ -34,7 +36,7 @@ export default function TwoFASetup({ onDone, onCancel }: { onDone: (a: TwoFAActi
       setTotp(res.data)
       setStage('totp')
     } catch (e) {
-      setError(detail(e, 'Einrichtung fehlgeschlagen.'))
+      setError(detail(e, t('tfa.err.setup')))
     } finally {
       setBusy(false)
     }
@@ -48,7 +50,7 @@ export default function TwoFASetup({ onDone, onCancel }: { onDone: (a: TwoFAActi
       setInfo(res.data.detail)
       setStage('email')
     } catch (e) {
-      setError(detail(e, 'Einrichtung fehlgeschlagen.'))
+      setError(detail(e, t('tfa.err.setup')))
     } finally {
       setBusy(false)
     }
@@ -62,7 +64,7 @@ export default function TwoFASetup({ onDone, onCancel }: { onDone: (a: TwoFAActi
       setActivated(res.data)
       setStage('backup')
     } catch (e) {
-      setError(detail(e, 'Code ist ungültig.'))
+      setError(detail(e, t('login.2fa.errorCode')))
     } finally {
       setBusy(false)
     }
@@ -74,38 +76,36 @@ export default function TwoFASetup({ onDone, onCancel }: { onDone: (a: TwoFAActi
 
       {stage === 'choose' && (
         <>
-          <h3 className="mb-1 text-base font-semibold">Zwei-Faktor-Authentifizierung einrichten</h3>
-          <p className="mb-4 text-sm text-text-secondary">Wähle, wie du den zweiten Faktor erhalten möchtest.</p>
+          <h3 className="mb-1 text-base font-semibold">{t('tfa.title')}</h3>
+          <p className="mb-4 text-sm text-text-secondary">{t('tfa.choose')}</p>
           <div className="flex flex-col gap-3 sm:flex-row">
             <button onClick={startTotp} disabled={busy} className="flex flex-1 items-start gap-3 rounded-lg border border-border p-4 text-left hover:bg-bg">
               <Smartphone size={20} className="mt-0.5 text-accent" />
               <span>
-                <span className="block text-sm font-medium">Authenticator-App</span>
-                <span className="block text-xs text-text-secondary">Zeitcodes aus einer App (empfohlen, offline).</span>
+                <span className="block text-sm font-medium">{t('prof.2fa.methodTotp')}</span>
+                <span className="block text-xs text-text-secondary">{t('tfa.totpDesc')}</span>
               </span>
             </button>
             <button onClick={startEmail} disabled={busy} className="flex flex-1 items-start gap-3 rounded-lg border border-border p-4 text-left hover:bg-bg">
               <Mail size={20} className="mt-0.5 text-accent" />
               <span>
-                <span className="block text-sm font-medium">E-Mail-Code</span>
-                <span className="block text-xs text-text-secondary">Einmalcode per E-Mail bei jeder Anmeldung.</span>
+                <span className="block text-sm font-medium">{t('prof.2fa.methodEmail')}</span>
+                <span className="block text-xs text-text-secondary">{t('tfa.emailDesc')}</span>
               </span>
             </button>
           </div>
-          <button onClick={onCancel} className="mt-4 text-sm text-text-secondary hover:underline">Abbrechen</button>
+          <button onClick={onCancel} className="mt-4 text-sm text-text-secondary hover:underline">{t('common.cancel')}</button>
         </>
       )}
 
       {stage === 'totp' && totp && (
         <>
-          <h3 className="mb-3 flex items-center gap-2 text-base font-semibold"><Smartphone size={18} /> Authenticator koppeln</h3>
-          <p className="mb-3 text-sm text-text-secondary">
-            Scanne den QR-Code mit deiner Authenticator-App und gib den angezeigten 6-stelligen Code ein.
-          </p>
+          <h3 className="mb-3 flex items-center gap-2 text-base font-semibold"><Smartphone size={18} /> {t('tfa.pair')}</h3>
+          <p className="mb-3 text-sm text-text-secondary">{t('tfa.scan')}</p>
           <div className="flex flex-col items-start gap-4 sm:flex-row">
-            <img src={totp.qr_data_uri} alt="QR-Code" className="h-40 w-40 rounded-md border border-border bg-white p-1" />
+            <img src={totp.qr_data_uri} alt={t('tfa.qrAlt')} className="h-40 w-40 rounded-md border border-border bg-white p-1" />
             <div className="text-sm text-text-secondary">
-              <p>Kein Scan möglich? Schlüssel manuell eintragen:</p>
+              <p>{t('tfa.manual')}</p>
               <code className="mt-1 block break-all rounded-md border border-border bg-bg px-2 py-1 font-mono text-xs text-text-primary">
                 {totp.secret}
               </code>
@@ -113,44 +113,41 @@ export default function TwoFASetup({ onDone, onCancel }: { onDone: (a: TwoFAActi
           </div>
           <div className="mt-4 flex items-end gap-2">
             <label className="flex flex-col gap-1 text-sm">
-              6-stelliger Code
+              {t('tfa.code6')}
               <input value={code} onChange={(e) => setCode(e.target.value)} inputMode="numeric" placeholder="123456" className={`${fieldClass} w-40 font-mono`} />
             </label>
-            <button onClick={() => confirm('totp')} disabled={busy || !code} className={primaryBtn}>Aktivieren</button>
-            <button onClick={onCancel} className={ghostBtn}>Abbrechen</button>
+            <button onClick={() => confirm('totp')} disabled={busy || !code} className={primaryBtn}>{t('tfa.activate')}</button>
+            <button onClick={onCancel} className={ghostBtn}>{t('common.cancel')}</button>
           </div>
         </>
       )}
 
       {stage === 'email' && (
         <>
-          <h3 className="mb-3 flex items-center gap-2 text-base font-semibold"><Mail size={18} /> E-Mail-Code bestätigen</h3>
+          <h3 className="mb-3 flex items-center gap-2 text-base font-semibold"><Mail size={18} /> {t('tfa.emailConfirm')}</h3>
           {info && <p className="mb-3 text-sm text-text-secondary">{info}</p>}
           <div className="flex items-end gap-2">
             <label className="flex flex-col gap-1 text-sm">
-              Code aus der E-Mail
+              {t('tfa.emailCode')}
               <input value={code} onChange={(e) => setCode(e.target.value)} inputMode="numeric" placeholder="123456" className={`${fieldClass} w-40 font-mono`} />
             </label>
-            <button onClick={() => confirm('email')} disabled={busy || !code} className={primaryBtn}>Aktivieren</button>
-            <button onClick={onCancel} className={ghostBtn}>Abbrechen</button>
+            <button onClick={() => confirm('email')} disabled={busy || !code} className={primaryBtn}>{t('tfa.activate')}</button>
+            <button onClick={onCancel} className={ghostBtn}>{t('common.cancel')}</button>
           </div>
         </>
       )}
 
       {stage === 'backup' && activated && (
         <>
-          <h3 className="mb-2 flex items-center gap-2 text-base font-semibold"><KeyRound size={18} /> Backup-Codes</h3>
-          <p className="mb-3 text-sm text-text-secondary">
-            Bewahre diese Codes sicher auf. Jeder Code funktioniert einmal, falls du keinen Zugriff auf deinen zweiten Faktor
-            hast. Sie werden <span className="font-medium text-text-primary">nur jetzt</span> angezeigt.
-          </p>
+          <h3 className="mb-2 flex items-center gap-2 text-base font-semibold"><KeyRound size={18} /> {t('tfa.backupTitle')}</h3>
+          <p className="mb-3 text-sm text-text-secondary">{t('tfa.backupNote')}</p>
           <div className="grid grid-cols-2 gap-2 rounded-md border border-border bg-bg p-3 font-mono text-sm sm:grid-cols-4">
             {activated.backup_codes.map((c) => (
               <span key={c}>{c}</span>
             ))}
           </div>
           <button onClick={() => onDone(activated)} className={`${primaryBtn} mt-4`}>
-            Ich habe die Codes gesichert
+            {t('tfa.backupDone')}
           </button>
         </>
       )}

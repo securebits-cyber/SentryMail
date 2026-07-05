@@ -359,6 +359,44 @@ export const translations: Record<Lang, Record<string, string>> = {
     'smtp.fromEmail': 'Absender-Adresse',
     'smtp.fromName': 'Absender-Name',
     'smtp.saved': 'SMTP-Einstellungen gespeichert.',
+
+    // Gemeinsam (weitere)
+    'common.cancel': 'Abbrechen',
+    'form.saveChanges': 'Änderungen speichern',
+
+    // Sending-Profile-Formular
+    'spf.encryption': 'Verschlüsselung',
+    'spf.tls.ssl': 'SSL/TLS (Port 465)',
+    'spf.tls.none': 'Keine (Port 25)',
+    'spf.tlsHint': 'Muss zum Port passen: 587 → STARTTLS, 465 → SSL/TLS, 25 → keine.',
+    'spf.ignoreCert': 'Zertifikatsfehler ignorieren',
+    'spf.create': 'Profil anlegen',
+
+    // Passwort-Stärke
+    'pwm.strength': 'Passwortstärke',
+    'pwm.weak': 'Schwach',
+    'pwm.medium': 'Mittel',
+    'pwm.good': 'Gut',
+    'pwm.strong': 'Stark',
+
+    // 2FA-Einrichtung
+    'tfa.err.setup': 'Einrichtung fehlgeschlagen.',
+    'tfa.title': 'Zwei-Faktor-Authentifizierung einrichten',
+    'tfa.choose': 'Wähle, wie du den zweiten Faktor erhalten möchtest.',
+    'tfa.totpDesc': 'Zeitcodes aus einer App (empfohlen, offline).',
+    'tfa.emailDesc': 'Einmalcode per E-Mail bei jeder Anmeldung.',
+    'tfa.pair': 'Authenticator koppeln',
+    'tfa.scan': 'Scanne den QR-Code mit deiner Authenticator-App und gib den angezeigten 6-stelligen Code ein.',
+    'tfa.qrAlt': 'QR-Code',
+    'tfa.manual': 'Kein Scan möglich? Schlüssel manuell eintragen:',
+    'tfa.code6': '6-stelliger Code',
+    'tfa.activate': 'Aktivieren',
+    'tfa.emailConfirm': 'E-Mail-Code bestätigen',
+    'tfa.emailCode': 'Code aus der E-Mail',
+    'tfa.backupTitle': 'Backup-Codes',
+    'tfa.backupNote':
+      'Bewahre diese Codes sicher auf. Jeder Code funktioniert einmal, falls du keinen Zugriff auf deinen zweiten Faktor hast. Sie werden nur jetzt angezeigt.',
+    'tfa.backupDone': 'Ich habe die Codes gesichert',
   },
   en: {
     // Navigation
@@ -712,5 +750,43 @@ export const translations: Record<Lang, Record<string, string>> = {
     'smtp.fromEmail': 'Sender address',
     'smtp.fromName': 'Sender name',
     'smtp.saved': 'SMTP settings saved.',
+
+    // Common (more)
+    'common.cancel': 'Cancel',
+    'form.saveChanges': 'Save changes',
+
+    // Sending profile form
+    'spf.encryption': 'Encryption',
+    'spf.tls.ssl': 'SSL/TLS (port 465)',
+    'spf.tls.none': 'None (port 25)',
+    'spf.tlsHint': 'Must match the port: 587 → STARTTLS, 465 → SSL/TLS, 25 → none.',
+    'spf.ignoreCert': 'Ignore certificate errors',
+    'spf.create': 'Create profile',
+
+    // Password strength
+    'pwm.strength': 'Password strength',
+    'pwm.weak': 'Weak',
+    'pwm.medium': 'Medium',
+    'pwm.good': 'Good',
+    'pwm.strong': 'Strong',
+
+    // 2FA setup
+    'tfa.err.setup': 'Setup failed.',
+    'tfa.title': 'Set up two-factor authentication',
+    'tfa.choose': 'Choose how you want to receive the second factor.',
+    'tfa.totpDesc': 'Time-based codes from an app (recommended, offline).',
+    'tfa.emailDesc': 'One-time code by email at every sign-in.',
+    'tfa.pair': 'Pair authenticator',
+    'tfa.scan': 'Scan the QR code with your authenticator app and enter the 6-digit code shown.',
+    'tfa.qrAlt': 'QR code',
+    'tfa.manual': 'Cannot scan? Enter the key manually:',
+    'tfa.code6': '6-digit code',
+    'tfa.activate': 'Activate',
+    'tfa.emailConfirm': 'Confirm email code',
+    'tfa.emailCode': 'Code from the email',
+    'tfa.backupTitle': 'Backup codes',
+    'tfa.backupNote':
+      'Keep these codes safe. Each code works once if you lose access to your second factor. They are shown only now.',
+    'tfa.backupDone': 'I have saved the codes',
   },
 }
