@@ -18,7 +18,17 @@ export async function getAuthConfig(): Promise<{ oidc_enabled: boolean }> {
   return response.json()
 }
 
-export async function loginLocal(email: string, password: string): Promise<void> {
+export interface LoginResult {
+  twofa_required: boolean
+  setup_required: boolean
+  method: string | null
+  pre_auth_token: string | null
+  access_token: string | null
+  token_type: string
+}
+
+/** Schritt 1: E-Mail/Passwort. Bei aktivem/erzwungenem 2FA folgt Schritt 2. */
+export async function loginLocal(email: string, password: string): Promise<LoginResult> {
   const response = await fetch(`${apiUrl}/auth/local/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -26,6 +36,21 @@ export async function loginLocal(email: string, password: string): Promise<void>
   })
   if (!response.ok) {
     throw new Error('E-Mail oder Passwort ist falsch')
+  }
+  const data: LoginResult = await response.json()
+  if (data.access_token) setToken(data.access_token)
+  return data
+}
+
+/** Schritt 2: 2FA-Code oder Backup-Code mit dem Pre-Auth-Token bestaetigen. */
+export async function loginVerify2fa(preAuthToken: string, code: string): Promise<void> {
+  const response = await fetch(`${apiUrl}/auth/local/login/2fa`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${preAuthToken}` },
+    body: JSON.stringify({ code }),
+  })
+  if (!response.ok) {
+    throw new Error('Code ist ungültig')
   }
   const data: { access_token: string } = await response.json()
   setToken(data.access_token)

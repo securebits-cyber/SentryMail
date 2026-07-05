@@ -3,18 +3,21 @@
 Aktuell: LDAP-Anbindung fuer den Empfaenger-Import. Weitere Einstellungs-
 Abschnitte koennen hier als zusaetzliche Unter-Router andocken.
 """
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
 from app.auth.permissions import require_admin
+from app.services.audit import client_ip, record_audit
 from app.database import get_db
-from app.models import LdapConfig, OidcConfig, User
+from app.models import LdapConfig, OidcConfig, SecurityConfig, User
 from app.schemas import (
     LdapConfigOut,
     LdapConfigUpdate,
     LdapTestResult,
     OidcConfigOut,
     OidcConfigUpdate,
+    SecurityConfigOut,
+    SecurityConfigUpdate,
     SmtpConfigOut,
     SmtpConfigUpdate,
     SmtpTestResult,
@@ -54,7 +57,12 @@ def get_ldap(db: Session = Depends(get_db), _: User = Depends(require_admin)):
 
 
 @router.put("/ldap", response_model=LdapConfigOut)
-def update_ldap(payload: LdapConfigUpdate, db: Session = Depends(get_db), _: User = Depends(require_admin)):
+def update_ldap(
+    payload: LdapConfigUpdate,
+    request: Request,
+    db: Session = Depends(get_db),
+    current: User = Depends(require_admin),
+):
     config = get_or_create_ldap_config(db)
     data = payload.model_dump(exclude_unset=True)
     password = data.pop("bind_password", None)
@@ -65,6 +73,7 @@ def update_ldap(payload: LdapConfigUpdate, db: Session = Depends(get_db), _: Use
         config.bind_password_encrypted = encrypt(password) if password else None
     db.commit()
     db.refresh(config)
+    record_audit(db, action="settings.ldap.updated", description="LDAP-Einstellungen geändert", actor=current, ip=client_ip(request))
     return config
 
 
@@ -96,7 +105,12 @@ def get_smtp(db: Session = Depends(get_db), _: User = Depends(require_admin)):
 
 
 @router.put("/smtp", response_model=SmtpConfigOut)
-def update_smtp(payload: SmtpConfigUpdate, db: Session = Depends(get_db), _: User = Depends(require_admin)):
+def update_smtp(
+    payload: SmtpConfigUpdate,
+    request: Request,
+    db: Session = Depends(get_db),
+    current: User = Depends(require_admin),
+):
     config = get_or_create_smtp_config(db)
     data = payload.model_dump(exclude_unset=True)
     password = data.pop("password", None)
@@ -107,6 +121,7 @@ def update_smtp(payload: SmtpConfigUpdate, db: Session = Depends(get_db), _: Use
         config.password_encrypted = encrypt(password) if password else None
     db.commit()
     db.refresh(config)
+    record_audit(db, action="settings.smtp.updated", description="SMTP-Einstellungen geändert", actor=current, ip=client_ip(request))
     return config
 
 
@@ -132,7 +147,12 @@ def get_oidc(db: Session = Depends(get_db), _: User = Depends(require_admin)):
 
 
 @router.put("/oidc", response_model=OidcConfigOut)
-def update_oidc(payload: OidcConfigUpdate, db: Session = Depends(get_db), _: User = Depends(require_admin)):
+def update_oidc(
+    payload: OidcConfigUpdate,
+    request: Request,
+    db: Session = Depends(get_db),
+    current: User = Depends(require_admin),
+):
     config = get_or_create_oidc_config(db)
     data = payload.model_dump(exclude_unset=True)
     secret = data.pop("client_secret", None)
@@ -142,4 +162,43 @@ def update_oidc(payload: OidcConfigUpdate, db: Session = Depends(get_db), _: Use
         config.client_secret_encrypted = encrypt(secret) if secret else None
     db.commit()
     db.refresh(config)
+    record_audit(db, action="settings.oidc.updated", description="OIDC-Einstellungen geändert", actor=current, ip=client_ip(request))
+    return config
+
+
+def get_or_create_security_config(db: Session) -> SecurityConfig:
+    config = db.query(SecurityConfig).first()
+    if config is None:
+        config = SecurityConfig()
+        db.add(config)
+        db.commit()
+        db.refresh(config)
+    return config
+
+
+@router.get("/security", response_model=SecurityConfigOut)
+def get_security(db: Session = Depends(get_db), _: User = Depends(require_admin)):
+    return get_or_create_security_config(db)
+
+
+@router.put("/security", response_model=SecurityConfigOut)
+def update_security(
+    payload: SecurityConfigUpdate,
+    request: Request,
+    db: Session = Depends(get_db),
+    current: User = Depends(require_admin),
+):
+    if payload.require_2fa not in {"off", "admins", "all"}:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Ungültiger Wert für require_2fa")
+    config = get_or_create_security_config(db)
+    config.require_2fa = payload.require_2fa
+    db.commit()
+    db.refresh(config)
+    record_audit(
+        db,
+        action="settings.security.updated",
+        description=f"2FA-Pflicht auf '{config.require_2fa}' gesetzt",
+        actor=current,
+        ip=client_ip(request),
+    )
     return config

@@ -78,6 +78,18 @@ export default function UsersPage() {
     }
   }
 
+  async function resetTwofa(user: User) {
+    if (!window.confirm(`2FA von „${user.email}“ zurücksetzen?`)) return
+    setMessage(null)
+    try {
+      await api.post(`/users/${user.id}/2fa/reset`)
+      load()
+      setMessage({ kind: 'info', text: '2FA zurückgesetzt.' })
+    } catch (e) {
+      setMessage({ kind: 'error', text: errText(e, '2FA konnte nicht zurückgesetzt werden.') })
+    }
+  }
+
   return (
     <PageScaffold
       title="Benutzer"
@@ -167,6 +179,11 @@ export default function UsersPage() {
                     <button onClick={() => toggleActive(user)} className="mr-3 text-text-secondary hover:text-accent hover:underline">
                       {user.is_active ? 'Deaktivieren' : 'Aktivieren'}
                     </button>
+                    {user.twofa_enabled && (
+                      <button onClick={() => resetTwofa(user)} className="mr-3 text-text-secondary hover:text-accent hover:underline">
+                        2FA zurücksetzen
+                      </button>
+                    )}
                     <button onClick={() => handleDelete(user)} className="text-status-danger hover:underline">
                       Löschen
                     </button>

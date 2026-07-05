@@ -58,11 +58,60 @@ class User(Base):
         nullable=False,
     )
     is_active: Mapped[bool] = mapped_column(default=True, nullable=False)
+
+    # --- Zwei-Faktor-Authentifizierung (2FA) ---
+    # method: None (aus) | "totp" (Authenticator-App) | "email" (Einmalcode per Mail)
+    twofa_method: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    totp_secret_encrypted: Mapped[str | None] = mapped_column(Text, nullable=True)
+    totp_pending_secret_encrypted: Mapped[str | None] = mapped_column(Text, nullable=True)
+    twofa_backup_codes: Mapped[str | None] = mapped_column(Text, nullable=True)  # JSON-Liste gehashter Codes
+    twofa_email_code_hash: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    twofa_email_code_expires: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     templates: Mapped[list["Template"]] = relationship(back_populates="created_by")
     campaigns: Mapped[list["Campaign"]] = relationship(back_populates="created_by")
+
+    @property
+    def twofa_enabled(self) -> bool:
+        return self.twofa_method is not None
+
+
+class AuditEvent(Base):
+    """Audit-Log: Anmelde- und System-Aenderungsereignisse (admin-einsehbar).
+
+    Actor-E-Mail/-Name werden als Snapshot gespeichert, damit ein geloeschter
+    Nutzer das Log nicht unlesbar macht (FK ist ON DELETE SET NULL).
+    """
+
+    __tablename__ = "audit_events"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), index=True, nullable=False
+    )
+    actor_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+    )
+    actor_email: Mapped[str] = mapped_column(String(320), default="", nullable=False)
+    actor_name: Mapped[str] = mapped_column(String(255), default="", nullable=False)
+    category: Mapped[str] = mapped_column(String(32), default="system", nullable=False)  # auth | system
+    action: Mapped[str] = mapped_column(String(64), nullable=False)
+    description: Mapped[str] = mapped_column(String(512), default="", nullable=False)
+    ip: Mapped[str | None] = mapped_column(String(64), nullable=True)
+
+
+class SecurityConfig(Base):
+    """Sicherheits-Policy (Singleton). Steuert die 2FA-Pflicht."""
+
+    __tablename__ = "security_config"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    # require_2fa: "off" (freiwillig) | "admins" (nur Admin-Konten) | "all" (alle)
+    require_2fa: Mapped[str] = mapped_column(String(16), default="off", nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
 
 class Template(Base):

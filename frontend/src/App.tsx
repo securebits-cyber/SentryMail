@@ -1,7 +1,11 @@
 import { useEffect, useState, type ReactElement } from 'react'
 import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom'
+import IntegrationsLayout from './components/IntegrationsLayout'
 import Layout from './components/Layout'
 import SettingsLayout from './components/SettingsLayout'
+import IntegrationsOverviewPage from './pages/integrations/overview'
+import AuditEventsPage from './pages/settings/audit-events'
+import SecuritySettingsPage from './pages/settings/security'
 import CampaignsPage from './pages/campaigns'
 import GroupsPage from './pages/groups'
 import DashboardPage from './pages/index'
@@ -56,6 +60,12 @@ export default function App() {
             <Route path="ldap" element={<LdapSettingsPage />} />
             <Route path="oidc" element={<OidcSettingsPage />} />
             <Route path="smtp" element={<SmtpSettingsPage />} />
+            <Route path="security" element={<SecuritySettingsPage />} />
+            <Route path="audit-events" element={<AuditEventsPage />} />
+          </Route>
+          <Route path="/integrations" element={<IntegrationsLayout />}>
+            <Route index element={<Navigate to="/integrations/overview" replace />} />
+            <Route path="overview" element={<IntegrationsOverviewPage />} />
           </Route>
           <Route path="/results/:campaignId" element={<ResultsPage />} />
         </Route>
