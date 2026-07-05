@@ -397,6 +397,32 @@ export const translations: Record<Lang, Record<string, string>> = {
     'tfa.backupNote':
       'Bewahre diese Codes sicher auf. Jeder Code funktioniert einmal, falls du keinen Zugriff auf deinen zweiten Faktor hast. Sie werden nur jetzt angezeigt.',
     'tfa.backupDone': 'Ich habe die Codes gesichert',
+
+    // Gruppen-Formular
+    'grf.manualAdd': 'Empfänger manuell hinzufügen',
+    'grf.position': 'Position',
+    'grf.add': 'Hinzufügen',
+    'grf.csvLabel': 'Empfänger per CSV (email,first_name,last_name,position)',
+    'grf.addCsv': 'Aus CSV hinzufügen',
+    'grf.csvFile': 'CSV-Datei…',
+    'grf.removeMember': 'Empfänger entfernen',
+    'grf.create': 'Gruppe anlegen',
+    'grf.csvNoLine': 'Keine gültige Zeile erkannt. Format: email,vorname,nachname,position (Komma oder Semikolon).',
+    'grf.invalidEmail': 'Bitte eine gültige E-Mail-Adresse eingeben.',
+    'grf.duplicate': 'Diese E-Mail ist bereits in der Liste.',
+    'grf.added': '{n} Empfänger hinzugefügt.',
+    'grf.addedSkipped': '{added} Empfänger hinzugefügt ({skipped} Duplikate übersprungen).',
+
+    // Kampagnen-Assistent
+    'cw.template': 'Vorlage',
+    'cw.sendingProfile': 'Sending Profile',
+    'cw.globalSmtp': '— Globales SMTP (.env) —',
+    'cw.landingPage': 'Landing Page',
+    'cw.none': '— keine —',
+    'cw.noGroups': 'Keine Gruppe vorhanden — erst unter „Gruppen" anlegen.',
+    'cw.schedule': 'Geplanter Versand (optional)',
+    'cw.creating': 'Wird angelegt...',
+    'cw.create': 'Kampagne anlegen',
   },
   en: {
     // Navigation
@@ -788,5 +814,31 @@ export const translations: Record<Lang, Record<string, string>> = {
     'tfa.backupNote':
       'Keep these codes safe. Each code works once if you lose access to your second factor. They are shown only now.',
     'tfa.backupDone': 'I have saved the codes',
+
+    // Group form
+    'grf.manualAdd': 'Add recipient manually',
+    'grf.position': 'Position',
+    'grf.add': 'Add',
+    'grf.csvLabel': 'Recipients via CSV (email,first_name,last_name,position)',
+    'grf.addCsv': 'Add from CSV',
+    'grf.csvFile': 'CSV file…',
+    'grf.removeMember': 'Remove recipient',
+    'grf.create': 'Create group',
+    'grf.csvNoLine': 'No valid line detected. Format: email,first_name,last_name,position (comma or semicolon).',
+    'grf.invalidEmail': 'Please enter a valid email address.',
+    'grf.duplicate': 'This email is already in the list.',
+    'grf.added': '{n} recipients added.',
+    'grf.addedSkipped': '{added} recipients added ({skipped} duplicates skipped).',
+
+    // Campaign wizard
+    'cw.template': 'Template',
+    'cw.sendingProfile': 'Sending profile',
+    'cw.globalSmtp': '— Global SMTP (.env) —',
+    'cw.landingPage': 'Landing page',
+    'cw.none': '— none —',
+    'cw.noGroups': 'No group available — create one under “Groups” first.',
+    'cw.schedule': 'Scheduled send (optional)',
+    'cw.creating': 'Creating...',
+    'cw.create': 'Create campaign',
   },
 }

@@ -1,4 +1,5 @@
 import { FormEvent, useState } from 'react'
+import { useI18n } from '../i18n'
 import type { GroupSummary, LandingPage, SendingProfile, Template } from '../types'
 
 export interface CampaignWizardValues {
@@ -32,6 +33,7 @@ export default function CampaignWizard({
   onCancel,
   submitting,
 }: CampaignWizardProps) {
+  const { t } = useI18n()
   const [name, setName] = useState('')
   const [templateId, setTemplateId] = useState(templates[0]?.id ?? '')
   const [profileId, setProfileId] = useState('')
@@ -63,25 +65,25 @@ export default function CampaignWizard({
   return (
     <form onSubmit={handleSubmit} className="flex max-w-2xl flex-col gap-4">
       <label className={labelClass}>
-        Name
+        {t('common.name')}
         <input value={name} onChange={(e) => setName(e.target.value)} required className={fieldClass} />
       </label>
 
       <label className={labelClass}>
-        Vorlage
+        {t('cw.template')}
         <select value={templateId} onChange={(e) => setTemplateId(e.target.value)} required className={fieldClass}>
-          {templates.map((t) => (
-            <option key={t.id} value={t.id}>
-              {t.name}
+          {templates.map((tpl) => (
+            <option key={tpl.id} value={tpl.id}>
+              {tpl.name}
             </option>
           ))}
         </select>
       </label>
 
       <label className={labelClass}>
-        Sending Profile
+        {t('cw.sendingProfile')}
         <select value={profileId} onChange={(e) => setProfileId(e.target.value)} className={fieldClass}>
-          <option value="">— Globales SMTP (.env) —</option>
+          <option value="">{t('cw.globalSmtp')}</option>
           {profiles.map((p) => (
             <option key={p.id} value={p.id}>
               {p.name}
@@ -91,9 +93,9 @@ export default function CampaignWizard({
       </label>
 
       <label className={labelClass}>
-        Landing Page
+        {t('cw.landingPage')}
         <select value={pageId} onChange={(e) => setPageId(e.target.value)} className={fieldClass}>
-          <option value="">— keine —</option>
+          <option value="">{t('cw.none')}</option>
           {pages.map((p) => (
             <option key={p.id} value={p.id}>
               {p.name}
@@ -103,9 +105,9 @@ export default function CampaignWizard({
       </label>
 
       <div className="flex flex-col gap-1 text-sm">
-        <span>Gruppen</span>
+        <span>{t('nav.groups')}</span>
         {groups.length === 0 ? (
-          <span className="text-text-secondary">Keine Gruppe vorhanden — erst unter „Gruppen" anlegen.</span>
+          <span className="text-text-secondary">{t('cw.noGroups')}</span>
         ) : (
           <div className="flex flex-col gap-1 rounded-md border border-border p-3">
             {groups.map((g) => (
@@ -120,7 +122,7 @@ export default function CampaignWizard({
       </div>
 
       <div className="flex flex-col gap-1 text-sm">
-        <span>Geplanter Versand (optional)</span>
+        <span>{t('cw.schedule')}</span>
         <div className="flex gap-3">
           <input
             type="date"
@@ -144,14 +146,14 @@ export default function CampaignWizard({
           disabled={submitting || groupIds.length === 0}
           className="rounded-md bg-accent px-5 py-2 font-medium text-white disabled:opacity-60"
         >
-          {submitting ? 'Wird angelegt...' : 'Kampagne anlegen'}
+          {submitting ? t('cw.creating') : t('cw.create')}
         </button>
         <button
           type="button"
           onClick={onCancel}
           className="rounded-md border border-border px-5 py-2 text-text-primary hover:bg-bg"
         >
-          Abbrechen
+          {t('common.cancel')}
         </button>
       </div>
     </form>
