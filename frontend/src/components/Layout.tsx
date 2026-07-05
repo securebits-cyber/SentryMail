@@ -1,4 +1,4 @@
-import { Blocks, Brain, Building2, CircleUser, FileText, Globe, LayoutDashboard, LogOut, Mail, Moon, Palette, Server, Settings, Sun, UserCog, Users, type LucideIcon } from 'lucide-react'
+import { Blocks, CircleUser, FileText, Globe, LayoutDashboard, LogOut, Mail, Moon, Server, Settings, Sun, UserCog, Users, type LucideIcon } from 'lucide-react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { useMe } from '../hooks/useMe'
 import { useTheme } from '../hooks/useTheme'
@@ -30,9 +30,6 @@ const adminNav: NavItem[] = [
   { to: '/users', label: 'Benutzer', icon: UserCog, end: false },
   { to: '/settings', label: 'Einstellungen', icon: Settings, end: false },
   { to: '/integrations', label: 'Integrationen', icon: Blocks, end: false, badge: 'Enterprise' },
-  { to: '/white-label', label: 'White-Label', icon: Palette, end: false, badge: 'Enterprise' },
-  { to: '/multi-tenant', label: 'Multi-Tenant', icon: Building2, end: false, badge: 'Enterprise' },
-  { to: '/ai-scoring', label: 'AI-Scoring', icon: Brain, end: false, badge: 'Enterprise' },
 ]
 
 const linkClass = ({ isActive }: { isActive: boolean }) =>

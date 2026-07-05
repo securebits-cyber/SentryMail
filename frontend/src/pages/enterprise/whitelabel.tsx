@@ -1,4 +1,4 @@
-import { Palette } from 'lucide-react'
+import { Blocks, Palette } from 'lucide-react'
 import EnterprisePlaceholder from '../../components/EnterprisePlaceholder'
 
 export default function WhiteLabelPage() {
@@ -6,6 +6,10 @@ export default function WhiteLabelPage() {
     <EnterprisePlaceholder
       title="White-Label"
       icon={Palette}
+      breadcrumb={[
+        { label: 'Integrationen', icon: Blocks },
+        { label: 'White-Label', icon: Palette },
+      ]}
       tagline="Die Plattform im eigenen Marken-Auftritt."
       intro="Betreibe HumanShield.APP unter deiner eigenen Marke – Logo, Farben, Absenderdomains und Portal-URL individuell für deine Kunden."
       features={[

@@ -7,12 +7,13 @@ interface Props {
   tagline: string
   intro: string
   features: string[]
+  breadcrumb?: { label: string; icon?: LucideIcon }[]
 }
 
 /** Platzhalterseite für ein (noch nicht aktiviertes) Enterprise-Feature. */
-export default function EnterprisePlaceholder({ title, icon: Icon, tagline, intro, features }: Props) {
+export default function EnterprisePlaceholder({ title, icon: Icon, tagline, intro, features, breadcrumb }: Props) {
   return (
-    <PageScaffold title={title} subtitle={tagline}>
+    <PageScaffold title={title} subtitle={tagline} breadcrumb={breadcrumb}>
       <div className="max-w-2xl rounded-lg border border-border bg-surface p-6">
         <div className="flex items-center gap-3">
           <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/12 text-accent">

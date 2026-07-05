@@ -69,10 +69,10 @@ export default function App() {
           <Route path="/integrations" element={<IntegrationsLayout />}>
             <Route index element={<Navigate to="/integrations/overview" replace />} />
             <Route path="overview" element={<IntegrationsOverviewPage />} />
+            <Route path="white-label" element={<WhiteLabelPage />} />
+            <Route path="multi-tenant" element={<MultiTenantPage />} />
+            <Route path="ai-scoring" element={<AiScoringPage />} />
           </Route>
-          <Route path="/white-label" element={<WhiteLabelPage />} />
-          <Route path="/multi-tenant" element={<MultiTenantPage />} />
-          <Route path="/ai-scoring" element={<AiScoringPage />} />
           <Route path="/results/:campaignId" element={<ResultsPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
