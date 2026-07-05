@@ -1,6 +1,8 @@
 import { FormEvent, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import TwoFASetup from '../components/TwoFASetup'
+import LanguageSwitcher from '../components/LanguageSwitcher'
+import { useI18n } from '../i18n'
 import { getAuthConfig, loginLocal, loginUrl, loginVerify2fa, setToken } from '../services/auth'
 
 const fieldClass = 'rounded-md border border-border bg-surface px-3 py-2 text-text-primary'
@@ -8,6 +10,7 @@ const primaryBtn = 'rounded-md bg-accent px-5 py-2 font-medium text-white disabl
 
 export default function LoginPage() {
   const navigate = useNavigate()
+  const { t } = useI18n()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -46,7 +49,7 @@ export default function LoginPage() {
         }
       }
     } catch {
-      setError('E-Mail oder Passwort ist falsch.')
+      setError(t('login.errorCredentials'))
     } finally {
       setSubmitting(false)
     }
@@ -60,36 +63,39 @@ export default function LoginPage() {
       await loginVerify2fa(preAuth, code)
       navigate('/', { replace: true })
     } catch {
-      setError('Code ist ungültig.')
+      setError(t('login.2fa.errorCode'))
     } finally {
       setSubmitting(false)
     }
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-bg p-6 text-text-primary">
+    <div className="relative flex min-h-screen flex-col items-center justify-center gap-6 bg-bg p-6 text-text-primary">
+      <div className="absolute right-4 top-4">
+        <LanguageSwitcher />
+      </div>
       <h1 className="text-2xl font-semibold">HumanShield.APP</h1>
 
       {stage === 'password' && (
         <>
           <form onSubmit={handlePassword} className="flex w-72 flex-col gap-3">
             <label className="flex flex-col gap-1 text-sm">
-              E-Mail
+              {t('login.email')}
               <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoFocus className={fieldClass} />
             </label>
             <label className="flex flex-col gap-1 text-sm">
-              Passwort
+              {t('login.password')}
               <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className={fieldClass} />
             </label>
             {error && <p className="m-0 text-sm text-status-danger">{error}</p>}
             <button type="submit" disabled={submitting} className={primaryBtn}>
-              {submitting ? 'Wird geprüft...' : 'Anmelden'}
+              {submitting ? t('login.checking') : t('login.signIn')}
             </button>
           </form>
 
           {oidcEnabled && (
             <a href={loginUrl()} className="text-sm text-text-secondary underline">
-              Mit Single Sign-On anmelden
+              {t('login.sso')}
             </a>
           )}
         </>
@@ -98,30 +104,25 @@ export default function LoginPage() {
       {stage === 'verify' && (
         <form onSubmit={handleVerify} className="flex w-80 flex-col gap-3">
           <p className="text-sm text-text-secondary">
-            {method === 'email'
-              ? 'Wir haben dir einen Einmalcode per E-Mail geschickt.'
-              : 'Gib den Code aus deiner Authenticator-App ein.'}{' '}
-            Alternativ funktioniert ein Backup-Code.
+            {method === 'email' ? t('login.2fa.emailSent') : t('login.2fa.appPrompt')} {t('login.2fa.backupHint')}
           </p>
           <label className="flex flex-col gap-1 text-sm">
-            Code
+            {t('login.2fa.codeLabel')}
             <input value={code} onChange={(e) => setCode(e.target.value)} inputMode="numeric" autoFocus placeholder="123456" className={`${fieldClass} font-mono`} />
           </label>
           {error && <p className="m-0 text-sm text-status-danger">{error}</p>}
           <button type="submit" disabled={submitting || !code} className={primaryBtn}>
-            {submitting ? 'Prüfe...' : 'Bestätigen'}
+            {submitting ? t('login.2fa.checking') : t('login.2fa.confirm')}
           </button>
           <button type="button" onClick={() => setStage('password')} className="text-sm text-text-secondary hover:underline">
-            Zurück
+            {t('common.back')}
           </button>
         </form>
       )}
 
       {stage === 'setup' && (
         <div className="w-full max-w-xl">
-          <p className="mb-3 text-center text-sm text-status-warning">
-            Für dein Konto ist Zwei-Faktor-Authentifizierung verpflichtend. Bitte richte sie jetzt ein.
-          </p>
+          <p className="mb-3 text-center text-sm text-status-warning">{t('login.2fa.setupRequired')}</p>
           <TwoFASetup
             onCancel={() => setStage('password')}
             onDone={(activated) => {
