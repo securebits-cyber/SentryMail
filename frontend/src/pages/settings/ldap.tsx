@@ -1,26 +1,21 @@
 import { FormEvent, useEffect, useState } from 'react'
-import PageHeader from '../components/PageHeader'
-import Toggle from '../components/Toggle'
-import { api } from '../services/api'
-import type { LdapConfig, OidcConfig } from '../types'
+import PageHeader from '../../components/PageHeader'
+import Toggle from '../../components/Toggle'
+import { api } from '../../services/api'
+import type { LdapConfig } from '../../types'
 
 const fieldClass = 'rounded-md border border-border bg-surface px-3 py-2 text-text-primary'
 const labelClass = 'flex flex-col gap-1 text-sm'
 
 // Passwoerter/Secrets sind write-only: leeres Feld = unveraendert lassen.
 type LdapForm = Omit<LdapConfig, 'has_bind_password'> & { bind_password: string }
-type OidcForm = Omit<OidcConfig, 'has_client_secret'> & { client_secret: string }
 
-export default function SettingsPage() {
+export default function LdapSettingsPage() {
   const [form, setForm] = useState<LdapForm | null>(null)
   const [hasPassword, setHasPassword] = useState(false)
   const [saving, setSaving] = useState(false)
   const [testing, setTesting] = useState(false)
   const [message, setMessage] = useState<{ kind: 'error' | 'info'; text: string } | null>(null)
-
-  const [oidc, setOidc] = useState<OidcForm | null>(null)
-  const [hasSecret, setHasSecret] = useState(false)
-  const [savingOidc, setSavingOidc] = useState(false)
 
   useEffect(() => {
     api.get<LdapConfig>('/settings/ldap').then((res) => {
@@ -28,39 +23,10 @@ export default function SettingsPage() {
       setHasPassword(has_bind_password)
       setForm({ ...rest, bind_password: '' })
     })
-    api.get<OidcConfig>('/settings/oidc').then((res) => {
-      const { has_client_secret, ...rest } = res.data
-      setHasSecret(has_client_secret)
-      setOidc({ ...rest, client_secret: '' })
-    })
   }, [])
 
   function set<K extends keyof LdapForm>(key: K, value: LdapForm[K]) {
     setForm((prev) => (prev ? { ...prev, [key]: value } : prev))
-  }
-
-  function setO<K extends keyof OidcForm>(key: K, value: OidcForm[K]) {
-    setOidc((prev) => (prev ? { ...prev, [key]: value } : prev))
-  }
-
-  async function saveOidc(event: FormEvent) {
-    event.preventDefault()
-    if (!oidc) return
-    setSavingOidc(true)
-    setMessage(null)
-    try {
-      const { client_secret, ...rest } = oidc
-      const payload: Record<string, unknown> = { ...rest }
-      if (client_secret) payload.client_secret = client_secret
-      await api.put('/settings/oidc', payload)
-      if (client_secret) setHasSecret(true)
-      setOidc((prev) => (prev ? { ...prev, client_secret: '' } : prev))
-      setMessage({ kind: 'info', text: 'OIDC-Einstellungen gespeichert.' })
-    } catch {
-      setMessage({ kind: 'error', text: 'OIDC-Speichern fehlgeschlagen (Admin-Rechte nötig?).' })
-    } finally {
-      setSavingOidc(false)
-    }
   }
 
   /** Speichert die aktuellen Werte (Passwort nur wenn eingegeben). */
@@ -110,8 +76,8 @@ export default function SettingsPage() {
   return (
     <>
       <PageHeader
-        title="Einstellungen"
-        subtitle="Zugangsdaten (LDAP-Bind, OIDC-Secret) werden verschlüsselt gespeichert."
+        title="LDAP-Anbindung"
+        subtitle="Empfänger-Import aus dem Verzeichnisdienst. Das Bind-Passwort wird verschlüsselt gespeichert."
       />
 
       {message && (
@@ -120,7 +86,6 @@ export default function SettingsPage() {
         </p>
       )}
 
-      <h2 className="mb-3 text-lg font-semibold">LDAP-Anbindung</h2>
       <form onSubmit={handleSave} className="flex max-w-2xl flex-col gap-4">
         <div className="elevated flex items-center justify-between gap-4 rounded-lg border border-border bg-surface p-4">
           <div>
@@ -210,67 +175,6 @@ export default function SettingsPage() {
           </button>
         </div>
       </form>
-
-      {oidc && (
-        <>
-          <h2 className="mb-1 mt-10 text-lg font-semibold">OIDC / Single Sign-On</h2>
-          <p className="mb-3 text-sm text-text-secondary">
-            Optionale Zweitanmeldung. Ohne Aktivierung läuft die App rein mit lokalem Login.
-          </p>
-          <form onSubmit={saveOidc} className="flex max-w-2xl flex-col gap-4">
-            <div className="elevated flex items-center justify-between gap-4 rounded-lg border border-border bg-surface p-4">
-              <div>
-                <div className="text-sm font-medium">OIDC aktivieren</div>
-                <div className="text-sm text-text-secondary">Zeigt den SSO-Button auf der Anmeldeseite.</div>
-              </div>
-              <Toggle checked={oidc.enabled} onChange={(v) => setO('enabled', v)} aria-label="OIDC aktivieren" />
-            </div>
-
-            <label className={labelClass}>
-              Issuer-URL
-              <input
-                value={oidc.issuer}
-                onChange={(e) => setO('issuer', e.target.value)}
-                placeholder="https://idp.example.com/application/o/phishaware/"
-                className={`${fieldClass} font-mono`}
-              />
-            </label>
-            <label className={labelClass}>
-              Client-ID
-              <input value={oidc.client_id} onChange={(e) => setO('client_id', e.target.value)} className={`${fieldClass} font-mono`} />
-            </label>
-            <label className={labelClass}>
-              Client-Secret {hasSecret && <span className="text-text-secondary">(leer = unverändert)</span>}
-              <input
-                type="password"
-                value={oidc.client_secret}
-                onChange={(e) => setO('client_secret', e.target.value)}
-                placeholder={hasSecret ? '••••••••' : ''}
-                className={fieldClass}
-              />
-            </label>
-            <label className={labelClass}>
-              Redirect-URI
-              <input
-                value={oidc.redirect_uri}
-                onChange={(e) => setO('redirect_uri', e.target.value)}
-                placeholder="https://deine-domain/api/auth/callback"
-                className={`${fieldClass} font-mono`}
-              />
-            </label>
-
-            <div>
-              <button
-                type="submit"
-                disabled={savingOidc}
-                className="rounded-md bg-accent px-5 py-2 font-medium text-white disabled:opacity-60"
-              >
-                {savingOidc ? 'Speichern...' : 'Speichern'}
-              </button>
-            </div>
-          </form>
-        </>
-      )}
     </>
   )
 }

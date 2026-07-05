@@ -9,7 +9,8 @@ import LoginPage from './pages/login'
 import ProfilePage from './pages/profile'
 import ResultsPage from './pages/results'
 import SendingProfilesPage from './pages/sending-profiles'
-import SettingsPage from './pages/settings'
+import LdapSettingsPage from './pages/settings/ldap'
+import OidcSettingsPage from './pages/settings/oidc'
 import TemplatesPage from './pages/templates'
 import UsersPage from './pages/users'
 import { consumeTokenFromUrlFragment, isAuthenticated } from './services/auth'
@@ -48,7 +49,9 @@ export default function App() {
           <Route path="/campaigns" element={<CampaignsPage />} />
           <Route path="/users" element={<UsersPage />} />
           <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/settings" element={<Navigate to="/settings/ldap" replace />} />
+          <Route path="/settings/ldap" element={<LdapSettingsPage />} />
+          <Route path="/settings/oidc" element={<OidcSettingsPage />} />
           <Route path="/results/:campaignId" element={<ResultsPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
