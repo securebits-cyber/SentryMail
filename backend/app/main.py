@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from starlette.middleware.sessions import SessionMiddleware
 
-from app.api import campaigns, dashboard, groups, health, landing_pages, me as me_api, results, sending_profiles, settings as settings_api, templates, tracking
+from app.api import audit, campaigns, dashboard, groups, health, landing_pages, me as me_api, results, sending_profiles, settings as settings_api, templates, tracking
 from app.api import users as users_api
 from app.auth import local as local_auth
 from app.auth.oidc import is_oidc_enabled
@@ -55,6 +55,7 @@ app.include_router(local_auth.router)
 app.include_router(oidc_router)
 app.include_router(me_api.router)
 app.include_router(users_api.router)
+app.include_router(audit.router)
 app.include_router(settings_api.router)
 app.include_router(sending_profiles.router)
 app.include_router(groups.router)

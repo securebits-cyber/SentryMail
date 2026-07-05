@@ -8,6 +8,78 @@ from pydantic import BaseModel, ConfigDict, EmailStr
 from app.models import CampaignStatus, TrackingEventType, UserRole
 
 
+# --- Audit-Log ---
+
+class AuditEventOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    created_at: datetime
+    actor_email: str
+    actor_name: str
+    category: str
+    action: str
+    description: str
+    ip: str | None
+
+
+class AuditEventList(BaseModel):
+    total: int
+    events: list[AuditEventOut]
+
+
+# --- Login & 2FA ---
+
+class LoginResult(BaseModel):
+    twofa_required: bool = False
+    setup_required: bool = False
+    method: str | None = None  # "totp" | "email" (aktive Methode, wenn 2FA gefordert)
+    pre_auth_token: str | None = None
+    access_token: str | None = None
+    token_type: str = "bearer"
+
+
+class TwoFAStatus(BaseModel):
+    method: str | None
+    enabled: bool
+    backup_codes_remaining: int
+    required: bool  # ob die Policy 2FA fuer diesen Nutzer verlangt
+
+
+class TotpSetupOut(BaseModel):
+    secret: str
+    provisioning_uri: str
+    qr_data_uri: str
+
+
+class TwoFACodeIn(BaseModel):
+    code: str
+
+
+class TwoFAActivated(BaseModel):
+    backup_codes: list[str]
+    access_token: str | None = None  # gesetzt, wenn Einrichtung im (erzwungenen) Login erfolgte
+
+
+class TwoFADisableIn(BaseModel):
+    password: str
+
+
+class TwoFAEmailSetupResult(BaseModel):
+    success: bool
+    detail: str
+
+
+class SecurityConfigOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    require_2fa: str  # off | admins | all
+
+
+class SecurityConfigUpdate(BaseModel):
+    require_2fa: str
+
+
 # --- User ---
 
 class UserOut(BaseModel):
@@ -18,6 +90,7 @@ class UserOut(BaseModel):
     full_name: str
     role: UserRole
     is_active: bool
+    twofa_enabled: bool
     created_at: datetime
 
 

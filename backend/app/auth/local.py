@@ -2,14 +2,20 @@
 
 Konten werden ausschliesslich von Admins angelegt (siehe app/api/users.py),
 kein Self-Signup. OIDC (app/auth/oidc.py) ist eine optionale Zweitmethode.
+Der Login ist zweistufig, sobald 2FA aktiv oder per Policy erzwungen ist.
 """
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
+from app.api.settings import get_or_create_security_config
+from app.auth.permissions import TWOFA_SCOPE, get_twofa_pending_user
 from app.config import get_settings
 from app.database import get_db
 from app.models import User, UserRole
+from app.schemas import LoginResult, TwoFACodeIn
+from app.services import twofa
+from app.services.audit import client_ip, record_audit
 from app.utils.passwords import hash_password, verify_password
 from app.utils.security import create_access_token
 
@@ -42,27 +48,72 @@ class LocalLoginRequest(BaseModel):
     password: str
 
 
-class TokenResponse(BaseModel):
-    access_token: str
-    token_type: str = "bearer"
+def _pre_auth_token(user: User) -> str:
+    return create_access_token(subject=str(user.id), extra_claims={"scope": TWOFA_SCOPE})
 
 
-@router.post("/login", response_model=TokenResponse)
-def login(payload: LocalLoginRequest, db: Session = Depends(get_db)) -> TokenResponse:
+@router.post("/login", response_model=LoginResult)
+def login(payload: LocalLoginRequest, request: Request, db: Session = Depends(get_db)) -> LoginResult:
+    ip = client_ip(request)
     invalid_credentials = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED, detail="E-Mail oder Passwort ist falsch"
     )
 
     user = db.query(User).filter(User.email == payload.email).first()
-    if user is None or user.password_hash is None:
-        # Absichtlich dieselbe Fehlermeldung wie bei falschem Passwort -
-        # verraet nicht, ob die E-Mail-Adresse existiert.
-        raise invalid_credentials
-
-    if not verify_password(payload.password, user.password_hash):
+    if user is None or user.password_hash is None or not verify_password(payload.password, user.password_hash):
+        # Absichtlich dieselbe Fehlermeldung - verraet nicht, ob die E-Mail existiert.
+        record_audit(
+            db,
+            action="login.failed",
+            category="auth",
+            description=f"Fehlgeschlagene Anmeldung für {payload.email}",
+            actor_email=payload.email,
+            ip=ip,
+        )
         raise invalid_credentials
 
     if not user.is_active:
+        record_audit(
+            db,
+            action="login.blocked",
+            category="auth",
+            description="Anmeldung eines deaktivierten Kontos blockiert",
+            actor=user,
+            ip=ip,
+        )
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Benutzer ist deaktiviert")
 
-    return TokenResponse(access_token=create_access_token(subject=str(user.id)))
+    policy = get_or_create_security_config(db).require_2fa
+
+    # 2FA aktiv -> zweiter Schritt erforderlich.
+    if user.twofa_enabled:
+        if user.twofa_method == "email":
+            code = twofa.new_email_code()
+            twofa.set_email_code(user, code)
+            db.commit()
+            twofa.send_email_2fa_code(db, user, code)
+        return LoginResult(twofa_required=True, method=user.twofa_method, pre_auth_token=_pre_auth_token(user))
+
+    # 2FA per Policy erzwungen, aber noch nicht eingerichtet -> Einrichtung erzwingen.
+    if twofa.twofa_required_for(user, policy):
+        return LoginResult(twofa_required=True, setup_required=True, pre_auth_token=_pre_auth_token(user))
+
+    record_audit(db, action="login.success", category="auth", description="Erfolgreiche Anmeldung", actor=user, ip=ip)
+    return LoginResult(access_token=create_access_token(subject=str(user.id)))
+
+
+@router.post("/login/2fa", response_model=LoginResult)
+def login_verify_2fa(
+    payload: TwoFACodeIn,
+    request: Request,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_twofa_pending_user),
+) -> LoginResult:
+    ip = client_ip(request)
+    if twofa.verify_second_factor(user, payload.code):
+        db.commit()  # verbrauchten Backup-Code / geleerten E-Mail-Code persistieren
+        record_audit(db, action="login.success", category="auth", description="Erfolgreiche Anmeldung (2FA)", actor=user, ip=ip)
+        return LoginResult(access_token=create_access_token(subject=str(user.id)))
+
+    record_audit(db, action="login.failed", category="auth", description="Falscher 2FA-Code", actor=user, ip=ip)
+    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Code ist ungültig")

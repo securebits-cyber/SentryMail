@@ -50,6 +50,39 @@ async def _open_smtp(
     return client
 
 
+async def send_simple_email(
+    *,
+    host: str,
+    port: int,
+    tls_mode: str,
+    validate_certs: bool,
+    username: str | None,
+    password: str | None,
+    from_email: str,
+    from_name: str,
+    to_email: str,
+    subject: str,
+    text_body: str,
+) -> None:
+    """Sendet eine einfache Text-Mail (z. B. 2FA-Code) ueber explizite SMTP-Parameter."""
+    client = await _open_smtp(
+        host=host,
+        port=port,
+        tls_mode=tls_mode,
+        validate_certs=validate_certs,
+        username=username,
+        password=password,
+    )
+    msg = MIMEText(text_body, "plain", "utf-8")
+    msg["Subject"] = Header(subject, "utf-8")
+    msg["From"] = f"{from_name} <{from_email}>"
+    msg["To"] = to_email
+    try:
+        await client.send_message(msg, sender=from_email)
+    finally:
+        await client.quit()
+
+
 async def test_smtp_params(
     *,
     host: str,

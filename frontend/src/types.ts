@@ -60,6 +60,7 @@ export interface User {
   full_name: string
   role: 'admin' | 'user'
   is_active: boolean
+  twofa_enabled: boolean
   created_at: string
 }
 
@@ -96,6 +97,46 @@ export interface GroupSummary {
   member_count: number
   created_at: string
   updated_at: string
+}
+
+// --- Zwei-Faktor-Authentifizierung ---
+export interface TwoFAStatus {
+  method: string | null // "totp" | "email" | null
+  enabled: boolean
+  backup_codes_remaining: number
+  required: boolean
+}
+
+export interface TotpSetup {
+  secret: string
+  provisioning_uri: string
+  qr_data_uri: string
+}
+
+export interface TwoFAActivated {
+  backup_codes: string[]
+  access_token: string | null
+}
+
+export interface SecurityConfig {
+  require_2fa: string // "off" | "admins" | "all"
+}
+
+// Audit-Log: Anmelde- und System-Aenderungsereignisse.
+export interface AuditEvent {
+  id: string
+  created_at: string
+  actor_email: string
+  actor_name: string
+  category: string
+  action: string
+  description: string
+  ip: string | null
+}
+
+export interface AuditEventList {
+  total: number
+  events: AuditEvent[]
 }
 
 // Globales Fallback-SMTP — greift ohne Sending Profile, im Dashboard verwaltet.

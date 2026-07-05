@@ -1,6 +1,10 @@
 import { FormEvent, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getAuthConfig, loginLocal, loginUrl } from '../services/auth'
+import TwoFASetup from '../components/TwoFASetup'
+import { getAuthConfig, loginLocal, loginUrl, loginVerify2fa, setToken } from '../services/auth'
+
+const fieldClass = 'rounded-md border border-border bg-surface px-3 py-2 text-text-primary'
+const primaryBtn = 'rounded-md bg-accent px-5 py-2 font-medium text-white disabled:opacity-60'
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -10,17 +14,37 @@ export default function LoginPage() {
   const [submitting, setSubmitting] = useState(false)
   const [oidcEnabled, setOidcEnabled] = useState(false)
 
+  // 2FA-Zwischenschritt
+  const [stage, setStage] = useState<'password' | 'verify' | 'setup'>('password')
+  const [preAuth, setPreAuth] = useState('')
+  const [method, setMethod] = useState<string | null>(null)
+  const [code, setCode] = useState('')
+
   useEffect(() => {
     getAuthConfig().then((config) => setOidcEnabled(config.oidc_enabled))
   }, [])
 
-  async function handleSubmit(event: FormEvent) {
+  async function handlePassword(event: FormEvent) {
     event.preventDefault()
     setError(null)
     setSubmitting(true)
     try {
-      await loginLocal(email, password)
-      navigate('/', { replace: true })
+      const res = await loginLocal(email, password)
+      if (res.access_token) {
+        navigate('/', { replace: true })
+        return
+      }
+      if (res.twofa_required && res.pre_auth_token) {
+        setPreAuth(res.pre_auth_token)
+        setMethod(res.method)
+        if (res.setup_required) {
+          // Erzwungene Einrichtung: Pre-Auth-Token nutzen, bis das Voll-Token kommt.
+          setToken(res.pre_auth_token)
+          setStage('setup')
+        } else {
+          setStage('verify')
+        }
+      }
     } catch {
       setError('E-Mail oder Passwort ist falsch.')
     } finally {
@@ -28,49 +52,88 @@ export default function LoginPage() {
     }
   }
 
+  async function handleVerify(event: FormEvent) {
+    event.preventDefault()
+    setError(null)
+    setSubmitting(true)
+    try {
+      await loginVerify2fa(preAuth, code)
+      navigate('/', { replace: true })
+    } catch {
+      setError('Code ist ungültig.')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-bg text-text-primary">
+    <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-bg p-6 text-text-primary">
       <h1 className="text-2xl font-semibold">HumanShield.APP</h1>
 
-      <form onSubmit={handleSubmit} className="flex w-72 flex-col gap-3">
-        <label className="flex flex-col gap-1 text-sm">
-          E-Mail
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            autoFocus
-            className="rounded-md border border-border bg-surface px-3 py-2 text-text-primary"
+      {stage === 'password' && (
+        <>
+          <form onSubmit={handlePassword} className="flex w-72 flex-col gap-3">
+            <label className="flex flex-col gap-1 text-sm">
+              E-Mail
+              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoFocus className={fieldClass} />
+            </label>
+            <label className="flex flex-col gap-1 text-sm">
+              Passwort
+              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className={fieldClass} />
+            </label>
+            {error && <p className="m-0 text-sm text-status-danger">{error}</p>}
+            <button type="submit" disabled={submitting} className={primaryBtn}>
+              {submitting ? 'Wird geprüft...' : 'Anmelden'}
+            </button>
+          </form>
+
+          {oidcEnabled && (
+            <a href={loginUrl()} className="text-sm text-text-secondary underline">
+              Mit Single Sign-On anmelden
+            </a>
+          )}
+        </>
+      )}
+
+      {stage === 'verify' && (
+        <form onSubmit={handleVerify} className="flex w-80 flex-col gap-3">
+          <p className="text-sm text-text-secondary">
+            {method === 'email'
+              ? 'Wir haben dir einen Einmalcode per E-Mail geschickt.'
+              : 'Gib den Code aus deiner Authenticator-App ein.'}{' '}
+            Alternativ funktioniert ein Backup-Code.
+          </p>
+          <label className="flex flex-col gap-1 text-sm">
+            Code
+            <input value={code} onChange={(e) => setCode(e.target.value)} inputMode="numeric" autoFocus placeholder="123456" className={`${fieldClass} font-mono`} />
+          </label>
+          {error && <p className="m-0 text-sm text-status-danger">{error}</p>}
+          <button type="submit" disabled={submitting || !code} className={primaryBtn}>
+            {submitting ? 'Prüfe...' : 'Bestätigen'}
+          </button>
+          <button type="button" onClick={() => setStage('password')} className="text-sm text-text-secondary hover:underline">
+            Zurück
+          </button>
+        </form>
+      )}
+
+      {stage === 'setup' && (
+        <div className="w-full max-w-xl">
+          <p className="mb-3 text-center text-sm text-status-warning">
+            Für dein Konto ist Zwei-Faktor-Authentifizierung verpflichtend. Bitte richte sie jetzt ein.
+          </p>
+          <TwoFASetup
+            onCancel={() => setStage('password')}
+            onDone={(activated) => {
+              if (activated.access_token) {
+                setToken(activated.access_token)
+                navigate('/', { replace: true })
+              } else {
+                setStage('verify')
+              }
+            }}
           />
-        </label>
-
-        <label className="flex flex-col gap-1 text-sm">
-          Passwort
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            className="rounded-md border border-border bg-surface px-3 py-2 text-text-primary"
-          />
-        </label>
-
-        {error && <p className="m-0 text-sm text-status-danger">{error}</p>}
-
-        <button
-          type="submit"
-          disabled={submitting}
-          className="rounded-md bg-accent px-5 py-2 font-medium text-white disabled:opacity-60"
-        >
-          {submitting ? 'Wird geprueft...' : 'Anmelden'}
-        </button>
-      </form>
-
-      {oidcEnabled && (
-        <a href={loginUrl()} className="text-sm text-text-secondary underline">
-          Mit Single Sign-On anmelden
-        </a>
+        </div>
       )}
     </div>
   )

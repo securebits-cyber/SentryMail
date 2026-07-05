@@ -1,7 +1,7 @@
 """Admin-verwaltete lokale Benutzerkonten (kein Self-Signup)."""
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from pydantic import BaseModel, EmailStr
 from sqlalchemy import func
 from sqlalchemy.orm import Session
@@ -10,6 +10,7 @@ from app.auth.permissions import require_admin
 from app.database import get_db
 from app.models import User, UserRole
 from app.schemas import UserOut
+from app.services.audit import client_ip, record_audit
 from app.utils.passwords import hash_password
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -51,7 +52,12 @@ def list_users(db: Session = Depends(get_db), _: User = Depends(require_admin)):
 
 
 @router.post("", response_model=UserOut, status_code=status.HTTP_201_CREATED)
-def create_user(payload: UserCreate, db: Session = Depends(get_db), _: User = Depends(require_admin)):
+def create_user(
+    payload: UserCreate,
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin),
+):
     if db.query(User).filter(User.email == payload.email).first() is not None:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="E-Mail wird bereits verwendet")
 
@@ -64,6 +70,13 @@ def create_user(payload: UserCreate, db: Session = Depends(get_db), _: User = De
     db.add(user)
     db.commit()
     db.refresh(user)
+    record_audit(
+        db,
+        action="user.created",
+        description=f"Benutzer {user.email} ({user.role.value}) angelegt",
+        actor=current_user,
+        ip=client_ip(request),
+    )
     return user
 
 
@@ -71,6 +84,7 @@ def create_user(payload: UserCreate, db: Session = Depends(get_db), _: User = De
 def update_user(
     user_id: uuid.UUID,
     payload: UserUpdate,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_admin),
 ):
@@ -96,11 +110,24 @@ def update_user(
         user.password_hash = hash_password(password)
     db.commit()
     db.refresh(user)
+    changed = ", ".join(data.keys()) + (", Passwort" if password else "") if (data or password) else "keine"
+    record_audit(
+        db,
+        action="user.updated",
+        description=f"Benutzer {user.email} geändert ({changed})",
+        actor=current_user,
+        ip=client_ip(request),
+    )
     return user
 
 
 @router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_user(user_id: uuid.UUID, db: Session = Depends(get_db), current_user: User = Depends(require_admin)):
+def delete_user(
+    user_id: uuid.UUID,
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin),
+):
     user = _get_or_404(db, user_id)
     if user.id == current_user.id:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Eigenes Konto nicht loeschbar")
@@ -109,5 +136,38 @@ def delete_user(user_id: uuid.UUID, db: Session = Depends(get_db), current_user:
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Der letzte aktive Admin kann nicht geloescht werden",
         )
+    deleted_email = user.email
     db.delete(user)
     db.commit()
+    record_audit(
+        db,
+        action="user.deleted",
+        description=f"Benutzer {deleted_email} gelöscht",
+        actor=current_user,
+        ip=client_ip(request),
+    )
+
+
+@router.post("/{user_id}/2fa/reset", status_code=status.HTTP_204_NO_CONTENT)
+def reset_user_2fa(
+    user_id: uuid.UUID,
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin),
+):
+    """Setzt die 2FA eines Nutzers zurueck (z. B. bei Geraeteverlust)."""
+    user = _get_or_404(db, user_id)
+    user.twofa_method = None
+    user.totp_secret_encrypted = None
+    user.totp_pending_secret_encrypted = None
+    user.twofa_backup_codes = None
+    user.twofa_email_code_hash = None
+    user.twofa_email_code_expires = None
+    db.commit()
+    record_audit(
+        db,
+        action="twofa.reset",
+        description=f"2FA von {user.email} zurückgesetzt",
+        actor=current_user,
+        ip=client_ip(request),
+    )
