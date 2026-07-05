@@ -73,7 +73,7 @@ export default function TemplatesPage() {
 
   if (mode.kind !== 'list') {
     return (
-      <PageScaffold title={mode.kind === 'edit' ? 'Vorlage bearbeiten' : 'Neue Vorlage'}>
+      <PageScaffold title={mode.kind === 'edit' ? 'Vorlage bearbeiten' : 'Neue Vorlage'} guidanceKey="template-editor">
         {error && <p className="mb-3 text-sm text-status-danger">{error}</p>}
         <TemplateForm
           initial={mode.kind === 'edit' ? mode.template : mode.kind === 'create' ? mode.draft ?? null : null}
