@@ -194,6 +194,16 @@ class TrackingEventOut(BaseModel):
     occurred_at: datetime
 
 
+class RecipientResultOut(BaseModel):
+    email: str
+    first_name: str | None
+    last_name: str | None
+    sent_at: datetime | None
+    opened: bool
+    clicked: bool
+    submitted: bool
+
+
 class CampaignResultOut(BaseModel):
     campaign_id: uuid.UUID
     total_recipients: int
@@ -201,6 +211,7 @@ class CampaignResultOut(BaseModel):
     opened: int
     clicked: int
     submitted: int
+    recipients: list[RecipientResultOut] = []
 
 
 # --- Sending Profile (SMTP) ---

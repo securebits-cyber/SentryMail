@@ -37,6 +37,16 @@ export interface Campaign {
   updated_at: string
 }
 
+export interface RecipientResult {
+  email: string
+  first_name: string | null
+  last_name: string | null
+  sent_at: string | null
+  opened: boolean
+  clicked: boolean
+  submitted: boolean
+}
+
 export interface CampaignResult {
   campaign_id: string
   total_recipients: number
@@ -44,6 +54,7 @@ export interface CampaignResult {
   opened: number
   clicked: number
   submitted: number
+  recipients: RecipientResult[]
 }
 
 export interface SendingProfile {
