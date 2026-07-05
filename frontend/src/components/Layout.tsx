@@ -47,10 +47,10 @@ function NavItems({ items }: { items: NavItem[] }) {
     <>
       {items.map(({ to, label, icon: Icon, end, badge }) => (
         <NavLink key={to} to={to} end={end} className={linkClass}>
-          <Icon size={16} />
-          {label}
+          <Icon size={16} className="shrink-0" />
+          <span className="truncate">{label}</span>
           {badge && (
-            <span className="ml-auto rounded-full bg-green-600 px-1.5 py-0.5 text-[10px] font-semibold uppercase leading-none tracking-wide text-white">
+            <span className="ml-auto shrink-0 rounded-full bg-green-600 px-1.5 py-px text-[9px] font-semibold uppercase leading-normal tracking-tight text-white">
               {badge}
             </span>
           )}
@@ -74,7 +74,7 @@ export default function Layout() {
       </header>
 
       <div className="flex flex-1">
-      <aside className="flex w-56 shrink-0 flex-col justify-between border-r border-border bg-surface">
+      <aside className="flex w-64 shrink-0 flex-col justify-between border-r border-border bg-surface">
         <div>
           <nav className="flex flex-col gap-1 px-3 pt-4">
             <NavItems items={mainNav} />
