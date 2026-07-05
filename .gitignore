@@ -54,3 +54,6 @@ docs
 Screenshots/
 # Claude Code – persönliche lokale Einstellungen
 .claude/settings.local.json
+
+# Eigenständiges GitHub-Wiki-Repo (separates Remote)
+wiki/
