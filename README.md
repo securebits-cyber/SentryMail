@@ -10,6 +10,9 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/DB-PostgreSQL-4169E1?logo=postgresql&logoColor=white)
 ![Editions](https://img.shields.io/badge/Modell-Open%20Core-blue)
+![License](https://img.shields.io/badge/License-BSL%201.1-orange)
+
+📖 [English README](README.en.md)
 
 </div>
 
@@ -91,7 +94,7 @@ Details im [Sicherheits-Wiki](https://github.com/securebitsorg/HumanShield.APP/w
 
 ## 🧩 Editionen (Open Core)
 
-Der **Kern** von HumanShield.APP (alle oben genannten Funktionen) ist quelloffen und vollständig nutzbar. Kostenpflichtige **Enterprise-Add-ons** werden per Lizenz freigeschaltet und als separate Pakete ausgeliefert:
+Der **Kern** von HumanShield.APP (alle oben genannten Funktionen) ist unter der **Business Source License (BSL 1.1)** quell-verfügbar und vollständig nutzbar. Kostenpflichtige **Enterprise-Add-ons** werden per Lizenz freigeschaltet und als separate Pakete ausgeliefert:
 
 | Add-on | Beschreibung |
 |---|---|
@@ -116,7 +119,7 @@ Beiträge sind willkommen. Bitte für Änderungen einen Branch anlegen, aussagek
 
 ## 📄 Lizenz
 
-Open-Core-Modell: quelloffener Kern, kommerzielle Enterprise-Add-ons. Die Lizenzbedingungen des Kerns sind in der `LICENSE`-Datei festgelegt.
+Der Kern steht unter der **[Business Source License 1.1](LICENSE)** — der Quellcode ist einsehbar und für den Eigenbedarf produktiv nutzbar; **nicht** erlaubt ist das Anbieten als konkurrierender gehosteter Dienst. Am **Change Date** geht jede Version automatisch in **Apache 2.0** über. Die kommerziellen Enterprise-Add-ons werden separat lizenziert. Für abweichende Lizenzvereinbarungen: `support@secure-bits.org`.
 
 ---
 
