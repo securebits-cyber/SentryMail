@@ -305,6 +305,60 @@ export const translations: Record<Lang, Record<string, string>> = {
     'lic.keyPlaceholder': 'Lizenzschlüssel einfügen',
     'lic.saveCheck': 'Speichern & prüfen',
     'lic.recheck': 'Jetzt prüfen',
+
+    // Formulare (Settings gemeinsam)
+    'form.saved': 'Einstellungen gespeichert.',
+    'form.err.save': 'Speichern fehlgeschlagen (Admin-Rechte nötig?).',
+    'form.err.test': 'Test fehlgeschlagen (Admin-Rechte nötig?).',
+    'form.saveTest': 'Speichere und teste Verbindung...',
+    'form.test': 'Verbindung testen',
+    'form.testing': 'Teste...',
+    'form.secretUnchanged': '(leer = unverändert)',
+    'field.host': 'Host',
+    'field.port': 'Port',
+    'field.firstName': 'Vorname',
+    'field.lastName': 'Nachname',
+
+    // LDAP
+    'ldap.title': 'LDAP-Anbindung',
+    'ldap.subtitle': 'Empfänger-Import aus dem Verzeichnisdienst. Das Bind-Passwort wird verschlüsselt gespeichert.',
+    'ldap.enable': 'LDAP-Import aktivieren',
+    'ldap.enableDesc': 'Erlaubt den Empfänger-Import aus dem Verzeichnisdienst.',
+    'ldap.ssl': 'LDAPS (SSL)',
+    'ldap.startTls': 'StartTLS',
+    'ldap.bindDn': 'Bind-DN',
+    'ldap.bindPw': 'Bind-Passwort',
+    'ldap.baseDn': 'Base-DN',
+    'ldap.userFilter': 'User-Filter',
+    'ldap.attrMapping': 'Attribut-Mapping',
+
+    // OIDC
+    'oidc.title': 'OIDC / Single Sign-On',
+    'oidc.subtitle':
+      'Optionale Zweitanmeldung. Ohne Aktivierung läuft die App rein mit lokalem Login. Das Client-Secret wird verschlüsselt gespeichert.',
+    'oidc.enable': 'OIDC aktivieren',
+    'oidc.enableDesc': 'Zeigt den SSO-Button auf der Anmeldeseite.',
+    'oidc.issuer': 'Issuer-URL',
+    'oidc.clientId': 'Client-ID',
+    'oidc.clientSecret': 'Client-Secret',
+    'oidc.redirectUri': 'Redirect-URI',
+    'oidc.saved': 'OIDC-Einstellungen gespeichert.',
+    'oidc.err.save': 'OIDC-Speichern fehlgeschlagen (Admin-Rechte nötig?).',
+
+    // SMTP
+    'smtp.title': 'SMTP (globaler Fallback)',
+    'smtp.subtitle':
+      'Greift nur, wenn eine Kampagne kein eigenes Sending Profile nutzt. Das Passwort wird verschlüsselt gespeichert.',
+    'smtp.tlsMode': 'TLS-Modus',
+    'smtp.tls.starttls': 'STARTTLS (Port 587)',
+    'smtp.tls.ssl': 'SSL/TLS implizit (Port 465)',
+    'smtp.tls.none': 'Unverschlüsselt (Port 25)',
+    'smtp.verifyCert': 'Zertifikat prüfen',
+    'smtp.username': 'Benutzername',
+    'smtp.password': 'Passwort',
+    'smtp.fromEmail': 'Absender-Adresse',
+    'smtp.fromName': 'Absender-Name',
+    'smtp.saved': 'SMTP-Einstellungen gespeichert.',
   },
   en: {
     // Navigation
@@ -605,5 +659,58 @@ export const translations: Record<Lang, Record<string, string>> = {
     'lic.keyPlaceholder': 'Paste license key',
     'lic.saveCheck': 'Save & verify',
     'lic.recheck': 'Check now',
+
+    // Forms (settings common)
+    'form.saved': 'Settings saved.',
+    'form.err.save': 'Could not save (admin rights required?).',
+    'form.err.test': 'Test failed (admin rights required?).',
+    'form.saveTest': 'Saving and testing the connection...',
+    'form.test': 'Test connection',
+    'form.testing': 'Testing...',
+    'form.secretUnchanged': '(empty = unchanged)',
+    'field.host': 'Host',
+    'field.port': 'Port',
+    'field.firstName': 'First name',
+    'field.lastName': 'Last name',
+
+    // LDAP
+    'ldap.title': 'LDAP connection',
+    'ldap.subtitle': 'Recipient import from the directory service. The bind password is stored encrypted.',
+    'ldap.enable': 'Enable LDAP import',
+    'ldap.enableDesc': 'Allows importing recipients from the directory service.',
+    'ldap.ssl': 'LDAPS (SSL)',
+    'ldap.startTls': 'StartTLS',
+    'ldap.bindDn': 'Bind DN',
+    'ldap.bindPw': 'Bind password',
+    'ldap.baseDn': 'Base DN',
+    'ldap.userFilter': 'User filter',
+    'ldap.attrMapping': 'Attribute mapping',
+
+    // OIDC
+    'oidc.title': 'OIDC / Single Sign-On',
+    'oidc.subtitle':
+      'Optional second sign-in method. Without activation the app runs with local login only. The client secret is stored encrypted.',
+    'oidc.enable': 'Enable OIDC',
+    'oidc.enableDesc': 'Shows the SSO button on the sign-in page.',
+    'oidc.issuer': 'Issuer URL',
+    'oidc.clientId': 'Client ID',
+    'oidc.clientSecret': 'Client secret',
+    'oidc.redirectUri': 'Redirect URI',
+    'oidc.saved': 'OIDC settings saved.',
+    'oidc.err.save': 'Could not save OIDC (admin rights required?).',
+
+    // SMTP
+    'smtp.title': 'SMTP (global fallback)',
+    'smtp.subtitle': 'Applies only when a campaign uses no dedicated sending profile. The password is stored encrypted.',
+    'smtp.tlsMode': 'TLS mode',
+    'smtp.tls.starttls': 'STARTTLS (port 587)',
+    'smtp.tls.ssl': 'SSL/TLS implicit (port 465)',
+    'smtp.tls.none': 'Unencrypted (port 25)',
+    'smtp.verifyCert': 'Verify certificate',
+    'smtp.username': 'Username',
+    'smtp.password': 'Password',
+    'smtp.fromEmail': 'Sender address',
+    'smtp.fromName': 'Sender name',
+    'smtp.saved': 'SMTP settings saved.',
   },
 }

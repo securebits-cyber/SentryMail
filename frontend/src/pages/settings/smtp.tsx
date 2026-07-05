@@ -2,6 +2,7 @@ import { MailCheck, Settings } from 'lucide-react'
 import { FormEvent, useEffect, useState } from 'react'
 import PageScaffold from '../../components/PageScaffold'
 import Toggle from '../../components/Toggle'
+import { useI18n } from '../../i18n'
 import { api } from '../../services/api'
 import type { SmtpConfig } from '../../types'
 
@@ -12,12 +13,13 @@ const labelClass = 'flex flex-col gap-1 text-sm'
 type SmtpForm = Omit<SmtpConfig, 'has_password'> & { password: string }
 
 const tlsModes = [
-  { value: 'starttls', label: 'STARTTLS (Port 587)' },
-  { value: 'ssl', label: 'SSL/TLS implizit (Port 465)' },
-  { value: 'none', label: 'Unverschlüsselt (Port 25)' },
+  { value: 'starttls', labelKey: 'smtp.tls.starttls' },
+  { value: 'ssl', labelKey: 'smtp.tls.ssl' },
+  { value: 'none', labelKey: 'smtp.tls.none' },
 ]
 
 export default function SmtpSettingsPage() {
+  const { t } = useI18n()
   const [form, setForm] = useState<SmtpForm | null>(null)
   const [hasPassword, setHasPassword] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -53,9 +55,9 @@ export default function SmtpSettingsPage() {
     setMessage(null)
     try {
       await save()
-      setMessage({ kind: 'info', text: 'SMTP-Einstellungen gespeichert.' })
+      setMessage({ kind: 'info', text: t('smtp.saved') })
     } catch {
-      setMessage({ kind: 'error', text: 'Speichern fehlgeschlagen (Admin-Rechte nötig?).' })
+      setMessage({ kind: 'error', text: t('form.err.save') })
     } finally {
       setSaving(false)
     }
@@ -63,27 +65,27 @@ export default function SmtpSettingsPage() {
 
   async function handleTest() {
     setTesting(true)
-    setMessage({ kind: 'info', text: 'Speichere und teste Verbindung...' })
+    setMessage({ kind: 'info', text: t('form.saveTest') })
     try {
       await save() // Test nutzt die gespeicherte Config -> vorher speichern.
       const res = await api.post<{ success: boolean; detail: string }>('/settings/smtp/test')
       setMessage({ kind: res.data.success ? 'info' : 'error', text: res.data.detail })
     } catch {
-      setMessage({ kind: 'error', text: 'Test fehlgeschlagen (Admin-Rechte nötig?).' })
+      setMessage({ kind: 'error', text: t('form.err.test') })
     } finally {
       setTesting(false)
     }
   }
 
-  if (!form) return <p className="text-text-secondary">Lade Einstellungen...</p>
+  if (!form) return <p className="text-text-secondary">{t('common.loadingSettings')}</p>
 
   return (
     <PageScaffold
-      title="SMTP (globaler Fallback)"
-      subtitle="Greift nur, wenn eine Kampagne kein eigenes Sending Profile nutzt. Das Passwort wird verschlüsselt gespeichert."
+      title={t('smtp.title')}
+      subtitle={t('smtp.subtitle')}
       breadcrumb={[
-        { label: 'Einstellungen', icon: Settings },
-        { label: 'SMTP', icon: MailCheck },
+        { label: t('nav.settings'), icon: Settings },
+        { label: t('settings.smtp'), icon: MailCheck },
       ]}
       guidanceKey="settings-smtp"
     >
@@ -96,41 +98,41 @@ export default function SmtpSettingsPage() {
       <form onSubmit={handleSave} className="flex max-w-2xl flex-col gap-4">
         <div className="flex gap-4">
           <label className={`${labelClass} flex-1`}>
-            Host
+            {t('field.host')}
             <input value={form.host} onChange={(e) => set('host', e.target.value)} placeholder="smtp.example.com" className={`${fieldClass} font-mono`} />
           </label>
           <label className={`${labelClass} w-28`}>
-            Port
+            {t('field.port')}
             <input type="number" value={form.port} onChange={(e) => set('port', Number(e.target.value))} className={`${fieldClass} font-mono`} />
           </label>
         </div>
 
         <div className="flex gap-4">
           <label className={`${labelClass} flex-1`}>
-            TLS-Modus
+            {t('smtp.tlsMode')}
             <select value={form.tls_mode} onChange={(e) => set('tls_mode', e.target.value)} className={fieldClass}>
-              {tlsModes.map(({ value, label }) => (
+              {tlsModes.map(({ value, labelKey }) => (
                 <option key={value} value={value}>
-                  {label}
+                  {t(labelKey)}
                 </option>
               ))}
             </select>
           </label>
           <div className="flex items-end pb-2">
             <div className="flex items-center gap-3 text-sm">
-              <Toggle checked={form.verify_ssl} onChange={(v) => set('verify_ssl', v)} aria-label="Zertifikat prüfen" />
-              Zertifikat prüfen
+              <Toggle checked={form.verify_ssl} onChange={(v) => set('verify_ssl', v)} aria-label={t('smtp.verifyCert')} />
+              {t('smtp.verifyCert')}
             </div>
           </div>
         </div>
 
         <label className={labelClass}>
-          Benutzername
+          {t('smtp.username')}
           <input value={form.username} onChange={(e) => set('username', e.target.value)} placeholder="noreply@example.com" className={`${fieldClass} font-mono`} />
         </label>
 
         <label className={labelClass}>
-          Passwort {hasPassword && <span className="text-text-secondary">(leer = unverändert)</span>}
+          {t('smtp.password')} {hasPassword && <span className="text-text-secondary">{t('form.secretUnchanged')}</span>}
           <input
             type="password"
             value={form.password}
@@ -142,18 +144,18 @@ export default function SmtpSettingsPage() {
 
         <div className="flex gap-4">
           <label className={`${labelClass} flex-1`}>
-            Absender-Adresse
+            {t('smtp.fromEmail')}
             <input value={form.from_email} onChange={(e) => set('from_email', e.target.value)} placeholder="noreply@example.com" className={`${fieldClass} font-mono`} />
           </label>
           <label className={`${labelClass} flex-1`}>
-            Absender-Name
+            {t('smtp.fromName')}
             <input value={form.from_name} onChange={(e) => set('from_name', e.target.value)} placeholder="HumanShield-Awareness" className={fieldClass} />
           </label>
         </div>
 
         <div className="flex gap-2">
           <button type="submit" disabled={saving} className="rounded-md bg-accent px-5 py-2 font-medium text-white disabled:opacity-60">
-            {saving ? 'Speichern...' : 'Speichern'}
+            {saving ? t('common.saving') : t('common.save')}
           </button>
           <button
             type="button"
@@ -161,7 +163,7 @@ export default function SmtpSettingsPage() {
             disabled={testing}
             className="rounded-md border border-border px-5 py-2 text-text-primary hover:bg-bg disabled:opacity-60"
           >
-            {testing ? 'Teste...' : 'Verbindung testen'}
+            {testing ? t('form.testing') : t('form.test')}
           </button>
         </div>
       </form>
