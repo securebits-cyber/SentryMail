@@ -87,7 +87,7 @@ export default function CampaignsPage() {
 
   if (creating) {
     return (
-      <PageScaffold title="Neue Kampagne">
+      <PageScaffold title="Neue Kampagne" guidanceKey="campaign-editor">
         {templates.length === 0 && (
           <p className="mb-3 text-sm text-status-danger">Erst eine Vorlage anlegen.</p>
         )}
