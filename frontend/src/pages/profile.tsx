@@ -4,6 +4,7 @@ import Badge from '../components/Badge'
 import PageScaffold from '../components/PageScaffold'
 import PasswordStrengthMeter from '../components/PasswordStrengthMeter'
 import TwoFASetup from '../components/TwoFASetup'
+import { useI18n } from '../i18n'
 import { api } from '../services/api'
 import type { TwoFAStatus, User } from '../types'
 
@@ -16,6 +17,7 @@ function errText(e: unknown, fallback: string): string {
 }
 
 export default function ProfilePage() {
+  const { t } = useI18n()
   const [me, setMe] = useState<User | null>(null)
   const [fullName, setFullName] = useState('')
   const [currentPw, setCurrentPw] = useState('')
@@ -48,9 +50,9 @@ export default function ProfilePage() {
     try {
       const res = await api.patch<User>('/me', { full_name: fullName })
       setMe(res.data)
-      setMessage({ kind: 'info', text: 'Profil gespeichert.' })
+      setMessage({ kind: 'info', text: t('prof.saved') })
     } catch (e) {
-      setMessage({ kind: 'error', text: errText(e, 'Speichern fehlgeschlagen.') })
+      setMessage({ kind: 'error', text: errText(e, t('prof.err.save')) })
     }
   }
 
@@ -58,7 +60,7 @@ export default function ProfilePage() {
     event.preventDefault()
     setMessage(null)
     if (newPw !== newPw2) {
-      setMessage({ kind: 'error', text: 'Die neuen Passwörter stimmen nicht überein.' })
+      setMessage({ kind: 'error', text: t('prof.pw.mismatch') })
       return
     }
     try {
@@ -66,9 +68,9 @@ export default function ProfilePage() {
       setCurrentPw('')
       setNewPw('')
       setNewPw2('')
-      setMessage({ kind: 'info', text: 'Passwort geändert.' })
+      setMessage({ kind: 'info', text: t('prof.pw.changed') })
     } catch (e) {
-      setMessage({ kind: 'error', text: errText(e, 'Passwort konnte nicht geändert werden.') })
+      setMessage({ kind: 'error', text: errText(e, t('prof.pw.err')) })
     }
   }
 
@@ -79,9 +81,9 @@ export default function ProfilePage() {
       setTwofaPw('')
       setNewBackup(null)
       loadTwofa()
-      setTwofaMsg({ kind: 'info', text: '2FA deaktiviert.' })
+      setTwofaMsg({ kind: 'info', text: t('prof.2fa.disabled') })
     } catch (e) {
-      setTwofaMsg({ kind: 'error', text: errText(e, '2FA konnte nicht deaktiviert werden.') })
+      setTwofaMsg({ kind: 'error', text: errText(e, t('prof.2fa.disableErr')) })
     }
   }
 
@@ -93,14 +95,14 @@ export default function ProfilePage() {
       setNewBackup(res.data.backup_codes)
       loadTwofa()
     } catch (e) {
-      setTwofaMsg({ kind: 'error', text: errText(e, 'Backup-Codes konnten nicht erneuert werden.') })
+      setTwofaMsg({ kind: 'error', text: errText(e, t('prof.2fa.backupErr')) })
     }
   }
 
-  if (!me) return <p className="text-text-secondary">Lade Profil...</p>
+  if (!me) return <p className="text-text-secondary">{t('prof.loading')}</p>
 
   return (
-    <PageScaffold title="Mein Profil" guidanceKey="profile">
+    <PageScaffold title={t('nav.profile')} guidanceKey="profile">
       {message && (
         <p className={`mb-4 text-sm ${message.kind === 'error' ? 'text-status-danger' : 'text-text-secondary'}`}>
           {message.text}
@@ -110,53 +112,53 @@ export default function ProfilePage() {
       <div className="flex max-w-2xl flex-col gap-8">
         <form onSubmit={saveName} className="flex flex-col gap-4">
           <div className="flex items-center gap-3 text-sm">
-            <span className="text-text-secondary">Rolle:</span>
+            <span className="text-text-secondary">{t('prof.role')}</span>
             <Badge tone={me.role === 'admin' ? 'accent' : 'neutral'}>
-              {me.role === 'admin' ? 'Admin' : 'Benutzer'}
+              {me.role === 'admin' ? t('prof.roleAdmin') : t('prof.roleUser')}
             </Badge>
           </div>
           <label className={labelClass}>
-            E-Mail
+            {t('common.email')}
             <input value={me.email} disabled className={`${fieldClass} font-mono opacity-70`} />
           </label>
           <label className={labelClass}>
-            Name
+            {t('common.name')}
             <input value={fullName} onChange={(e) => setFullName(e.target.value)} required className={fieldClass} />
           </label>
           <div>
             <button type="submit" className="rounded-md bg-accent px-5 py-2 text-sm font-medium text-white">
-              Speichern
+              {t('common.save')}
             </button>
           </div>
         </form>
 
         <form onSubmit={changePassword} className="flex flex-col gap-4 border-t border-border pt-8">
-          <h2 className="text-lg font-semibold">Passwort ändern</h2>
+          <h2 className="text-lg font-semibold">{t('prof.pw.title')}</h2>
           <label className={labelClass}>
-            Aktuelles Passwort
+            {t('prof.pw.current')}
             <input type="password" value={currentPw} onChange={(e) => setCurrentPw(e.target.value)} className={fieldClass} />
           </label>
           <div className="flex gap-3">
             <label className={`${labelClass} flex-1`}>
-              Neues Passwort
+              {t('prof.pw.new')}
               <input type="password" value={newPw} onChange={(e) => setNewPw(e.target.value)} required className={fieldClass} />
             </label>
             <label className={`${labelClass} flex-1`}>
-              Wiederholen
+              {t('prof.pw.repeat')}
               <input type="password" value={newPw2} onChange={(e) => setNewPw2(e.target.value)} required className={fieldClass} />
             </label>
           </div>
           <PasswordStrengthMeter password={newPw} />
           <div>
             <button type="submit" className="rounded-md bg-accent px-5 py-2 text-sm font-medium text-white">
-              Passwort ändern
+              {t('prof.pw.title')}
             </button>
           </div>
         </form>
 
         <section className="flex flex-col gap-4 border-t border-border pt-8">
           <h2 className="flex items-center gap-2 text-lg font-semibold">
-            <ShieldCheck size={18} /> Zwei-Faktor-Authentifizierung
+            <ShieldCheck size={18} /> {t('prof.2fa.title')}
           </h2>
 
           {twofaMsg && (
@@ -168,14 +170,12 @@ export default function ProfilePage() {
           {twofa && !twofa.enabled && !showSetup && (
             <div className="flex flex-col gap-3">
               <p className="text-sm text-text-secondary">
-                Schütze dein Konto mit einem zweiten Faktor.
-                {twofa.required && (
-                  <span className="text-status-warning"> Für dein Konto ist 2FA verpflichtend.</span>
-                )}
+                {t('prof.2fa.protect')}
+                {twofa.required && <span className="text-status-warning"> {t('prof.2fa.required')}</span>}
               </p>
               <div>
                 <button onClick={() => setShowSetup(true)} className="rounded-md bg-accent px-5 py-2 text-sm font-medium text-white">
-                  2FA aktivieren
+                  {t('prof.2fa.enable')}
                 </button>
               </div>
             </div>
@@ -187,7 +187,7 @@ export default function ProfilePage() {
               onDone={() => {
                 setShowSetup(false)
                 loadTwofa()
-                setTwofaMsg({ kind: 'info', text: '2FA ist aktiv.' })
+                setTwofaMsg({ kind: 'info', text: t('prof.2fa.active') })
               }}
             />
           )}
@@ -195,16 +195,16 @@ export default function ProfilePage() {
           {twofa && twofa.enabled && !showSetup && (
             <div className="flex flex-col gap-4">
               <div className="flex flex-wrap items-center gap-3 text-sm">
-                <Badge tone="success">Aktiv</Badge>
+                <Badge tone="success">{t('common.active')}</Badge>
                 <span className="text-text-secondary">
-                  Methode: {twofa.method === 'totp' ? 'Authenticator-App' : 'E-Mail-Code'} · Backup-Codes übrig:{' '}
-                  <span className="font-mono text-text-primary">{twofa.backup_codes_remaining}</span>
+                  {t('prof.2fa.method')}: {twofa.method === 'totp' ? t('prof.2fa.methodTotp') : t('prof.2fa.methodEmail')} ·{' '}
+                  {t('prof.2fa.backupRemaining')}: <span className="font-mono text-text-primary">{twofa.backup_codes_remaining}</span>
                 </span>
               </div>
 
               {newBackup && (
                 <div>
-                  <p className="mb-2 text-sm text-text-secondary">Neue Backup-Codes (nur jetzt sichtbar):</p>
+                  <p className="mb-2 text-sm text-text-secondary">{t('prof.2fa.newBackup')}</p>
                   <div className="grid grid-cols-2 gap-2 rounded-md border border-border bg-bg p-3 font-mono text-sm sm:grid-cols-4">
                     {newBackup.map((c) => (
                       <span key={c}>{c}</span>
@@ -215,7 +215,7 @@ export default function ProfilePage() {
 
               <div className="flex flex-col gap-2 rounded-md border border-border bg-surface p-4">
                 <label className={labelClass}>
-                  Zum Bestätigen: Passwort
+                  {t('prof.2fa.confirmPw')}
                   <input type="password" value={twofaPw} onChange={(e) => setTwofaPw(e.target.value)} className={`${fieldClass} max-w-xs`} />
                 </label>
                 <div className="flex flex-wrap gap-2">
@@ -224,20 +224,18 @@ export default function ProfilePage() {
                     disabled={!twofaPw}
                     className="rounded-md border border-border px-4 py-2 text-sm text-text-primary hover:bg-bg disabled:opacity-60"
                   >
-                    Backup-Codes neu erzeugen
+                    {t('prof.2fa.regenBackup')}
                   </button>
                   <button
                     onClick={disableTwofa}
                     disabled={!twofaPw || twofa.required}
-                    title={twofa.required ? '2FA ist für dein Konto verpflichtend' : undefined}
+                    title={twofa.required ? t('prof.2fa.requiredShort') : undefined}
                     className="rounded-md border border-status-danger/40 px-4 py-2 text-sm text-status-danger hover:bg-status-danger/10 disabled:opacity-60"
                   >
-                    2FA deaktivieren
+                    {t('prof.2fa.disable')}
                   </button>
                 </div>
-                {twofa.required && (
-                  <p className="text-xs text-text-secondary">2FA ist für dein Konto verpflichtend und kann nicht deaktiviert werden.</p>
-                )}
+                {twofa.required && <p className="text-xs text-text-secondary">{t('prof.2fa.requiredNote')}</p>}
               </div>
             </div>
           )}
