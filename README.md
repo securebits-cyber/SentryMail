@@ -10,7 +10,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/DB-PostgreSQL-4169E1?logo=postgresql&logoColor=white)
 ![Editions](https://img.shields.io/badge/Modell-Open%20Core-blue)
-![License](https://img.shields.io/badge/License-BSL%201.1-orange)
+![License](https://img.shields.io/badge/License-MPL%202.0-brightgreen)
 
 📖 [English README](README.en.md)
 
@@ -94,7 +94,7 @@ Details im [Sicherheits-Wiki](https://github.com/securebitsorg/HumanShield.APP/w
 
 ## 🧩 Editionen (Open Core)
 
-Der **Kern** von HumanShield.APP (alle oben genannten Funktionen) ist unter der **Business Source License (BSL 1.1)** quell-verfügbar und vollständig nutzbar. Kostenpflichtige **Enterprise-Add-ons** werden per Lizenz freigeschaltet und als separate Pakete ausgeliefert:
+Der **Kern** von HumanShield.APP (alle oben genannten Funktionen) ist unter der **Mozilla Public License 2.0 (MPL-2.0)** quelloffen und vollständig nutzbar. Kostenpflichtige **Enterprise-Add-ons** werden per Lizenz freigeschaltet und als separate Pakete ausgeliefert:
 
 | Add-on | Beschreibung |
 |---|---|
@@ -119,7 +119,7 @@ Beiträge sind willkommen. Bitte für Änderungen einen Branch anlegen, aussagek
 
 ## 📄 Lizenz
 
-Der Kern steht unter der **[Business Source License 1.1](LICENSE)** — der Quellcode ist einsehbar und für den **Eigenbedarf** produktiv nutzbar. Das Anbieten als gehosteter/verwalteter Dienst für Dritte — etwa Betrieb durch **MSSPs/Dienstleister** für deren Kunden — erfordert eine **kommerzielle Lizenz**. Am **Change Date** geht jede Version automatisch in **Apache 2.0** über. Die Enterprise-Add-ons werden separat lizenziert. Kontakt für Lizenzen: `kontakt@humanshield.app`.
+Der Kern steht unter der **[Mozilla Public License 2.0](LICENSE)** — einer OSI-anerkannten Open-Source-Lizenz mit dateibasiertem Copyleft: frei nutzbar, veränderbar und weiterverteilbar (auch kommerziell und als gehosteter Dienst); Änderungen an MPL-lizenzierten Dateien müssen unter der MPL offengelegt werden. Die kommerziellen **Enterprise-Add-ons** sind davon getrennt und proprietär. Kontakt für Add-on-Lizenzen: `kontakt@humanshield.app`.
 
 ---
 

@@ -10,7 +10,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/DB-PostgreSQL-4169E1?logo=postgresql&logoColor=white)
 ![Editions](https://img.shields.io/badge/Model-Open%20Core-blue)
-![License](https://img.shields.io/badge/License-BSL%201.1-orange)
+![License](https://img.shields.io/badge/License-MPL%202.0-brightgreen)
 
 📖 [Deutsche README](README.md)
 
@@ -94,7 +94,7 @@ See the [security wiki](https://github.com/securebitsorg/HumanShield.APP/wiki/Si
 
 ## 🧩 Editions (open core)
 
-The **core** of HumanShield.APP (all features above) is source-available under the **Business Source License (BSL 1.1)** and fully usable. Paid **enterprise add-ons** are unlocked by license and shipped as separate packages:
+The **core** of HumanShield.APP (all features above) is open source under the **Mozilla Public License 2.0 (MPL-2.0)** and fully usable. Paid **enterprise add-ons** are unlocked by license and shipped as separate packages:
 
 | Add-on | Description |
 |---|---|
@@ -119,7 +119,7 @@ Contributions are welcome. Please create a branch for your changes, write meanin
 
 ## 📄 License
 
-The core is licensed under the **[Business Source License 1.1](LICENSE)** — the source is available and may be used in production for your **own internal needs**. Offering it to third parties as a hosted or managed service — including operation by **MSSPs/service providers** for their customers — requires a **commercial license**. On the **Change Date**, each version automatically converts to **Apache 2.0**. The enterprise add-ons are licensed separately. Licensing contact: `kontakt@humanshield.app`.
+The core is licensed under the **[Mozilla Public License 2.0](LICENSE)** — an OSI-approved open-source license with file-level copyleft: free to use, modify and redistribute (including commercially and as a hosted service); modifications to MPL-licensed files must be released under the MPL. The commercial **enterprise add-ons** are separate and proprietary. Add-on licensing contact: `kontakt@humanshield.app`.
 
 ---
 
