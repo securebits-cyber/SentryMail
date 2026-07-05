@@ -83,6 +83,19 @@ export default function PageScaffold({ title, subtitle, actions, breadcrumb, gui
                 </li>
               ))}
             </ol>
+            {guidance.variables && (
+              <div className="mt-5">
+                <div className="text-xs font-medium uppercase tracking-wider text-text-secondary">Variablen</div>
+                <ul className="mt-2 flex flex-col gap-1.5">
+                  {guidance.variables.map((v) => (
+                    <li key={v.name} className="text-sm text-text-secondary">
+                      <code className="rounded bg-bg px-1.5 py-0.5 font-mono text-xs text-accent">{v.name}</code>
+                      <span className="ml-2">{v.desc}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
             {guidance.note && (
               <p className="mt-4 rounded-md border border-border bg-surface px-3 py-2 text-sm text-text-secondary">
                 {guidance.note}

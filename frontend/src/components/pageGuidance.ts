@@ -5,9 +5,28 @@ export interface Guidance {
   intro: string
   steps: string[]
   note?: string
+  variables?: { name: string; desc: string }[]
 }
 
 export const pageGuidance: Record<string, Guidance> = {
+  'template-editor': {
+    intro:
+      'So baust du eine Vorlage auf. Betreff, HTML- und Text-Inhalt können Platzhalter enthalten, die pro Empfänger automatisch ersetzt werden.',
+    steps: [
+      'Namen und einen realistischen Betreff vergeben — der Betreff entscheidet oft, ob die Mail geöffnet wird.',
+      'HTML-Inhalt gestalten und den Tracking-Link über {{ link }} einbauen — nur so werden Klicks der Landing Page zugeordnet.',
+      'Mit Variablen personalisieren (z. B. {{ first_name }}); das macht die Mail glaubwürdiger.',
+      'Optional einen Text-Teil als Plain-Text-Alternative hinterlegen.',
+      'Über „Vorschau (mit Beispieldaten)“ prüfen, wie die Mail beim Empfänger ankommt.',
+    ],
+    variables: [
+      { name: '{{ first_name }}', desc: 'Vorname des Empfängers' },
+      { name: '{{ last_name }}', desc: 'Nachname des Empfängers' },
+      { name: '{{ email }}', desc: 'E-Mail-Adresse des Empfängers' },
+      { name: '{{ link }}', desc: 'Personalisierter Tracking-Link zur Landing Page' },
+    ],
+    note: 'Gleichbedeutende Aliase: {{ recipient_name }}, {{ recipient_email }}, {{ click_link }}.',
+  },
   templates: {
     intro:
       'Vorlagen sind die Phishing-E-Mails, die in Kampagnen versendet werden. Betreff und Inhalt können Platzhalter wie den Vornamen oder den Tracking-Link enthalten.',
