@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import PageHeader from '../components/PageHeader'
+import PageScaffold from '../components/PageScaffold'
 import ResultsTable from '../components/ResultsTable'
 import { api } from '../services/api'
 import type { CampaignResult } from '../types'
@@ -17,8 +17,7 @@ export default function ResultsPage() {
   if (!result) return <p className="text-text-secondary">Lade Ergebnisse...</p>
 
   return (
-    <>
-      <PageHeader title="Ergebnisse" />
+    <PageScaffold title="Ergebnisse" guidanceKey="results">
       <ResultsTable result={result} />
       <a
         href={`${import.meta.env.VITE_API_URL}/results/${campaignId}/export`}
@@ -26,6 +25,6 @@ export default function ResultsPage() {
       >
         Als CSV exportieren
       </a>
-    </>
+    </PageScaffold>
   )
 }

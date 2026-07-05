@@ -1,5 +1,6 @@
+import { KeyRound, Settings } from 'lucide-react'
 import { FormEvent, useEffect, useState } from 'react'
-import PageHeader from '../../components/PageHeader'
+import PageScaffold from '../../components/PageScaffold'
 import Toggle from '../../components/Toggle'
 import { api } from '../../services/api'
 import type { OidcConfig } from '../../types'
@@ -51,12 +52,15 @@ export default function OidcSettingsPage() {
   if (!oidc) return <p className="text-text-secondary">Lade Einstellungen...</p>
 
   return (
-    <>
-      <PageHeader
-        title="OIDC / Single Sign-On"
-        subtitle="Optionale Zweitanmeldung. Ohne Aktivierung läuft die App rein mit lokalem Login. Das Client-Secret wird verschlüsselt gespeichert."
-      />
-
+    <PageScaffold
+      title="OIDC / Single Sign-On"
+      subtitle="Optionale Zweitanmeldung. Ohne Aktivierung läuft die App rein mit lokalem Login. Das Client-Secret wird verschlüsselt gespeichert."
+      breadcrumb={[
+        { label: 'Einstellungen', icon: Settings },
+        { label: 'OIDC / SSO', icon: KeyRound },
+      ]}
+      guidanceKey="settings-oidc"
+    >
       {message && (
         <p className={`mb-4 text-sm ${message.kind === 'error' ? 'text-status-danger' : 'text-text-secondary'}`}>
           {message.text}
@@ -115,6 +119,6 @@ export default function OidcSettingsPage() {
           </button>
         </div>
       </form>
-    </>
+    </PageScaffold>
   )
 }

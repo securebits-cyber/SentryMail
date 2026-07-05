@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import GroupForm, { GroupFormValues } from '../components/GroupForm'
-import PageHeader from '../components/PageHeader'
+import PageScaffold from '../components/PageScaffold'
 import { api } from '../services/api'
 import type { Group, GroupSummary } from '../types'
 
@@ -76,8 +76,7 @@ export default function GroupsPage() {
 
   if (mode.kind !== 'list') {
     return (
-      <>
-        <PageHeader title={mode.kind === 'edit' ? 'Gruppe bearbeiten' : 'Neue Gruppe'} />
+      <PageScaffold title={mode.kind === 'edit' ? 'Gruppe bearbeiten' : 'Neue Gruppe'}>
         {message && <p className="mb-3 text-sm text-status-danger">{message.text}</p>}
         <GroupForm
           initial={mode.kind === 'edit' ? mode.group : null}
@@ -88,24 +87,23 @@ export default function GroupsPage() {
           }}
           submitting={submitting}
         />
-      </>
+      </PageScaffold>
     )
   }
 
   return (
-    <>
-      <PageHeader
-        title="Gruppen"
-        actions={
-          <button
-            onClick={() => setMode({ kind: 'create' })}
-            className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-white"
-          >
-            Neue Gruppe
-          </button>
-        }
-      />
-
+    <PageScaffold
+      title="Gruppen"
+      guidanceKey="groups"
+      actions={
+        <button
+          onClick={() => setMode({ kind: 'create' })}
+          className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-white"
+        >
+          Neue Gruppe
+        </button>
+      }
+    >
       {message && (
         <p className={`mb-3 text-sm ${message.kind === 'error' ? 'text-status-danger' : 'text-text-secondary'}`}>
           {message.text}
@@ -148,6 +146,6 @@ export default function GroupsPage() {
           </table>
         </div>
       )}
-    </>
+    </PageScaffold>
   )
 }

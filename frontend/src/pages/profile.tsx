@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useState } from 'react'
 import Badge from '../components/Badge'
-import PageHeader from '../components/PageHeader'
+import PageScaffold from '../components/PageScaffold'
 import { api } from '../services/api'
 import type { User } from '../types'
 
@@ -60,9 +60,7 @@ export default function ProfilePage() {
   if (!me) return <p className="text-text-secondary">Lade Profil...</p>
 
   return (
-    <>
-      <PageHeader title="Mein Profil" />
-
+    <PageScaffold title="Mein Profil" guidanceKey="profile">
       {message && (
         <p className={`mb-4 text-sm ${message.kind === 'error' ? 'text-status-danger' : 'text-text-secondary'}`}>
           {message.text}
@@ -115,6 +113,6 @@ export default function ProfilePage() {
           </div>
         </form>
       </div>
-    </>
+    </PageScaffold>
   )
 }

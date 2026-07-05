@@ -1,5 +1,6 @@
+import { Network, Settings } from 'lucide-react'
 import { FormEvent, useEffect, useState } from 'react'
-import PageHeader from '../../components/PageHeader'
+import PageScaffold from '../../components/PageScaffold'
 import Toggle from '../../components/Toggle'
 import { api } from '../../services/api'
 import type { LdapConfig } from '../../types'
@@ -74,12 +75,15 @@ export default function LdapSettingsPage() {
   if (!form) return <p className="text-text-secondary">Lade Einstellungen...</p>
 
   return (
-    <>
-      <PageHeader
-        title="LDAP-Anbindung"
-        subtitle="Empfänger-Import aus dem Verzeichnisdienst. Das Bind-Passwort wird verschlüsselt gespeichert."
-      />
-
+    <PageScaffold
+      title="LDAP-Anbindung"
+      subtitle="Empfänger-Import aus dem Verzeichnisdienst. Das Bind-Passwort wird verschlüsselt gespeichert."
+      breadcrumb={[
+        { label: 'Einstellungen', icon: Settings },
+        { label: 'LDAP', icon: Network },
+      ]}
+      guidanceKey="settings-ldap"
+    >
       {message && (
         <p className={`mb-4 text-sm ${message.kind === 'error' ? 'text-status-danger' : 'text-text-secondary'}`}>
           {message.text}
@@ -175,6 +179,6 @@ export default function LdapSettingsPage() {
           </button>
         </div>
       </form>
-    </>
+    </PageScaffold>
   )
 }

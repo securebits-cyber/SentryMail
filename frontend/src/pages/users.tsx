@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useState } from 'react'
 import Badge from '../components/Badge'
-import PageHeader from '../components/PageHeader'
+import PageScaffold from '../components/PageScaffold'
 import { api } from '../services/api'
 import type { User } from '../types'
 
@@ -79,19 +79,18 @@ export default function UsersPage() {
   }
 
   return (
-    <>
-      <PageHeader
-        title="Benutzer"
-        actions={
-          <button
-            onClick={() => setCreating((v) => !v)}
-            className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-white"
-          >
-            {creating ? 'Schließen' : 'Neuer Benutzer'}
-          </button>
-        }
-      />
-
+    <PageScaffold
+      title="Benutzer"
+      guidanceKey="users"
+      actions={
+        <button
+          onClick={() => setCreating((v) => !v)}
+          className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-white"
+        >
+          {creating ? 'Schließen' : 'Neuer Benutzer'}
+        </button>
+      }
+    >
       {message && (
         <p className={`mb-3 text-sm ${message.kind === 'error' ? 'text-status-danger' : 'text-text-secondary'}`}>
           {message.text}
@@ -178,6 +177,6 @@ export default function UsersPage() {
           </table>
         </div>
       )}
-    </>
+    </PageScaffold>
   )
 }

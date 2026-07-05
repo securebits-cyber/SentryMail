@@ -1,5 +1,5 @@
-import { ChevronRight, KeyRound, MailCheck, Network, Settings } from 'lucide-react'
-import { NavLink, Outlet, useLocation } from 'react-router-dom'
+import { KeyRound, MailCheck, Network } from 'lucide-react'
+import { NavLink, Outlet } from 'react-router-dom'
 
 // Einstellungsbereiche — neue Bereiche hier ergaenzen (Netbird-Stil:
 // eigene zweite Sidebar-Spalte neben der Hauptnavigation).
@@ -17,9 +17,6 @@ const linkClass = ({ isActive }: { isActive: boolean }) =>
   }`
 
 export default function SettingsLayout() {
-  const { pathname } = useLocation()
-  const current = settingsNav.find((item) => pathname.startsWith(item.to))
-
   return (
     <div className="-m-6 flex min-h-full">
       <aside className="w-52 shrink-0 border-r border-border bg-surface px-3 py-5">
@@ -33,18 +30,8 @@ export default function SettingsLayout() {
         </nav>
       </aside>
 
-      <div className="flex-1 p-6">
-        <div className="mb-5 flex items-center gap-2 text-sm text-text-secondary">
-          <Settings size={15} />
-          <span>Einstellungen</span>
-          {current && (
-            <>
-              <ChevronRight size={14} />
-              <current.icon size={15} />
-              <span className="text-text-primary">{current.label}</span>
-            </>
-          )}
-        </div>
+      {/* Die Seite selbst rendert ein PageScaffold, das mit -m-6 wieder ausbricht. */}
+      <div className="min-w-0 flex-1 p-6">
         <Outlet />
       </div>
     </div>

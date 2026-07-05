@@ -1,5 +1,6 @@
+import { MailCheck, Settings } from 'lucide-react'
 import { FormEvent, useEffect, useState } from 'react'
-import PageHeader from '../../components/PageHeader'
+import PageScaffold from '../../components/PageScaffold'
 import Toggle from '../../components/Toggle'
 import { api } from '../../services/api'
 import type { SmtpConfig } from '../../types'
@@ -77,12 +78,15 @@ export default function SmtpSettingsPage() {
   if (!form) return <p className="text-text-secondary">Lade Einstellungen...</p>
 
   return (
-    <>
-      <PageHeader
-        title="SMTP (globaler Fallback)"
-        subtitle="Greift nur, wenn eine Kampagne kein eigenes Sending Profile nutzt. Das Passwort wird verschlüsselt gespeichert."
-      />
-
+    <PageScaffold
+      title="SMTP (globaler Fallback)"
+      subtitle="Greift nur, wenn eine Kampagne kein eigenes Sending Profile nutzt. Das Passwort wird verschlüsselt gespeichert."
+      breadcrumb={[
+        { label: 'Einstellungen', icon: Settings },
+        { label: 'SMTP', icon: MailCheck },
+      ]}
+      guidanceKey="settings-smtp"
+    >
       {message && (
         <p className={`mb-4 text-sm ${message.kind === 'error' ? 'text-status-danger' : 'text-text-secondary'}`}>
           {message.text}
@@ -161,6 +165,6 @@ export default function SmtpSettingsPage() {
           </button>
         </div>
       </form>
-    </>
+    </PageScaffold>
   )
 }

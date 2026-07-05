@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import Badge from '../components/Badge'
 import LandingPageForm, { LandingPageFormValues } from '../components/LandingPageForm'
-import PageHeader from '../components/PageHeader'
+import PageScaffold from '../components/PageScaffold'
 import { api } from '../services/api'
 import type { LandingPage } from '../types'
 
@@ -55,8 +55,7 @@ export default function LandingPagesPage() {
 
   if (mode.kind !== 'list') {
     return (
-      <>
-        <PageHeader title={mode.kind === 'edit' ? 'Landing Page bearbeiten' : 'Neue Landing Page'} />
+      <PageScaffold title={mode.kind === 'edit' ? 'Landing Page bearbeiten' : 'Neue Landing Page'}>
         {error && <p className="mb-3 text-sm text-status-danger">{error}</p>}
         <LandingPageForm
           initial={mode.kind === 'edit' ? mode.page : null}
@@ -67,24 +66,23 @@ export default function LandingPagesPage() {
           }}
           submitting={submitting}
         />
-      </>
+      </PageScaffold>
     )
   }
 
   return (
-    <>
-      <PageHeader
-        title="Landing Pages"
-        actions={
-          <button
-            onClick={() => setMode({ kind: 'create' })}
-            className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-white"
-          >
-            Neue Landing Page
-          </button>
-        }
-      />
-
+    <PageScaffold
+      title="Landing Pages"
+      guidanceKey="landing-pages"
+      actions={
+        <button
+          onClick={() => setMode({ kind: 'create' })}
+          className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-white"
+        >
+          Neue Landing Page
+        </button>
+      }
+    >
       {error && <p className="mb-3 text-sm text-status-danger">{error}</p>}
 
       {loading ? (
@@ -132,6 +130,6 @@ export default function LandingPagesPage() {
           </table>
         </div>
       )}
-    </>
+    </PageScaffold>
   )
 }
