@@ -1,5 +1,5 @@
 import { Blocks, CircleUser, FileText, Globe, LayoutDashboard, LogOut, Mail, Moon, Server, Settings, Sun, UserCog, Users, type LucideIcon } from 'lucide-react'
-import { NavLink, Outlet } from 'react-router-dom'
+import { Link, NavLink, Outlet } from 'react-router-dom'
 import { useMe } from '../hooks/useMe'
 import { useTheme } from '../hooks/useTheme'
 import { logout } from '../services/auth'
@@ -68,6 +68,12 @@ export default function Layout() {
       <header className="flex shrink-0 items-center gap-2 border-b border-border bg-surface px-4 py-3">
         <span className="h-6 w-6 rounded-md bg-accent" aria-hidden />
         <span className="text-lg font-semibold tracking-tight">HumanShield.APP</span>
+        <Link
+          to="/integrations"
+          className="ml-auto rounded-md border border-green-600 px-3 py-1.5 text-sm font-medium text-green-600 transition-colors hover:bg-green-600/10"
+        >
+          Upgrade Lizenz
+        </Link>
       </header>
 
       <div className="flex flex-1">
