@@ -2,6 +2,7 @@ import { Activity, ScrollText, Settings } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import Badge from '../../components/Badge'
 import PageScaffold from '../../components/PageScaffold'
+import { useI18n } from '../../i18n'
 import { api } from '../../services/api'
 import type { AuditEvent, AuditEventList } from '../../types'
 
@@ -10,6 +11,7 @@ function initial(ev: AuditEvent): string {
 }
 
 export default function AuditEventsPage() {
+  const { t } = useI18n()
   const [data, setData] = useState<AuditEventList | null>(null)
   const [query, setQuery] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -18,7 +20,7 @@ export default function AuditEventsPage() {
     api
       .get<AuditEventList>('/audit-events', { params: { limit: 100 } })
       .then((res) => setData(res.data))
-      .catch(() => setError('Audit-Events konnten nicht geladen werden (Admin-Rechte nötig?).'))
+      .catch(() => setError(t('audit.err.load')))
   }
 
   useEffect(load, [])
@@ -34,34 +36,34 @@ export default function AuditEventsPage() {
 
   return (
     <PageScaffold
-      title="Audit Events"
-      subtitle="Anmeldeaktivitäten und Änderungen am System — chronologisch, neueste zuerst."
+      title={t('settings.auditEvents')}
+      subtitle={t('audit.subtitle')}
       breadcrumb={[
-        { label: 'Einstellungen', icon: Settings },
-        { label: 'Aktivität', icon: Activity },
-        { label: 'Audit Events', icon: ScrollText },
+        { label: t('nav.settings'), icon: Settings },
+        { label: t('settings.activity'), icon: Activity },
+        { label: t('settings.auditEvents'), icon: ScrollText },
       ]}
     >
       {error && <p className="mb-4 text-sm text-status-danger">{error}</p>}
 
       {!data ? (
-        <p className="text-text-secondary">Lade Audit-Events...</p>
+        <p className="text-text-secondary">{t('audit.loading')}</p>
       ) : (
         <div className="max-w-3xl">
           <div className="mb-4 flex items-center justify-between gap-4">
             <div className="text-sm text-text-secondary">
-              <span className="font-mono text-text-primary">{data.total}</span> Ereignisse
+              <span className="font-mono text-text-primary">{data.total}</span> {t('audit.events')}
             </div>
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Suche nach Nutzer, Aktion, IP..."
+              placeholder={t('audit.search')}
               className="w-64 rounded-md border border-border bg-surface px-3 py-2 text-sm text-text-primary"
             />
           </div>
 
           {filtered.length === 0 ? (
-            <p className="text-text-secondary">Keine passenden Ereignisse.</p>
+            <p className="text-text-secondary">{t('audit.noMatch')}</p>
           ) : (
             <ul className="flex flex-col">
               {filtered.map((ev) => (
@@ -72,17 +74,17 @@ export default function AuditEventsPage() {
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
                       <div className="text-sm">
-                        <span className="font-medium">{ev.actor_name || 'System'}</span>
+                        <span className="font-medium">{ev.actor_name || t('audit.system')}</span>
                         {ev.actor_email && <span className="ml-2 text-text-secondary">{ev.actor_email}</span>}
                       </div>
                       <div className="font-mono text-xs text-text-secondary">
-                        {new Date(ev.created_at).toLocaleString('de-DE')}
+                        {new Date(ev.created_at).toLocaleString()}
                       </div>
                     </div>
                     <div className="mt-2 rounded-lg border border-border bg-surface p-3 text-sm">
                       <div className="flex flex-wrap items-center gap-2">
                         <Badge tone={ev.category === 'auth' ? 'accent' : 'neutral'}>
-                          {ev.category === 'auth' ? 'Anmeldung' : 'System'}
+                          {ev.category === 'auth' ? t('audit.cat.auth') : t('audit.cat.system')}
                         </Badge>
                         <span className="font-mono text-xs text-text-secondary">{ev.action}</span>
                       </div>

@@ -1,16 +1,18 @@
 import { Settings, ShieldCheck } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import PageScaffold from '../../components/PageScaffold'
+import { useI18n } from '../../i18n'
 import { api } from '../../services/api'
 import type { SecurityConfig } from '../../types'
 
 const options = [
-  { value: 'off', label: 'Freiwillig', desc: 'Jeder Nutzer entscheidet selbst, ob 2FA aktiviert wird.' },
-  { value: 'admins', label: 'Für Admins verpflichtend', desc: 'Admin-Konten müssen 2FA einrichten (beim nächsten Login erzwungen).' },
-  { value: 'all', label: 'Für alle verpflichtend', desc: 'Alle Konten müssen 2FA einrichten (beim nächsten Login erzwungen).' },
+  { value: 'off', labelKey: 'sec.opt.off.label', descKey: 'sec.opt.off.desc' },
+  { value: 'admins', labelKey: 'sec.opt.admins.label', descKey: 'sec.opt.admins.desc' },
+  { value: 'all', labelKey: 'sec.opt.all.label', descKey: 'sec.opt.all.desc' },
 ]
 
 export default function SecuritySettingsPage() {
+  const { t } = useI18n()
   const [value, setValue] = useState<string>('off')
   const [loaded, setLoaded] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -28,9 +30,9 @@ export default function SecuritySettingsPage() {
     setMessage(null)
     try {
       await api.put('/settings/security', { require_2fa: value })
-      setMessage({ kind: 'info', text: 'Sicherheitseinstellungen gespeichert.' })
+      setMessage({ kind: 'info', text: t('sec.saved') })
     } catch {
-      setMessage({ kind: 'error', text: 'Speichern fehlgeschlagen (Admin-Rechte nötig?).' })
+      setMessage({ kind: 'error', text: t('sec.err.save') })
     } finally {
       setSaving(false)
     }
@@ -38,11 +40,11 @@ export default function SecuritySettingsPage() {
 
   return (
     <PageScaffold
-      title="Sicherheit"
-      subtitle="Steuert, ob Zwei-Faktor-Authentifizierung verpflichtend ist."
+      title={t('settings.security')}
+      subtitle={t('sec.subtitle')}
       breadcrumb={[
-        { label: 'Einstellungen', icon: Settings },
-        { label: 'Sicherheit', icon: ShieldCheck },
+        { label: t('nav.settings'), icon: Settings },
+        { label: t('settings.security'), icon: ShieldCheck },
       ]}
     >
       {message && (
@@ -52,10 +54,10 @@ export default function SecuritySettingsPage() {
       )}
 
       {!loaded ? (
-        <p className="text-text-secondary">Lade Einstellungen...</p>
+        <p className="text-text-secondary">{t('common.loadingSettings')}</p>
       ) : (
         <div className="flex max-w-2xl flex-col gap-4">
-          <div className="text-sm font-medium">2FA-Pflicht</div>
+          <div className="text-sm font-medium">{t('sec.2faReq')}</div>
           <div className="flex flex-col gap-2">
             {options.map((opt) => (
               <label
@@ -73,19 +75,16 @@ export default function SecuritySettingsPage() {
                   className="mt-0.5 accent-accent"
                 />
                 <span>
-                  <span className="block text-sm font-medium">{opt.label}</span>
-                  <span className="block text-sm text-text-secondary">{opt.desc}</span>
+                  <span className="block text-sm font-medium">{t(opt.labelKey)}</span>
+                  <span className="block text-sm text-text-secondary">{t(opt.descKey)}</span>
                 </span>
               </label>
             ))}
           </div>
-          <p className="text-xs text-text-secondary">
-            Bei aktivierter Pflicht werden betroffene Nutzer beim nächsten Login zur Einrichtung geführt. Bereits
-            angemeldete Sitzungen bleiben bis zum nächsten Login gültig.
-          </p>
+          <p className="text-xs text-text-secondary">{t('sec.note')}</p>
           <div>
             <button onClick={save} disabled={saving} className="rounded-md bg-accent px-5 py-2 font-medium text-white disabled:opacity-60">
-              {saving ? 'Speichern...' : 'Speichern'}
+              {saving ? t('common.saving') : t('common.save')}
             </button>
           </div>
         </div>
