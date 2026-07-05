@@ -171,9 +171,12 @@ export default function UsersPage() {
                     </Badge>
                   </td>
                   <td className="py-2 pr-4">
-                    <Badge tone={user.is_active ? 'success' : 'danger'}>
-                      {user.is_active ? 'Aktiv' : 'Inaktiv'}
-                    </Badge>
+                    <div className="flex items-center gap-1.5">
+                      <Badge tone={user.is_active ? 'success' : 'danger'}>
+                        {user.is_active ? 'Aktiv' : 'Inaktiv'}
+                      </Badge>
+                      {user.twofa_enabled && <Badge tone="accent">2FA</Badge>}
+                    </div>
                   </td>
                   <td className="py-2 text-right whitespace-nowrap">
                     <button onClick={() => toggleActive(user)} className="mr-3 text-text-secondary hover:text-accent hover:underline">
