@@ -194,10 +194,11 @@ def update_security(
     config.require_2fa = payload.require_2fa
     db.commit()
     db.refresh(config)
+    policy_label = {"off": "freiwillig", "admins": "für Admins verpflichtend", "all": "für alle verpflichtend"}
     record_audit(
         db,
         action="settings.security.updated",
-        description=f"2FA-Pflicht auf '{config.require_2fa}' gesetzt",
+        description=f"2FA-Pflicht: {policy_label.get(config.require_2fa, config.require_2fa)}",
         actor=current,
         ip=client_ip(request),
     )

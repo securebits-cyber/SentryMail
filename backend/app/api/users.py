@@ -46,6 +46,24 @@ def _get_or_404(db: Session, user_id: uuid.UUID) -> User:
     return user
 
 
+def _role_label(role: UserRole) -> str:
+    return "Admin" if role == UserRole.ADMIN else "Benutzer"
+
+
+def _describe_user_changes(data: dict, password_changed: bool) -> str:
+    parts: list[str] = []
+    if "full_name" in data:
+        parts.append("Name")
+    if "role" in data:
+        role = data["role"]
+        parts.append(f"Rolle → {_role_label(role if isinstance(role, UserRole) else UserRole(role))}")
+    if "is_active" in data:
+        parts.append("aktiviert" if data["is_active"] else "deaktiviert")
+    if password_changed:
+        parts.append("Passwort")
+    return ", ".join(parts) or "keine Änderung"
+
+
 @router.get("", response_model=list[UserOut])
 def list_users(db: Session = Depends(get_db), _: User = Depends(require_admin)):
     return db.query(User).order_by(User.created_at.desc()).all()
@@ -73,7 +91,7 @@ def create_user(
     record_audit(
         db,
         action="user.created",
-        description=f"Benutzer {user.email} ({user.role.value}) angelegt",
+        description=f"Benutzer {user.email} angelegt · Rolle: {_role_label(user.role)}",
         actor=current_user,
         ip=client_ip(request),
     )
@@ -110,11 +128,10 @@ def update_user(
         user.password_hash = hash_password(password)
     db.commit()
     db.refresh(user)
-    changed = ", ".join(data.keys()) + (", Passwort" if password else "") if (data or password) else "keine"
     record_audit(
         db,
         action="user.updated",
-        description=f"Benutzer {user.email} geändert ({changed})",
+        description=f"Benutzer {user.email} geändert · {_describe_user_changes(data, bool(password))}",
         actor=current_user,
         ip=client_ip(request),
     )
