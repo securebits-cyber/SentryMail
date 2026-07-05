@@ -1,4 +1,4 @@
-import { ChangeEvent, FormEvent, useEffect, useState } from 'react'
+import { ChangeEvent, FormEvent, KeyboardEvent, useEffect, useState } from 'react'
 import { Trash2 } from 'lucide-react'
 import type { Group } from '../types'
 
@@ -54,6 +54,8 @@ export default function GroupForm({ initial, onSubmit, onCancel, submitting }: G
   const [members, setMembers] = useState<GroupMemberInput[]>([])
   const [csv, setCsv] = useState('')
   const [csvMsg, setCsvMsg] = useState<string | null>(null)
+  const emptyManual: GroupMemberInput = { email: '', first_name: '', last_name: '', position: '' }
+  const [manual, setManual] = useState<GroupMemberInput>(emptyManual)
 
   useEffect(() => {
     setName(initial?.name ?? '')
@@ -91,6 +93,36 @@ export default function GroupForm({ initial, onSubmit, onCancel, submitting }: G
     setCsvMsg(`${added} Empfänger hinzugefügt${skipped > 0 ? ` (${skipped} Duplikate übersprungen)` : ''}.`)
   }
 
+  function addManual() {
+    const email = (manual.email || '').trim()
+    if (!email || !email.includes('@')) {
+      setCsvMsg('Bitte eine gültige E-Mail-Adresse eingeben.')
+      return
+    }
+    if (members.some((m) => m.email.toLowerCase() === email.toLowerCase())) {
+      setCsvMsg('Diese E-Mail ist bereits in der Liste.')
+      return
+    }
+    setMembers((prev) => [
+      ...prev,
+      {
+        email,
+        first_name: manual.first_name?.trim() || undefined,
+        last_name: manual.last_name?.trim() || undefined,
+        position: manual.position?.trim() || undefined,
+      },
+    ])
+    setManual(emptyManual)
+    setCsvMsg(null)
+  }
+
+  function onManualKey(e: KeyboardEvent) {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      addManual()
+    }
+  }
+
   function handleFile(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0]
     if (!file) return
@@ -113,6 +145,48 @@ export default function GroupForm({ initial, onSubmit, onCancel, submitting }: G
         Name
         <input value={name} onChange={(e) => setName(e.target.value)} required className={fieldClass} />
       </label>
+
+      <div className="flex flex-col gap-2">
+        <span className="text-sm">Empfänger manuell hinzufügen</span>
+        <div className="flex flex-wrap items-center gap-2">
+          <input
+            value={manual.email}
+            onChange={(e) => setManual({ ...manual, email: e.target.value })}
+            onKeyDown={onManualKey}
+            type="email"
+            placeholder="E-Mail"
+            className={`${fieldClass} min-w-[220px] flex-1`}
+          />
+          <input
+            value={manual.first_name ?? ''}
+            onChange={(e) => setManual({ ...manual, first_name: e.target.value })}
+            onKeyDown={onManualKey}
+            placeholder="Vorname"
+            className={`${fieldClass} w-32`}
+          />
+          <input
+            value={manual.last_name ?? ''}
+            onChange={(e) => setManual({ ...manual, last_name: e.target.value })}
+            onKeyDown={onManualKey}
+            placeholder="Nachname"
+            className={`${fieldClass} w-32`}
+          />
+          <input
+            value={manual.position ?? ''}
+            onChange={(e) => setManual({ ...manual, position: e.target.value })}
+            onKeyDown={onManualKey}
+            placeholder="Position"
+            className={`${fieldClass} w-32`}
+          />
+          <button
+            type="button"
+            onClick={addManual}
+            className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-white"
+          >
+            Hinzufügen
+          </button>
+        </div>
+      </div>
 
       <label className={labelClass}>
         Empfänger per CSV (email,first_name,last_name,position)
