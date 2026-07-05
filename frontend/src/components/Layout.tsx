@@ -69,7 +69,7 @@ export default function Layout() {
         <span className="h-6 w-6 rounded-md bg-accent" aria-hidden />
         <span className="text-lg font-semibold tracking-tight">HumanShield.APP</span>
         <Link
-          to="/integrations"
+          to="/settings/license"
           className="ml-auto rounded-md border border-green-600 px-3 py-1.5 text-sm font-medium text-green-600 transition-colors hover:bg-green-600/10"
         >
           Upgrade Lizenz

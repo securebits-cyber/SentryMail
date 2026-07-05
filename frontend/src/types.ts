@@ -58,6 +58,24 @@ export interface CampaignResult {
   recipients: RecipientResult[]
 }
 
+export interface FeaturesResponse {
+  features: Record<string, boolean>
+  license: { status: string; customer: string | null; expires: string | null }
+}
+
+export interface LicenseStatus {
+  instance_id: string
+  status: string
+  customer: string | null
+  features: string[]
+  expires_at: string | null
+  license_expires: string | null
+  last_checked_at: string | null
+  has_key: boolean
+  key_from_env: boolean
+  server_configured: boolean
+}
+
 export interface SendingProfile {
   id: string
   name: string

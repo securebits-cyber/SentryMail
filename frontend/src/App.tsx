@@ -8,6 +8,7 @@ import MultiTenantPage from './pages/enterprise/multi-tenant'
 import WhiteLabelPage from './pages/enterprise/whitelabel'
 import IntegrationsOverviewPage from './pages/integrations/overview'
 import AuditEventsPage from './pages/settings/audit-events'
+import LicenseSettingsPage from './pages/settings/license'
 import SecuritySettingsPage from './pages/settings/security'
 import CampaignsPage from './pages/campaigns'
 import GroupsPage from './pages/groups'
@@ -64,6 +65,7 @@ export default function App() {
             <Route path="oidc" element={<OidcSettingsPage />} />
             <Route path="smtp" element={<SmtpSettingsPage />} />
             <Route path="security" element={<SecuritySettingsPage />} />
+            <Route path="license" element={<LicenseSettingsPage />} />
             <Route path="audit-events" element={<AuditEventsPage />} />
           </Route>
           <Route path="/integrations" element={<IntegrationsLayout />}>

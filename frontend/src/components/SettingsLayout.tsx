@@ -1,4 +1,4 @@
-import { KeyRound, MailCheck, Network, ScrollText, ShieldCheck, type LucideIcon } from 'lucide-react'
+import { BadgeCheck, KeyRound, MailCheck, Network, ScrollText, ShieldCheck, type LucideIcon } from 'lucide-react'
 import { NavLink, Outlet } from 'react-router-dom'
 
 interface NavItem {
@@ -16,6 +16,7 @@ const groups: { label: string | null; items: NavItem[] }[] = [
       { to: '/settings/oidc', label: 'OIDC / SSO', icon: KeyRound },
       { to: '/settings/smtp', label: 'SMTP', icon: MailCheck },
       { to: '/settings/security', label: 'Sicherheit', icon: ShieldCheck },
+      { to: '/settings/license', label: 'Lizenz', icon: BadgeCheck },
     ],
   },
   {
