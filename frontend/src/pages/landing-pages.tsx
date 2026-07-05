@@ -55,7 +55,7 @@ export default function LandingPagesPage() {
 
   if (mode.kind !== 'list') {
     return (
-      <PageScaffold title={mode.kind === 'edit' ? 'Landing Page bearbeiten' : 'Neue Landing Page'}>
+      <PageScaffold title={mode.kind === 'edit' ? 'Landing Page bearbeiten' : 'Neue Landing Page'} guidanceKey="landing-editor">
         {error && <p className="mb-3 text-sm text-status-danger">{error}</p>}
         <LandingPageForm
           initial={mode.kind === 'edit' ? mode.page : null}

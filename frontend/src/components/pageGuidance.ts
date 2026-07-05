@@ -61,6 +61,18 @@ export const pageGuidance: Record<string, Guidance> = {
     ],
     note: 'Für jede Absender-Identität kannst du ein eigenes Profil anlegen.',
   },
+  'landing-editor': {
+    intro:
+      'Landing Pages sind die Seiten, auf denen Empfänger nach dem Klick landen. Optional erfassen sie Formulareingaben, um einen Awareness-Moment zu erzeugen.',
+    steps: [
+      'Namen vergeben und den Seiteninhalt gestalten — als HTML oder im Markdown-Modus (z. B. eine nachgebaute Login-Seite).',
+      'Für ein Eingabeformular HTML verwenden; alle Formulare werden beim Ausliefern automatisch auf die Tracking-URL umgebogen.',
+      '„Daten-Capture“ aktivieren, wenn abgeschickte Formulardaten als Signal erfasst werden sollen.',
+      'Passwörter nur erfassen, wenn wirklich nötig — Datenschutz und interne Richtlinien beachten.',
+      'Optional eine Weiterleitung oder Aufklärungsseite nach dem Absenden hinterlegen.',
+    ],
+    note: 'Erfasste Daten dienen nur Trainingszwecken; kläre die Zulässigkeit vorab intern ab.',
+  },
   'landing-pages': {
     intro:
       'Landing Pages sind die Seiten, auf denen Empfänger nach einem Klick landen. Sie können optional Eingaben erfassen, um Awareness-Momente zu erzeugen.',
