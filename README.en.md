@@ -1,0 +1,130 @@
+<div align="center">
+
+# 🛡️ HumanShield.APP
+
+**Self-hosted phishing-awareness platform** — plan, send and evaluate simulated phishing campaigns per recipient to make your workforce measurably more resilient against social engineering.
+
+![Self-hosted](https://img.shields.io/badge/Self--hosted-Docker%20Compose-2496ED?logo=docker&logoColor=white)
+![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688?logo=fastapi&logoColor=white)
+![React](https://img.shields.io/badge/Frontend-React%2019-61DAFB?logo=react&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/DB-PostgreSQL-4169E1?logo=postgresql&logoColor=white)
+![Editions](https://img.shields.io/badge/Model-Open%20Core-blue)
+![License](https://img.shields.io/badge/License-BSL%201.1-orange)
+
+📖 [Deutsche README](README.md)
+
+</div>
+
+---
+
+HumanShield.APP helps organizations shrink their human attack surface: run realistic phishing simulations, track opens/clicks/submissions, and turn the results into targeted awareness training. The platform runs **entirely on your own infrastructure** — all environment-specific values (domain, IdP, SMTP) come from configuration; nothing is hard-coded.
+
+## ✨ Features
+
+**Campaigns & tracking**
+- Campaign wizard with optional scheduling
+- Tracking of **opens, clicks and form submissions** — evaluated **per recipient**
+- Control-center dashboard with KPIs and CSV export
+
+**Content**
+- Templates with an **HTML or Markdown editor**, personalization variables and live preview
+- **`.eml` import** of real emails, including attachments
+- Landing pages with optional form capture and redirect
+
+**Recipients**
+- Groups via **manual entry, CSV or LDAP import**
+
+**Access & security**
+- Local login and optional **OIDC / single sign-on**
+- **Two-factor authentication** (authenticator app or email code, enforceable, backup codes)
+- Roles, audit log, secrets encrypted at rest (Argon2id, Fernet)
+
+**Delivery**
+- **Sending profiles** (SMTP per sender) plus a global fallback SMTP — any provider
+
+## 🧱 Tech stack
+
+| Layer | Technology |
+|---|---|
+| Backend | FastAPI · SQLAlchemy · Alembic |
+| Frontend | React · Vite · TypeScript · Tailwind CSS |
+| Database / cache | PostgreSQL · Redis |
+| Proxy / TLS | Caddy |
+| Operations | Docker Compose (rootless, hardened) |
+
+## 🚀 Quick start
+
+```bash
+git clone https://github.com/securebitsorg/HumanShield.APP.git
+cd HumanShield.APP
+cp .env.example .env
+# fill in .env: SECRET_KEY, database, SMTP, INITIAL_ADMIN_*
+docker compose up -d
+```
+
+Database migrations run automatically on startup. Then open the dashboard at your configured domain (or `https://localhost`) and sign in with the initial admin defined in `.env`.
+
+> 📌 **Tracking note:** Opens/clicks are only recorded when recipients can reach the address set in `APP_DOMAIN`. Since many mail clients block the open-tracking pixel, **clicks** are the more reliable signal.
+
+## 🏗️ Architecture
+
+```mermaid
+flowchart LR
+  U[Browser] --> C[Caddy]
+  C -->|/api, /track| B[FastAPI Backend]
+  C --> F[React Frontend]
+  B --> P[(PostgreSQL)]
+  B --> R[(Redis)]
+```
+
+Caddy routes `/api/*` and the public tracking endpoints `/track/*` to the backend, everything else to the frontend.
+
+## ⚙️ Configuration
+
+All settings come from `.env` — see [`.env.example`](.env.example) for every option (app, database, SMTP, OIDC, LDAP, licensing). Login, OIDC, LDAP, SMTP and security settings can additionally be managed from the dashboard.
+
+## 🔒 Security
+
+- Passwords hashed with **Argon2id**, runtime secrets (SMTP/LDAP/OIDC/TOTP) encrypted at rest (**Fernet**)
+- Two-step login when 2FA is enabled, audit log of sign-ins and system changes
+- Operator secrets only via `.env`, never in code
+
+See the [security wiki](https://github.com/securebitsorg/HumanShield.APP/wiki/Sicherheit). Awareness context for **NIS2 & BSI** is in the [corresponding wiki article](https://github.com/securebitsorg/HumanShield.APP/wiki/NIS2-und-BSI).
+
+## 🧩 Editions (open core)
+
+The **core** of HumanShield.APP (all features above) is source-available under the **Business Source License (BSL 1.1)** and fully usable. Paid **enterprise add-ons** are unlocked by license and shipped as separate packages:
+
+| Add-on | Description |
+|---|---|
+| White-Label | Custom branding (logo, colors, sender domains) |
+| Multi-Tenant | Multiple strictly separated tenants in one installation |
+| AI-Scoring | AI-assisted risk scoring per recipient/campaign |
+
+Without a license the platform runs as pure open core — no errors, no lockouts.
+
+## 📖 Documentation
+
+Detailed guides in the **[wiki](https://github.com/securebitsorg/HumanShield.APP/wiki)**:
+[Installation](https://github.com/securebitsorg/HumanShield.APP/wiki/Installation) ·
+[Configuration](https://github.com/securebitsorg/HumanShield.APP/wiki/Konfiguration) ·
+[Features](https://github.com/securebitsorg/HumanShield.APP/wiki/Funktionen) ·
+[Architecture](https://github.com/securebitsorg/HumanShield.APP/wiki/Architektur) ·
+[FAQ](https://github.com/securebitsorg/HumanShield.APP/wiki/FAQ)
+
+## 🤝 Contributing
+
+Contributions are welcome. Please create a branch for your changes, write meaningful commits and open a pull request (see the [PR template](.github/pull_request_template.md)).
+
+## 📄 License
+
+The core is licensed under the **[Business Source License 1.1](LICENSE)** — the source is available and may be used in production for your own needs; offering it as a competing hosted service is **not** permitted. On the **Change Date**, each version automatically converts to **Apache 2.0**. The commercial enterprise add-ons are licensed separately. For alternative licensing arrangements: `support@secure-bits.org`.
+
+---
+
+<div align="center">
+
+A project by **HumanShield-Awareness** · use responsibly for authorized awareness training only.
+
+</div>
