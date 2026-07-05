@@ -241,6 +241,34 @@ export const translations: Record<Lang, Record<string, string>> = {
     'res.badge.opened': 'Geöffnet',
     'res.badge.clicked': 'Geklickt',
     'res.badge.submitted': 'Abgeschickt',
+
+    // Gemeinsam (Settings)
+    'common.saving': 'Speichern...',
+    'common.loadingSettings': 'Lade Einstellungen...',
+
+    // Audit Events
+    'audit.subtitle': 'Anmeldeaktivitäten und Änderungen am System — chronologisch, neueste zuerst.',
+    'audit.err.load': 'Audit-Events konnten nicht geladen werden (Admin-Rechte nötig?).',
+    'audit.loading': 'Lade Audit-Events...',
+    'audit.events': 'Ereignisse',
+    'audit.search': 'Suche nach Nutzer, Aktion, IP...',
+    'audit.noMatch': 'Keine passenden Ereignisse.',
+    'audit.system': 'System',
+    'audit.cat.auth': 'Anmeldung',
+    'audit.cat.system': 'System',
+
+    // Sicherheit
+    'sec.subtitle': 'Steuert, ob Zwei-Faktor-Authentifizierung verpflichtend ist.',
+    'sec.2faReq': '2FA-Pflicht',
+    'sec.opt.off.label': 'Freiwillig',
+    'sec.opt.off.desc': 'Jeder Nutzer entscheidet selbst, ob 2FA aktiviert wird.',
+    'sec.opt.admins.label': 'Für Admins verpflichtend',
+    'sec.opt.admins.desc': 'Admin-Konten müssen 2FA einrichten (beim nächsten Login erzwungen).',
+    'sec.opt.all.label': 'Für alle verpflichtend',
+    'sec.opt.all.desc': 'Alle Konten müssen 2FA einrichten (beim nächsten Login erzwungen).',
+    'sec.note': 'Bei aktivierter Pflicht werden betroffene Nutzer beim nächsten Login zur Einrichtung geführt. Bereits angemeldete Sitzungen bleiben bis zum nächsten Login gültig.',
+    'sec.saved': 'Sicherheitseinstellungen gespeichert.',
+    'sec.err.save': 'Speichern fehlgeschlagen (Admin-Rechte nötig?).',
   },
   en: {
     // Navigation
@@ -478,5 +506,33 @@ export const translations: Record<Lang, Record<string, string>> = {
     'res.badge.opened': 'Opened',
     'res.badge.clicked': 'Clicked',
     'res.badge.submitted': 'Submitted',
+
+    // Common (settings)
+    'common.saving': 'Saving...',
+    'common.loadingSettings': 'Loading settings...',
+
+    // Audit events
+    'audit.subtitle': 'Sign-in activity and system changes — chronological, newest first.',
+    'audit.err.load': 'Could not load audit events (admin rights required?).',
+    'audit.loading': 'Loading audit events...',
+    'audit.events': 'events',
+    'audit.search': 'Search by user, action, IP...',
+    'audit.noMatch': 'No matching events.',
+    'audit.system': 'System',
+    'audit.cat.auth': 'Sign-in',
+    'audit.cat.system': 'System',
+
+    // Security
+    'sec.subtitle': 'Controls whether two-factor authentication is mandatory.',
+    'sec.2faReq': '2FA requirement',
+    'sec.opt.off.label': 'Optional',
+    'sec.opt.off.desc': 'Each user decides whether to enable 2FA.',
+    'sec.opt.admins.label': 'Mandatory for admins',
+    'sec.opt.admins.desc': 'Admin accounts must set up 2FA (enforced at next login).',
+    'sec.opt.all.label': 'Mandatory for everyone',
+    'sec.opt.all.desc': 'All accounts must set up 2FA (enforced at next login).',
+    'sec.note': 'When mandatory, affected users are guided to set up 2FA at their next login. Existing sessions remain valid until the next login.',
+    'sec.saved': 'Security settings saved.',
+    'sec.err.save': 'Could not save (admin rights required?).',
   },
 }
