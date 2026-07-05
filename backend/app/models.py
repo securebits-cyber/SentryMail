@@ -125,6 +125,8 @@ class Template(Base):
     text_content: Mapped[str | None] = mapped_column(Text, nullable=True)
     # Anhaenge als Liste von {filename, content_type, content_b64} (Base64).
     attachments: Mapped[list] = mapped_column(JSONB, nullable=False, default=list, server_default="[]")
+    # Optionale Markdown-Quelle, falls im Markdown-Modus erstellt (html_content wird daraus generiert).
+    markdown_source: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_by_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
@@ -339,6 +341,7 @@ class LandingPage(Base):
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     html_content: Mapped[str] = mapped_column(Text, nullable=False)
+    markdown_source: Mapped[str | None] = mapped_column(Text, nullable=True)
     capture_credentials: Mapped[bool] = mapped_column(default=False, nullable=False)
     capture_passwords: Mapped[bool] = mapped_column(default=False, nullable=False)
     redirect_url: Mapped[str | None] = mapped_column(String(1024), nullable=True)

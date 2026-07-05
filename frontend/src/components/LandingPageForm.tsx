@@ -1,4 +1,6 @@
 import { FormEvent, useEffect, useState } from 'react'
+import MarkdownEditor from './MarkdownEditor'
+import { mdToHtml } from '../utils/markdown'
 import Toggle from './Toggle'
 import type { LandingPage } from '../types'
 
@@ -8,6 +10,7 @@ export interface LandingPageFormValues {
   capture_credentials: boolean
   capture_passwords: boolean
   redirect_url: string | null
+  markdown_source: string | null
 }
 
 interface LandingPageFormProps {
@@ -26,6 +29,8 @@ export default function LandingPageForm({ initial, onSubmit, onCancel, submittin
   const [captureCredentials, setCaptureCredentials] = useState(false)
   const [capturePasswords, setCapturePasswords] = useState(false)
   const [redirectUrl, setRedirectUrl] = useState('')
+  const [editorMode, setEditorMode] = useState<'html' | 'markdown'>('html')
+  const [markdown, setMarkdown] = useState('')
 
   useEffect(() => {
     setName(initial?.name ?? '')
@@ -33,7 +38,14 @@ export default function LandingPageForm({ initial, onSubmit, onCancel, submittin
     setCaptureCredentials(initial?.capture_credentials ?? false)
     setCapturePasswords(initial?.capture_passwords ?? false)
     setRedirectUrl(initial?.redirect_url ?? '')
+    setMarkdown(initial?.markdown_source ?? '')
+    setEditorMode(initial?.markdown_source ? 'markdown' : 'html')
   }, [initial])
+
+  function onMarkdownChange(value: string) {
+    setMarkdown(value)
+    setHtml(mdToHtml(value))
+  }
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault()
@@ -44,6 +56,7 @@ export default function LandingPageForm({ initial, onSubmit, onCancel, submittin
       // Passwoerter nur erfassen, wenn ueberhaupt Daten erfasst werden.
       capture_passwords: captureCredentials && capturePasswords,
       redirect_url: redirectUrl.trim() || null,
+      markdown_source: editorMode === 'markdown' ? markdown : null,
     })
   }
 
@@ -54,17 +67,43 @@ export default function LandingPageForm({ initial, onSubmit, onCancel, submittin
         <input value={name} onChange={(e) => setName(e.target.value)} required className={fieldClass} />
       </label>
 
-      <label className={labelClass}>
-        HTML-Inhalt
-        <textarea
-          value={html}
-          onChange={(e) => setHtml(e.target.value)}
-          rows={14}
-          required
-          placeholder="<html>… Formular, das auf die Tracking-URL abgeschickt wird …</html>"
-          className={`${fieldClass} font-mono text-sm`}
-        />
-      </label>
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center justify-between">
+          <span className="text-sm">Inhalt</span>
+          <div className="flex gap-0.5 rounded-md border border-border p-0.5 text-xs">
+            <button
+              type="button"
+              onClick={() => setEditorMode('html')}
+              className={`rounded px-2 py-1 ${editorMode === 'html' ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'}`}
+            >
+              HTML
+            </button>
+            <button
+              type="button"
+              onClick={() => setEditorMode('markdown')}
+              className={`rounded px-2 py-1 ${editorMode === 'markdown' ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'}`}
+            >
+              Markdown
+            </button>
+          </div>
+        </div>
+        {editorMode === 'markdown' ? (
+          <>
+            <MarkdownEditor value={markdown} onChange={onMarkdownChange} rows={14} placeholder="# Willkommen\n\nBitte melde dich an." />
+            <p className="text-xs text-text-secondary">
+              Markdown wird beim Speichern in HTML umgewandelt. Für Formulare (Daten-Capture) HTML verwenden.
+            </p>
+          </>
+        ) : (
+          <textarea
+            value={html}
+            onChange={(e) => setHtml(e.target.value)}
+            rows={14}
+            placeholder="<html>… Formular, das auf die Tracking-URL abgeschickt wird …</html>"
+            className={`${fieldClass} font-mono text-sm`}
+          />
+        )}
+      </div>
 
       <div className="flex items-center gap-3 text-sm">
         <Toggle

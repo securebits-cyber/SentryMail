@@ -15,6 +15,7 @@ export interface Template {
   html_content: string
   text_content: string | null
   attachments: TemplateAttachment[]
+  markdown_source: string | null
   created_by_id: string
   created_at: string
   updated_at: string
@@ -89,6 +90,7 @@ export interface LandingPage {
   capture_credentials: boolean
   capture_passwords: boolean
   redirect_url: string | null
+  markdown_source: string | null
   created_at: string
   updated_at: string
 }

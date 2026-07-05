@@ -1,5 +1,7 @@
 import { ChangeEvent, FormEvent, useEffect, useState } from 'react'
 import { Paperclip, X } from 'lucide-react'
+import MarkdownEditor from './MarkdownEditor'
+import { mdToHtml } from '../utils/markdown'
 import type { Template, TemplateAttachment } from '../types'
 
 export interface TemplateFormValues {
@@ -8,6 +10,7 @@ export interface TemplateFormValues {
   html_content: string
   text_content: string | null
   attachments: TemplateAttachment[]
+  markdown_source: string | null
 }
 
 function formatSize(b64: string): string {
@@ -54,6 +57,8 @@ export default function TemplateForm({ initial, isEdit, onSubmit, onCancel, subm
   const [textContent, setTextContent] = useState('')
   const [attachments, setAttachments] = useState<TemplateAttachment[]>([])
   const [showPreview, setShowPreview] = useState(false)
+  const [editorMode, setEditorMode] = useState<'html' | 'markdown'>('html')
+  const [markdown, setMarkdown] = useState('')
 
   useEffect(() => {
     setName(initial?.name ?? '')
@@ -61,7 +66,14 @@ export default function TemplateForm({ initial, isEdit, onSubmit, onCancel, subm
     setHtmlContent(initial?.html_content ?? '')
     setTextContent(initial?.text_content ?? '')
     setAttachments(initial?.attachments ?? [])
+    setMarkdown(initial?.markdown_source ?? '')
+    setEditorMode(initial?.markdown_source ? 'markdown' : 'html')
   }, [initial])
+
+  function onMarkdownChange(value: string) {
+    setMarkdown(value)
+    setHtmlContent(mdToHtml(value))
+  }
 
   function addFiles(e: ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? [])
@@ -88,6 +100,7 @@ export default function TemplateForm({ initial, isEdit, onSubmit, onCancel, subm
       html_content: htmlContent,
       text_content: textContent.trim() || null,
       attachments,
+      markdown_source: editorMode === 'markdown' ? markdown : null,
     })
   }
 
@@ -112,17 +125,43 @@ export default function TemplateForm({ initial, isEdit, onSubmit, onCancel, subm
         ))}
       </div>
 
-      <label className={labelClass}>
-        HTML-Inhalt
-        <textarea
-          value={htmlContent}
-          onChange={(e) => setHtmlContent(e.target.value)}
-          rows={12}
-          required
-          placeholder="<p>Hallo {{ first_name }}, <a href=&quot;{{ link }}&quot;>hier klicken</a></p>"
-          className={`${fieldClass} font-mono text-sm`}
-        />
-      </label>
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center justify-between">
+          <span className="text-sm">Inhalt</span>
+          <div className="flex gap-0.5 rounded-md border border-border p-0.5 text-xs">
+            <button
+              type="button"
+              onClick={() => setEditorMode('html')}
+              className={`rounded px-2 py-1 ${editorMode === 'html' ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'}`}
+            >
+              HTML
+            </button>
+            <button
+              type="button"
+              onClick={() => setEditorMode('markdown')}
+              className={`rounded px-2 py-1 ${editorMode === 'markdown' ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'}`}
+            >
+              Markdown
+            </button>
+          </div>
+        </div>
+        {editorMode === 'markdown' ? (
+          <>
+            <MarkdownEditor value={markdown} onChange={onMarkdownChange} rows={12} />
+            <p className="text-xs text-text-secondary">
+              Markdown wird beim Speichern in HTML umgewandelt; Variablen und der Tracking-Link funktionieren weiterhin.
+            </p>
+          </>
+        ) : (
+          <textarea
+            value={htmlContent}
+            onChange={(e) => setHtmlContent(e.target.value)}
+            rows={12}
+            placeholder="<p>Hallo {{ first_name }}, <a href=&quot;{{ link }}&quot;>hier klicken</a></p>"
+            className={`${fieldClass} font-mono text-sm`}
+          />
+        )}
+      </div>
 
       <label className={labelClass}>
         Text-Teil (optional, Plain-Text-Alternative)

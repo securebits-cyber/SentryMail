@@ -108,6 +108,7 @@ class TemplateBase(BaseModel):
     html_content: str
     text_content: str | None = None
     attachments: list[TemplateAttachment] = []
+    markdown_source: str | None = None
 
 
 class TemplateCreate(TemplateBase):
@@ -120,6 +121,7 @@ class TemplateUpdate(BaseModel):
     html_content: str | None = None
     text_content: str | None = None
     attachments: list[TemplateAttachment] | None = None
+    markdown_source: str | None = None
 
 
 class TemplateOut(TemplateBase):
@@ -417,6 +419,7 @@ class LandingPageBase(BaseModel):
     capture_credentials: bool = False
     capture_passwords: bool = False
     redirect_url: str | None = None
+    markdown_source: str | None = None
 
 
 class LandingPageCreate(LandingPageBase):
@@ -429,6 +432,7 @@ class LandingPageUpdate(BaseModel):
     capture_credentials: bool | None = None
     capture_passwords: bool | None = None
     redirect_url: str | None = None
+    markdown_source: str | None = None
 
 
 class LandingPageOut(LandingPageBase):
