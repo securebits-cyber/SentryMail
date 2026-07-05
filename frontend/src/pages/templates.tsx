@@ -1,10 +1,13 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState, type ChangeEvent } from 'react'
 import PageScaffold from '../components/PageScaffold'
 import TemplateForm, { TemplateFormValues } from '../components/TemplateForm'
 import { api } from '../services/api'
 import type { Template } from '../types'
 
-type Mode = { kind: 'list' } | { kind: 'create' } | { kind: 'edit'; template: Template }
+type Mode =
+  | { kind: 'list' }
+  | { kind: 'create'; draft?: TemplateFormValues }
+  | { kind: 'edit'; template: Template }
 
 export default function TemplatesPage() {
   const [templates, setTemplates] = useState<Template[]>([])
@@ -12,6 +15,7 @@ export default function TemplatesPage() {
   const [mode, setMode] = useState<Mode>({ kind: 'list' })
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   function load() {
     setLoading(true)
@@ -52,12 +56,28 @@ export default function TemplatesPage() {
     }
   }
 
+  async function handleFile(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    e.target.value = '' // erlaubt erneutes Auswählen derselben Datei
+    if (!file) return
+    setError(null)
+    try {
+      const form = new FormData()
+      form.append('file', file)
+      const res = await api.post<TemplateFormValues>('/templates/import-eml', form)
+      setMode({ kind: 'create', draft: res.data })
+    } catch {
+      setError('E-Mail konnte nicht importiert werden (gültige .eml-Datei?).')
+    }
+  }
+
   if (mode.kind !== 'list') {
     return (
       <PageScaffold title={mode.kind === 'edit' ? 'Vorlage bearbeiten' : 'Neue Vorlage'}>
         {error && <p className="mb-3 text-sm text-status-danger">{error}</p>}
         <TemplateForm
-          initial={mode.kind === 'edit' ? mode.template : null}
+          initial={mode.kind === 'edit' ? mode.template : mode.kind === 'create' ? mode.draft ?? null : null}
+          isEdit={mode.kind === 'edit'}
           onSubmit={handleSubmit}
           onCancel={() => {
             setMode({ kind: 'list' })
@@ -74,20 +94,33 @@ export default function TemplatesPage() {
       title="Vorlagen"
       guidanceKey="templates"
       actions={
-        <button
-          onClick={() => setMode({ kind: 'create' })}
-          className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-white"
-        >
-          Neue Vorlage
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="flex items-center gap-2 rounded-md border border-border px-4 py-2 text-sm text-text-primary hover:bg-bg"
+          >
+            E-Mail hochladen
+            <span className="rounded-full bg-blue-600 px-1.5 py-0.5 text-[10px] font-semibold uppercase leading-none tracking-wide text-white">
+              Business
+            </span>
+          </button>
+          <button
+            onClick={() => setMode({ kind: 'create' })}
+            className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-white"
+          >
+            Neue Vorlage
+          </button>
+        </div>
       }
     >
+      <input ref={fileInputRef} type="file" accept=".eml,message/rfc822" onChange={handleFile} className="hidden" />
+
       {error && <p className="mb-3 text-sm text-status-danger">{error}</p>}
 
       {loading ? (
         <p className="text-text-secondary">Lade Vorlagen...</p>
       ) : templates.length === 0 ? (
-        <p className="text-text-secondary">Noch keine Vorlage vorhanden &rarr; Erste Vorlage anlegen.</p>
+        <p className="text-text-secondary">Noch keine Vorlage vorhanden &rarr; Erste Vorlage anlegen oder eine E-Mail hochladen.</p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full border-collapse">
