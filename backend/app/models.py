@@ -204,6 +204,32 @@ class LdapConfig(Base):
         return self.bind_password_encrypted is not None
 
 
+class SmtpConfig(Base):
+    """Globales Fallback-SMTP, im Dashboard verwaltet.
+
+    Singleton; wird beim ersten Zugriff aus den .env-Werten befuellt.
+    Greift nur, wenn eine Kampagne kein eigenes Sending Profile nutzt.
+    Das Passwort liegt verschluesselt (Fernet) in ``password_encrypted``.
+    """
+
+    __tablename__ = "smtp_config"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    host: Mapped[str] = mapped_column(String(255), default="", nullable=False)
+    port: Mapped[int] = mapped_column(default=587, nullable=False)
+    username: Mapped[str] = mapped_column(String(255), default="", nullable=False)
+    password_encrypted: Mapped[str | None] = mapped_column(Text, nullable=True)
+    from_email: Mapped[str] = mapped_column(String(255), default="", nullable=False)
+    from_name: Mapped[str] = mapped_column(String(255), default="", nullable=False)
+    tls_mode: Mapped[str] = mapped_column(String(16), default="starttls", nullable=False)
+    verify_ssl: Mapped[bool] = mapped_column(default=True, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+    @property
+    def has_password(self) -> bool:
+        return self.password_encrypted is not None
+
+
 class OidcConfig(Base):
     """OIDC-Anbindung (optionale Zweitanmeldung), im Dashboard verwaltet.
 

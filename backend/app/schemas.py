@@ -210,6 +210,39 @@ class LdapTestResult(BaseModel):
     detail: str
 
 
+# --- SMTP-Fallback (Settings-Dashboard) ---
+# Globales Fallback-SMTP, greift wenn eine Kampagne kein Sending Profile hat.
+# Beim ersten Zugriff aus der .env befuellt, danach in der DB verwaltet.
+
+class SmtpConfigUpdate(BaseModel):
+    host: str | None = None
+    port: int | None = None
+    username: str | None = None
+    password: str | None = None  # write-only, verschluesselt gespeichert
+    from_email: str | None = None
+    from_name: str | None = None
+    tls_mode: str | None = None
+    verify_ssl: bool | None = None
+
+
+class SmtpConfigOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    host: str
+    port: int
+    username: str
+    has_password: bool
+    from_email: str
+    from_name: str
+    tls_mode: str
+    verify_ssl: bool
+
+
+class SmtpTestResult(BaseModel):
+    success: bool
+    detail: str
+
+
 # --- OIDC-Konfiguration (Settings-Dashboard) ---
 
 class OidcConfigUpdate(BaseModel):

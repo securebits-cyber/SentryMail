@@ -15,8 +15,13 @@ from app.schemas import (
     LdapTestResult,
     OidcConfigOut,
     OidcConfigUpdate,
+    SmtpConfigOut,
+    SmtpConfigUpdate,
+    SmtpTestResult,
 )
 from app.services.ldap import LdapParams, test_connection
+from app.services.mail import test_smtp_params
+from app.services.smtp_config import get_or_create_smtp_config
 from app.utils.crypto import decrypt, encrypt
 
 router = APIRouter(prefix="/settings", tags=["settings"])
@@ -83,6 +88,42 @@ def test_ldap(db: Session = Depends(get_db), _: User = Depends(require_admin)):
     )
     success, detail = test_connection(params)
     return LdapTestResult(success=success, detail=detail)
+
+
+@router.get("/smtp", response_model=SmtpConfigOut)
+def get_smtp(db: Session = Depends(get_db), _: User = Depends(require_admin)):
+    return get_or_create_smtp_config(db)
+
+
+@router.put("/smtp", response_model=SmtpConfigOut)
+def update_smtp(payload: SmtpConfigUpdate, db: Session = Depends(get_db), _: User = Depends(require_admin)):
+    config = get_or_create_smtp_config(db)
+    data = payload.model_dump(exclude_unset=True)
+    password = data.pop("password", None)
+    for field, value in data.items():
+        setattr(config, field, value)
+    if password is not None:
+        # Leerer String -> Passwort entfernen; sonst neu verschluesseln.
+        config.password_encrypted = encrypt(password) if password else None
+    db.commit()
+    db.refresh(config)
+    return config
+
+
+@router.post("/smtp/test", response_model=SmtpTestResult)
+async def test_smtp(db: Session = Depends(get_db), _: User = Depends(require_admin)):
+    """Testet die aktuell gespeicherte SMTP-Config (vorher speichern)."""
+    config = get_or_create_smtp_config(db)
+    password = decrypt(config.password_encrypted) if config.password_encrypted else None
+    success, detail = await test_smtp_params(
+        host=config.host,
+        port=config.port,
+        tls_mode=config.tls_mode,
+        validate_certs=config.verify_ssl,
+        username=config.username or None,
+        password=password,
+    )
+    return SmtpTestResult(success=success, detail=detail)
 
 
 @router.get("/oidc", response_model=OidcConfigOut)

@@ -98,6 +98,18 @@ export interface GroupSummary {
   updated_at: string
 }
 
+// Globales Fallback-SMTP — greift ohne Sending Profile, im Dashboard verwaltet.
+export interface SmtpConfig {
+  host: string
+  port: number
+  username: string
+  has_password: boolean
+  from_email: string
+  from_name: string
+  tls_mode: string
+  verify_ssl: boolean
+}
+
 export interface OidcConfig {
   enabled: boolean
   issuer: string

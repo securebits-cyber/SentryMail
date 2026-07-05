@@ -1,7 +1,8 @@
 """SMTP Mail Service fuer PhishAware.
 
-Provider-agnostisch: kennt keinen bestimmten SMTP-Anbieter, nur die Werte
-aus Settings (.env). Siehe docs/phishing-awareness-smtp-konfiguration.md.
+Provider-agnostisch: kennt keinen bestimmten SMTP-Anbieter; alle Verbindungs-
+werte kommen als Parameter (Sending Profile oder globales Fallback-SMTP aus
+der DB). Siehe docs/phishing-awareness-smtp-konfiguration.md.
 """
 import asyncio
 import logging
@@ -49,34 +50,31 @@ async def _open_smtp(
     return client
 
 
-class SMTPClient:
-    """Async SMTP Client - funktioniert mit jedem Standard-SMTP-Anbieter."""
-
-    def __init__(self):
-        self.host = settings.SMTP_HOST
-        self.port = settings.SMTP_PORT
-        self.username = settings.SMTP_USERNAME
-        self.password = settings.SMTP_PASSWORD
-        self.from_email = settings.SMTP_FROM_EMAIL
-        self.from_name = settings.SMTP_FROM_NAME
-        self.tls_mode = settings.SMTP_TLS_MODE
-        self.verify_ssl = settings.SMTP_VERIFY_SSL
-        self.timeout = settings.SMTP_TIMEOUT
-
-    async def connect(self) -> SMTP:
+async def test_smtp_params(
+    *,
+    host: str,
+    port: int,
+    tls_mode: str,
+    validate_certs: bool,
+    username: str | None,
+    password: str | None,
+) -> tuple[bool, str]:
+    """Testet Verbindung und Login mit explizit uebergebenen SMTP-Parametern."""
+    try:
         client = await _open_smtp(
-            host=self.host,
-            port=self.port,
-            tls_mode=self.tls_mode,
-            validate_certs=self.verify_ssl,
-            username=self.username,
-            password=self.password,
-            timeout=self.timeout,
+            host=host,
+            port=port,
+            tls_mode=tls_mode,
+            validate_certs=validate_certs,
+            username=username,
+            password=password,
         )
-        logger.info("Connected to SMTP %s:%s", self.host, self.port)
-        return client
-
-smtp_client = SMTPClient()
+        await client.quit()
+        logger.info("SMTP-Test erfolgreich (%s:%s)", host, port)
+        return True, f"Verbindung zu {host}:{port} erfolgreich."
+    except Exception as e:
+        logger.error("SMTP-Test fehlgeschlagen (%s:%s): %s", host, port, e)
+        return False, f"Verbindung zu {host}:{port} fehlgeschlagen: {e}"
 
 
 async def send_campaign_messages(
@@ -153,18 +151,6 @@ async def send_campaign_messages(
 
     logger.info("Kampagnen-Batch: %s ok, %s fehlgeschlagen", results["success"], results["failed"])
     return results
-
-
-async def test_smtp_connection() -> bool:
-    """Testet die SMTP-Verbindung mit den aktuell konfigurierten .env-Werten."""
-    try:
-        client = await smtp_client.connect()
-        await client.quit()
-        logger.info("SMTP-Verbindung erfolgreich")
-        return True
-    except Exception as e:
-        logger.error("SMTP-Verbindung fehlgeschlagen: %s", e)
-        return False
 
 
 async def send_test_email(

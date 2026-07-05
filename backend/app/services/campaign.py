@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from app.config import get_settings
 from app.models import Campaign, CampaignStatus, Recipient, TrackingEventType
 from app.services.mail import send_campaign_messages
+from app.services.smtp_config import get_or_create_smtp_config
 from app.services.tracking import record_event
 from app.utils.crypto import decrypt
 
@@ -14,8 +15,8 @@ logger = logging.getLogger(__name__)
 settings = get_settings()
 
 
-def _smtp_params(campaign: Campaign) -> dict:
-    """SMTP-Parameter aus dem Sending Profile der Kampagne, sonst globales .env."""
+def _smtp_params(db: Session, campaign: Campaign) -> dict:
+    """SMTP-Parameter aus dem Sending Profile der Kampagne, sonst globales Fallback-SMTP (DB)."""
     profile = campaign.sending_profile
     if profile is not None:
         return {
@@ -28,15 +29,16 @@ def _smtp_params(campaign: Campaign) -> dict:
             "from_email": profile.from_email,
             "from_name": profile.from_name,
         }
+    config = get_or_create_smtp_config(db)
     return {
-        "host": settings.SMTP_HOST,
-        "port": settings.SMTP_PORT,
-        "tls_mode": settings.SMTP_TLS_MODE,
-        "validate_certs": settings.SMTP_VERIFY_SSL,
-        "username": settings.SMTP_USERNAME,
-        "password": settings.SMTP_PASSWORD,
-        "from_email": settings.SMTP_FROM_EMAIL,
-        "from_name": settings.SMTP_FROM_NAME,
+        "host": config.host,
+        "port": config.port,
+        "tls_mode": config.tls_mode,
+        "validate_certs": config.verify_ssl,
+        "username": config.username or None,
+        "password": decrypt(config.password_encrypted) if config.password_encrypted else None,
+        "from_email": config.from_email,
+        "from_name": config.from_name,
     }
 
 
@@ -56,7 +58,7 @@ async def send_campaign(db: Session, campaign: Campaign) -> dict[str, int]:
 
     base = f"https://{settings.APP_DOMAIN}/track"
     results = await send_campaign_messages(
-        **_smtp_params(campaign),
+        **_smtp_params(db, campaign),
         subject=campaign.template.subject,
         template_html=campaign.template.html_content,
         template_text=campaign.template.text_content,
