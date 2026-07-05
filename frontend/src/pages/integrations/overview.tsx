@@ -11,9 +11,9 @@ export default function IntegrationsOverviewPage() {
         { label: 'Übersicht', icon: LayoutGrid },
       ]}
     >
-      <div className="max-w-2xl rounded-lg border border-dashed border-border bg-surface p-6 text-sm text-text-secondary">
+      <div className="w-fit max-w-full rounded-lg border border-dashed border-border bg-surface p-6 text-sm text-text-secondary">
         <p className="font-medium text-text-primary">Noch keine Integrationen aktiv.</p>
-        <p className="mt-2">
+        <p className="mt-2 max-w-md">
           Dieser Bereich ist für spätere Erweiterungen vorbereitet — etwa die Anbindung an
           Ticketing-, SIEM- oder Chat-Systeme. Neue Integrationen erscheinen dann als eigene
           Punkte in der linken Spalte, analog zum Einstellungen-Menü.

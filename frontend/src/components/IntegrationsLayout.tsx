@@ -27,7 +27,7 @@ const linkClass = ({ isActive }: { isActive: boolean }) =>
 export default function IntegrationsLayout() {
   return (
     <div className="-m-6 flex min-h-full">
-      <aside className="w-56 shrink-0 border-r border-border bg-surface px-3 py-5">
+      <aside className="w-64 shrink-0 border-r border-border bg-surface px-3 py-5">
         <nav className="flex flex-col gap-1">
           {integrationsNav.map(({ to, label, icon: Icon, badge }) => (
             <NavLink key={to} to={to} className={linkClass}>
