@@ -1,4 +1,4 @@
-"""SMTP Mail Service fuer PhishAware.
+"""SMTP Mail Service fuer HumanShield.APP.
 
 Provider-agnostisch: kennt keinen bestimmten SMTP-Anbieter; alle Verbindungs-
 werte kommen als Parameter (Sending Profile oder globales Fallback-SMTP aus
@@ -132,7 +132,7 @@ async def send_campaign_messages(
             msg["Subject"] = Header(Template(subject).render(**ctx), "utf-8")
             msg["From"] = f"{from_name} <{from_email}>"
             msg["To"] = recipient["email"]
-            msg["X-Mailer"] = "PhishAware"
+            msg["X-Mailer"] = "HumanShield.APP"
             msg.attach(MIMEText(text_body, "plain", "utf-8"))
             html_with_pixel = f"{html_body}\n<img src='{pixel_url}' width='1' height='1' alt='' />"
             msg.attach(MIMEText(html_with_pixel, "html", "utf-8"))
@@ -181,13 +181,13 @@ async def send_test_email(
         )
 
         msg = MIMEMultipart("alternative")
-        msg["Subject"] = Header("PhishAware Test-Mail", "utf-8")
+        msg["Subject"] = Header("HumanShield.APP Test-Mail", "utf-8")
         msg["From"] = f"{from_name} <{from_email}>"
         msg["To"] = to_email
-        msg["X-Mailer"] = "PhishAware"
+        msg["X-Mailer"] = "HumanShield.APP"
         msg.attach(
             MIMEText(
-                "Dies ist eine Test-Mail von PhishAware. Das Sending Profile funktioniert.",
+                "Dies ist eine Test-Mail von HumanShield.APP. Das Sending Profile funktioniert.",
                 "plain",
                 "utf-8",
             )

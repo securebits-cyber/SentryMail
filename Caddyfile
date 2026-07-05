@@ -1,4 +1,4 @@
-# PhishAware – Caddyfile (generisch)
+# HumanShield.APP – Caddyfile (generisch)
 #
 # CADDY_SITE_ADDRESS bestimmt, worauf Caddy hoert und ob TLS aktiv ist
 # (kommt aus .env / docker-compose, Default "localhost"):

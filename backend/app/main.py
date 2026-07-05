@@ -29,7 +29,7 @@ async def lifespan(_: FastAPI):
     yield
 
 
-app = FastAPI(title="PhishAware API", version="0.1.0", lifespan=lifespan)
+app = FastAPI(title="HumanShield.APP API", version="0.1.0", lifespan=lifespan)
 
 # Session-Cookie fuer den OIDC-Authorization-Code-Flow (State/Nonce).
 app.add_middleware(SessionMiddleware, secret_key=settings.SECRET_KEY)

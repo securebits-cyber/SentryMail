@@ -51,7 +51,7 @@ class Settings(BaseSettings):
     SMTP_PORT: int = 587
     SMTP_USERNAME: str
     SMTP_PASSWORD: str
-    SMTP_FROM_NAME: str = "PhishAware Training"
+    SMTP_FROM_NAME: str = "HumanShield-Awareness"
     SMTP_FROM_EMAIL: str
     # TLS-Modus: "none" (Port 25), "starttls" (Port 587), "ssl" (implizit, Port 465)
     SMTP_TLS_MODE: str = "starttls"

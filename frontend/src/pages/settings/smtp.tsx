@@ -147,7 +147,7 @@ export default function SmtpSettingsPage() {
           </label>
           <label className={`${labelClass} flex-1`}>
             Absender-Name
-            <input value={form.from_name} onChange={(e) => set('from_name', e.target.value)} placeholder="PhishAware Training" className={fieldClass} />
+            <input value={form.from_name} onChange={(e) => set('from_name', e.target.value)} placeholder="HumanShield-Awareness" className={fieldClass} />
           </label>
         </div>
 

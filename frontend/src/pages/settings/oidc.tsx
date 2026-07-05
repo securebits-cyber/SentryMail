@@ -81,7 +81,7 @@ export default function OidcSettingsPage() {
           <input
             value={oidc.issuer}
             onChange={(e) => set('issuer', e.target.value)}
-            placeholder="https://idp.example.com/application/o/phishaware/"
+            placeholder="https://idp.example.com/application/o/humanshield/"
             className={`${fieldClass} font-mono`}
           />
         </label>

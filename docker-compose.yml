@@ -1,7 +1,7 @@
 services:
   postgres:
     image: postgres:18-alpine
-    container_name: phishaware-db
+    container_name: humanshield-db
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-phishaware}
       POSTGRES_USER: ${POSTGRES_USER:-phishaware}
@@ -14,24 +14,24 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - phishaware
+      - humanshield
 
   redis:
     image: redis:8-alpine
-    container_name: phishaware-cache
+    container_name: humanshield-cache
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
-      - phishaware
+      - humanshield
 
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: phishaware-api
+    container_name: humanshield-api
     env_file:
       - .env
     depends_on:
@@ -45,13 +45,13 @@ services:
       - ./backend:/app
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
     networks:
-      - phishaware
+      - humanshield
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile.dev
-    container_name: phishaware-web
+    container_name: humanshield-web
     environment:
       VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
       APP_DOMAIN: ${APP_DOMAIN:-localhost}
@@ -61,13 +61,15 @@ services:
       - "${FRONTEND_BIND_ADDRESS:-0.0.0.0}:5173:5173"
     volumes:
       - ./frontend/src:/app/src
+      - ./frontend/index.html:/app/index.html
+      - ./frontend/public:/app/public
     command: npm run dev
     networks:
-      - phishaware
+      - humanshield
 
   caddy:
     image: caddy:2-alpine
-    container_name: phishaware-proxy
+    container_name: humanshield-proxy
     ports:
       - "${FRONTEND_BIND_ADDRESS:-0.0.0.0}:80:80"
       - "${FRONTEND_BIND_ADDRESS:-0.0.0.0}:443:443"
@@ -83,7 +85,7 @@ services:
       - backend
       - frontend
     networks:
-      - phishaware
+      - humanshield
 
 volumes:
   postgres_data:
@@ -91,5 +93,5 @@ volumes:
   caddy_config:
 
 networks:
-  phishaware:
+  humanshield:
     driver: bridge

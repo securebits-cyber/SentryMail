@@ -53,7 +53,7 @@ export default function Layout() {
       {/* Kopfzeile mit durchgehender Trennlinie ueber die volle Breite (Netbird-Stil). */}
       <header className="flex shrink-0 items-center gap-2 border-b border-border bg-surface px-4 py-3">
         <span className="h-6 w-6 rounded-md bg-accent" aria-hidden />
-        <span className="text-lg font-semibold tracking-tight">PhishAware</span>
+        <span className="text-lg font-semibold tracking-tight">HumanShield.APP</span>
       </header>
 
       <div className="flex flex-1">
@@ -99,7 +99,7 @@ export default function Layout() {
           </div>
 
           <div className="mx-3 mb-3 flex items-center justify-between rounded-md border border-border bg-bg px-3 py-2 text-xs text-text-secondary">
-            <span>PhishAware</span>
+            <span>HumanShield.APP</span>
             <span className="font-mono">v0.1.0</span>
           </div>
         </div>

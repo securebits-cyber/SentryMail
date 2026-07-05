@@ -30,7 +30,7 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-bg text-text-primary">
-      <h1 className="text-2xl font-semibold">PhishAware</h1>
+      <h1 className="text-2xl font-semibold">HumanShield.APP</h1>
 
       <form onSubmit={handleSubmit} className="flex w-72 flex-col gap-3">
         <label className="flex flex-col gap-1 text-sm">
