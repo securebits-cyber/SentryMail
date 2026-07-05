@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+
 /**
  * Auth-Helper: lokaler Login (primaer) sowie optionaler OIDC-Flow (Zweitmethode).
  * OIDC ist ein Full-Page-Redirect zu Backend -> OIDC-Provider. Nach dem Callback

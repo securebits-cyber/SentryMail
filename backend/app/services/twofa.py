@@ -1,3 +1,7 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 """2FA-Kernlogik: TOTP (Authenticator-App), E-Mail-Einmalcodes, Backup-Codes, QR.
 
 Secrets liegen verschluesselt (Fernet) im User; Backup-Codes nur als SHA-256-Hash.

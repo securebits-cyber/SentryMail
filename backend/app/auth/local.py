@@ -1,3 +1,7 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 """Lokaler Login (E-Mail/Passwort) - primaere Anmeldemethode.
 
 Konten werden ausschliesslich von Admins angelegt (siehe app/api/users.py),
