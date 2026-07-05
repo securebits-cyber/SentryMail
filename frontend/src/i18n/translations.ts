@@ -135,6 +135,21 @@ export const translations: Record<Lang, Record<string, string>> = {
     'camp.sendDone': 'Versand abgeschlossen: {success} ok, {failed} fehlgeschlagen.',
     'camp.err.send': 'Versand fehlgeschlagen.',
     'camp.err.delete': 'Kampagne konnte nicht gelöscht werden.',
+
+    // Sending Profiles
+    'sp.new': 'Neues Profil',
+    'sp.loading': 'Lade Profile...',
+    'sp.empty': 'Noch kein Sending Profile vorhanden → Erstes Profil anlegen.',
+    'sp.editTitle': 'Sending Profile bearbeiten',
+    'sp.newTitle': 'Neues Sending Profile',
+    'sp.col.host': 'Host',
+    'sp.col.sender': 'Absender',
+    'sp.test': 'Test-Mail',
+    'sp.test.prompt': 'Test-Mail über „{name}“ senden an:',
+    'sp.test.sending': 'Test-Mail wird gesendet...',
+    'sp.test.err': 'Test-Mail fehlgeschlagen (Admin-Rechte nötig?).',
+    'sp.err.save': 'Profil konnte nicht gespeichert werden (Admin-Rechte nötig?).',
+    'sp.err.delete': 'Profil konnte nicht gelöscht werden.',
   },
   en: {
     // Navigation
@@ -266,5 +281,20 @@ export const translations: Record<Lang, Record<string, string>> = {
     'camp.sendDone': 'Sending finished: {success} ok, {failed} failed.',
     'camp.err.send': 'Sending failed.',
     'camp.err.delete': 'Could not delete the campaign.',
+
+    // Sending profiles
+    'sp.new': 'New profile',
+    'sp.loading': 'Loading profiles...',
+    'sp.empty': 'No sending profile yet → create your first profile.',
+    'sp.editTitle': 'Edit sending profile',
+    'sp.newTitle': 'New sending profile',
+    'sp.col.host': 'Host',
+    'sp.col.sender': 'Sender',
+    'sp.test': 'Test email',
+    'sp.test.prompt': 'Send a test email via “{name}” to:',
+    'sp.test.sending': 'Sending test email...',
+    'sp.test.err': 'Test email failed (admin rights required?).',
+    'sp.err.save': 'Could not save the profile (admin rights required?).',
+    'sp.err.delete': 'Could not delete the profile.',
   },
 }

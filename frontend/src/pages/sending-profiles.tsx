@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react'
 import PageScaffold from '../components/PageScaffold'
 import SendingProfileForm, { SendingProfileFormValues } from '../components/SendingProfileForm'
+import { useI18n } from '../i18n'
 import { api } from '../services/api'
 import type { SendingProfile } from '../types'
 
 type Mode = { kind: 'list' } | { kind: 'create' } | { kind: 'edit'; profile: SendingProfile }
 
 export default function SendingProfilesPage() {
+  const { t } = useI18n()
   const [profiles, setProfiles] = useState<SendingProfile[]>([])
   const [loading, setLoading] = useState(true)
   const [mode, setMode] = useState<Mode>({ kind: 'list' })
@@ -35,27 +37,27 @@ export default function SendingProfilesPage() {
       setMode({ kind: 'list' })
       load()
     } catch {
-      setMessage({ kind: 'error', text: 'Profil konnte nicht gespeichert werden (Admin-Rechte nötig?).' })
+      setMessage({ kind: 'error', text: t('sp.err.save') })
     } finally {
       setSubmitting(false)
     }
   }
 
   async function handleDelete(profile: SendingProfile) {
-    if (!window.confirm(`Profil „${profile.name}“ wirklich löschen?`)) return
+    if (!window.confirm(t('common.confirmDelete', { name: profile.name }))) return
     setMessage(null)
     try {
       await api.delete(`/sending-profiles/${profile.id}`)
       load()
     } catch {
-      setMessage({ kind: 'error', text: 'Profil konnte nicht gelöscht werden.' })
+      setMessage({ kind: 'error', text: t('sp.err.delete') })
     }
   }
 
   async function handleTest(profile: SendingProfile) {
-    const email = window.prompt(`Test-Mail über „${profile.name}“ senden an:`)
+    const email = window.prompt(t('sp.test.prompt', { name: profile.name }))
     if (!email) return
-    setMessage({ kind: 'info', text: 'Test-Mail wird gesendet...' })
+    setMessage({ kind: 'info', text: t('sp.test.sending') })
     try {
       const res = await api.post<{ success: boolean; detail: string }>(
         `/sending-profiles/${profile.id}/test`,
@@ -63,13 +65,13 @@ export default function SendingProfilesPage() {
       )
       setMessage({ kind: res.data.success ? 'info' : 'error', text: res.data.detail })
     } catch {
-      setMessage({ kind: 'error', text: 'Test-Mail fehlgeschlagen (Admin-Rechte nötig?).' })
+      setMessage({ kind: 'error', text: t('sp.test.err') })
     }
   }
 
   if (mode.kind !== 'list') {
     return (
-      <PageScaffold title={mode.kind === 'edit' ? 'Sending Profile bearbeiten' : 'Neues Sending Profile'}>
+      <PageScaffold title={mode.kind === 'edit' ? t('sp.editTitle') : t('sp.newTitle')}>
         {message && (
           <p className={`mb-3 text-sm ${message.kind === 'error' ? 'text-status-danger' : 'text-text-secondary'}`}>
             {message.text}
@@ -90,14 +92,14 @@ export default function SendingProfilesPage() {
 
   return (
     <PageScaffold
-      title="Sending Profiles"
+      title={t('nav.sendingProfiles')}
       guidanceKey="sending-profiles"
       actions={
         <button
           onClick={() => setMode({ kind: 'create' })}
           className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-white"
         >
-          Neues Profil
+          {t('sp.new')}
         </button>
       }
     >
@@ -108,17 +110,17 @@ export default function SendingProfilesPage() {
       )}
 
       {loading ? (
-        <p className="text-text-secondary">Lade Profile...</p>
+        <p className="text-text-secondary">{t('sp.loading')}</p>
       ) : profiles.length === 0 ? (
-        <p className="text-text-secondary">Noch kein Sending Profile vorhanden &rarr; Erstes Profil anlegen.</p>
+        <p className="text-text-secondary">{t('sp.empty')}</p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>
               <tr className="border-b border-border text-left text-sm text-text-secondary">
-                <th className="py-2 pr-4 font-medium">Name</th>
-                <th className="py-2 pr-4 font-medium">Host</th>
-                <th className="py-2 pr-4 font-medium">Absender</th>
+                <th className="py-2 pr-4 font-medium">{t('common.name')}</th>
+                <th className="py-2 pr-4 font-medium">{t('sp.col.host')}</th>
+                <th className="py-2 pr-4 font-medium">{t('sp.col.sender')}</th>
                 <th className="py-2 font-medium" />
               </tr>
             </thead>
@@ -132,16 +134,16 @@ export default function SendingProfilesPage() {
                   <td className="py-2 pr-4 font-mono text-sm text-text-secondary">{profile.from_email}</td>
                   <td className="py-2 text-right whitespace-nowrap">
                     <button onClick={() => handleTest(profile)} className="mr-3 text-text-secondary hover:text-accent hover:underline">
-                      Test-Mail
+                      {t('sp.test')}
                     </button>
                     <button
                       onClick={() => setMode({ kind: 'edit', profile })}
                       className="mr-3 text-text-secondary hover:text-accent hover:underline"
                     >
-                      Bearbeiten
+                      {t('common.edit')}
                     </button>
                     <button onClick={() => handleDelete(profile)} className="text-status-danger hover:underline">
-                      Löschen
+                      {t('common.delete')}
                     </button>
                   </td>
                 </tr>
