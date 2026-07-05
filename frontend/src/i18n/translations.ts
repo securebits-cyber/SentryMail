@@ -423,6 +423,29 @@ export const translations: Record<Lang, Record<string, string>> = {
     'cw.schedule': 'Geplanter Versand (optional)',
     'cw.creating': 'Wird angelegt...',
     'cw.create': 'Kampagne anlegen',
+
+    // Gemeinsam
+    'form.content': 'Inhalt',
+
+    // Vorlagen-Formular
+    'tf.variables': 'Variablen (in Betreff, HTML und Text nutzbar):',
+    'tf.markdownNote':
+      'Markdown wird beim Speichern in HTML umgewandelt; Variablen und der Tracking-Link funktionieren weiterhin.',
+    'tf.textPart': 'Text-Teil (optional, Plain-Text-Alternative)',
+    'tf.attachments': 'Anhänge',
+    'tf.addAttachment': 'Anhang hinzufügen',
+    'tf.noAttachments': 'Keine Anhänge. Beim E-Mail-Upload werden vorhandene Anhänge automatisch übernommen.',
+    'tf.removeAttachment': 'Anhang entfernen',
+    'tf.showPreview': 'Vorschau (mit Beispieldaten)',
+    'tf.hidePreview': 'Vorschau ausblenden',
+    'tf.create': 'Vorlage anlegen',
+
+    // Landing-Page-Formular
+    'lpf.markdownNote': 'Markdown wird beim Speichern in HTML umgewandelt. Für Formulare (Daten-Capture) HTML verwenden.',
+    'lpf.captureData': 'Abgeschickte Formulardaten erfassen',
+    'lpf.capturePw': 'Auch Passwörter erfassen',
+    'lpf.redirect': 'Weiterleitung nach Absenden (optional)',
+    'lpf.create': 'Landing Page anlegen',
   },
   en: {
     // Navigation
@@ -840,5 +863,27 @@ export const translations: Record<Lang, Record<string, string>> = {
     'cw.schedule': 'Scheduled send (optional)',
     'cw.creating': 'Creating...',
     'cw.create': 'Create campaign',
+
+    // Common
+    'form.content': 'Content',
+
+    // Template form
+    'tf.variables': 'Variables (usable in subject, HTML and text):',
+    'tf.markdownNote': 'Markdown is converted to HTML on save; variables and the tracking link keep working.',
+    'tf.textPart': 'Text part (optional, plain-text alternative)',
+    'tf.attachments': 'Attachments',
+    'tf.addAttachment': 'Add attachment',
+    'tf.noAttachments': 'No attachments. When importing an email, existing attachments are taken over automatically.',
+    'tf.removeAttachment': 'Remove attachment',
+    'tf.showPreview': 'Preview (with sample data)',
+    'tf.hidePreview': 'Hide preview',
+    'tf.create': 'Create template',
+
+    // Landing page form
+    'lpf.markdownNote': 'Markdown is converted to HTML on save. For forms (data capture) use HTML.',
+    'lpf.captureData': 'Capture submitted form data',
+    'lpf.capturePw': 'Also capture passwords',
+    'lpf.redirect': 'Redirect after submit (optional)',
+    'lpf.create': 'Create landing page',
   },
 }

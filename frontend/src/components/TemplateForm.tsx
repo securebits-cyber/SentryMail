@@ -2,6 +2,7 @@ import { ChangeEvent, FormEvent, useEffect, useState } from 'react'
 import { Paperclip, X } from 'lucide-react'
 import MarkdownEditor from './MarkdownEditor'
 import { mdToHtml } from '../utils/markdown'
+import { useI18n } from '../i18n'
 import type { Template, TemplateAttachment } from '../types'
 
 export interface TemplateFormValues {
@@ -51,6 +52,7 @@ function fillSample(text: string): string {
 }
 
 export default function TemplateForm({ initial, isEdit, onSubmit, onCancel, submitting }: TemplateFormProps) {
+  const { t } = useI18n()
   const [name, setName] = useState('')
   const [subject, setSubject] = useState('')
   const [htmlContent, setHtmlContent] = useState('')
@@ -107,17 +109,17 @@ export default function TemplateForm({ initial, isEdit, onSubmit, onCancel, subm
   return (
     <form onSubmit={handleSubmit} className="flex max-w-2xl flex-col gap-4">
       <label className={labelClass}>
-        Name
+        {t('common.name')}
         <input value={name} onChange={(e) => setName(e.target.value)} required className={fieldClass} />
       </label>
 
       <label className={labelClass}>
-        Betreff
+        {t('common.subject')}
         <input value={subject} onChange={(e) => setSubject(e.target.value)} required className={fieldClass} />
       </label>
 
       <div className="rounded-md border border-border bg-bg px-3 py-2 text-xs text-text-secondary">
-        Variablen (in Betreff, HTML und Text nutzbar):{' '}
+        {t('tf.variables')}{' '}
         {VARIABLES.map((v) => (
           <code key={v} className="mr-2 font-mono text-text-primary">
             {v}
@@ -127,7 +129,7 @@ export default function TemplateForm({ initial, isEdit, onSubmit, onCancel, subm
 
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
-          <span className="text-sm">Inhalt</span>
+          <span className="text-sm">{t('form.content')}</span>
           <div className="flex gap-0.5 rounded-md border border-border p-0.5 text-xs">
             <button
               type="button"
@@ -148,9 +150,7 @@ export default function TemplateForm({ initial, isEdit, onSubmit, onCancel, subm
         {editorMode === 'markdown' ? (
           <>
             <MarkdownEditor value={markdown} onChange={onMarkdownChange} rows={12} />
-            <p className="text-xs text-text-secondary">
-              Markdown wird beim Speichern in HTML umgewandelt; Variablen und der Tracking-Link funktionieren weiterhin.
-            </p>
+            <p className="text-xs text-text-secondary">{t('tf.markdownNote')}</p>
           </>
         ) : (
           <textarea
@@ -164,7 +164,7 @@ export default function TemplateForm({ initial, isEdit, onSubmit, onCancel, subm
       </div>
 
       <label className={labelClass}>
-        Text-Teil (optional, Plain-Text-Alternative)
+        {t('tf.textPart')}
         <textarea
           value={textContent}
           onChange={(e) => setTextContent(e.target.value)}
@@ -177,17 +177,15 @@ export default function TemplateForm({ initial, isEdit, onSubmit, onCancel, subm
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
           <span className="text-sm">
-            Anhänge {attachments.length > 0 && <span className="text-text-secondary">({attachments.length})</span>}
+            {t('tf.attachments')} {attachments.length > 0 && <span className="text-text-secondary">({attachments.length})</span>}
           </span>
           <label className="cursor-pointer rounded-md border border-border px-3 py-1.5 text-sm text-text-primary hover:bg-bg">
-            Anhang hinzufügen
+            {t('tf.addAttachment')}
             <input type="file" multiple onChange={addFiles} className="hidden" />
           </label>
         </div>
         {attachments.length === 0 ? (
-          <p className="text-xs text-text-secondary">
-            Keine Anhänge. Beim E-Mail-Upload werden vorhandene Anhänge automatisch übernommen.
-          </p>
+          <p className="text-xs text-text-secondary">{t('tf.noAttachments')}</p>
         ) : (
           <ul className="flex flex-col gap-1">
             {attachments.map((att, i) => (
@@ -199,7 +197,7 @@ export default function TemplateForm({ initial, isEdit, onSubmit, onCancel, subm
                   type="button"
                   onClick={() => setAttachments((prev) => prev.filter((_, j) => j !== i))}
                   className="shrink-0 text-text-secondary hover:text-status-danger"
-                  aria-label="Anhang entfernen"
+                  aria-label={t('tf.removeAttachment')}
                 >
                   <X size={14} />
                 </button>
@@ -215,14 +213,14 @@ export default function TemplateForm({ initial, isEdit, onSubmit, onCancel, subm
           onClick={() => setShowPreview((v) => !v)}
           className="rounded-md border border-border px-4 py-2 text-sm text-text-primary hover:bg-bg"
         >
-          {showPreview ? 'Vorschau ausblenden' : 'Vorschau (mit Beispieldaten)'}
+          {showPreview ? t('tf.hidePreview') : t('tf.showPreview')}
         </button>
       </div>
 
       {showPreview && (
         <div className="rounded-md border border-border">
           <div className="border-b border-border px-3 py-2 text-sm">
-            <span className="text-text-secondary">Betreff:</span> {fillSample(subject)}
+            <span className="text-text-secondary">{t('common.subject')}:</span> {fillSample(subject)}
           </div>
           <div
             className="max-h-96 overflow-auto bg-white p-4 text-black"
@@ -238,14 +236,14 @@ export default function TemplateForm({ initial, isEdit, onSubmit, onCancel, subm
           disabled={submitting}
           className="rounded-md bg-accent px-5 py-2 font-medium text-white disabled:opacity-60"
         >
-          {submitting ? 'Speichern...' : isEdit ? 'Änderungen speichern' : 'Vorlage anlegen'}
+          {submitting ? t('common.saving') : isEdit ? t('form.saveChanges') : t('tf.create')}
         </button>
         <button
           type="button"
           onClick={onCancel}
           className="rounded-md border border-border px-5 py-2 text-text-primary hover:bg-bg"
         >
-          Abbrechen
+          {t('common.cancel')}
         </button>
       </div>
     </form>

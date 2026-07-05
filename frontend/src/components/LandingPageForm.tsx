@@ -2,6 +2,7 @@ import { FormEvent, useEffect, useState } from 'react'
 import MarkdownEditor from './MarkdownEditor'
 import { mdToHtml } from '../utils/markdown'
 import Toggle from './Toggle'
+import { useI18n } from '../i18n'
 import type { LandingPage } from '../types'
 
 export interface LandingPageFormValues {
@@ -24,6 +25,7 @@ const fieldClass = 'rounded-md border border-border bg-surface px-3 py-2 text-te
 const labelClass = 'flex flex-col gap-1 text-sm'
 
 export default function LandingPageForm({ initial, onSubmit, onCancel, submitting }: LandingPageFormProps) {
+  const { t } = useI18n()
   const [name, setName] = useState('')
   const [html, setHtml] = useState('')
   const [captureCredentials, setCaptureCredentials] = useState(false)
@@ -63,13 +65,13 @@ export default function LandingPageForm({ initial, onSubmit, onCancel, submittin
   return (
     <form onSubmit={handleSubmit} className="flex max-w-3xl flex-col gap-4">
       <label className={labelClass}>
-        Name
+        {t('common.name')}
         <input value={name} onChange={(e) => setName(e.target.value)} required className={fieldClass} />
       </label>
 
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
-          <span className="text-sm">Inhalt</span>
+          <span className="text-sm">{t('form.content')}</span>
           <div className="flex gap-0.5 rounded-md border border-border p-0.5 text-xs">
             <button
               type="button"
@@ -90,9 +92,7 @@ export default function LandingPageForm({ initial, onSubmit, onCancel, submittin
         {editorMode === 'markdown' ? (
           <>
             <MarkdownEditor value={markdown} onChange={onMarkdownChange} rows={14} placeholder="# Willkommen\n\nBitte melde dich an." />
-            <p className="text-xs text-text-secondary">
-              Markdown wird beim Speichern in HTML umgewandelt. Für Formulare (Daten-Capture) HTML verwenden.
-            </p>
+            <p className="text-xs text-text-secondary">{t('lpf.markdownNote')}</p>
           </>
         ) : (
           <textarea
@@ -106,25 +106,21 @@ export default function LandingPageForm({ initial, onSubmit, onCancel, submittin
       </div>
 
       <div className="flex items-center gap-3 text-sm">
-        <Toggle
-          checked={captureCredentials}
-          onChange={setCaptureCredentials}
-          aria-label="Abgeschickte Formulardaten erfassen"
-        />
-        Abgeschickte Formulardaten erfassen
+        <Toggle checked={captureCredentials} onChange={setCaptureCredentials} aria-label={t('lpf.captureData')} />
+        {t('lpf.captureData')}
       </div>
       <div className={`flex items-center gap-3 text-sm ${captureCredentials ? '' : 'opacity-50'}`}>
         <Toggle
           checked={capturePasswords}
           onChange={setCapturePasswords}
           disabled={!captureCredentials}
-          aria-label="Auch Passwörter erfassen"
+          aria-label={t('lpf.capturePw')}
         />
-        Auch Passwörter erfassen
+        {t('lpf.capturePw')}
       </div>
 
       <label className={labelClass}>
-        Weiterleitung nach Absenden (optional)
+        {t('lpf.redirect')}
         <input
           value={redirectUrl}
           onChange={(e) => setRedirectUrl(e.target.value)}
@@ -139,14 +135,14 @@ export default function LandingPageForm({ initial, onSubmit, onCancel, submittin
           disabled={submitting}
           className="rounded-md bg-accent px-5 py-2 font-medium text-white disabled:opacity-60"
         >
-          {submitting ? 'Speichern...' : initial ? 'Änderungen speichern' : 'Landing Page anlegen'}
+          {submitting ? t('common.saving') : initial ? t('form.saveChanges') : t('lpf.create')}
         </button>
         <button
           type="button"
           onClick={onCancel}
           className="rounded-md border border-border px-5 py-2 text-text-primary hover:bg-bg"
         >
-          Abbrechen
+          {t('common.cancel')}
         </button>
       </div>
     </form>
