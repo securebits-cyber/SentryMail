@@ -5,9 +5,12 @@ werte kommen als Parameter (Sending Profile oder globales Fallback-SMTP aus
 der DB). Siehe docs/phishing-awareness-smtp-konfiguration.md.
 """
 import asyncio
+import base64
 import logging
 from datetime import datetime
+from email import encoders
 from email.header import Header
+from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
@@ -126,6 +129,7 @@ async def send_campaign_messages(
     recipients: list[dict],
     landing_url_base: str,
     pixel_url_base: str,
+    attachments: list[dict] | None = None,
 ) -> dict[str, int]:
     """Versendet eine Kampagne ueber ein explizites SMTP-Profil.
 
@@ -161,14 +165,32 @@ async def send_campaign_messages(
                 else f"Hallo {ctx['first_name']},"
             )
 
-            msg = MIMEMultipart("alternative")
+            html_with_pixel = f"{html_body}\n<img src='{pixel_url}' width='1' height='1' alt='' />"
+            alt = MIMEMultipart("alternative")
+            alt.attach(MIMEText(text_body, "plain", "utf-8"))
+            alt.attach(MIMEText(html_with_pixel, "html", "utf-8"))
+
+            if attachments:
+                # Anhaenge -> multipart/mixed mit der Alternative als erstem Teil.
+                msg = MIMEMultipart("mixed")
+                msg.attach(alt)
+                for att in attachments:
+                    maintype, _, subtype = (att.get("content_type") or "application/octet-stream").partition("/")
+                    part = MIMEBase(maintype or "application", subtype or "octet-stream")
+                    try:
+                        part.set_payload(base64.b64decode(att["content_b64"]))
+                    except Exception:  # noqa: BLE001
+                        continue
+                    encoders.encode_base64(part)
+                    part.add_header("Content-Disposition", "attachment", filename=att.get("filename") or "anhang")
+                    msg.attach(part)
+            else:
+                msg = alt
+
             msg["Subject"] = Header(Template(subject).render(**ctx), "utf-8")
             msg["From"] = f"{from_name} <{from_email}>"
             msg["To"] = recipient["email"]
             msg["X-Mailer"] = "HumanShield.APP"
-            msg.attach(MIMEText(text_body, "plain", "utf-8"))
-            html_with_pixel = f"{html_body}\n<img src='{pixel_url}' width='1' height='1' alt='' />"
-            msg.attach(MIMEText(html_with_pixel, "html", "utf-8"))
 
             try:
                 await client.send_message(msg, sender=from_email)

@@ -1,11 +1,18 @@
-import { FormEvent, useEffect, useState } from 'react'
-import type { Template } from '../types'
+import { ChangeEvent, FormEvent, useEffect, useState } from 'react'
+import { Paperclip, X } from 'lucide-react'
+import type { Template, TemplateAttachment } from '../types'
 
 export interface TemplateFormValues {
   name: string
   subject: string
   html_content: string
   text_content: string | null
+  attachments: TemplateAttachment[]
+}
+
+function formatSize(b64: string): string {
+  const bytes = Math.floor((b64.length * 3) / 4)
+  return bytes >= 1024 * 1024 ? `${(bytes / 1024 / 1024).toFixed(1)} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`
 }
 
 interface TemplateFormProps {
@@ -45,6 +52,7 @@ export default function TemplateForm({ initial, isEdit, onSubmit, onCancel, subm
   const [subject, setSubject] = useState('')
   const [htmlContent, setHtmlContent] = useState('')
   const [textContent, setTextContent] = useState('')
+  const [attachments, setAttachments] = useState<TemplateAttachment[]>([])
   const [showPreview, setShowPreview] = useState(false)
 
   useEffect(() => {
@@ -52,11 +60,35 @@ export default function TemplateForm({ initial, isEdit, onSubmit, onCancel, subm
     setSubject(initial?.subject ?? '')
     setHtmlContent(initial?.html_content ?? '')
     setTextContent(initial?.text_content ?? '')
+    setAttachments(initial?.attachments ?? [])
   }, [initial])
+
+  function addFiles(e: ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? [])
+    e.target.value = ''
+    files.forEach((file) => {
+      const reader = new FileReader()
+      reader.onload = () => {
+        const result = String(reader.result)
+        const b64 = result.includes(',') ? result.slice(result.indexOf(',') + 1) : result
+        setAttachments((prev) => [
+          ...prev,
+          { filename: file.name, content_type: file.type || 'application/octet-stream', content_b64: b64 },
+        ])
+      }
+      reader.readAsDataURL(file)
+    })
+  }
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault()
-    onSubmit({ name, subject, html_content: htmlContent, text_content: textContent.trim() || null })
+    onSubmit({
+      name,
+      subject,
+      html_content: htmlContent,
+      text_content: textContent.trim() || null,
+      attachments,
+    })
   }
 
   return (
@@ -102,6 +134,41 @@ export default function TemplateForm({ initial, isEdit, onSubmit, onCancel, subm
           className={`${fieldClass} font-mono text-sm`}
         />
       </label>
+
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center justify-between">
+          <span className="text-sm">
+            Anhänge {attachments.length > 0 && <span className="text-text-secondary">({attachments.length})</span>}
+          </span>
+          <label className="cursor-pointer rounded-md border border-border px-3 py-1.5 text-sm text-text-primary hover:bg-bg">
+            Anhang hinzufügen
+            <input type="file" multiple onChange={addFiles} className="hidden" />
+          </label>
+        </div>
+        {attachments.length === 0 ? (
+          <p className="text-xs text-text-secondary">
+            Keine Anhänge. Beim E-Mail-Upload werden vorhandene Anhänge automatisch übernommen.
+          </p>
+        ) : (
+          <ul className="flex flex-col gap-1">
+            {attachments.map((att, i) => (
+              <li key={i} className="flex items-center gap-2 rounded-md border border-border bg-surface px-3 py-2 text-sm">
+                <Paperclip size={14} className="shrink-0 text-text-secondary" />
+                <span className="truncate">{att.filename}</span>
+                <span className="ml-auto shrink-0 font-mono text-xs text-text-secondary">{formatSize(att.content_b64)}</span>
+                <button
+                  type="button"
+                  onClick={() => setAttachments((prev) => prev.filter((_, j) => j !== i))}
+                  className="shrink-0 text-text-secondary hover:text-status-danger"
+                  aria-label="Anhang entfernen"
+                >
+                  <X size={14} />
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
 
       <div>
         <button

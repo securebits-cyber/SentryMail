@@ -11,7 +11,7 @@ import uuid
 from datetime import datetime
 
 from sqlalchemy import CheckConstraint, DateTime, Enum, ForeignKey, String, Text
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
@@ -123,6 +123,8 @@ class Template(Base):
     html_content: Mapped[str] = mapped_column(Text, nullable=False)
     # Optionaler Plain-Text-Teil (wird als text/plain-Alternative gesendet).
     text_content: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # Anhaenge als Liste von {filename, content_type, content_b64} (Base64).
+    attachments: Mapped[list] = mapped_column(JSONB, nullable=False, default=list, server_default="[]")
     created_by_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())

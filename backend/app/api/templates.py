@@ -1,8 +1,11 @@
 """CRUD-Endpunkte fuer Mail-Templates."""
+import base64
 import html as html_lib
 import uuid
 from email import policy
 from email.parser import BytesParser
+
+MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024  # 10 MB pro Anhang
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 from sqlalchemy.orm import Session
@@ -29,12 +32,35 @@ async def import_eml(file: UploadFile = File(...), _: User = Depends(get_current
     subject = str(msg.get("subject") or "").strip()
     html_content = ""
     text_content: str | None = None
+    attachments: list[dict] = []
 
     parts = msg.walk() if msg.is_multipart() else [msg]
     for part in parts:
-        if part.get_content_maintype() == "multipart" or part.get_content_disposition() == "attachment":
+        if part.get_content_maintype() == "multipart":
             continue
         ctype = part.get_content_type()
+        filename = part.get_filename()
+
+        # Teile mit Dateiname bzw. Disposition "attachment" -> als Anhang uebernehmen.
+        if part.get_content_disposition() == "attachment" or filename:
+            try:
+                data = part.get_content()
+            except Exception:  # noqa: BLE001
+                continue
+            if isinstance(data, str):
+                data = data.encode("utf-8", "replace")
+            if not data or len(data) > MAX_ATTACHMENT_BYTES:
+                continue
+            attachments.append(
+                {
+                    "filename": filename or "anhang",
+                    "content_type": ctype or "application/octet-stream",
+                    "content_b64": base64.b64encode(data).decode("ascii"),
+                }
+            )
+            continue
+
+        # Rumpf-Teile.
         try:
             content = part.get_content()
         except Exception:  # noqa: BLE001
@@ -54,7 +80,13 @@ async def import_eml(file: UploadFile = File(...), _: User = Depends(get_current
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Kein E-Mail-Inhalt (HTML/Text) gefunden.")
 
     name = subject or (file.filename or "Importierte Vorlage").rsplit(".", 1)[0]
-    return TemplateBase(name=name, subject=subject, html_content=html_content, text_content=text_content)
+    return TemplateBase(
+        name=name,
+        subject=subject,
+        html_content=html_content,
+        text_content=text_content,
+        attachments=attachments,
+    )
 
 
 @router.get("", response_model=list[TemplateOut])

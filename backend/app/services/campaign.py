@@ -62,6 +62,7 @@ async def send_campaign(db: Session, campaign: Campaign) -> dict[str, int]:
         subject=campaign.template.subject,
         template_html=campaign.template.html_content,
         template_text=campaign.template.text_content,
+        attachments=campaign.template.attachments,
         recipients=recipient_payload,
         landing_url_base=f"{base}/landing",
         pixel_url_base=base,

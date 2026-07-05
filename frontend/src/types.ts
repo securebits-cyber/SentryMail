@@ -2,12 +2,19 @@
 
 export type CampaignStatus = 'draft' | 'scheduled' | 'running' | 'completed' | 'cancelled'
 
+export interface TemplateAttachment {
+  filename: string
+  content_type: string
+  content_b64: string
+}
+
 export interface Template {
   id: string
   name: string
   subject: string
   html_content: string
   text_content: string | null
+  attachments: TemplateAttachment[]
   created_by_id: string
   created_at: string
   updated_at: string

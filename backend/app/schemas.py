@@ -96,11 +96,18 @@ class UserOut(BaseModel):
 
 # --- Template ---
 
+class TemplateAttachment(BaseModel):
+    filename: str
+    content_type: str
+    content_b64: str
+
+
 class TemplateBase(BaseModel):
     name: str
     subject: str
     html_content: str
     text_content: str | None = None
+    attachments: list[TemplateAttachment] = []
 
 
 class TemplateCreate(TemplateBase):
@@ -112,6 +119,7 @@ class TemplateUpdate(BaseModel):
     subject: str | None = None
     html_content: str | None = None
     text_content: str | None = None
+    attachments: list[TemplateAttachment] | None = None
 
 
 class TemplateOut(TemplateBase):
