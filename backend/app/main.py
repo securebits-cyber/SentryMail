@@ -10,6 +10,7 @@ from starlette.middleware.sessions import SessionMiddleware
 
 from app.api import audit, campaigns, dashboard, groups, health, landing_pages, license as license_api, me as me_api, results, sending_profiles, settings as settings_api, templates, tracking
 from app.api import users as users_api
+from app.addon_loader import load_addons
 from app.auth import local as local_auth
 from app.auth.oidc import is_oidc_enabled
 from app.auth.oidc import router as oidc_router
@@ -94,3 +95,6 @@ app.include_router(templates.router)
 app.include_router(results.router)
 app.include_router(tracking.router)
 app.include_router(license_api.router)
+
+# Private Add-on-Pakete (falls installiert) registrieren. Ohne Paket ein No-Op.
+load_addons(app)
