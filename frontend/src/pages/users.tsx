@@ -1,6 +1,7 @@
 import { FormEvent, useEffect, useState } from 'react'
 import Badge from '../components/Badge'
 import PageScaffold from '../components/PageScaffold'
+import { useI18n } from '../i18n'
 import { api } from '../services/api'
 import type { User } from '../types'
 
@@ -14,6 +15,7 @@ function errText(e: unknown, fallback: string): string {
 }
 
 export default function UsersPage() {
+  const { t } = useI18n()
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
   const [creating, setCreating] = useState(false)
@@ -31,7 +33,7 @@ export default function UsersPage() {
     api
       .get<User[]>('/users')
       .then((res) => setUsers(res.data))
-      .catch(() => setMessage({ kind: 'error', text: 'Benutzer konnten nicht geladen werden (Admin-Rechte nötig?).' }))
+      .catch(() => setMessage({ kind: 'error', text: t('usr.err.load') }))
       .finally(() => setLoading(false))
   }
 
@@ -49,9 +51,9 @@ export default function UsersPage() {
       setRole('user')
       setCreating(false)
       load()
-      setMessage({ kind: 'info', text: 'Benutzer angelegt.' })
+      setMessage({ kind: 'info', text: t('usr.created') })
     } catch {
-      setMessage({ kind: 'error', text: 'Benutzer konnte nicht angelegt werden (E-Mail schon vergeben?).' })
+      setMessage({ kind: 'error', text: t('usr.err.create') })
     } finally {
       setSubmitting(false)
     }
@@ -63,43 +65,43 @@ export default function UsersPage() {
       await api.patch(`/users/${user.id}`, { is_active: !user.is_active })
       load()
     } catch (e) {
-      setMessage({ kind: 'error', text: errText(e, 'Status konnte nicht geändert werden.') })
+      setMessage({ kind: 'error', text: errText(e, t('usr.err.status')) })
     }
   }
 
   async function handleDelete(user: User) {
-    if (!window.confirm(`Benutzer „${user.email}“ wirklich löschen?`)) return
+    if (!window.confirm(t('usr.confirmDelete', { email: user.email }))) return
     setMessage(null)
     try {
       await api.delete(`/users/${user.id}`)
       load()
     } catch (e) {
-      setMessage({ kind: 'error', text: errText(e, 'Benutzer konnte nicht gelöscht werden.') })
+      setMessage({ kind: 'error', text: errText(e, t('usr.err.delete')) })
     }
   }
 
   async function resetTwofa(user: User) {
-    if (!window.confirm(`2FA von „${user.email}“ zurücksetzen?`)) return
+    if (!window.confirm(t('usr.confirmReset2fa', { email: user.email }))) return
     setMessage(null)
     try {
       await api.post(`/users/${user.id}/2fa/reset`)
       load()
-      setMessage({ kind: 'info', text: '2FA zurückgesetzt.' })
+      setMessage({ kind: 'info', text: t('usr.2faReset') })
     } catch (e) {
-      setMessage({ kind: 'error', text: errText(e, '2FA konnte nicht zurückgesetzt werden.') })
+      setMessage({ kind: 'error', text: errText(e, t('usr.err.reset2fa')) })
     }
   }
 
   return (
     <PageScaffold
-      title="Benutzer"
+      title={t('nav.users')}
       guidanceKey="users"
       actions={
         <button
           onClick={() => setCreating((v) => !v)}
           className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-white"
         >
-          {creating ? 'Schließen' : 'Neuer Benutzer'}
+          {creating ? t('usr.close') : t('usr.new')}
         </button>
       }
     >
@@ -113,24 +115,24 @@ export default function UsersPage() {
         <form onSubmit={handleCreate} className="elevated mb-6 flex max-w-2xl flex-col gap-3 rounded-md border border-border bg-surface p-4">
           <div className="flex gap-3">
             <label className={`${labelClass} flex-1`}>
-              E-Mail
+              {t('common.email')}
               <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required className={fieldClass} />
             </label>
             <label className={`${labelClass} flex-1`}>
-              Name
+              {t('common.name')}
               <input value={fullName} onChange={(e) => setFullName(e.target.value)} required className={fieldClass} />
             </label>
           </div>
           <div className="flex gap-3">
             <label className={`${labelClass} flex-1`}>
-              Passwort
+              {t('usr.password')}
               <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className={fieldClass} />
             </label>
             <label className={`${labelClass} w-40`}>
-              Rolle
+              {t('usr.role')}
               <select value={role} onChange={(e) => setRole(e.target.value as 'user' | 'admin')} className={fieldClass}>
-                <option value="user">Benutzer</option>
-                <option value="admin">Admin</option>
+                <option value="user">{t('prof.roleUser')}</option>
+                <option value="admin">{t('prof.roleAdmin')}</option>
               </select>
             </label>
           </div>
@@ -140,23 +142,23 @@ export default function UsersPage() {
               disabled={submitting}
               className="rounded-md bg-accent px-5 py-2 text-sm font-medium text-white disabled:opacity-60"
             >
-              {submitting ? 'Anlegen...' : 'Anlegen'}
+              {submitting ? t('usr.creating') : t('usr.create')}
             </button>
           </div>
         </form>
       )}
 
       {loading ? (
-        <p className="text-text-secondary">Lade Benutzer...</p>
+        <p className="text-text-secondary">{t('usr.loading')}</p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>
               <tr className="border-b border-border text-left text-sm text-text-secondary">
-                <th className="py-2 pr-4 font-medium">E-Mail</th>
-                <th className="py-2 pr-4 font-medium">Name</th>
-                <th className="py-2 pr-4 font-medium">Rolle</th>
-                <th className="py-2 pr-4 font-medium">Status</th>
+                <th className="py-2 pr-4 font-medium">{t('common.email')}</th>
+                <th className="py-2 pr-4 font-medium">{t('common.name')}</th>
+                <th className="py-2 pr-4 font-medium">{t('usr.role')}</th>
+                <th className="py-2 pr-4 font-medium">{t('common.status')}</th>
                 <th className="py-2 font-medium" />
               </tr>
             </thead>
@@ -167,28 +169,28 @@ export default function UsersPage() {
                   <td className="py-2 pr-4">{user.full_name}</td>
                   <td className="py-2 pr-4">
                     <Badge tone={user.role === 'admin' ? 'accent' : 'neutral'}>
-                      {user.role === 'admin' ? 'Admin' : 'Benutzer'}
+                      {user.role === 'admin' ? t('prof.roleAdmin') : t('prof.roleUser')}
                     </Badge>
                   </td>
                   <td className="py-2 pr-4">
                     <div className="flex items-center gap-1.5">
                       <Badge tone={user.is_active ? 'success' : 'danger'}>
-                        {user.is_active ? 'Aktiv' : 'Inaktiv'}
+                        {user.is_active ? t('common.active') : t('usr.inactive')}
                       </Badge>
                       {user.twofa_enabled && <Badge tone="accent">2FA</Badge>}
                     </div>
                   </td>
                   <td className="py-2 text-right whitespace-nowrap">
                     <button onClick={() => toggleActive(user)} className="mr-3 text-text-secondary hover:text-accent hover:underline">
-                      {user.is_active ? 'Deaktivieren' : 'Aktivieren'}
+                      {user.is_active ? t('usr.deactivate') : t('usr.activate')}
                     </button>
                     {user.twofa_enabled && (
                       <button onClick={() => resetTwofa(user)} className="mr-3 text-text-secondary hover:text-accent hover:underline">
-                        2FA zurücksetzen
+                        {t('usr.reset2fa')}
                       </button>
                     )}
                     <button onClick={() => handleDelete(user)} className="text-status-danger hover:underline">
-                      Löschen
+                      {t('common.delete')}
                     </button>
                   </td>
                 </tr>
