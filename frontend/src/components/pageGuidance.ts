@@ -72,6 +72,19 @@ export const pageGuidance: Record<string, Guidance> = {
     ],
     note: 'Erfasste Daten dienen nur Trainingszwecken; kläre die Zulässigkeit vorab intern ab.',
   },
+  'campaign-editor': {
+    intro:
+      'Eine Kampagne bündelt Vorlage, Absender, Landing Page und Empfängergruppen. Der Versand wird danach separat über „Senden“ gestartet.',
+    steps: [
+      'Namen vergeben und die E-Mail-Vorlage auswählen (Pflicht) — sie muss vorher unter „Vorlagen“ angelegt sein.',
+      'Sending Profile für die Absender-Identität wählen; ohne Auswahl greift das globale Fallback-SMTP.',
+      'Optional eine Landing Page hinterlegen, auf der Empfänger nach dem Klick landen.',
+      'Eine oder mehrere Empfängergruppen auswählen (unter „Gruppen“ anlegen oder importieren).',
+      'Optional Datum und Uhrzeit für einen geplanten Start setzen.',
+      'Kampagne anlegen und anschließend in der Übersicht über „Senden“ starten — danach die Ergebnisse auswerten.',
+    ],
+    note: 'Starte im Zweifel mit einer kleinen Testgruppe.',
+  },
   campaigns: {
     intro:
       'In einer Kampagne kombinierst du Vorlage, Sending Profile, Landing Page und Empfängergruppe und startest den Versand.',
