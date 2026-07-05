@@ -2,6 +2,7 @@ import { KeyRound, Settings } from 'lucide-react'
 import { FormEvent, useEffect, useState } from 'react'
 import PageScaffold from '../../components/PageScaffold'
 import Toggle from '../../components/Toggle'
+import { useI18n } from '../../i18n'
 import { api } from '../../services/api'
 import type { OidcConfig } from '../../types'
 
@@ -12,6 +13,7 @@ const labelClass = 'flex flex-col gap-1 text-sm'
 type OidcForm = Omit<OidcConfig, 'has_client_secret'> & { client_secret: string }
 
 export default function OidcSettingsPage() {
+  const { t } = useI18n()
   const [oidc, setOidc] = useState<OidcForm | null>(null)
   const [hasSecret, setHasSecret] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -41,23 +43,23 @@ export default function OidcSettingsPage() {
       await api.put('/settings/oidc', payload)
       if (client_secret) setHasSecret(true)
       setOidc((prev) => (prev ? { ...prev, client_secret: '' } : prev))
-      setMessage({ kind: 'info', text: 'OIDC-Einstellungen gespeichert.' })
+      setMessage({ kind: 'info', text: t('oidc.saved') })
     } catch {
-      setMessage({ kind: 'error', text: 'OIDC-Speichern fehlgeschlagen (Admin-Rechte nötig?).' })
+      setMessage({ kind: 'error', text: t('oidc.err.save') })
     } finally {
       setSaving(false)
     }
   }
 
-  if (!oidc) return <p className="text-text-secondary">Lade Einstellungen...</p>
+  if (!oidc) return <p className="text-text-secondary">{t('common.loadingSettings')}</p>
 
   return (
     <PageScaffold
-      title="OIDC / Single Sign-On"
-      subtitle="Optionale Zweitanmeldung. Ohne Aktivierung läuft die App rein mit lokalem Login. Das Client-Secret wird verschlüsselt gespeichert."
+      title={t('oidc.title')}
+      subtitle={t('oidc.subtitle')}
       breadcrumb={[
-        { label: 'Einstellungen', icon: Settings },
-        { label: 'OIDC / SSO', icon: KeyRound },
+        { label: t('nav.settings'), icon: Settings },
+        { label: t('settings.oidc'), icon: KeyRound },
       ]}
       guidanceKey="settings-oidc"
     >
@@ -70,14 +72,14 @@ export default function OidcSettingsPage() {
       <form onSubmit={handleSave} className="flex max-w-2xl flex-col gap-4">
         <div className="elevated flex items-center justify-between gap-4 rounded-lg border border-border bg-surface p-4">
           <div>
-            <div className="text-sm font-medium">OIDC aktivieren</div>
-            <div className="text-sm text-text-secondary">Zeigt den SSO-Button auf der Anmeldeseite.</div>
+            <div className="text-sm font-medium">{t('oidc.enable')}</div>
+            <div className="text-sm text-text-secondary">{t('oidc.enableDesc')}</div>
           </div>
-          <Toggle checked={oidc.enabled} onChange={(v) => set('enabled', v)} aria-label="OIDC aktivieren" />
+          <Toggle checked={oidc.enabled} onChange={(v) => set('enabled', v)} aria-label={t('oidc.enable')} />
         </div>
 
         <label className={labelClass}>
-          Issuer-URL
+          {t('oidc.issuer')}
           <input
             value={oidc.issuer}
             onChange={(e) => set('issuer', e.target.value)}
@@ -86,11 +88,11 @@ export default function OidcSettingsPage() {
           />
         </label>
         <label className={labelClass}>
-          Client-ID
+          {t('oidc.clientId')}
           <input value={oidc.client_id} onChange={(e) => set('client_id', e.target.value)} className={`${fieldClass} font-mono`} />
         </label>
         <label className={labelClass}>
-          Client-Secret {hasSecret && <span className="text-text-secondary">(leer = unverändert)</span>}
+          {t('oidc.clientSecret')} {hasSecret && <span className="text-text-secondary">{t('form.secretUnchanged')}</span>}
           <input
             type="password"
             value={oidc.client_secret}
@@ -100,7 +102,7 @@ export default function OidcSettingsPage() {
           />
         </label>
         <label className={labelClass}>
-          Redirect-URI
+          {t('oidc.redirectUri')}
           <input
             value={oidc.redirect_uri}
             onChange={(e) => set('redirect_uri', e.target.value)}
@@ -115,7 +117,7 @@ export default function OidcSettingsPage() {
             disabled={saving}
             className="rounded-md bg-accent px-5 py-2 font-medium text-white disabled:opacity-60"
           >
-            {saving ? 'Speichern...' : 'Speichern'}
+            {saving ? t('common.saving') : t('common.save')}
           </button>
         </div>
       </form>

@@ -2,6 +2,7 @@ import { Network, Settings } from 'lucide-react'
 import { FormEvent, useEffect, useState } from 'react'
 import PageScaffold from '../../components/PageScaffold'
 import Toggle from '../../components/Toggle'
+import { useI18n } from '../../i18n'
 import { api } from '../../services/api'
 import type { LdapConfig } from '../../types'
 
@@ -12,6 +13,7 @@ const labelClass = 'flex flex-col gap-1 text-sm'
 type LdapForm = Omit<LdapConfig, 'has_bind_password'> & { bind_password: string }
 
 export default function LdapSettingsPage() {
+  const { t } = useI18n()
   const [form, setForm] = useState<LdapForm | null>(null)
   const [hasPassword, setHasPassword] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -46,11 +48,11 @@ export default function LdapSettingsPage() {
     setMessage(null)
     try {
       await save()
-      setMessage({ kind: 'info', text: 'Einstellungen gespeichert.' })
+      setMessage({ kind: 'info', text: t('form.saved') })
       if (form?.bind_password) setHasPassword(true)
       setForm((prev) => (prev ? { ...prev, bind_password: '' } : prev))
     } catch {
-      setMessage({ kind: 'error', text: 'Speichern fehlgeschlagen (Admin-Rechte nötig?).' })
+      setMessage({ kind: 'error', text: t('form.err.save') })
     } finally {
       setSaving(false)
     }
@@ -58,7 +60,7 @@ export default function LdapSettingsPage() {
 
   async function handleTest() {
     setTesting(true)
-    setMessage({ kind: 'info', text: 'Speichere und teste Verbindung...' })
+    setMessage({ kind: 'info', text: t('form.saveTest') })
     try {
       await save() // Test nutzt die gespeicherte Config -> vorher speichern.
       if (form?.bind_password) setHasPassword(true)
@@ -66,21 +68,21 @@ export default function LdapSettingsPage() {
       const res = await api.post<{ success: boolean; detail: string }>('/settings/ldap/test')
       setMessage({ kind: res.data.success ? 'info' : 'error', text: res.data.detail })
     } catch {
-      setMessage({ kind: 'error', text: 'Test fehlgeschlagen (Admin-Rechte nötig?).' })
+      setMessage({ kind: 'error', text: t('form.err.test') })
     } finally {
       setTesting(false)
     }
   }
 
-  if (!form) return <p className="text-text-secondary">Lade Einstellungen...</p>
+  if (!form) return <p className="text-text-secondary">{t('common.loadingSettings')}</p>
 
   return (
     <PageScaffold
-      title="LDAP-Anbindung"
-      subtitle="Empfänger-Import aus dem Verzeichnisdienst. Das Bind-Passwort wird verschlüsselt gespeichert."
+      title={t('ldap.title')}
+      subtitle={t('ldap.subtitle')}
       breadcrumb={[
-        { label: 'Einstellungen', icon: Settings },
-        { label: 'LDAP', icon: Network },
+        { label: t('nav.settings'), icon: Settings },
+        { label: t('settings.ldap'), icon: Network },
       ]}
       guidanceKey="settings-ldap"
     >
@@ -93,43 +95,41 @@ export default function LdapSettingsPage() {
       <form onSubmit={handleSave} className="flex max-w-2xl flex-col gap-4">
         <div className="elevated flex items-center justify-between gap-4 rounded-lg border border-border bg-surface p-4">
           <div>
-            <div className="text-sm font-medium">LDAP-Import aktivieren</div>
-            <div className="text-sm text-text-secondary">
-              Erlaubt den Empfänger-Import aus dem Verzeichnisdienst.
-            </div>
+            <div className="text-sm font-medium">{t('ldap.enable')}</div>
+            <div className="text-sm text-text-secondary">{t('ldap.enableDesc')}</div>
           </div>
-          <Toggle checked={form.enabled} onChange={(v) => set('enabled', v)} aria-label="LDAP-Import aktivieren" />
+          <Toggle checked={form.enabled} onChange={(v) => set('enabled', v)} aria-label={t('ldap.enable')} />
         </div>
 
         <div className="flex gap-4">
           <label className={`${labelClass} flex-1`}>
-            Host
+            {t('field.host')}
             <input value={form.host} onChange={(e) => set('host', e.target.value)} placeholder="ldap.example.com" className={fieldClass} />
           </label>
           <label className={`${labelClass} w-28`}>
-            Port
+            {t('field.port')}
             <input type="number" value={form.port} onChange={(e) => set('port', Number(e.target.value))} className={`${fieldClass} font-mono`} />
           </label>
         </div>
 
         <div className="flex gap-8">
           <div className="flex items-center gap-3 text-sm">
-            <Toggle checked={form.use_ssl} onChange={(v) => set('use_ssl', v)} aria-label="LDAPS (SSL)" />
-            LDAPS (SSL)
+            <Toggle checked={form.use_ssl} onChange={(v) => set('use_ssl', v)} aria-label={t('ldap.ssl')} />
+            {t('ldap.ssl')}
           </div>
           <div className="flex items-center gap-3 text-sm">
-            <Toggle checked={form.start_tls} onChange={(v) => set('start_tls', v)} aria-label="StartTLS" />
-            StartTLS
+            <Toggle checked={form.start_tls} onChange={(v) => set('start_tls', v)} aria-label={t('ldap.startTls')} />
+            {t('ldap.startTls')}
           </div>
         </div>
 
         <label className={labelClass}>
-          Bind-DN
+          {t('ldap.bindDn')}
           <input value={form.bind_dn} onChange={(e) => set('bind_dn', e.target.value)} placeholder="cn=svc,dc=example,dc=com" className={`${fieldClass} font-mono`} />
         </label>
 
         <label className={labelClass}>
-          Bind-Passwort {hasPassword && <span className="text-text-secondary">(leer = unverändert)</span>}
+          {t('ldap.bindPw')} {hasPassword && <span className="text-text-secondary">{t('form.secretUnchanged')}</span>}
           <input
             type="password"
             value={form.bind_password}
@@ -140,34 +140,34 @@ export default function LdapSettingsPage() {
         </label>
 
         <label className={labelClass}>
-          Base-DN
+          {t('ldap.baseDn')}
           <input value={form.base_dn} onChange={(e) => set('base_dn', e.target.value)} placeholder="ou=users,dc=example,dc=com" className={`${fieldClass} font-mono`} />
         </label>
 
         <label className={labelClass}>
-          User-Filter
+          {t('ldap.userFilter')}
           <input value={form.user_filter} onChange={(e) => set('user_filter', e.target.value)} className={`${fieldClass} font-mono`} />
         </label>
 
         <fieldset className="flex gap-4 rounded-md border border-border p-3">
-          <legend className="px-1 text-sm text-text-secondary">Attribut-Mapping</legend>
+          <legend className="px-1 text-sm text-text-secondary">{t('ldap.attrMapping')}</legend>
           <label className={`${labelClass} flex-1`}>
-            E-Mail
+            {t('common.email')}
             <input value={form.attr_email} onChange={(e) => set('attr_email', e.target.value)} className={`${fieldClass} font-mono`} />
           </label>
           <label className={`${labelClass} flex-1`}>
-            Vorname
+            {t('field.firstName')}
             <input value={form.attr_first_name} onChange={(e) => set('attr_first_name', e.target.value)} className={`${fieldClass} font-mono`} />
           </label>
           <label className={`${labelClass} flex-1`}>
-            Nachname
+            {t('field.lastName')}
             <input value={form.attr_last_name} onChange={(e) => set('attr_last_name', e.target.value)} className={`${fieldClass} font-mono`} />
           </label>
         </fieldset>
 
         <div className="flex gap-2">
           <button type="submit" disabled={saving} className="rounded-md bg-accent px-5 py-2 font-medium text-white disabled:opacity-60">
-            {saving ? 'Speichern...' : 'Speichern'}
+            {saving ? t('common.saving') : t('common.save')}
           </button>
           <button
             type="button"
@@ -175,7 +175,7 @@ export default function LdapSettingsPage() {
             disabled={testing}
             className="rounded-md border border-border px-5 py-2 text-text-primary hover:bg-bg disabled:opacity-60"
           >
-            {testing ? 'Teste...' : 'Verbindung testen'}
+            {testing ? t('form.testing') : t('form.test')}
           </button>
         </div>
       </form>
