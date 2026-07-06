@@ -3,6 +3,8 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
 import { ShieldAlert, ShieldCheck, ShieldX, type LucideIcon } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import Badge from './Badge'
 import { useI18n } from '../i18n'
 
 export interface Summary {
@@ -127,15 +129,277 @@ export function Funnel({ summary }: { summary: Summary }) {
   )
 }
 
+export interface BreakdownSlice {
+  label: string
+  count: number
+}
+
+export interface EngagementAnalytics {
+  total_events: number
+  browsers: BreakdownSlice[]
+  operating_systems: BreakdownSlice[]
+  devices: BreakdownSlice[]
+  countries: BreakdownSlice[]
+  languages: BreakdownSlice[]
+  resolutions: BreakdownSlice[]
+  utm_sources: BreakdownSlice[]
+}
+
+/** Eine Balkenliste (Top 6) mit Anteil je Kategorie. */
+function BarList({ title, slices, total }: { title: string; slices: BreakdownSlice[]; total: number }) {
+  const { t } = useI18n()
+  return (
+    <div>
+      <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-secondary">{title}</h4>
+      {slices.length === 0 ? (
+        <p className="text-sm text-text-secondary">{t('analytics.none')}</p>
+      ) : (
+        <div className="flex flex-col gap-2">
+          {slices.slice(0, 6).map((s) => {
+            const pct = total > 0 ? Math.round((s.count / total) * 100) : 0
+            return (
+              <div key={s.label}>
+                <div className="mb-1 flex items-center justify-between text-sm">
+                  <span className="truncate pr-2 text-text-primary">{s.label}</span>
+                  <span className="shrink-0 font-mono tabular-nums text-text-secondary">
+                    {s.count}
+                    <span className="ml-1.5 text-xs">({pct}%)</span>
+                  </span>
+                </div>
+                <div className="h-2 w-full overflow-hidden rounded-full bg-border/50">
+                  <div className="bg-accent h-2 rounded-full" style={{ width: `${Math.max(3, pct)}%` }} />
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
+
+/** Interaktions-Aufschluesselung nach Browser, OS, Geraet und UTM-Quelle. */
+export function EngagementBreakdown({ analytics }: { analytics: EngagementAnalytics }) {
+  const { t } = useI18n()
+
+  return (
+    <div className="elevated rounded-lg border border-border bg-surface p-5">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+        <h3 className="text-sm font-semibold text-text-secondary">{t('analytics.heading')}</h3>
+        <span className="text-xs text-text-secondary">
+          {t('analytics.basis', { count: String(analytics.total_events) })}
+        </span>
+      </div>
+      {analytics.total_events === 0 ? (
+        <p className="text-sm text-text-secondary">{t('analytics.empty')}</p>
+      ) : (
+        <div className="grid gap-6 sm:grid-cols-2">
+          <BarList title={t('analytics.browsers')} slices={analytics.browsers} total={analytics.total_events} />
+          <BarList title={t('analytics.os')} slices={analytics.operating_systems} total={analytics.total_events} />
+          <BarList title={t('analytics.devices')} slices={analytics.devices} total={analytics.total_events} />
+          <BarList title={t('analytics.countries')} slices={analytics.countries} total={analytics.total_events} />
+          <BarList title={t('analytics.languages')} slices={analytics.languages} total={analytics.total_events} />
+          <BarList title={t('analytics.resolutions')} slices={analytics.resolutions} total={analytics.total_events} />
+          <BarList title={t('analytics.utm')} slices={analytics.utm_sources} total={analytics.total_events} />
+        </div>
+      )}
+    </div>
+  )
+}
+
+export interface HumanRiskPerson {
+  email: string
+  first_name: string | null
+  last_name: string | null
+  department: string | null
+  position: string | null
+  criticality: string | null
+  campaigns: number
+  fails: number
+  repeat_offender: boolean
+  behavior_score: number
+  score: number
+  level: 'high' | 'medium' | 'low'
+}
+
+export interface HumanRiskSummary {
+  score: number
+  level: 'high' | 'medium' | 'low'
+  people: number
+  repeat_offenders: number
+  distribution: { high: number; medium: number; low: number; none: number }
+  top_people: HumanRiskPerson[]
+}
+
+const LEVEL_TEXT: Record<'high' | 'medium' | 'low', string> = {
+  high: 'text-status-danger',
+  medium: 'text-status-warning',
+  low: 'text-status-success',
+}
+
+/** Human Risk Management: personenbezogene Risiko-Rangliste ueber alle Kampagnen. */
+export function HumanRiskCard({ summary }: { summary: HumanRiskSummary }) {
+  const { t } = useI18n()
+
+  return (
+    <div className="elevated rounded-lg border border-border bg-surface p-5">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+        <h3 className="text-sm font-semibold text-text-secondary">{t('hrm.heading')}</h3>
+        <div className="flex items-center gap-4 text-xs text-text-secondary">
+          <span>{t('hrm.people', { count: String(summary.people) })}</span>
+          <span className="text-status-danger">{t('hrm.repeat', { count: String(summary.repeat_offenders) })}</span>
+          <span className={`font-semibold ${LEVEL_TEXT[summary.level]}`}>
+            ⌀ {summary.score}/100
+          </span>
+        </div>
+      </div>
+      {summary.top_people.length === 0 ? (
+        <p className="text-sm text-text-secondary">{t('hrm.empty')}</p>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="border-b border-border text-left text-xs text-text-secondary">
+                <th className="py-2 pr-4 font-medium">{t('common.name')}</th>
+                <th className="py-2 pr-4 font-medium">{t('hrm.department')}</th>
+                <th className="py-2 pr-4 font-medium">{t('hrm.criticality')}</th>
+                <th className="py-2 pr-4 font-medium">{t('hrm.campaigns')}</th>
+                <th className="py-2 pr-4 font-medium">{t('hrm.fails')}</th>
+                <th className="py-2 font-medium">{t('hrm.score')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {summary.top_people.map((p) => {
+                const name = [p.first_name, p.last_name].filter(Boolean).join(' ') || p.email
+                return (
+                  <tr key={p.email} className="border-b border-border">
+                    <td className="py-2 pr-4">
+                      <div className="text-sm text-text-primary">{name}</div>
+                      <div className="font-mono text-xs text-text-secondary">{p.email}</div>
+                    </td>
+                    <td className="py-2 pr-4 text-sm text-text-secondary">{p.department || '—'}</td>
+                    <td className="py-2 pr-4 text-sm">
+                      {p.criticality ? t(`crit.${p.criticality}`) : '—'}
+                    </td>
+                    <td className="py-2 pr-4 font-mono text-sm tabular-nums text-text-secondary">{p.campaigns}</td>
+                    <td className="py-2 pr-4 font-mono text-sm tabular-nums">
+                      {p.fails}
+                      {p.repeat_offender && (
+                        <span className="ml-1.5 align-middle">
+                          <Badge tone="danger">{t('hrm.repeatBadge')}</Badge>
+                        </span>
+                      )}
+                    </td>
+                    <td className="py-2">
+                      <span className={`font-mono text-sm font-semibold tabular-nums ${LEVEL_TEXT[p.level]}`}>
+                        {p.score}
+                      </span>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  )
+}
+
+export interface HeatmapCell {
+  weekday: number
+  hour: number
+  count: number
+}
+
+export interface ActivityHeatmap {
+  total_events: number
+  max_count: number
+  cells: HeatmapCell[]
+}
+
+const WEEKDAY_KEYS = ['heatmap.mon', 'heatmap.tue', 'heatmap.wed', 'heatmap.thu', 'heatmap.fri', 'heatmap.sat', 'heatmap.sun']
+
+/** Aktivitaets-Heatmap: Wochentag x Tagesstunde. Intensitaet = accent-Opazitaet. */
+export function ActivityHeatmapCard({ heatmap }: { heatmap: ActivityHeatmap }) {
+  const { t } = useI18n()
+  // Zellwerte in ein 7x24-Raster einsortieren (Zeile = Wochentag, Spalte = Stunde).
+  const grid: number[][] = Array.from({ length: 7 }, () => Array(24).fill(0))
+  for (const c of heatmap.cells) {
+    if (c.weekday >= 0 && c.weekday < 7 && c.hour >= 0 && c.hour < 24) grid[c.weekday][c.hour] = c.count
+  }
+  const max = heatmap.max_count || 1
+
+  return (
+    <div className="elevated rounded-lg border border-border bg-surface p-5">
+      <h3 className="mb-4 text-sm font-semibold text-text-secondary">{t('heatmap.heading')}</h3>
+      {heatmap.total_events === 0 ? (
+        <p className="text-sm text-text-secondary">{t('heatmap.empty')}</p>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="border-separate" style={{ borderSpacing: '2px' }}>
+            <thead>
+              <tr>
+                <th />
+                {Array.from({ length: 24 }, (_, h) => (
+                  <th key={h} className="text-center text-[9px] font-normal text-text-secondary">
+                    {h % 3 === 0 ? h : ''}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {grid.map((row, wd) => (
+                <tr key={wd}>
+                  <td className="pr-2 text-right text-[10px] text-text-secondary">{t(WEEKDAY_KEYS[wd])}</td>
+                  {row.map((count, h) => {
+                    const intensity = count === 0 ? 0 : 0.15 + 0.85 * (count / max)
+                    return (
+                      <td key={h}>
+                        <div
+                          className="h-4 w-4 rounded-sm"
+                          style={{
+                            backgroundColor:
+                              count === 0 ? 'var(--color-border)' : `color-mix(in srgb, var(--color-accent) ${Math.round(intensity * 100)}%, transparent)`,
+                          }}
+                          title={`${t(WEEKDAY_KEYS[wd])} ${h}:00 · ${count}`}
+                        />
+                      </td>
+                    )
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  )
+}
+
 const SERIES: { key: keyof Omit<TimelinePoint, 'date'>; color: string; labelKey: string }[] = [
   { key: 'opened', color: 'var(--color-chart-opened)', labelKey: 'dash.tile.opened' },
   { key: 'clicked', color: 'var(--color-chart-clicked)', labelKey: 'dash.tile.clicked' },
   { key: 'submitted', color: 'var(--color-chart-submitted)', labelKey: 'dash.tile.submitted' },
 ]
 
-/** Zeitachse: Ereignisse pro Tag (3 Serien). SVG-Linien + Legende + Tabellen-Fallback. */
+/** Zeitachse: Ereignisse pro Tag (3 Serien). SVG-Linien + Legende + Tabellen-Fallback.
+ *  Feste Hoehe in Pixeln — nur die Breite folgt dem Container (per ResizeObserver),
+ *  damit das Diagramm auf breiten Monitoren nicht riesig mitskaliert. */
 export function Timeline({ points }: { points: TimelinePoint[] }) {
   const { t } = useI18n()
+  const wrapRef = useRef<HTMLDivElement>(null)
+  const [width, setWidth] = useState(640)
+  const hasData = points.length > 0
+
+  useEffect(() => {
+    // Abhaengig von hasData: das div existiert erst, wenn Daten da sind.
+    const el = wrapRef.current
+    if (!el) return
+    const ro = new ResizeObserver(() => setWidth(Math.max(320, el.clientWidth)))
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [hasData])
 
   if (points.length === 0) {
     return (
@@ -146,8 +410,8 @@ export function Timeline({ points }: { points: TimelinePoint[] }) {
     )
   }
 
-  const W = 640
-  const H = 220
+  const W = width
+  const H = 190
   const pad = { l: 34, r: 14, t: 14, b: 30 }
   const maxY = Math.max(1, ...points.flatMap((p) => [p.opened, p.clicked, p.submitted]))
   const n = points.length
@@ -174,7 +438,8 @@ export function Timeline({ points }: { points: TimelinePoint[] }) {
         </div>
       </div>
 
-      <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="img" aria-label={t('timeline.heading')}>
+      <div ref={wrapRef}>
+      <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} role="img" aria-label={t('timeline.heading')}>
         {ticks.map((tk) => (
           <g key={tk}>
             <line x1={pad.l} x2={W - pad.r} y1={y(tk)} y2={y(tk)} stroke="var(--color-border)" strokeWidth={1} />
@@ -210,6 +475,7 @@ export function Timeline({ points }: { points: TimelinePoint[] }) {
           </g>
         ))}
       </svg>
+      </div>
 
       {/* Tabellen-Fallback (Barrierefreiheit / Print / forced-colors). */}
       <details className="mt-2">

@@ -16,15 +16,23 @@ from sqlalchemy.orm import Session
 
 from app.models import Campaign, Recipient, TrackingEvent, TrackingEventType
 from app.schemas import (
+    ActivityHeatmap,
+    BreakdownSlice,
     CampaignRisk,
     DashboardSummary,
+    EngagementAnalytics,
     FailedRecipient,
+    HeatmapCell,
+    HumanRiskPerson,
+    HumanRiskSummary,
     ManagementReport,
     ReportCampaignRow,
     RiskDistribution,
     RiskSummary,
     TimelinePoint,
 )
+
+_ENGAGED = [TrackingEventType.CLICKED, TrackingEventType.SUBMITTED]
 
 
 def risk_points(types) -> int:
@@ -127,6 +135,119 @@ def compute_risk(db: Session) -> RiskSummary:
     )
 
 
+# Kritikalitaets-Gewicht: eine kritische Person, die durchfaellt, ist ein
+# hoeheres Geschaeftsrisiko als eine unkritische mit gleichem Klickverhalten.
+_CRITICALITY_FACTOR = {"low": 0.9, "normal": 1.0, "high": 1.2}
+
+
+def _is_fail(types) -> bool:
+    return TrackingEventType.CLICKED in types or TrackingEventType.SUBMITTED in types
+
+
+def human_risk(db: Session, top: int = 20) -> HumanRiskSummary:
+    """Personenbezogener Risiko-Score ueber alle Kampagnen (Human Risk Management).
+
+    Aggregiert je Person (identifiziert per E-Mail) ihre Teilnahmen und bewertet
+    nach den CLAUDE.MD-Kriterien:
+    - Klickverhalten / Passworteingaben: schwerwiegendstes Ereignis je Kampagne,
+      gemittelt (``behavior_score``).
+    - Wiederholungsfehler: >= 2 Kampagnen mit Klick/Abgeschickt erhoehen den Score.
+    - Kritikalitaet: gewichtet den Score (``_CRITICALITY_FACTOR``).
+    - Abteilung / Funktion: als Attribute gefuehrt (Gruppierung/Anzeige).
+    Trainingsfortschritt ist im Open Core nicht erfasst und geht nicht ein.
+    """
+    types_by_recipient = _events_by_recipient(db)
+    rows = db.query(
+        Recipient.email,
+        Recipient.first_name,
+        Recipient.last_name,
+        Recipient.department,
+        Recipient.position,
+        Recipient.criticality,
+        Recipient.id,
+    ).all()
+
+    # Je Person sammeln: Punkte je Kampagne, Fails, beste bekannte Attribute.
+    people: dict[str, dict] = {}
+    for email, first, last, dept, pos, crit, rid in rows:
+        key = email.lower()
+        p = people.setdefault(
+            key,
+            {"email": email, "first": first, "last": last, "dept": dept,
+             "pos": pos, "crit": crit, "points": [], "fails": 0},
+        )
+        # Attribute nachtragen, wenn in einer Teilnahme gepflegt.
+        p["first"] = p["first"] or first
+        p["last"] = p["last"] or last
+        p["dept"] = p["dept"] or dept
+        p["pos"] = p["pos"] or pos
+        # Hoechste Kritikalitaet gewinnt.
+        if crit and _CRITICALITY_FACTOR.get(crit, 1.0) > _CRITICALITY_FACTOR.get(p["crit"] or "normal", 1.0):
+            p["crit"] = crit
+        types = types_by_recipient.get(rid, set())
+        p["points"].append(risk_points(types))
+        if _is_fail(types):
+            p["fails"] += 1
+
+    dist = {"high": 0, "medium": 0, "low": 0, "none": 0}
+    total_score = 0
+    repeat_offenders = 0
+    persons: list[HumanRiskPerson] = []
+
+    for p in people.values():
+        n = len(p["points"])
+        behavior = round(sum(p["points"]) / n) if n else 0
+        fails = p["fails"]
+        repeat = fails >= 2
+        if repeat:
+            repeat_offenders += 1
+        # Wiederholungsfehler-Zuschlag (max. +20), dann Kritikalitaets-Faktor.
+        repeat_bonus = min(20, (fails - 1) * 10) if fails >= 2 else 0
+        factor = _CRITICALITY_FACTOR.get(p["crit"] or "normal", 1.0)
+        score = max(0, min(100, round((behavior + repeat_bonus) * factor)))
+        total_score += score
+        dist[_band_from_score(score)] += 1
+        persons.append(
+            HumanRiskPerson(
+                email=p["email"],
+                first_name=p["first"],
+                last_name=p["last"],
+                department=p["dept"],
+                position=p["pos"],
+                criticality=p["crit"],
+                campaigns=n,
+                fails=fails,
+                repeat_offender=repeat,
+                behavior_score=behavior,
+                score=score,
+                level=risk_level(score),
+            )
+        )
+
+    persons.sort(key=lambda x: x.score, reverse=True)
+    count = len(persons)
+    overall = round(total_score / count) if count else 0
+    return HumanRiskSummary(
+        score=overall,
+        level=risk_level(overall),
+        people=count,
+        repeat_offenders=repeat_offenders,
+        distribution=RiskDistribution(**dist),
+        top_people=persons[:top],
+    )
+
+
+def _band_from_score(score: int) -> str:
+    """Verteilungs-Band aus einem personenbezogenen Score (nicht Event-Punkte)."""
+    if score == 0:
+        return "none"
+    if score >= 67:
+        return "high"
+    if score >= 34:
+        return "medium"
+    return "low"
+
+
 def timeline(db: Session) -> list[TimelinePoint]:
     """Ereignisse pro Tag (geoeffnet/geklickt/abgeschickt)."""
     day = cast(TrackingEvent.occurred_at, Date)
@@ -146,6 +267,65 @@ def timeline(db: Session) -> list[TimelinePoint]:
         point = by_date.setdefault(str(day_value), {"opened": 0, "clicked": 0, "submitted": 0})
         point[event_type.value] = count
     return [TimelinePoint(date=date, **counts) for date, counts in sorted(by_date.items())]
+
+
+def activity_heatmap(db: Session) -> ActivityHeatmap:
+    """Ereignisse nach Wochentag (0=Mo..6=So) und Tagesstunde (0..23).
+
+    Nutzt Postgres ``extract`` (isodow: 1=Mo..7=So). Nur belegte Zellen werden
+    zurueckgegeben; das Frontend fuellt das 7x24-Raster selbst auf.
+    """
+    dow = func.extract("isodow", TrackingEvent.occurred_at)
+    hour = func.extract("hour", TrackingEvent.occurred_at)
+    rows = (
+        db.query(dow.label("dow"), hour.label("hour"), func.count().label("count"))
+        .group_by("dow", "hour")
+        .all()
+    )
+    cells = [
+        HeatmapCell(weekday=int(d) - 1, hour=int(h), count=int(c))
+        for d, h, c in rows
+    ]
+    total = sum(cell.count for cell in cells)
+    max_count = max((cell.count for cell in cells), default=0)
+    return ActivityHeatmap(total_events=total, max_count=max_count, cells=cells)
+
+
+def _breakdown(db: Session, column, *, drop_null: bool = False) -> list[BreakdownSlice]:
+    """Zaehlt Interaktions-Events (Klick/Absenden) gruppiert nach ``column``.
+
+    NULL-Werte werden als "Unbekannt" gebuendelt; mit ``drop_null`` (z. B. fuer
+    UTM-Quellen) ganz ausgelassen. Absteigend nach Haeufigkeit sortiert.
+    """
+    query = db.query(column, func.count().label("count")).filter(
+        TrackingEvent.event_type.in_(_ENGAGED)
+    )
+    if drop_null:
+        query = query.filter(column.isnot(None))
+    rows = query.group_by(column).all()
+    slices = [BreakdownSlice(label=value or "Unbekannt", count=count) for value, count in rows]
+    return sorted(slices, key=lambda s: s.count, reverse=True)
+
+
+def engagement_analytics(db: Session) -> EngagementAnalytics:
+    """Aufschluesselung der Interaktionen nach Browser, OS, Geraet und UTM-Quelle."""
+    total = (
+        db.query(func.count())
+        .select_from(TrackingEvent)
+        .filter(TrackingEvent.event_type.in_(_ENGAGED))
+        .scalar()
+        or 0
+    )
+    return EngagementAnalytics(
+        total_events=total,
+        browsers=_breakdown(db, TrackingEvent.browser),
+        operating_systems=_breakdown(db, TrackingEvent.os),
+        devices=_breakdown(db, TrackingEvent.device_type),
+        countries=_breakdown(db, TrackingEvent.country, drop_null=True),
+        languages=_breakdown(db, TrackingEvent.client_language, drop_null=True),
+        resolutions=_breakdown(db, TrackingEvent.screen_resolution, drop_null=True),
+        utm_sources=_breakdown(db, TrackingEvent.utm_source, drop_null=True),
+    )
 
 
 def failed_recipients(db: Session, limit: int | None = None) -> list[FailedRecipient]:

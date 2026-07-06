@@ -9,6 +9,8 @@ aufgerufen. Erfasst wird nur, DASS jemand geoeffnet/geklickt/abgeschickt hat
 (Awareness-Signal); die eingegebenen Formulardaten werden bewusst nicht
 gespeichert.
 """
+from urllib.parse import urlparse
+
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from sqlalchemy.orm import Session
@@ -16,7 +18,7 @@ from sqlalchemy.orm import Session
 from app.config import get_settings
 from app.database import get_db
 from app.models import Recipient, TrackingEventType
-from app.services.tracking import notify_submission, record_event
+from app.services.tracking import notify_submission, record_client_meta, record_event
 
 settings = get_settings()
 
@@ -34,40 +36,77 @@ _DEFAULT_PAGE = (
 )
 
 
-def _client_meta(request: Request) -> tuple[str | None, str | None]:
-    return (request.client.host if request.client else None), request.headers.get("user-agent")
+def _client_meta(request: Request) -> dict:
+    """Sammelt Kontext-Metadaten des Aufrufers fuer die Event-Anreicherung.
+
+    Referrer und Accept-Language kommen aus den Request-Headern; UTM-Parameter
+    (sofern der Betreiber sie an die Tracking-Links haengt) aus der Query.
+    """
+    params = request.query_params
+    return {
+        "ip_address": request.client.host if request.client else None,
+        "user_agent": request.headers.get("user-agent"),
+        "referrer": request.headers.get("referer"),
+        "accept_language": request.headers.get("accept-language"),
+        "utm": {
+            "utm_source": params.get("utm_source"),
+            "utm_medium": params.get("utm_medium"),
+            "utm_campaign": params.get("utm_campaign"),
+        },
+    }
 
 
 @router.get("/pixel")
 def track_open(t: str, request: Request, db: Session = Depends(get_db)):
-    ip, ua = _client_meta(request)
-    record_event(db, tracking_token=t, event_type=TrackingEventType.OPENED, ip_address=ip, user_agent=ua)
+    record_event(db, tracking_token=t, event_type=TrackingEventType.OPENED, **_client_meta(request))
     return Response(content=_TRANSPARENT_PIXEL, media_type="image/gif")
 
 
 @router.get("/click")
 def track_click(t: str, url: str, request: Request, db: Session = Depends(get_db)):
-    ip, ua = _client_meta(request)
-    record_event(db, tracking_token=t, event_type=TrackingEventType.CLICKED, ip_address=ip, user_agent=ua)
+    event = record_event(db, tracking_token=t, event_type=TrackingEventType.CLICKED, **_client_meta(request))
+
+    # Open-Redirect-Schutz: nur bei bekanntem Tracking-Token und nur auf
+    # http(s)-Ziele weiterleiten (kein javascript:/data: und kein token-loser
+    # Missbrauch als offener Redirector).
+    if event is None or urlparse(url).scheme not in ("http", "https"):
+        return HTMLResponse(content=_DEFAULT_PAGE)
     return RedirectResponse(url=url)
 
 
 @router.get("/landing", response_class=HTMLResponse)
 def track_landing(t: str, request: Request, db: Session = Depends(get_db)):
     """Zaehlt den Klick und liefert die Landing Page der Kampagne aus."""
-    ip, ua = _client_meta(request)
-    record_event(db, tracking_token=t, event_type=TrackingEventType.CLICKED, ip_address=ip, user_agent=ua)
+    record_event(db, tracking_token=t, event_type=TrackingEventType.CLICKED, **_client_meta(request))
 
     recipient = db.query(Recipient).filter(Recipient.tracking_token == t).first()
-    page = recipient.campaign.landing_page if recipient is not None else None
+    campaign = recipient.campaign if recipient is not None else None
+    page = campaign.landing_page if campaign is not None else None
     html = page.html_content if page is not None else _DEFAULT_PAGE
 
-    # Alle Formulare auf die Submit-Erfassung umbiegen (mit Tracking-Token).
+    # Alle Formulare auf die Submit-Erfassung umbiegen (mit Tracking-Token) und
+    # per Beacon clientseitige Metadaten (Aufloesung/Sprache) nachtragen.
     inject = (
         "<script>document.addEventListener('DOMContentLoaded',function(){"
         "document.querySelectorAll('form').forEach(function(f){"
         f"f.setAttribute('action','/track/submit?t={t}');f.setAttribute('method','POST');"
-        "});});</script>"
+        "});"
+        "try{var fp='';try{"
+        # Leichtgewichtiger Fingerprint: Canvas-Rendering + stabile Merkmale,
+        # zu einem 32-bit-Hex-Hash verdichtet (kein externes Skript, kein Cookie).
+        "var c=document.createElement('canvas');var x=c.getContext('2d');"
+        "x.textBaseline='top';x.font=\"14px 'Arial'\";x.fillStyle='#f60';x.fillRect(0,0,62,20);"
+        "x.fillStyle='#069';x.fillText('HumanShield',2,2);"
+        "var s=[navigator.userAgent,navigator.language,screen.width+'x'+screen.height,"
+        "screen.colorDepth,new Date().getTimezoneOffset(),navigator.hardwareConcurrency||0,"
+        "navigator.platform,c.toDataURL()].join('|');"
+        "var h=0;for(var i=0;i<s.length;i++){h=((h<<5)-h+s.charCodeAt(i))|0;}"
+        "fp=(h>>>0).toString(16);}catch(e){}"
+        "new Image().src='/track/client?t=" + t + "'"
+        "+'&res='+encodeURIComponent(screen.width+'x'+screen.height)"
+        "+'&lang='+encodeURIComponent(navigator.language||'')"
+        "+'&fp='+encodeURIComponent(fp);}catch(e){}"
+        "});</script>"
     )
     if "</body>" in html:
         html = html.replace("</body>", inject + "</body>", 1)
@@ -76,17 +115,38 @@ def track_landing(t: str, request: Request, db: Session = Depends(get_db)):
     return HTMLResponse(content=html)
 
 
+@router.get("/client")
+def track_client(
+    t: str,
+    db: Session = Depends(get_db),
+    res: str | None = None,
+    lang: str | None = None,
+    fp: str | None = None,
+):
+    """Beacon der Landing Page: traegt Bildschirmaufloesung/Sprache/Fingerprint nach.
+
+    Liefert immer den 1x1-Pixel zurueck (verraet dem Empfaenger nichts, auch bei
+    unbekanntem Token).
+    """
+    record_client_meta(db, tracking_token=t, screen_resolution=res, client_language=lang, fingerprint=fp)
+    return Response(content=_TRANSPARENT_PIXEL, media_type="image/gif")
+
+
 @router.post("/submit")
 async def track_submit(t: str, request: Request, db: Session = Depends(get_db)):
     """Erfasst das Absenden (Awareness-Signal) und leitet weiter."""
-    ip, ua = _client_meta(request)
-    record_event(db, tracking_token=t, event_type=TrackingEventType.SUBMITTED, ip_address=ip, user_agent=ua)
+    record_event(db, tracking_token=t, event_type=TrackingEventType.SUBMITTED, **_client_meta(request))
 
     recipient = db.query(Recipient).filter(Recipient.tracking_token == t).first()
-    if recipient is not None:
-        # Abgeschickte Textfelder an registrierte Handler geben (Passwortabfrage
-        # ist ein Business-Add-on; ohne Handler werden sie verworfen). Dateien
-        # (UploadFile mit .filename) werden bewusst ausgelassen.
+    campaign = recipient.campaign if recipient is not None else None
+    page = campaign.landing_page if campaign is not None else None
+
+    # Abgeschickte Textfelder nur weiterreichen, wenn die Landing Page das
+    # Erfassen aktiviert hat (capture_credentials). Der Core speichert selbst
+    # nichts; ein Business-Add-on (Passwortabfrage) verarbeitet die Felder ueber
+    # notify_submission und liest bei Bedarf capture_passwords von der Page.
+    # Dateien (UploadFile mit .filename) werden bewusst ausgelassen.
+    if recipient is not None and page is not None and page.capture_credentials:
         try:
             form = await request.form()
             data = {k: str(v) for k, v in form.items() if k != "t" and not hasattr(v, "filename")}
@@ -95,7 +155,6 @@ async def track_submit(t: str, request: Request, db: Session = Depends(get_db)):
         if data:
             notify_submission(recipient, data)
 
-    page = recipient.campaign.landing_page if recipient is not None else None
     target = (page.redirect_url if page is not None else None) or f"https://{settings.APP_DOMAIN}/track/done"
     return RedirectResponse(url=target, status_code=303)
 

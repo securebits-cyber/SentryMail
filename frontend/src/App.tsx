@@ -11,6 +11,7 @@ import BusinessAddonPage from './pages/integrations/business'
 import EnterpriseAddonPage from './pages/integrations/enterprise'
 import OpenCorePage from './pages/integrations/opencore'
 import IntegrationsOverviewPage from './pages/integrations/overview'
+import AiSettingsPage from './pages/settings/ai'
 import AuditEventsPage from './pages/settings/audit-events'
 import EntraSettingsPage from './pages/settings/entra'
 import LicenseSettingsPage from './pages/settings/license'
@@ -29,6 +30,7 @@ import ResultsPage from './pages/results'
 import SendingProfilesPage from './pages/sending-profiles'
 import LdapSettingsPage from './pages/settings/ldap'
 import OidcSettingsPage from './pages/settings/oidc'
+import SamlSettingsPage from './pages/settings/saml'
 import SiemSettingsPage from './pages/settings/siem'
 import SmtpSettingsPage from './pages/settings/smtp'
 import WebhooksSettingsPage from './pages/settings/webhooks'
@@ -80,8 +82,10 @@ export default function App() {
             <Route path="ldap" element={<LdapSettingsPage />} />
             <Route path="webhooks" element={<WebhooksSettingsPage />} />
             <Route path="entra" element={<EntraSettingsPage />} />
+            <Route path="ai" element={<AiSettingsPage />} />
             <Route path="whitelabel" element={<WhitelabelSettingsPage />} />
             <Route path="siem" element={<SiemSettingsPage />} />
+            <Route path="saml" element={<SamlSettingsPage />} />
             <Route path="oidc" element={<OidcSettingsPage />} />
             <Route path="smtp" element={<SmtpSettingsPage />} />
             <Route path="security" element={<SecuritySettingsPage />} />

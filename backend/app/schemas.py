@@ -139,10 +139,16 @@ class TemplateOut(TemplateBase):
 
 # --- Recipient ---
 
+Criticality = Literal["low", "normal", "high"]
+
+
 class RecipientCreate(BaseModel):
     email: EmailStr
     first_name: str | None = None
     last_name: str | None = None
+    position: str | None = None
+    department: str | None = None
+    criticality: Criticality | None = None
 
 
 class RecipientOut(BaseModel):
@@ -201,13 +207,32 @@ class TrackingEventOut(BaseModel):
 
 
 class RecipientResultOut(BaseModel):
+    id: uuid.UUID
     email: str
     first_name: str | None
     last_name: str | None
+    position: str | None = None
+    department: str | None = None
+    criticality: str | None = None
     sent_at: datetime | None
     opened: bool
     clicked: bool
     submitted: bool
+    # Anzahl der Klick-Ereignisse: > 1 = Mehrfachbesuch der Landing Page.
+    visits: int = 0
+
+
+class RecipientEventOut(BaseModel):
+    """Ein Tracking-Ereignis in der Session-Chronik eines Empfaengers."""
+    event_type: str
+    occurred_at: datetime
+    browser: str | None = None
+    os: str | None = None
+    device_type: str | None = None
+    country: str | None = None
+    ip_address: str | None = None
+    referrer: str | None = None
+    fingerprint: str | None = None
 
 
 class CampaignResultOut(BaseModel):
@@ -330,7 +355,9 @@ class GroupMemberIn(BaseModel):
     email: EmailStr
     first_name: str | None = None
     last_name: str | None = None
-    position: str | None = None
+    position: str | None = None          # Funktion im Unternehmen
+    department: str | None = None
+    criticality: Criticality | None = None
 
 
 class GroupMemberOut(GroupMemberIn):
@@ -450,11 +477,70 @@ class RiskSummary(BaseModel):
     per_campaign: list[CampaignRisk]
 
 
+# --- Human Risk Management (Open Core, personenbezogen) ---
+
+class HumanRiskPerson(BaseModel):
+    """Personenbezogener Risiko-Score (ueber alle Kampagnen der Person)."""
+    email: str
+    first_name: str | None = None
+    last_name: str | None = None
+    department: str | None = None
+    position: str | None = None
+    criticality: str | None = None
+    campaigns: int          # Anzahl Kampagnen-Teilnahmen
+    fails: int              # Kampagnen mit Klick oder Abgeschickt
+    repeat_offender: bool   # Wiederholungsfehler (>= 2 Fails)
+    behavior_score: int     # 0-100, Mittel des schwerwiegendsten Ereignisses je Kampagne
+    score: int              # 0-100, gewichtet (Wiederholungsfehler + Kritikalitaet)
+    level: str              # "high" | "medium" | "low"
+
+
+class HumanRiskSummary(BaseModel):
+    score: int              # 0-100, Mittel ueber alle Personen
+    level: str
+    people: int
+    repeat_offenders: int
+    distribution: RiskDistribution
+    top_people: list[HumanRiskPerson]
+
+
 class TimelinePoint(BaseModel):
     date: str         # ISO-Datum (YYYY-MM-DD)
     opened: int = 0
     clicked: int = 0
     submitted: int = 0
+
+
+class BreakdownSlice(BaseModel):
+    label: str
+    count: int
+
+
+class HeatmapCell(BaseModel):
+    """Eine Zelle der Aktivitaets-Heatmap (Wochentag x Stunde)."""
+    weekday: int  # 0 = Montag ... 6 = Sonntag
+    hour: int     # 0..23
+    count: int
+
+
+class ActivityHeatmap(BaseModel):
+    """Verteilung der Tracking-Ereignisse ueber Wochentag und Tagesstunde."""
+    total_events: int
+    max_count: int
+    cells: list[HeatmapCell]
+
+
+class EngagementAnalytics(BaseModel):
+    """Aufschluesselung der Interaktionen (Klick/Absenden) nach Kontext-
+    Metadaten der Tracking-Events."""
+    total_events: int
+    browsers: list[BreakdownSlice]
+    operating_systems: list[BreakdownSlice]
+    devices: list[BreakdownSlice]
+    countries: list[BreakdownSlice]
+    languages: list[BreakdownSlice]
+    resolutions: list[BreakdownSlice]
+    utm_sources: list[BreakdownSlice]
 
 
 # --- Management Report (Open Core) ---

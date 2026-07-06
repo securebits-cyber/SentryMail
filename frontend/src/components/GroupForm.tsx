@@ -5,13 +5,22 @@
 import { ChangeEvent, FormEvent, KeyboardEvent, useEffect, useState } from 'react'
 import { Trash2 } from 'lucide-react'
 import { useI18n } from '../i18n'
-import type { Group } from '../types'
+import type { Criticality, Group } from '../types'
 
 export interface GroupMemberInput {
   email: string
   first_name?: string
   last_name?: string
   position?: string
+  department?: string
+  criticality?: Criticality
+}
+
+const CRITICALITIES: Criticality[] = ['low', 'normal', 'high']
+
+function normalizeCriticality(value?: string): Criticality | undefined {
+  const v = (value || '').trim().toLowerCase()
+  return (CRITICALITIES as string[]).includes(v) ? (v as Criticality) : undefined
 }
 
 export interface GroupFormValues {
@@ -30,9 +39,10 @@ const fieldClass = 'rounded-md border border-border bg-surface px-3 py-2 text-te
 const labelClass = 'flex flex-col gap-1 text-sm'
 
 /**
- * Erwartet CSV mit Spalten: email,first_name,last_name,position (Header optional).
- * Trennzeichen wird pro Zeile erkannt: Semikolon (deutsche Excel-Exporte), Tab
- * oder Komma. Nur Zeilen mit einer erkennbaren E-Mail werden uebernommen.
+ * Erwartet CSV mit Spalten: email,first_name,last_name,position,department,
+ * criticality (Header optional). Trennzeichen wird pro Zeile erkannt: Semikolon
+ * (deutsche Excel-Exporte), Tab oder Komma. Nur Zeilen mit einer erkennbaren
+ * E-Mail werden uebernommen.
  */
 function parseCsv(csv: string): GroupMemberInput[] {
   return csv
@@ -43,12 +53,16 @@ function parseCsv(csv: string): GroupMemberInput[] {
     .filter((line) => line.includes('@') || !/mail/i.test(line))
     .map((line) => {
       const delim = line.includes(';') ? ';' : line.includes('\t') ? '\t' : ','
-      const [email, first_name, last_name, position] = line.split(delim).map((v) => v?.trim())
+      const [email, first_name, last_name, position, department, criticality] = line
+        .split(delim)
+        .map((v) => v?.trim())
       return {
         email,
         first_name: first_name || undefined,
         last_name: last_name || undefined,
         position: position || undefined,
+        department: department || undefined,
+        criticality: normalizeCriticality(criticality),
       }
     })
     .filter((m) => m.email && m.email.includes('@'))
@@ -60,7 +74,7 @@ export default function GroupForm({ initial, onSubmit, onCancel, submitting }: G
   const [members, setMembers] = useState<GroupMemberInput[]>([])
   const [csv, setCsv] = useState('')
   const [csvMsg, setCsvMsg] = useState<string | null>(null)
-  const emptyManual: GroupMemberInput = { email: '', first_name: '', last_name: '', position: '' }
+  const emptyManual: GroupMemberInput = { email: '', first_name: '', last_name: '', position: '', department: '' }
   const [manual, setManual] = useState<GroupMemberInput>(emptyManual)
 
   useEffect(() => {
@@ -71,6 +85,8 @@ export default function GroupForm({ initial, onSubmit, onCancel, submitting }: G
         first_name: m.first_name ?? undefined,
         last_name: m.last_name ?? undefined,
         position: m.position ?? undefined,
+        department: m.department ?? undefined,
+        criticality: m.criticality ?? undefined,
       })),
     )
     setCsv('')
@@ -116,6 +132,8 @@ export default function GroupForm({ initial, onSubmit, onCancel, submitting }: G
         first_name: manual.first_name?.trim() || undefined,
         last_name: manual.last_name?.trim() || undefined,
         position: manual.position?.trim() || undefined,
+        department: manual.department?.trim() || undefined,
+        criticality: manual.criticality || undefined,
       },
     ])
     setManual(emptyManual)
@@ -184,6 +202,26 @@ export default function GroupForm({ initial, onSubmit, onCancel, submitting }: G
             placeholder={t('grf.position')}
             className={`${fieldClass} w-32`}
           />
+          <input
+            value={manual.department ?? ''}
+            onChange={(e) => setManual({ ...manual, department: e.target.value })}
+            onKeyDown={onManualKey}
+            placeholder={t('grf.department')}
+            className={`${fieldClass} w-32`}
+          />
+          <select
+            value={manual.criticality ?? ''}
+            onChange={(e) => setManual({ ...manual, criticality: normalizeCriticality(e.target.value) })}
+            className={`${fieldClass} w-36`}
+            aria-label={t('grf.criticality')}
+          >
+            <option value="">{t('grf.criticality')}</option>
+            {CRITICALITIES.map((c) => (
+              <option key={c} value={c}>
+                {t(`crit.${c}`)}
+              </option>
+            ))}
+          </select>
           <button
             type="button"
             onClick={addManual}
@@ -232,6 +270,8 @@ export default function GroupForm({ initial, onSubmit, onCancel, submitting }: G
                   <th className="px-3 py-2 font-medium">{t('field.firstName')}</th>
                   <th className="px-3 py-2 font-medium">{t('field.lastName')}</th>
                   <th className="px-3 py-2 font-medium">{t('grf.position')}</th>
+                  <th className="px-3 py-2 font-medium">{t('grf.department')}</th>
+                  <th className="px-3 py-2 font-medium">{t('grf.criticality')}</th>
                   <th className="px-3 py-2" />
                 </tr>
               </thead>
@@ -242,6 +282,8 @@ export default function GroupForm({ initial, onSubmit, onCancel, submitting }: G
                     <td className="px-3 py-1.5">{m.first_name ?? ''}</td>
                     <td className="px-3 py-1.5">{m.last_name ?? ''}</td>
                     <td className="px-3 py-1.5">{m.position ?? ''}</td>
+                    <td className="px-3 py-1.5">{m.department ?? ''}</td>
+                    <td className="px-3 py-1.5">{m.criticality ? t(`crit.${m.criticality}`) : ''}</td>
                     <td className="px-3 py-1.5 text-right">
                       <button
                         type="button"

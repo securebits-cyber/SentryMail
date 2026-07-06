@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-import { Download, FileText, Lock } from 'lucide-react'
+import { Download, FileText, Lock, Sparkles } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { RiskMeter, type RiskSummary } from '../components/DashboardCharts'
@@ -85,6 +85,18 @@ interface UserRow {
   risk_level: 'high' | 'medium' | 'low'
 }
 
+interface DepartmentRow {
+  department: string
+  recipients: number
+  clicked: number
+  submitted: number
+  click_rate: number
+  submit_rate: number
+  high_criticality: number
+  risk_score: number
+  risk_level: 'high' | 'medium' | 'low'
+}
+
 const levelText: Record<string, string> = {
   high: 'text-status-danger',
   medium: 'text-status-warning',
@@ -101,14 +113,23 @@ interface Progress {
   cert_status: string
 }
 
+interface AiScoring {
+  assessment: string
+  recommendations: string[]
+}
+
 export default function ReportsPage() {
-  const { t } = useI18n()
+  const { t, lang } = useI18n()
   const features = useFeatures()
   const businessLicensed = Boolean(features?.features?.business)
   const enterpriseLicensed = Boolean(features?.features?.enterprise)
+  const [aiScore, setAiScore] = useState<AiScoring | null>(null)
+  const [aiBusy, setAiBusy] = useState(false)
+  const [aiError, setAiError] = useState<string | null>(null)
   const [report, setReport] = useState<Report | null>(null)
   const [trend, setTrend] = useState<TrendRow[]>([])
   const [users, setUsers] = useState<UserRow[]>([])
+  const [departments, setDepartments] = useState<DepartmentRow[]>([])
   const [progress, setProgress] = useState<Progress[]>([])
   const [loading, setLoading] = useState(true)
   const [exporting, setExporting] = useState(false)
@@ -126,6 +147,7 @@ export default function ReportsPage() {
     if (!businessLicensed) return
     api.get<TrendRow[]>('/reports/trend').then((r) => setTrend(r.data)).catch(() => setTrend([]))
     api.get<UserRow[]>('/reports/users').then((r) => setUsers(r.data)).catch(() => setUsers([]))
+    api.get<DepartmentRow[]>('/reports/departments').then((r) => setDepartments(r.data)).catch(() => setDepartments([]))
   }, [businessLicensed])
 
   useEffect(() => {
@@ -133,6 +155,20 @@ export default function ReportsPage() {
     if (!enterpriseLicensed) return
     api.get<Progress[]>('/enterprise-reports/users').then((r) => setProgress(r.data)).catch(() => setProgress([]))
   }, [enterpriseLicensed])
+
+  async function runAiScoring() {
+    setAiBusy(true)
+    setAiError(null)
+    try {
+      const res = await api.post<AiScoring>('/enterprise-reports/ai-scoring', null, { params: { lang } })
+      setAiScore(res.data)
+    } catch (e) {
+      const detail = (e as { response?: { data?: { detail?: string } } })?.response?.data?.detail
+      setAiError(detail || t('rep.ai.error'))
+    } finally {
+      setAiBusy(false)
+    }
+  }
 
   async function exportCsv() {
     setExporting(true)
@@ -411,6 +447,45 @@ export default function ReportsPage() {
           </div>
         </div>
       )}
+      {/* Business: Abteilungsvergleich */}
+      {departments.length > 0 && (
+        <div className="mt-8">
+          <h2 className="mb-3 text-lg font-semibold">
+            {t('rep.dept.heading')}
+            <span className="ml-2 rounded-full bg-green-600 px-1.5 py-0.5 align-middle text-[10px] font-semibold uppercase tracking-wide text-white">
+              {t('badge.business')}
+            </span>
+          </h2>
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-sm">
+              <thead>
+                <tr className="border-b border-border text-left text-text-secondary">
+                  <th className="py-2 pr-4 font-medium">{t('rep.dept.department')}</th>
+                  <th className="py-2 pr-4 font-medium">{t('common.recipients')}</th>
+                  <th className="py-2 pr-4 font-medium">{t('rep.col.clickRate')}</th>
+                  <th className="py-2 pr-4 font-medium">{t('rep.col.submitRate')}</th>
+                  <th className="py-2 pr-4 font-medium">{t('rep.dept.critical')}</th>
+                  <th className="py-2 font-medium">{t('rep.col.risk')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {departments.map((d) => (
+                  <tr key={d.department} className="border-b border-border">
+                    <td className="py-2 pr-4">{d.department}</td>
+                    <td className="py-2 pr-4 font-mono tabular-nums">{d.recipients}</td>
+                    <td className="py-2 pr-4 font-mono tabular-nums">{d.click_rate}%</td>
+                    <td className="py-2 pr-4 font-mono tabular-nums">{d.submit_rate}%</td>
+                    <td className="py-2 pr-4 font-mono tabular-nums">{d.high_criticality}</td>
+                    <td className={`py-2 font-mono font-semibold tabular-nums ${levelText[d.risk_level]}`}>
+                      {d.risk_score} · {t(`risk.level.${d.risk_level}`)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
       {/* Business: Nachweise & Zertifikate */}
       <div className="mt-8">
         <h2 className="mb-3 text-lg font-semibold">
@@ -481,6 +556,42 @@ export default function ReportsPage() {
                   ))}
                 </tbody>
               </table>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Enterprise: KI-gestützte Risikoanalyse (AI-Scoring) */}
+      {enterpriseLicensed && (
+        <div className="mt-8">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <h2 className="flex items-center gap-2 text-lg font-semibold">
+              <Sparkles size={18} className="text-accent" />
+              {t('rep.ai.heading')}
+            </h2>
+            <button
+              onClick={runAiScoring}
+              disabled={aiBusy}
+              className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+            >
+              {aiBusy ? t('rep.ai.busy') : t('rep.ai.run')}
+            </button>
+          </div>
+          <p className="mb-3 max-w-3xl text-sm text-text-secondary">{t('rep.ai.intro')}</p>
+          {aiError && <p className="mb-3 text-sm text-status-danger">{aiError}</p>}
+          {aiScore && (
+            <div className="elevated rounded-lg border border-border bg-surface p-5">
+              <p className="text-sm text-text-primary">{aiScore.assessment}</p>
+              {aiScore.recommendations.length > 0 && (
+                <>
+                  <h3 className="mb-2 mt-4 text-sm font-semibold text-text-secondary">{t('rep.ai.recommendations')}</h3>
+                  <ul className="list-disc space-y-1 pl-5 text-sm text-text-primary">
+                    {aiScore.recommendations.map((r, i) => (
+                      <li key={i}>{r}</li>
+                    ))}
+                  </ul>
+                </>
+              )}
             </div>
           )}
         </div>

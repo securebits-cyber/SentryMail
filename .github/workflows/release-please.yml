@@ -1,0 +1,20 @@
+name: release-please
+
+# Läuft, wenn main vorrückt (z. B. nach Merge von dev -> main). release-please liest
+# die Conventional Commits (feat/fix/…), öffnet/aktualisiert einen Release-PR und
+# pflegt beim Merge CHANGELOG.md + GitHub-Release + Tag.
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: googleapis/release-please-action@v4
+        # Nutzt standardmäßig GITHUB_TOKEN sowie release-please-config.json
+        # und .release-please-manifest.json aus dem Repo-Root.

@@ -2,8 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-import { BookOpen, Lock } from 'lucide-react'
+import { BookOpen, Globe, Lock } from 'lucide-react'
 import { useEffect, useRef, useState, type ChangeEvent } from 'react'
+import { useNavigate } from 'react-router-dom'
 import PageScaffold from '../components/PageScaffold'
 import TemplateForm, { TemplateFormValues } from '../components/TemplateForm'
 import { useFeatures } from '../hooks/useFeatures'
@@ -18,6 +19,7 @@ interface LibraryTemplate {
   subject: string
   html_content: string
   text_content: string | null
+  has_landing: boolean
 }
 
 type Mode =
@@ -28,6 +30,7 @@ type Mode =
 
 export default function TemplatesPage() {
   const { t } = useI18n()
+  const navigate = useNavigate()
   // E-Mail-Upload und Vorlagen-Bibliothek sind Business-Features (im Add-on).
   const features = useFeatures()
   const businessLicensed = Boolean(features?.features?.business)
@@ -119,6 +122,17 @@ export default function TemplatesPage() {
     }
   }
 
+  async function cloneLandingFromLibrary(libId: string) {
+    setError(null)
+    try {
+      await api.post(`/template-library/${libId}/clone-landing`)
+      // Die passende Landing Page landet als editierbare Core-Seite -> dorthin wechseln.
+      navigate('/landing-pages')
+    } catch {
+      setError(t('tpl.err.save'))
+    }
+  }
+
   if (mode.kind === 'library') {
     return (
       <PageScaffold
@@ -145,12 +159,23 @@ export default function TemplatesPage() {
               </span>
               <h3 className="font-semibold text-text-primary">{item.name}</h3>
               <p className="mt-1 flex-1 text-sm text-text-secondary">{item.subject}</p>
-              <button
-                onClick={() => cloneFromLibrary(item.id)}
-                className="bg-accent mt-3 w-fit rounded-md px-3 py-1.5 text-sm font-medium text-white"
-              >
-                {t('tpl.library.use')}
-              </button>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <button
+                  onClick={() => cloneFromLibrary(item.id)}
+                  className="bg-accent w-fit rounded-md px-3 py-1.5 text-sm font-medium text-white"
+                >
+                  {t('tpl.library.use')}
+                </button>
+                {item.has_landing && (
+                  <button
+                    onClick={() => cloneLandingFromLibrary(item.id)}
+                    className="flex w-fit items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-sm font-medium text-text-primary hover:bg-bg"
+                  >
+                    <Globe size={14} />
+                    {t('tpl.library.landing')}
+                  </button>
+                )}
+              </div>
             </div>
           ))}
         </div>

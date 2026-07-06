@@ -10,17 +10,25 @@ Listener bekommt (event, recipient); Fehler eines Listeners brechen das Tracking
 nicht ab.
 """
 import logging
+import re
 from collections.abc import Callable
 
 from sqlalchemy.orm import Session
 
 from app.models import Recipient, TrackingEvent, TrackingEventType
 from app.schemas import CampaignResultOut, RecipientResultOut
+from app.utils.geoip import lookup_country
+from app.utils.useragent import parse_user_agent
 
 logger = logging.getLogger(__name__)
 
 _event_listeners: list[Callable[[TrackingEvent, Recipient], None]] = []
 _submission_handlers: list[Callable[[Recipient, dict], None]] = []
+
+# Erlaubtes Format der clientseitigen Aufloesung, z. B. "1920x1080".
+_VALID_RESOLUTION = re.compile(r"^\d{2,5}x\d{2,5}$")
+# Fingerprint ist ein Hex-Hash (vom Client erzeugt); nur Hex, max. 32 Zeichen.
+_VALID_FINGERPRINT = re.compile(r"^[0-9a-f]{1,32}$")
 
 
 def register_event_listener(listener: Callable[[TrackingEvent, Recipient], None]) -> None:
@@ -60,22 +68,79 @@ def record_event(
     event_type: TrackingEventType,
     ip_address: str | None = None,
     user_agent: str | None = None,
+    referrer: str | None = None,
+    accept_language: str | None = None,
+    utm: dict[str, str | None] | None = None,
 ) -> TrackingEvent | None:
     recipient = db.query(Recipient).filter(Recipient.tracking_token == tracking_token).first()
     if recipient is None:
         return None
 
+    browser, os_name, device_type = parse_user_agent(user_agent)
+    utm = utm or {}
     event = TrackingEvent(
         recipient_id=recipient.id,
         event_type=event_type,
         ip_address=ip_address,
         user_agent=user_agent,
+        browser=browser,
+        os=os_name,
+        device_type=device_type,
+        country=lookup_country(ip_address),
+        referrer=referrer,
+        accept_language=accept_language,
+        utm_source=utm.get("utm_source"),
+        utm_medium=utm.get("utm_medium"),
+        utm_campaign=utm.get("utm_campaign"),
     )
     db.add(event)
     db.commit()
     db.refresh(event)
     _notify(event, recipient)
     return event
+
+
+def record_client_meta(
+    db: Session,
+    tracking_token: str,
+    screen_resolution: str | None = None,
+    client_language: str | None = None,
+    fingerprint: str | None = None,
+) -> bool:
+    """Traegt clientseitig erfasste Metadaten am juengsten Klick-Event nach.
+
+    Wird vom Landing-Page-Beacon aufgerufen (Bildschirmaufloesung/Sprache/
+    Fingerprint stehen nur im Browser zur Verfuegung). Aktualisiert nur leere
+    Felder und nur, wenn der Token bekannt ist. Gibt zurueck, ob ein Event
+    aktualisiert wurde.
+    """
+    if not screen_resolution and not client_language and not fingerprint:
+        return False
+    recipient = db.query(Recipient).filter(Recipient.tracking_token == tracking_token).first()
+    if recipient is None:
+        return False
+
+    event = (
+        db.query(TrackingEvent)
+        .filter(
+            TrackingEvent.recipient_id == recipient.id,
+            TrackingEvent.event_type == TrackingEventType.CLICKED,
+        )
+        .order_by(TrackingEvent.occurred_at.desc())
+        .first()
+    )
+    if event is None:
+        return False
+
+    # Plausibilitaet: "1920x1080"-Muster, sonst verwerfen (unvertrauenswuerdiger Client).
+    if screen_resolution and _VALID_RESOLUTION.match(screen_resolution) and not event.screen_resolution:
+        event.screen_resolution = screen_resolution
+    if client_language and not event.client_language:
+        event.client_language = client_language[:16]
+    if fingerprint and _VALID_FINGERPRINT.match(fingerprint) and not event.fingerprint:
+        event.fingerprint = fingerprint
+    db.commit()
+    return True
 
 
 def get_campaign_results(db: Session, campaign_id) -> CampaignResultOut:
@@ -89,18 +154,26 @@ def get_campaign_results(db: Session, campaign_id) -> CampaignResultOut:
         .all()
     )
     types_by_recipient: dict = {}
+    clicks_by_recipient: dict = {}
     for recipient_id, event_type in events:
         types_by_recipient.setdefault(recipient_id, set()).add(event_type)
+        if event_type == TrackingEventType.CLICKED:
+            clicks_by_recipient[recipient_id] = clicks_by_recipient.get(recipient_id, 0) + 1
 
     rows = [
         RecipientResultOut(
+            id=r.id,
             email=r.email,
             first_name=r.first_name,
             last_name=r.last_name,
+            position=r.position,
+            department=r.department,
+            criticality=r.criticality,
             sent_at=r.sent_at,
             opened=TrackingEventType.OPENED in types_by_recipient.get(r.id, ()),
             clicked=TrackingEventType.CLICKED in types_by_recipient.get(r.id, ()),
             submitted=TrackingEventType.SUBMITTED in types_by_recipient.get(r.id, ()),
+            visits=clicks_by_recipient.get(r.id, 0),
         )
         for r in recipients
     ]

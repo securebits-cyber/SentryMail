@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session
 from app.auth.permissions import get_current_user
 from app.database import get_db
 from app.models import Campaign, GroupMember, Recipient, User
-from app.schemas import CampaignCreate, CampaignOut, CampaignUpdate
+from app.schemas import CampaignCreate, CampaignOut, CampaignUpdate, RecipientCreate
 from app.services.campaign import SmtpNotConfiguredError, send_campaign
 from app.utils.security import generate_tracking_token
 
@@ -38,27 +38,29 @@ def create_campaign(payload: CampaignCreate, db: Session = Depends(get_db), curr
     db.flush()
 
     # Empfaenger aus den gewaehlten Gruppen + direkt uebergebene, dedupliziert per E-Mail.
+    # Person-Attribute (Funktion/Abteilung/Kritikalitaet) werden als Schnappschuss
+    # uebernommen, damit Abteilungsvergleich und Human Risk Management je Kampagne greifen.
     seen: set[str] = set()
-    sources: list[tuple[str, str | None, str | None]] = []
+    sources: list[GroupMember | RecipientCreate] = []
 
     if payload.group_ids:
-        members = db.query(GroupMember).filter(GroupMember.group_id.in_(payload.group_ids)).all()
-        for m in members:
-            sources.append((m.email, m.first_name, m.last_name))
-    for r in payload.recipients:
-        sources.append((r.email, r.first_name, r.last_name))
+        sources.extend(db.query(GroupMember).filter(GroupMember.group_id.in_(payload.group_ids)).all())
+    sources.extend(payload.recipients)
 
-    for email, first_name, last_name in sources:
-        key = email.lower()
+    for src in sources:
+        key = src.email.lower()
         if key in seen:
             continue
         seen.add(key)
         db.add(
             Recipient(
                 campaign_id=campaign.id,
-                email=email,
-                first_name=first_name,
-                last_name=last_name,
+                email=src.email,
+                first_name=src.first_name,
+                last_name=src.last_name,
+                position=src.position,
+                department=src.department,
+                criticality=src.criticality,
                 tracking_token=generate_tracking_token(),
             )
         )

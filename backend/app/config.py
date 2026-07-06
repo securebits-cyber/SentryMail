@@ -63,6 +63,10 @@ class Settings(BaseSettings):
     SMTP_TIMEOUT: int = 10
     SMTP_BATCH_DELAY: int = 2  # Sekunden zwischen Batches - an Anbieter-Limit anpassen
 
+    # GeoIP (optional): Pfad zu einer lokalen Country-Datenbank im MMDB-Format
+    # (GeoLite2-Country, DB-IP Lite, IPinfo Country, ...). Leer = kein Laender-Lookup.
+    GEOIP_DB_PATH: str | None = None
+
     # Lizenzierung / Add-ons (Online-Aktivierung). Leer = reiner Open-Core-Betrieb ohne Add-ons.
     LICENSE_SERVER_URL: str = ""
     LICENSE_KEY: str = ""  # optionaler .env-Seed; kann auch im Dashboard gepflegt werden
