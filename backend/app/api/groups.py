@@ -24,6 +24,7 @@ from app.schemas import (
     LdapImportResult,
 )
 from app.services.ldap import LdapParams, fetch_users
+from app.services.license import require_feature
 from app.utils.crypto import decrypt
 
 router = APIRouter(prefix="/groups", tags=["groups"])
@@ -84,7 +85,11 @@ def delete_group(group_id: uuid.UUID, db: Session = Depends(get_db), _: User = D
     db.commit()
 
 
-@router.post("/{group_id}/import/ldap", response_model=LdapImportResult)
+@router.post(
+    "/{group_id}/import/ldap",
+    response_model=LdapImportResult,
+    dependencies=[Depends(require_feature("business"))],  # LDAP-Import ist ein Business-Feature
+)
 def import_from_ldap(group_id: uuid.UUID, db: Session = Depends(get_db), _: User = Depends(require_admin)):
     group = _get_or_404(db, group_id)
 
