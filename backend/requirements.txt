@@ -7,7 +7,6 @@ pydantic==2.13.4
 pydantic-settings==2.14.2
 PyJWT==2.13.0
 argon2-cffi==25.1.0
-ldap3==2.9.1
 python-multipart==0.0.32
 httpx==0.28.1
 redis==8.0.1
