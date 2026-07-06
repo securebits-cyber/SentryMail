@@ -64,6 +64,27 @@ interface Report {
   top_failed: Failed[]
 }
 
+interface TrendRow {
+  campaign_id: string
+  name: string
+  date: string
+  recipients: number
+  click_rate: number
+  submit_rate: number
+  risk_score: number
+  risk_level: 'high' | 'medium' | 'low'
+}
+
+interface UserRow {
+  email: string
+  campaigns: number
+  opened: number
+  clicked: number
+  submitted: number
+  risk_score: number
+  risk_level: 'high' | 'medium' | 'low'
+}
+
 const levelText: Record<string, string> = {
   high: 'text-status-danger',
   medium: 'text-status-warning',
@@ -73,8 +94,10 @@ const levelText: Record<string, string> = {
 export default function ReportsPage() {
   const { t } = useI18n()
   const features = useFeatures()
-  const pdfLicensed = Boolean(features?.features?.business) // PDF-Export ist Business
+  const businessLicensed = Boolean(features?.features?.business)
   const [report, setReport] = useState<Report | null>(null)
+  const [trend, setTrend] = useState<TrendRow[]>([])
+  const [users, setUsers] = useState<UserRow[]>([])
   const [loading, setLoading] = useState(true)
   const [exporting, setExporting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -86,6 +109,13 @@ export default function ReportsPage() {
       .finally(() => setLoading(false))
   }, [])
 
+  useEffect(() => {
+    // Business-Reporting (Trend, Benutzerentwicklung) — nur mit Business-Lizenz.
+    if (!businessLicensed) return
+    api.get<TrendRow[]>('/reports/trend').then((r) => setTrend(r.data)).catch(() => setTrend([]))
+    api.get<UserRow[]>('/reports/users').then((r) => setUsers(r.data)).catch(() => setUsers([]))
+  }, [businessLicensed])
+
   async function exportCsv() {
     setExporting(true)
     try {
@@ -96,13 +126,26 @@ export default function ReportsPage() {
   }
 
   async function exportPdf() {
-    if (!pdfLicensed) {
+    if (!businessLicensed) {
       setError(t('locked.body'))
       return
     }
     setExporting(true)
     try {
       await downloadBlob('/reports/management/pdf', 'management_report.pdf')
+    } finally {
+      setExporting(false)
+    }
+  }
+
+  async function exportExecutivePdf() {
+    if (!businessLicensed) {
+      setError(t('locked.body'))
+      return
+    }
+    setExporting(true)
+    try {
+      await downloadBlob('/reports/executive/pdf', 'executive_report.pdf')
     } finally {
       setExporting(false)
     }
@@ -149,7 +192,19 @@ export default function ReportsPage() {
             <span className="rounded-full bg-green-600 px-1.5 py-0.5 text-[10px] font-semibold uppercase leading-none tracking-wide text-white">
               {t('badge.business')}
             </span>
-            {!pdfLicensed && <Lock size={13} className="text-text-secondary" />}
+            {!businessLicensed && <Lock size={13} className="text-text-secondary" />}
+          </button>
+          <button
+            onClick={exportExecutivePdf}
+            disabled={exporting}
+            className="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2 text-sm text-text-primary hover:bg-bg disabled:opacity-60"
+          >
+            <FileText size={15} />
+            {t('rep.exportExec')}
+            <span className="rounded-full bg-green-600 px-1.5 py-0.5 text-[10px] font-semibold uppercase leading-none tracking-wide text-white">
+              {t('badge.business')}
+            </span>
+            {!businessLicensed && <Lock size={13} className="text-text-secondary" />}
           </button>
         </div>
       }
@@ -249,6 +304,80 @@ export default function ReportsPage() {
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* Business: Trendanalyse */}
+      {trend.length > 0 && (
+        <div className="mt-8">
+          <h2 className="mb-3 text-lg font-semibold">
+            {t('rep.trend.heading')}
+            <span className="ml-2 rounded-full bg-green-600 px-1.5 py-0.5 align-middle text-[10px] font-semibold uppercase tracking-wide text-white">
+              {t('badge.business')}
+            </span>
+          </h2>
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-sm">
+              <thead>
+                <tr className="border-b border-border text-left text-text-secondary">
+                  <th className="py-2 pr-4 font-medium">{t('rep.col.campaign')}</th>
+                  <th className="py-2 pr-4 font-medium">{t('rep.trend.date')}</th>
+                  <th className="py-2 pr-4 font-medium">{t('dash.tile.clicked')}</th>
+                  <th className="py-2 font-medium">{t('rep.col.risk')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {trend.map((row) => (
+                  <tr key={row.campaign_id} className="border-b border-border">
+                    <td className="py-2 pr-4">{row.name}</td>
+                    <td className="py-2 pr-4 font-mono tabular-nums text-text-secondary">{row.date}</td>
+                    <td className="py-2 pr-4 font-mono tabular-nums">{row.click_rate}%</td>
+                    <td className={`py-2 font-mono font-semibold tabular-nums ${levelText[row.risk_level]}`}>
+                      {row.risk_score} · {t(`risk.level.${row.risk_level}`)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Business: Benutzerentwicklung */}
+      {users.length > 0 && (
+        <div className="mt-8">
+          <h2 className="mb-3 text-lg font-semibold">
+            {t('rep.users.heading')}
+            <span className="ml-2 rounded-full bg-green-600 px-1.5 py-0.5 align-middle text-[10px] font-semibold uppercase tracking-wide text-white">
+              {t('badge.business')}
+            </span>
+          </h2>
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-sm">
+              <thead>
+                <tr className="border-b border-border text-left text-text-secondary">
+                  <th className="py-2 pr-4 font-medium">{t('common.email')}</th>
+                  <th className="py-2 pr-4 font-medium">{t('rep.col.campaigns')}</th>
+                  <th className="py-2 pr-4 font-medium">{t('dash.tile.clicked')}</th>
+                  <th className="py-2 pr-4 font-medium">{t('dash.tile.submitted')}</th>
+                  <th className="py-2 font-medium">{t('rep.col.risk')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {users.map((u) => (
+                  <tr key={u.email} className="border-b border-border">
+                    <td className="py-2 pr-4 font-mono">{u.email}</td>
+                    <td className="py-2 pr-4 font-mono tabular-nums">{u.campaigns}</td>
+                    <td className="py-2 pr-4 font-mono tabular-nums">{u.clicked}</td>
+                    <td className="py-2 pr-4 font-mono tabular-nums">{u.submitted}</td>
+                    <td className={`py-2 font-mono font-semibold tabular-nums ${levelText[u.risk_level]}`}>
+                      {u.risk_score} · {t(`risk.level.${u.risk_level}`)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </PageScaffold>
