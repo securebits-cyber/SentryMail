@@ -20,11 +20,21 @@ from app.schemas import CampaignResultOut, RecipientResultOut
 logger = logging.getLogger(__name__)
 
 _event_listeners: list[Callable[[TrackingEvent, Recipient], None]] = []
+_submission_handlers: list[Callable[[Recipient, dict], None]] = []
 
 
 def register_event_listener(listener: Callable[[TrackingEvent, Recipient], None]) -> None:
     """Registriert einen Listener fuer erfasste Tracking-Events (von Add-ons)."""
     _event_listeners.append(listener)
+
+
+def register_submission_handler(handler: Callable[[Recipient, dict], None]) -> None:
+    """Registriert einen Handler fuer abgeschickte Formulardaten (von Add-ons).
+
+    Der Core erfasst die Daten nicht selbst (Passwortabfrage ist ein Business-
+    Feature); ohne Handler werden abgeschickte Felder verworfen.
+    """
+    _submission_handlers.append(handler)
 
 
 def _notify(event: TrackingEvent, recipient: Recipient) -> None:
@@ -33,6 +43,15 @@ def _notify(event: TrackingEvent, recipient: Recipient) -> None:
             listener(event, recipient)
         except Exception:  # noqa: BLE001 - ein Listener darf das Tracking nie abbrechen
             logger.exception("Tracking-Event-Listener fehlgeschlagen")
+
+
+def notify_submission(recipient: Recipient, data: dict) -> None:
+    """Ruft registrierte Submission-Handler mit den abgeschickten Formulardaten."""
+    for handler in _submission_handlers:
+        try:
+            handler(recipient, data)
+        except Exception:  # noqa: BLE001 - ein Handler darf das Tracking nie abbrechen
+            logger.exception("Submission-Handler fehlgeschlagen")
 
 
 def record_event(

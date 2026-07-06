@@ -103,6 +103,7 @@ The **core** of HumanShield.APP (all features above) is open source under the **
 - **PDF export** (management report & campaign results)
 - **QR code phishing (quishing)** — per-recipient QR codes
 - **Webhooks** — event triggers (open/click/submit) to external systems
+- **Password capture** — capture submitted form data (passwords masked, never plaintext)
 
 **Enterprise add-on** (includes all Business features)
 - White-label, multi-tenant, SAML SSO, AI scoring, SIEM export, etc.

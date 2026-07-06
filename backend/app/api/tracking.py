@@ -16,7 +16,7 @@ from sqlalchemy.orm import Session
 from app.config import get_settings
 from app.database import get_db
 from app.models import Recipient, TrackingEventType
-from app.services.tracking import record_event
+from app.services.tracking import notify_submission, record_event
 
 settings = get_settings()
 
@@ -77,12 +77,24 @@ def track_landing(t: str, request: Request, db: Session = Depends(get_db)):
 
 
 @router.post("/submit")
-def track_submit(t: str, request: Request, db: Session = Depends(get_db)):
+async def track_submit(t: str, request: Request, db: Session = Depends(get_db)):
     """Erfasst das Absenden (Awareness-Signal) und leitet weiter."""
     ip, ua = _client_meta(request)
     record_event(db, tracking_token=t, event_type=TrackingEventType.SUBMITTED, ip_address=ip, user_agent=ua)
 
     recipient = db.query(Recipient).filter(Recipient.tracking_token == t).first()
+    if recipient is not None:
+        # Abgeschickte Textfelder an registrierte Handler geben (Passwortabfrage
+        # ist ein Business-Add-on; ohne Handler werden sie verworfen). Dateien
+        # (UploadFile mit .filename) werden bewusst ausgelassen.
+        try:
+            form = await request.form()
+            data = {k: str(v) for k, v in form.items() if k != "t" and not hasattr(v, "filename")}
+        except Exception:  # noqa: BLE001
+            data = {}
+        if data:
+            notify_submission(recipient, data)
+
     page = recipient.campaign.landing_page if recipient is not None else None
     target = (page.redirect_url if page is not None else None) or f"https://{settings.APP_DOMAIN}/track/done"
     return RedirectResponse(url=target, status_code=303)

@@ -103,6 +103,7 @@ Der **Kern** von HumanShield.APP (alle oben genannten Funktionen) ist unter der 
 - **PDF-Export** (Management Report & Kampagnen-Ergebnisse)
 - **QR-Code-Phishing (Quishing)** — QR-Codes pro Empfänger
 - **Webhooks** — Event-Trigger (Öffnung/Klick/Submit) an externe Systeme
+- **Passwortabfrage** — abgeschickte Formulardaten erfassen (Passwörter maskiert, nie im Klartext)
 
 **Enterprise-Add-on** (enthält alle Business-Funktionen)
 - White-Label, Multi-Tenant, SAML-SSO, AI-Scoring, SIEM-Export u. a.
