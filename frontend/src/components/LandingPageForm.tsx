@@ -2,13 +2,24 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-import { FormEvent, useEffect, useState } from 'react'
+import { Eye, Pencil } from 'lucide-react'
+import { FormEvent, useEffect, useMemo, useState } from 'react'
 import AiGenerateBar from './AiGenerateBar'
 import MarkdownEditor from './MarkdownEditor'
 import { mdToHtml } from '../utils/markdown'
 import Toggle from './Toggle'
 import { useI18n } from '../i18n'
 import type { LandingPage } from '../types'
+
+// Platzhalter für die Vorschau mit Beispieldaten füllen (die Tracking-URL wird
+// erst beim Ausliefern gesetzt; hier nur Anzeige).
+function fillSample(html: string): string {
+  return html
+    .replace(/\{\{\s*(recipient_name|first_name)\s*\}\}/g, 'Max Mustermann')
+    .replace(/\{\{\s*last_name\s*\}\}/g, 'Mustermann')
+    .replace(/\{\{\s*(recipient_email|email)\s*\}\}/g, 'max.mustermann@example.com')
+    .replace(/\{\{\s*(click_link|link)\s*\}\}/g, '#')
+}
 
 export interface LandingPageFormValues {
   name: string
@@ -38,6 +49,9 @@ export default function LandingPageForm({ initial, onSubmit, onCancel, submittin
   const [redirectUrl, setRedirectUrl] = useState('')
   const [editorMode, setEditorMode] = useState<'html' | 'markdown'>('html')
   const [markdown, setMarkdown] = useState('')
+  const [showPreview, setShowPreview] = useState(false)
+
+  const previewHtml = useMemo(() => fillSample(html), [html])
 
   useEffect(() => {
     setName(initial?.name ?? '')
@@ -85,21 +99,31 @@ export default function LandingPageForm({ initial, onSubmit, onCancel, submittin
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
           <span className="text-sm">{t('form.content')}</span>
-          <div className="flex gap-0.5 rounded-md border border-border p-0.5 text-xs">
+          <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() => setEditorMode('html')}
-              className={`rounded px-2 py-1 ${editorMode === 'html' ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'}`}
+              onClick={() => setShowPreview((v) => !v)}
+              className="flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1 text-xs text-text-primary hover:bg-bg"
             >
-              HTML
+              {showPreview ? <Pencil size={13} /> : <Eye size={13} />}
+              {showPreview ? t('lpf.hidePreview') : t('lpf.preview')}
             </button>
-            <button
-              type="button"
-              onClick={() => setEditorMode('markdown')}
-              className={`rounded px-2 py-1 ${editorMode === 'markdown' ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'}`}
-            >
-              Markdown
-            </button>
+            <div className="flex gap-0.5 rounded-md border border-border p-0.5 text-xs">
+              <button
+                type="button"
+                onClick={() => setEditorMode('html')}
+                className={`rounded px-2 py-1 ${editorMode === 'html' ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'}`}
+              >
+                HTML
+              </button>
+              <button
+                type="button"
+                onClick={() => setEditorMode('markdown')}
+                className={`rounded px-2 py-1 ${editorMode === 'markdown' ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'}`}
+              >
+                Markdown
+              </button>
+            </div>
           </div>
         </div>
         {editorMode === 'markdown' ? (
@@ -115,6 +139,27 @@ export default function LandingPageForm({ initial, onSubmit, onCancel, submittin
             placeholder="<html>… Formular, das auf die Tracking-URL abgeschickt wird …</html>"
             className={`${fieldClass} font-mono text-sm`}
           />
+        )}
+
+        {showPreview && (
+          <div className="mt-1">
+            <div className="mb-1 flex items-center justify-between">
+              <span className="text-xs font-medium text-text-secondary">{t('lpf.previewHeading')}</span>
+              <span className="text-xs text-text-secondary">{t('lpf.previewNote')}</span>
+            </div>
+            {html.trim() ? (
+              <iframe
+                title={t('lpf.preview')}
+                srcDoc={previewHtml}
+                sandbox=""
+                className="h-96 w-full rounded-md border border-border bg-white"
+              />
+            ) : (
+              <p className="rounded-md border border-dashed border-border p-4 text-center text-sm text-text-secondary">
+                {t('lpf.previewEmpty')}
+              </p>
+            )}
+          </div>
         )}
       </div>
 
