@@ -12,6 +12,7 @@ import EnterpriseAddonPage from './pages/integrations/enterprise'
 import OpenCorePage from './pages/integrations/opencore'
 import IntegrationsOverviewPage from './pages/integrations/overview'
 import AuditEventsPage from './pages/settings/audit-events'
+import EntraSettingsPage from './pages/settings/entra'
 import LicenseSettingsPage from './pages/settings/license'
 import SecuritySettingsPage from './pages/settings/security'
 import CampaignsPage from './pages/campaigns'
@@ -74,6 +75,7 @@ export default function App() {
             <Route index element={<Navigate to="/settings/ldap" replace />} />
             <Route path="ldap" element={<LdapSettingsPage />} />
             <Route path="webhooks" element={<WebhooksSettingsPage />} />
+            <Route path="entra" element={<EntraSettingsPage />} />
             <Route path="oidc" element={<OidcSettingsPage />} />
             <Route path="smtp" element={<SmtpSettingsPage />} />
             <Route path="security" element={<SecuritySettingsPage />} />

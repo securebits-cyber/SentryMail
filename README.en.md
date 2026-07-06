@@ -98,6 +98,7 @@ The **core** of HumanShield.APP (all features above) is open source under the **
 
 **Business add-on**
 - **LDAP** directory import of recipients
+- **Azure AD / Entra ID** import of recipients (Microsoft Graph)
 - **Email upload** (`.eml`) as a template draft
 - **Template library** (ready-made awareness templates: DHL, Amazon, invoice, M365, HR, bank, PayPal, LinkedIn, PDF lure, QR campaign)
 - **Attack types** — spear phishing, whaling (CEO fraud) and file-based (lure attachment) templates in the library
