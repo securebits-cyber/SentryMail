@@ -16,11 +16,13 @@ from sqlalchemy.orm import Session
 
 from app.models import Campaign, Recipient, TrackingEvent, TrackingEventType
 from app.schemas import (
+    ActivityHeatmap,
     BreakdownSlice,
     CampaignRisk,
     DashboardSummary,
     EngagementAnalytics,
     FailedRecipient,
+    HeatmapCell,
     ManagementReport,
     ReportCampaignRow,
     RiskDistribution,
@@ -150,6 +152,28 @@ def timeline(db: Session) -> list[TimelinePoint]:
         point = by_date.setdefault(str(day_value), {"opened": 0, "clicked": 0, "submitted": 0})
         point[event_type.value] = count
     return [TimelinePoint(date=date, **counts) for date, counts in sorted(by_date.items())]
+
+
+def activity_heatmap(db: Session) -> ActivityHeatmap:
+    """Ereignisse nach Wochentag (0=Mo..6=So) und Tagesstunde (0..23).
+
+    Nutzt Postgres ``extract`` (isodow: 1=Mo..7=So). Nur belegte Zellen werden
+    zurueckgegeben; das Frontend fuellt das 7x24-Raster selbst auf.
+    """
+    dow = func.extract("isodow", TrackingEvent.occurred_at)
+    hour = func.extract("hour", TrackingEvent.occurred_at)
+    rows = (
+        db.query(dow.label("dow"), hour.label("hour"), func.count().label("count"))
+        .group_by("dow", "hour")
+        .all()
+    )
+    cells = [
+        HeatmapCell(weekday=int(d) - 1, hour=int(h), count=int(c))
+        for d, h, c in rows
+    ]
+    total = sum(cell.count for cell in cells)
+    max_count = max((cell.count for cell in cells), default=0)
+    return ActivityHeatmap(total_events=total, max_count=max_count, cells=cells)
 
 
 def _breakdown(db: Session, column, *, drop_null: bool = False) -> list[BreakdownSlice]:

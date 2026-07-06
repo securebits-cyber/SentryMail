@@ -488,6 +488,20 @@ class BreakdownSlice(BaseModel):
     count: int
 
 
+class HeatmapCell(BaseModel):
+    """Eine Zelle der Aktivitaets-Heatmap (Wochentag x Stunde)."""
+    weekday: int  # 0 = Montag ... 6 = Sonntag
+    hour: int     # 0..23
+    count: int
+
+
+class ActivityHeatmap(BaseModel):
+    """Verteilung der Tracking-Ereignisse ueber Wochentag und Tagesstunde."""
+    total_events: int
+    max_count: int
+    cells: list[HeatmapCell]
+
+
 class EngagementAnalytics(BaseModel):
     """Aufschluesselung der Interaktionen (Klick/Absenden) nach Kontext-
     Metadaten der Tracking-Events."""

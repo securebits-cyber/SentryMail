@@ -206,6 +206,77 @@ export function EngagementBreakdown({ analytics }: { analytics: EngagementAnalyt
   )
 }
 
+export interface HeatmapCell {
+  weekday: number
+  hour: number
+  count: number
+}
+
+export interface ActivityHeatmap {
+  total_events: number
+  max_count: number
+  cells: HeatmapCell[]
+}
+
+const WEEKDAY_KEYS = ['heatmap.mon', 'heatmap.tue', 'heatmap.wed', 'heatmap.thu', 'heatmap.fri', 'heatmap.sat', 'heatmap.sun']
+
+/** Aktivitaets-Heatmap: Wochentag x Tagesstunde. Intensitaet = accent-Opazitaet. */
+export function ActivityHeatmapCard({ heatmap }: { heatmap: ActivityHeatmap }) {
+  const { t } = useI18n()
+  // Zellwerte in ein 7x24-Raster einsortieren (Zeile = Wochentag, Spalte = Stunde).
+  const grid: number[][] = Array.from({ length: 7 }, () => Array(24).fill(0))
+  for (const c of heatmap.cells) {
+    if (c.weekday >= 0 && c.weekday < 7 && c.hour >= 0 && c.hour < 24) grid[c.weekday][c.hour] = c.count
+  }
+  const max = heatmap.max_count || 1
+
+  return (
+    <div className="elevated rounded-lg border border-border bg-surface p-5">
+      <h3 className="mb-4 text-sm font-semibold text-text-secondary">{t('heatmap.heading')}</h3>
+      {heatmap.total_events === 0 ? (
+        <p className="text-sm text-text-secondary">{t('heatmap.empty')}</p>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="border-separate" style={{ borderSpacing: '2px' }}>
+            <thead>
+              <tr>
+                <th />
+                {Array.from({ length: 24 }, (_, h) => (
+                  <th key={h} className="text-center text-[9px] font-normal text-text-secondary">
+                    {h % 3 === 0 ? h : ''}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {grid.map((row, wd) => (
+                <tr key={wd}>
+                  <td className="pr-2 text-right text-[10px] text-text-secondary">{t(WEEKDAY_KEYS[wd])}</td>
+                  {row.map((count, h) => {
+                    const intensity = count === 0 ? 0 : 0.15 + 0.85 * (count / max)
+                    return (
+                      <td key={h}>
+                        <div
+                          className="h-4 w-4 rounded-sm"
+                          style={{
+                            backgroundColor:
+                              count === 0 ? 'var(--color-border)' : `color-mix(in srgb, var(--color-accent) ${Math.round(intensity * 100)}%, transparent)`,
+                          }}
+                          title={`${t(WEEKDAY_KEYS[wd])} ${h}:00 · ${count}`}
+                        />
+                      </td>
+                    )
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  )
+}
+
 const SERIES: { key: keyof Omit<TimelinePoint, 'date'>; color: string; labelKey: string }[] = [
   { key: 'opened', color: 'var(--color-chart-opened)', labelKey: 'dash.tile.opened' },
   { key: 'clicked', color: 'var(--color-chart-clicked)', labelKey: 'dash.tile.clicked' },

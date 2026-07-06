@@ -97,6 +97,27 @@ def test_timeline_point_after_open(client, db, make_user, auth_headers):
     assert points[0]["clicked"] == 0
 
 
+def test_heatmap_empty(client, make_user, auth_headers):
+    admin = make_user(role=UserRole.ADMIN)
+    body = client.get("/dashboard/heatmap", headers=auth_headers(admin)).json()
+    assert body["total_events"] == 0
+    assert body["max_count"] == 0
+    assert body["cells"] == []
+
+
+def test_heatmap_counts_events(client, db, make_user, auth_headers):
+    admin = make_user(role=UserRole.ADMIN)
+    _seed(db, admin.id, TrackingEventType.CLICKED)
+    body = client.get("/dashboard/heatmap", headers=auth_headers(admin)).json()
+    assert body["total_events"] == 1
+    assert body["max_count"] == 1
+    assert len(body["cells"]) == 1
+    cell = body["cells"][0]
+    assert 0 <= cell["weekday"] <= 6
+    assert 0 <= cell["hour"] <= 23
+    assert cell["count"] == 1
+
+
 def test_management_report_reflects_click(client, db, make_user, auth_headers):
     admin = make_user(role=UserRole.ADMIN)
     _seed(db, admin.id, TrackingEventType.CLICKED)

@@ -6,10 +6,12 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Badge from '../components/Badge'
 import {
+  ActivityHeatmapCard,
   EngagementBreakdown,
   Funnel,
   RiskMeter,
   Timeline,
+  type ActivityHeatmap,
   type EngagementAnalytics,
   type RiskSummary,
   type Summary,
@@ -61,6 +63,7 @@ export default function DashboardPage() {
   const [risk, setRisk] = useState<RiskSummary | null>(null)
   const [timeline, setTimeline] = useState<TimelinePoint[]>([])
   const [analytics, setAnalytics] = useState<EngagementAnalytics | null>(null)
+  const [heatmap, setHeatmap] = useState<ActivityHeatmap | null>(null)
   const [failed, setFailed] = useState<Failed[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -70,6 +73,7 @@ export default function DashboardPage() {
       api.get<RiskSummary>('/dashboard/risk').then((r) => setRisk(r.data)),
       api.get<TimelinePoint[]>('/dashboard/timeline').then((r) => setTimeline(r.data)),
       api.get<EngagementAnalytics>('/dashboard/analytics').then((r) => setAnalytics(r.data)),
+      api.get<ActivityHeatmap>('/dashboard/heatmap').then((r) => setHeatmap(r.data)),
       api.get<Failed[]>('/dashboard/failed').then((r) => setFailed(r.data)),
     ]).finally(() => setLoading(false))
   }, [])
@@ -99,8 +103,14 @@ export default function DashboardPage() {
       </div>
 
       {analytics && (
-        <div className="mb-8">
+        <div className="mb-6">
           <EngagementBreakdown analytics={analytics} />
+        </div>
+      )}
+
+      {heatmap && (
+        <div className="mb-8">
+          <ActivityHeatmapCard heatmap={heatmap} />
         </div>
       )}
 
