@@ -2,22 +2,25 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-import { BadgeCheck, KeyRound, MailCheck, Network, ScrollText, ShieldCheck, type LucideIcon } from 'lucide-react'
+import { BadgeCheck, KeyRound, Lock, MailCheck, Network, ScrollText, ShieldCheck, type LucideIcon } from 'lucide-react'
 import { NavLink, Outlet } from 'react-router-dom'
+import { useFeatures } from '../hooks/useFeatures'
 import { useI18n } from '../i18n'
 
 interface NavItem {
   to: string
   labelKey: string
   icon: LucideIcon
+  feature?: 'business' | 'enterprise'
 }
 
 // Einstellungs-Nav in Gruppen (Netbird-Stil). Neue Bereiche hier ergaenzen.
+// `feature` verweist auf ein Lizenz-Entitlement; ohne gültige Lizenz gesperrt.
 const groups: { labelKey: string | null; items: NavItem[] }[] = [
   {
     labelKey: null,
     items: [
-      { to: '/settings/ldap', labelKey: 'settings.ldap', icon: Network },
+      { to: '/settings/ldap', labelKey: 'settings.ldap', icon: Network, feature: 'business' },
       { to: '/settings/oidc', labelKey: 'settings.oidc', icon: KeyRound },
       { to: '/settings/smtp', labelKey: 'settings.smtp', icon: MailCheck },
       { to: '/settings/security', labelKey: 'settings.security', icon: ShieldCheck },
@@ -39,6 +42,7 @@ const linkClass = ({ isActive }: { isActive: boolean }) =>
 
 export default function SettingsLayout() {
   const { t } = useI18n()
+  const features = useFeatures()
   return (
     <div className="-m-6 flex min-h-full">
       <aside className="w-52 shrink-0 border-r border-border bg-surface px-3 py-5">
@@ -50,12 +54,16 @@ export default function SettingsLayout() {
                   {t(group.labelKey)}
                 </div>
               )}
-              {group.items.map(({ to, labelKey, icon: Icon }) => (
-                <NavLink key={to} to={to} className={linkClass}>
-                  <Icon size={16} />
-                  {t(labelKey)}
-                </NavLink>
-              ))}
+              {group.items.map(({ to, labelKey, icon: Icon, feature }) => {
+                const locked = feature ? !features?.features?.[feature] : false
+                return (
+                  <NavLink key={to} to={to} className={linkClass}>
+                    <Icon size={16} className="shrink-0" />
+                    <span className="flex-1 truncate">{t(labelKey)}</span>
+                    {locked && <Lock size={13} className="ml-auto shrink-0 text-text-secondary" />}
+                  </NavLink>
+                )
+              })}
             </div>
           ))}
         </nav>

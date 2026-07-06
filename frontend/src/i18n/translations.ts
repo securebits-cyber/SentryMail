@@ -463,6 +463,8 @@ export const translations: Record<Lang, Record<string, string>> = {
     'addon.active': 'Aktiv',
     'addon.locked': 'Gesperrt',
     'addon.notActivated': 'Dieses Add-on ist in dieser Installation nicht lizenziert. Über „Upgrade Lizenz“ freischalten.',
+    'locked.body': 'Diese Funktion ist nicht lizenziert und daher deaktiviert.',
+    'locked.toLicense': 'Zur Lizenz-Seite',
     'addon.ent.includesBusiness': 'Enthält alle Business-Funktionen — plus:',
     'addon.included': 'Enthalten',
 
@@ -1009,6 +1011,8 @@ export const translations: Record<Lang, Record<string, string>> = {
     'addon.active': 'Active',
     'addon.locked': 'Locked',
     'addon.notActivated': 'This add-on is not licensed in this installation. Unlock it via “Upgrade license”.',
+    'locked.body': 'This feature is not licensed and therefore disabled.',
+    'locked.toLicense': 'Go to license page',
     'addon.ent.includesBusiness': 'Includes all Business features — plus:',
     'addon.included': 'Included',
 

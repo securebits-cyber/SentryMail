@@ -27,6 +27,7 @@ from app.schemas import (
     SmtpTestResult,
 )
 from app.services.ldap import LdapParams, test_connection
+from app.services.license import require_feature
 from app.services.mail import test_smtp_params
 from app.services.smtp_config import get_or_create_smtp_config
 from app.utils.crypto import decrypt, encrypt
@@ -55,12 +56,17 @@ def get_or_create_oidc_config(db: Session) -> OidcConfig:
     return config
 
 
-@router.get("/ldap", response_model=LdapConfigOut)
+# LDAP-Anbindung ist ein Business-Feature: alle LDAP-Endpunkte erfordern eine
+# gueltige Business-Lizenz (zusaetzlich zu Admin-Rechten) -> sonst HTTP 403.
+_require_business = Depends(require_feature("business"))
+
+
+@router.get("/ldap", response_model=LdapConfigOut, dependencies=[_require_business])
 def get_ldap(db: Session = Depends(get_db), _: User = Depends(require_admin)):
     return get_or_create_ldap_config(db)
 
 
-@router.put("/ldap", response_model=LdapConfigOut)
+@router.put("/ldap", response_model=LdapConfigOut, dependencies=[_require_business])
 def update_ldap(
     payload: LdapConfigUpdate,
     request: Request,
@@ -81,7 +87,7 @@ def update_ldap(
     return config
 
 
-@router.post("/ldap/test", response_model=LdapTestResult)
+@router.post("/ldap/test", response_model=LdapTestResult, dependencies=[_require_business])
 def test_ldap(db: Session = Depends(get_db), _: User = Depends(require_admin)):
     """Testet die aktuell gespeicherte LDAP-Config (vorher speichern)."""
     config = get_or_create_ldap_config(db)

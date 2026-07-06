@@ -4,8 +4,10 @@
 
 import { Network, Settings } from 'lucide-react'
 import { FormEvent, useEffect, useState } from 'react'
+import LockedFeatureNotice from '../../components/LockedFeatureNotice'
 import PageScaffold from '../../components/PageScaffold'
 import Toggle from '../../components/Toggle'
+import { useFeatures } from '../../hooks/useFeatures'
 import { useI18n } from '../../i18n'
 import { api } from '../../services/api'
 import type { LdapConfig } from '../../types'
@@ -18,6 +20,9 @@ type LdapForm = Omit<LdapConfig, 'has_bind_password'> & { bind_password: string 
 
 export default function LdapSettingsPage() {
   const { t } = useI18n()
+  // LDAP ist ein Business-Feature: ohne gültige Business-Lizenz gesperrt.
+  const features = useFeatures()
+  const licensed = Boolean(features?.features?.business)
   const [form, setForm] = useState<LdapForm | null>(null)
   const [hasPassword, setHasPassword] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -25,12 +30,13 @@ export default function LdapSettingsPage() {
   const [message, setMessage] = useState<{ kind: 'error' | 'info'; text: string } | null>(null)
 
   useEffect(() => {
+    if (!licensed) return
     api.get<LdapConfig>('/settings/ldap').then((res) => {
       const { has_bind_password, ...rest } = res.data
       setHasPassword(has_bind_password)
       setForm({ ...rest, bind_password: '' })
     })
-  }, [])
+  }, [licensed])
 
   function set<K extends keyof LdapForm>(key: K, value: LdapForm[K]) {
     setForm((prev) => (prev ? { ...prev, [key]: value } : prev))
@@ -77,6 +83,22 @@ export default function LdapSettingsPage() {
       setTesting(false)
     }
   }
+
+  if (features === null) return <p className="text-text-secondary">{t('common.loadingSettings')}</p>
+
+  if (!licensed)
+    return (
+      <PageScaffold
+        title={t('ldap.title')}
+        subtitle={t('ldap.subtitle')}
+        breadcrumb={[
+          { label: t('nav.settings'), icon: Settings },
+          { label: t('settings.ldap'), icon: Network },
+        ]}
+      >
+        <LockedFeatureNotice tier="business" />
+      </PageScaffold>
+    )
 
   if (!form) return <p className="text-text-secondary">{t('common.loadingSettings')}</p>
 
