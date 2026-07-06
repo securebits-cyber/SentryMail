@@ -80,11 +80,10 @@ export default function LoginPage() {
       <div className="absolute right-4 top-4">
         <LanguageSwitcher />
       </div>
-      {branding.logo_b64 ? (
-        <img src={branding.logo_b64} alt="" className="h-10 max-w-[240px] object-contain" />
-      ) : (
+      <div className="flex flex-col items-center gap-3">
+        {branding.logo_b64 && <img src={branding.logo_b64} alt="" className="h-12 max-w-[240px] object-contain" />}
         <h1 className="text-2xl font-semibold">{branding.app_name}</h1>
-      )}
+      </div>
 
       {stage === 'password' && (
         <>

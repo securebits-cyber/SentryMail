@@ -19,23 +19,28 @@ const DEFAULT: Branding = {
   logo_b64: null,
 }
 
-const BrandingContext = createContext<Branding>(DEFAULT)
+type BrandingValue = Branding & { refresh: () => void }
 
-export function useBranding(): Branding {
+const BrandingContext = createContext<BrandingValue>({ ...DEFAULT, refresh: () => {} })
+
+export function useBranding(): BrandingValue {
   return useContext(BrandingContext)
 }
 
 /** Lädt das (öffentliche) Branding und wendet Akzentfarben + Titel an.
- *  White-Label ist ein Enterprise-Feature; ohne Lizenz liefert /branding Defaults. */
+ *  White-Label ist ein Enterprise-Feature; ohne Lizenz liefert /branding Defaults.
+ *  `refresh()` lädt neu (z. B. nach dem Speichern in den Einstellungen). */
 export function BrandingProvider({ children }: { children: ReactNode }) {
   const [branding, setBranding] = useState<Branding>(DEFAULT)
 
-  useEffect(() => {
+  function load() {
     api
       .get<Branding>('/branding')
       .then((res) => setBranding(res.data))
       .catch(() => setBranding(DEFAULT))
-  }, [])
+  }
+
+  useEffect(load, [])
 
   useEffect(() => {
     const root = document.documentElement
@@ -44,5 +49,5 @@ export function BrandingProvider({ children }: { children: ReactNode }) {
     document.title = branding.app_name
   }, [branding])
 
-  return <BrandingContext.Provider value={branding}>{children}</BrandingContext.Provider>
+  return <BrandingContext.Provider value={{ ...branding, refresh: load }}>{children}</BrandingContext.Provider>
 }

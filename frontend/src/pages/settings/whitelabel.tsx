@@ -4,6 +4,7 @@
 
 import { Palette, Settings, X } from 'lucide-react'
 import { ChangeEvent, FormEvent, useEffect, useState } from 'react'
+import { useBranding } from '../../components/BrandingProvider'
 import LockedFeatureNotice from '../../components/LockedFeatureNotice'
 import PageScaffold from '../../components/PageScaffold'
 import { useFeatures } from '../../hooks/useFeatures'
@@ -22,6 +23,7 @@ const labelClass = 'flex flex-col gap-1 text-sm'
 
 export default function WhitelabelSettingsPage() {
   const { t } = useI18n()
+  const { refresh } = useBranding()
   const features = useFeatures()
   const licensed = Boolean(features?.features?.enterprise)
   const [form, setForm] = useState<Whitelabel | null>(null)
@@ -53,6 +55,7 @@ export default function WhitelabelSettingsPage() {
     setMessage(null)
     try {
       await api.put('/settings/whitelabel', form)
+      refresh() // Branding live aktualisieren (Header/Titel)
       setMessage(t('wl.saved'))
     } catch {
       setMessage(t('form.err.save'))
