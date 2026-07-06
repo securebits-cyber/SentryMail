@@ -9,6 +9,7 @@ import Layout from './components/Layout'
 import SettingsLayout from './components/SettingsLayout'
 import BusinessAddonPage from './pages/integrations/business'
 import EnterpriseAddonPage from './pages/integrations/enterprise'
+import OpenCorePage from './pages/integrations/opencore'
 import IntegrationsOverviewPage from './pages/integrations/overview'
 import AuditEventsPage from './pages/settings/audit-events'
 import LicenseSettingsPage from './pages/settings/license'
@@ -74,6 +75,7 @@ export default function App() {
           <Route path="/integrations" element={<IntegrationsLayout />}>
             <Route index element={<Navigate to="/integrations/overview" replace />} />
             <Route path="overview" element={<IntegrationsOverviewPage />} />
+            <Route path="opencore" element={<OpenCorePage />} />
             <Route path="business" element={<BusinessAddonPage />} />
             <Route path="enterprise" element={<EnterpriseAddonPage />} />
           </Route>

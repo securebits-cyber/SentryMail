@@ -7,13 +7,15 @@ import PageScaffold from './PageScaffold'
 import { useFeatures } from '../hooks/useFeatures'
 import { useI18n } from '../i18n'
 
+export type Tier = 'opencore' | 'business' | 'enterprise'
+
 export interface FeatureGroup {
   title: string
   items: string[]
 }
 
 interface Props {
-  tier: 'business' | 'enterprise'
+  tier: Tier
   title: string
   icon: LucideIcon
   tagline: string
@@ -22,33 +24,40 @@ interface Props {
   breadcrumb?: { label: string; icon?: LucideIcon }[]
 }
 
-/** Übersichtsseite eines Add-ons (Business/Enterprise): listet alle enthaltenen
- *  Funktionen und zeigt anhand des Lizenz-Entitlements, ob es aktiv ist. */
+// Farbschema je Stufe: Open Core = Akzentfarbe, Business = grün, Enterprise = blau.
+export const tierStyles: Record<Tier, { badge: string; tint: string; labelKey: string }> = {
+  opencore: { badge: 'bg-accent', tint: 'bg-accent/12 text-accent', labelKey: 'badge.opencore' },
+  business: { badge: 'bg-green-600', tint: 'bg-green-600/12 text-green-600', labelKey: 'badge.business' },
+  enterprise: { badge: 'bg-blue-600', tint: 'bg-blue-600/12 text-blue-600', labelKey: 'badge.enterprise' },
+}
+
+/** Übersichtsseite einer Stufe (Open Core / Business / Enterprise): listet alle
+ *  enthaltenen Funktionen. Open Core ist immer verfügbar; die kostenpflichtigen
+ *  Add-ons zeigen anhand des Lizenz-Entitlements, ob sie aktiv sind. */
 export default function AddonPage({ tier, title, icon: Icon, tagline, intro, groups, breadcrumb }: Props) {
   const { t } = useI18n()
   const features = useFeatures()
-  const active = Boolean(features?.features?.[tier])
+  const active = tier === 'opencore' ? true : Boolean(features?.features?.[tier])
+  const style = tierStyles[tier]
 
   return (
     <PageScaffold title={title} subtitle={tagline} breadcrumb={breadcrumb}>
       <div className="max-w-3xl rounded-lg border border-border bg-surface p-6">
         <div className="flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/12 text-accent">
+          <span className={`flex h-10 w-10 items-center justify-center rounded-lg ${style.tint}`}>
             <Icon size={20} />
           </span>
           <span
-            className={`rounded-full px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-white ${
-              tier === 'enterprise' ? 'bg-green-600' : 'bg-accent'
-            }`}
+            className={`rounded-full px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-white ${style.badge}`}
           >
-            {t(tier === 'enterprise' ? 'badge.enterprise' : 'badge.business')}
+            {t(style.labelKey)}
           </span>
           <span
             className={`ml-auto rounded-full px-2 py-0.5 text-xs font-semibold ${
-              active ? 'bg-green-600 text-white' : 'border border-border text-text-secondary'
+              active ? `${style.badge} text-white` : 'border border-border text-text-secondary'
             }`}
           >
-            {active ? t('addon.active') : t('addon.locked')}
+            {tier === 'opencore' ? t('addon.included') : active ? t('addon.active') : t('addon.locked')}
           </span>
         </div>
 
@@ -56,6 +65,7 @@ export default function AddonPage({ tier, title, icon: Icon, tagline, intro, gro
         {tier === 'enterprise' && (
           <p className="mt-2 text-sm font-medium text-text-primary">{t('addon.ent.includesBusiness')}</p>
         )}
+        {tier === 'opencore' && <p className="mt-2 text-sm text-text-secondary">{t('addon.oc.alwaysIncluded')}</p>}
 
         <div className="mt-6 flex flex-col gap-6">
           {groups.map((group) => (
@@ -77,7 +87,7 @@ export default function AddonPage({ tier, title, icon: Icon, tagline, intro, gro
           ))}
         </div>
 
-        {!active && (
+        {!active && tier !== 'opencore' && (
           <div className="mt-6 rounded-md border border-dashed border-border p-4 text-sm text-text-secondary">
             {t('addon.notActivated')}
           </div>

@@ -28,6 +28,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     'common.toggleTheme': 'Farbmodus umschalten',
     'common.language': 'Sprache',
     'common.back': 'Zurück',
+    'badge.opencore': 'Open Core',
     'badge.enterprise': 'Enterprise',
 
     // Login
@@ -58,6 +59,7 @@ export const translations: Record<Lang, Record<string, string>> = {
 
     // Integrationen (Untermenü)
     'integrations.overview': 'Übersicht',
+    'integrations.openCore': 'Open Core',
     'integrations.business': 'Business',
     'integrations.enterprise': 'Enterprise',
 
@@ -462,6 +464,38 @@ export const translations: Record<Lang, Record<string, string>> = {
     'addon.locked': 'Gesperrt',
     'addon.notActivated': 'Dieses Add-on ist in dieser Installation nicht lizenziert. Über „Upgrade Lizenz“ freischalten.',
     'addon.ent.includesBusiness': 'Enthält alle Business-Funktionen — plus:',
+    'addon.included': 'Enthalten',
+
+    // Open Core (kostenlos, MPL 2.0)
+    'addon.oc.alwaysIncluded': 'Immer enthalten — Teil der Open-Core-Version (MPL 2.0), keine Lizenz nötig.',
+    'addon.oc.tagline': 'Der kostenlose, quelloffene Kern (MPL 2.0).',
+    'addon.oc.intro': 'Diese Funktionen sind ohne Lizenz enthalten und bilden die Basis der Plattform.',
+    'addon.oc.cat.auth': 'Authentifizierung',
+    'addon.oc.f.localLogin': 'Lokaler Login (E-Mail/Passwort)',
+    'addon.oc.f.oidc': 'OIDC / SSO (optional, beliebiger Provider)',
+    'addon.oc.f.twofa': 'Zwei-Faktor (TOTP / E-Mail-Code)',
+    'addon.oc.cat.campaigns': 'Empfänger & Kampagnen',
+    'addon.oc.f.csvImport': 'CSV-Import von Empfängern',
+    'addon.oc.f.groups': 'Empfängergruppen',
+    'addon.oc.f.campaignCrud': 'Kampagnen anlegen & verwalten',
+    'addon.oc.f.templates': 'Template-System (HTML/Markdown, Anhänge)',
+    'addon.oc.f.landingPages': 'Landing Pages',
+    'addon.oc.cat.delivery': 'Versand & Tracking',
+    'addon.oc.f.smtp': 'Generischer SMTP-Versand',
+    'addon.oc.f.sendingProfiles': 'Sending Profiles',
+    'addon.oc.f.fallbackSmtp': 'Globales Fallback-SMTP',
+    'addon.oc.f.tracking': 'Tracking (Öffnung, Klick, Formular-Absenden)',
+    'addon.oc.cat.reporting': 'Auswertung & Reporting',
+    'addon.oc.f.dashboard': 'Ausführliches Dashboard',
+    'addon.oc.f.kpi': 'KPI-Dashboard',
+    'addon.oc.f.riskScore': 'Risikobewertung',
+    'addon.oc.f.managementReports': 'Management Reports',
+    'addon.oc.f.csvExport': 'CSV-Export der Ergebnisse',
+    'addon.oc.cat.operations': 'Betrieb',
+    'addon.oc.f.i18n': 'Mehrsprachig (DE/EN)',
+    'addon.oc.f.darkMode': 'Light-/Dark-Mode',
+    'addon.oc.f.auditLog': 'Audit-Log',
+    'addon.oc.f.dashboardSettings': 'Einstellungen im Dashboard',
 
     // Business Add-on
     'addon.biz.tagline': 'Der volle Funktionsumfang für den produktiven Awareness-Betrieb.',
@@ -544,6 +578,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     'common.toggleTheme': 'Toggle color mode',
     'common.language': 'Language',
     'common.back': 'Back',
+    'badge.opencore': 'Open Core',
     'badge.enterprise': 'Enterprise',
 
     // Login
@@ -574,6 +609,7 @@ export const translations: Record<Lang, Record<string, string>> = {
 
     // Integrations (submenu)
     'integrations.overview': 'Overview',
+    'integrations.openCore': 'Open Core',
     'integrations.business': 'Business',
     'integrations.enterprise': 'Enterprise',
 
@@ -974,6 +1010,38 @@ export const translations: Record<Lang, Record<string, string>> = {
     'addon.locked': 'Locked',
     'addon.notActivated': 'This add-on is not licensed in this installation. Unlock it via “Upgrade license”.',
     'addon.ent.includesBusiness': 'Includes all Business features — plus:',
+    'addon.included': 'Included',
+
+    // Open Core (free, MPL 2.0)
+    'addon.oc.alwaysIncluded': 'Always included — part of the open-core edition (MPL 2.0), no license required.',
+    'addon.oc.tagline': 'The free, open-source core (MPL 2.0).',
+    'addon.oc.intro': 'These features are included without a license and form the platform’s foundation.',
+    'addon.oc.cat.auth': 'Authentication',
+    'addon.oc.f.localLogin': 'Local login (email/password)',
+    'addon.oc.f.oidc': 'OIDC / SSO (optional, any provider)',
+    'addon.oc.f.twofa': 'Two-factor (TOTP / email code)',
+    'addon.oc.cat.campaigns': 'Recipients & campaigns',
+    'addon.oc.f.csvImport': 'CSV import of recipients',
+    'addon.oc.f.groups': 'Recipient groups',
+    'addon.oc.f.campaignCrud': 'Create & manage campaigns',
+    'addon.oc.f.templates': 'Template system (HTML/Markdown, attachments)',
+    'addon.oc.f.landingPages': 'Landing pages',
+    'addon.oc.cat.delivery': 'Delivery & tracking',
+    'addon.oc.f.smtp': 'Generic SMTP delivery',
+    'addon.oc.f.sendingProfiles': 'Sending profiles',
+    'addon.oc.f.fallbackSmtp': 'Global fallback SMTP',
+    'addon.oc.f.tracking': 'Tracking (open, click, form submit)',
+    'addon.oc.cat.reporting': 'Analytics & reporting',
+    'addon.oc.f.dashboard': 'Detailed dashboard',
+    'addon.oc.f.kpi': 'KPI dashboard',
+    'addon.oc.f.riskScore': 'Risk assessment',
+    'addon.oc.f.managementReports': 'Management reports',
+    'addon.oc.f.csvExport': 'CSV export of results',
+    'addon.oc.cat.operations': 'Operations',
+    'addon.oc.f.i18n': 'Multilingual (DE/EN)',
+    'addon.oc.f.darkMode': 'Light/dark mode',
+    'addon.oc.f.auditLog': 'Audit log',
+    'addon.oc.f.dashboardSettings': 'Settings in the dashboard',
 
     // Business add-on
     'addon.biz.tagline': 'The full feature set for productive awareness operations.',
