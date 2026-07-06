@@ -2,13 +2,24 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-import { Download } from 'lucide-react'
+import { Download, FileText, Lock } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { RiskMeter, type RiskSummary } from '../components/DashboardCharts'
 import PageScaffold from '../components/PageScaffold'
+import { useFeatures } from '../hooks/useFeatures'
 import { useI18n } from '../i18n'
 import { api } from '../services/api'
+
+async function downloadBlob(url: string, filename: string) {
+  const res = await api.get(url, { responseType: 'blob' })
+  const objectUrl = URL.createObjectURL(res.data as Blob)
+  const a = document.createElement('a')
+  a.href = objectUrl
+  a.download = filename
+  a.click()
+  URL.revokeObjectURL(objectUrl)
+}
 
 interface CampaignRow {
   campaign_id: string
@@ -61,9 +72,12 @@ const levelText: Record<string, string> = {
 
 export default function ReportsPage() {
   const { t } = useI18n()
+  const features = useFeatures()
+  const pdfLicensed = Boolean(features?.features?.business) // PDF-Export ist Business
   const [report, setReport] = useState<Report | null>(null)
   const [loading, setLoading] = useState(true)
   const [exporting, setExporting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     api
@@ -75,13 +89,20 @@ export default function ReportsPage() {
   async function exportCsv() {
     setExporting(true)
     try {
-      const res = await api.get('/reports/management/export', { responseType: 'blob' })
-      const url = URL.createObjectURL(res.data as Blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = 'management_report.csv'
-      a.click()
-      URL.revokeObjectURL(url)
+      await downloadBlob('/reports/management/export', 'management_report.csv')
+    } finally {
+      setExporting(false)
+    }
+  }
+
+  async function exportPdf() {
+    if (!pdfLicensed) {
+      setError(t('locked.body'))
+      return
+    }
+    setExporting(true)
+    try {
+      await downloadBlob('/reports/management/pdf', 'management_report.pdf')
     } finally {
       setExporting(false)
     }
@@ -109,16 +130,31 @@ export default function ReportsPage() {
       title={t('rep.title')}
       subtitle={`${t('rep.generated')}: ${new Date(report.generated_at).toLocaleString()}`}
       actions={
-        <button
-          onClick={exportCsv}
-          disabled={exporting}
-          className="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2 text-sm text-text-primary hover:bg-bg disabled:opacity-60"
-        >
-          <Download size={15} />
-          {t('rep.export')}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={exportCsv}
+            disabled={exporting}
+            className="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2 text-sm text-text-primary hover:bg-bg disabled:opacity-60"
+          >
+            <Download size={15} />
+            {t('rep.export')}
+          </button>
+          <button
+            onClick={exportPdf}
+            disabled={exporting}
+            className="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2 text-sm text-text-primary hover:bg-bg disabled:opacity-60"
+          >
+            <FileText size={15} />
+            {t('rep.exportPdf')}
+            <span className="rounded-full bg-green-600 px-1.5 py-0.5 text-[10px] font-semibold uppercase leading-none tracking-wide text-white">
+              {t('badge.business')}
+            </span>
+            {!pdfLicensed && <Lock size={13} className="text-text-secondary" />}
+          </button>
+        </div>
       }
     >
+      {error && <p className="mb-3 text-sm text-status-danger">{error}</p>}
       {/* Kennzahlen + Raten */}
       <div className="mb-6 grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))' }}>
         <div className="elevated rounded-lg border border-border bg-surface p-4">
