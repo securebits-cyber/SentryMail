@@ -112,7 +112,8 @@ Der **Kern** von HumanShield.APP (alle oben genannten Funktionen) ist unter der 
 - **Nachweis-Center** — je eigenes PDF für **DSGVO** (Art. 32), **NIS2** (Art. 21), **ISO 27001** (A.6.3), **Awareness-Nachweis**, **Audit-Bericht**, **Zertifikat** und **Schulungsnachweise**
 
 **Enterprise-Add-on** (enthält alle Business-Funktionen)
-- White-Label, Multi-Tenant, SAML-SSO, AI-Scoring, SIEM-Export u. a.
+- **White-Label** — eigenes Branding (App-Name, Akzentfarben, Logo)
+- geplant: Multi-Tenant, SAML-SSO, AI-Scoring, SIEM-Export u. a.
 
 Ohne Lizenz läuft die Plattform als reiner Open-Core-Betrieb — ohne Fehler, ohne Sperren.
 

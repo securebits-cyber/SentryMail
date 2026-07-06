@@ -112,7 +112,8 @@ The **core** of HumanShield.APP (all features above) is open source under the **
 - **Evidence center** — separate PDF for **GDPR** (Art. 32), **NIS2** (Art. 21), **ISO 27001** (A.6.3), **awareness record**, **audit report**, **certificate** and **training records**
 
 **Enterprise add-on** (includes all Business features)
-- White-label, multi-tenant, SAML SSO, AI scoring, SIEM export, etc.
+- **White-label** — custom branding (app name, accent colors, logo)
+- planned: multi-tenant, SAML SSO, AI scoring, SIEM export, etc.
 
 Without a license the platform runs as pure open core — no errors, no lockouts.
 
