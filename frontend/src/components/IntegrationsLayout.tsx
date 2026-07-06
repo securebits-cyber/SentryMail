@@ -19,9 +19,11 @@ interface NavItem {
 // ohne gueltige Lizenz wird der Punkt als gesperrt markiert.
 const integrationsNav: NavItem[] = [
   { to: '/integrations/overview', labelKey: 'integrations.overview', icon: LayoutGrid },
-  { to: '/integrations/white-label', labelKey: 'integrations.whiteLabel', icon: Palette, feature: 'white_label' },
-  { to: '/integrations/multi-tenant', labelKey: 'integrations.multiTenant', icon: Building2, feature: 'multi_tenant' },
-  { to: '/integrations/ai-scoring', labelKey: 'integrations.aiScoring', icon: Brain, feature: 'ai_scoring' },
+  // White-Label, Multi-Tenant und AI-Scoring sind Bestandteil des Enterprise
+  // Add-ons -> alle drei am selben Feature-Entitlement `enterprise` gegated.
+  { to: '/integrations/white-label', labelKey: 'integrations.whiteLabel', icon: Palette, feature: 'enterprise' },
+  { to: '/integrations/multi-tenant', labelKey: 'integrations.multiTenant', icon: Building2, feature: 'enterprise' },
+  { to: '/integrations/ai-scoring', labelKey: 'integrations.aiScoring', icon: Brain, feature: 'enterprise' },
 ]
 
 const linkClass = ({ isActive }: { isActive: boolean }) =>

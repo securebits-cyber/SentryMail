@@ -38,7 +38,9 @@ MCowBQYDK2VwAyEAPoHQaIQm81BBLDoj2gLB3cmgcij/lZrojZonkYw/oAg=
 -----END PUBLIC KEY-----"""
 
 # Bekannte Add-on-Features (fuer die /features-Antwort ans Frontend).
-KNOWN_FEATURES = ["white_label", "multi_tenant", "ai_scoring"]
+# Genau zwei kostenpflichtige Add-ons: Business und Enterprise. Enterprise
+# impliziert Business (das Enterprise-Lease fuehrt beide Feature-IDs).
+KNOWN_FEATURES = ["business", "enterprise"]
 
 
 def get_or_create_license_state(db: Session) -> LicenseState:
@@ -199,7 +201,7 @@ def features_map(db: Session) -> dict:
 def require_feature(feature_id: str):
     """FastAPI-Dependency: 403, wenn das Feature nicht lizenziert ist.
 
-    Von Add-on-Routern genutzt: `Depends(require_feature("white_label"))`.
+    Von Add-on-Routern genutzt: `Depends(require_feature("enterprise"))`.
     """
 
     def _dependency(
