@@ -22,7 +22,12 @@ export default function EnterpriseAddonPage() {
       groups={[
         {
           title: t('addon.ent.cat.platform'),
-          items: [t('addon.ent.f.whiteLabel'), t('addon.ent.f.multiTenant'), t('addon.ent.f.saml')],
+          items: [
+            t('addon.ent.f.whiteLabel'),
+            t('addon.ent.f.multiTenant'),
+            t('addon.ent.f.saml'),
+            t('addon.ent.f.siem'),
+          ],
         },
         {
           title: t('addon.ent.cat.intelligence'),
