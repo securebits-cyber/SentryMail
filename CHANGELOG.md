@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.3.0](https://github.com/securebitsorg/HumanShield.APP/compare/v0.2.0...v0.3.0) (2026-07-06)
+
+
+### Features
+
+* **2fa:** Passkey-Einrichtung, -Login und -Verwaltung im Frontend (Business) ([842448a](https://github.com/securebitsorg/HumanShield.APP/commit/842448ab8afada007f37ce413d37acaef23b9c26))
+* **landing-pages:** Vorschau im Landing-Page-Editor ([ae711a0](https://github.com/securebitsorg/HumanShield.APP/commit/ae711a0b94ff8ab6dd17f6cd3588f372d73e356c))
+* **ldap:** CA-Zertifikat-Feld in der LDAP-Einstellungsseite ([a0f7452](https://github.com/securebitsorg/HumanShield.APP/commit/a0f745275a7d9d88f8939eb0f54c8b7018b07a30))
+* **reports:** KI-Risikoanalyse über die Nachweise & Zertifikate platzieren ([50f17ae](https://github.com/securebitsorg/HumanShield.APP/commit/50f17ae5ba9a16053ca5bb12879040f28f2ab52e))
+* **ui:** Nutzungs-Anleitung für alle bisher ungeführten Bereiche ([74f687c](https://github.com/securebitsorg/HumanShield.APP/commit/74f687cf2ede2b359bcb18d2ec08700a2cbbea15))
+* **ui:** Premium-Funktionen sichtbar-aber-gesperrt (Passkey, KI-Erstellung) ([ffae773](https://github.com/securebitsorg/HumanShield.APP/commit/ffae7733afb0795777e9503abb0379e5f90b83f8))
+
 ## [0.2.0](https://github.com/securebitsorg/HumanShield.APP/compare/v0.1.0...v0.2.0) (2026-07-06)
 
 
