@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-import { Fingerprint, KeyRound, Mail, Smartphone } from 'lucide-react'
+import { Fingerprint, KeyRound, Lock, Mail, Smartphone } from 'lucide-react'
 import { useState } from 'react'
 import { useFeatures } from '../hooks/useFeatures'
 import { useI18n } from '../i18n'
@@ -132,15 +132,28 @@ export default function TwoFASetup({ onDone, onCancel }: { onDone: (a: TwoFAActi
                 <span className="block text-xs text-text-secondary">{t('tfa.emailDesc')}</span>
               </span>
             </button>
-            {passkeysAvailable && (
-              <button onClick={startPasskey} disabled={busy} className="flex flex-1 items-start gap-3 rounded-lg border border-border p-4 text-left hover:bg-bg">
-                <Fingerprint size={20} className="mt-0.5 text-accent" />
-                <span>
-                  <span className="block text-sm font-medium">{t('prof.2fa.methodPasskey')}</span>
-                  <span className="block text-xs text-text-secondary">{t('tfa.passkeyDesc')}</span>
+            {/* Passkey ist ein Business-Feature: immer sichtbar; ohne Lizenz gesperrt + Badge. */}
+            <button
+              onClick={passkeysAvailable ? startPasskey : () => setError(t('tfa.passkeyLocked'))}
+              disabled={busy}
+              className="flex flex-1 items-start gap-3 rounded-lg border border-border p-4 text-left hover:bg-bg"
+            >
+              <Fingerprint size={20} className="mt-0.5 text-accent" />
+              <span className="min-w-0 flex-1">
+                <span className="flex items-center gap-2 text-sm font-medium">
+                  {t('prof.2fa.methodPasskey')}
+                  {!passkeysAvailable && (
+                    <>
+                      <span className="rounded-full bg-green-600 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-white">
+                        {t('badge.business')}
+                      </span>
+                      <Lock size={12} className="text-text-secondary" />
+                    </>
+                  )}
                 </span>
-              </button>
-            )}
+                <span className="block text-xs text-text-secondary">{t('tfa.passkeyDesc')}</span>
+              </span>
+            </button>
           </div>
           <button onClick={onCancel} className="mt-4 text-sm text-text-secondary hover:underline">{t('common.cancel')}</button>
         </>

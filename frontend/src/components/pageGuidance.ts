@@ -136,13 +136,15 @@ const de: Record<string, Guidance> = {
     note: 'Bei aktivem OIDC müssen Nutzer trotzdem als lokale Konten mit passender E-Mail existieren.',
   },
   profile: {
-    intro: 'Hier änderst du deinen angezeigten Namen und dein Passwort.',
+    intro: 'Hier änderst du deinen angezeigten Namen, dein Passwort und die Zwei-Faktor-Authentifizierung (2FA).',
     steps: [
       'Namen anpassen und speichern.',
       'Zum Passwortwechsel das aktuelle Passwort und zweimal das neue eingeben.',
       'Ein starkes, einzigartiges Passwort verwenden.',
+      '2FA einrichten: Authenticator-App (TOTP) und E-Mail-Einmalcode sind immer verfügbar; Passkey (WebAuthn: Fingerabdruck, Gesicht oder Sicherheitsschlüssel) mit Business-Lizenz.',
+      'Bei der Einrichtung Backup-Codes sicher aufbewahren — sie sind die Wiederherstellung bei Geräteverlust.',
     ],
-    note: 'Deine E-Mail-Adresse und Rolle kann nur ein Admin ändern.',
+    note: 'Deine E-Mail-Adresse und Rolle kann nur ein Admin ändern. Bei Passkey kannst du mehrere Geräte hinterlegen.',
   },
   'settings-ldap': {
     intro:
@@ -456,13 +458,15 @@ const en: Record<string, Guidance> = {
     note: 'With OIDC active, users must still exist as local accounts with a matching email.',
   },
   profile: {
-    intro: 'Here you change your displayed name and your password.',
+    intro: 'Here you change your displayed name, your password and two-factor authentication (2FA).',
     steps: [
       'Adjust the name and save.',
       'To change the password, enter the current password and the new one twice.',
       'Use a strong, unique password.',
+      'Set up 2FA: authenticator app (TOTP) and email one-time code are always available; passkey (WebAuthn: fingerprint, face or security key) requires a Business license.',
+      'During setup, store the backup codes safely — they are the recovery if you lose your device.',
     ],
-    note: 'Your email address and role can only be changed by an admin.',
+    note: 'Your email address and role can only be changed by an admin. With passkeys you can register multiple devices.',
   },
   'settings-ldap': {
     intro:
