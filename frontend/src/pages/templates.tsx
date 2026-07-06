@@ -2,9 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
+import { Lock } from 'lucide-react'
 import { useEffect, useRef, useState, type ChangeEvent } from 'react'
 import PageScaffold from '../components/PageScaffold'
 import TemplateForm, { TemplateFormValues } from '../components/TemplateForm'
+import { useFeatures } from '../hooks/useFeatures'
 import { useI18n } from '../i18n'
 import { api } from '../services/api'
 import type { Template } from '../types'
@@ -16,6 +18,9 @@ type Mode =
 
 export default function TemplatesPage() {
   const { t } = useI18n()
+  // E-Mail-Upload ist ein Business-Feature (Endpunkt liegt im Business-Add-on).
+  const features = useFeatures()
+  const uploadLicensed = Boolean(features?.features?.business)
   const [templates, setTemplates] = useState<Template[]>([])
   const [loading, setLoading] = useState(true)
   const [mode, setMode] = useState<Mode>({ kind: 'list' })
@@ -102,13 +107,20 @@ export default function TemplatesPage() {
       actions={
         <div className="flex items-center gap-2">
           <button
-            onClick={() => fileInputRef.current?.click()}
+            onClick={() => {
+              if (!uploadLicensed) {
+                setError(t('locked.body'))
+                return
+              }
+              fileInputRef.current?.click()
+            }}
             className="flex items-center gap-2 rounded-md border border-border px-4 py-2 text-sm text-text-primary hover:bg-bg"
           >
             {t('tpl.upload')}
-            <span className="rounded-full bg-blue-600 px-1.5 py-0.5 text-[10px] font-semibold uppercase leading-none tracking-wide text-white">
+            <span className="rounded-full bg-green-600 px-1.5 py-0.5 text-[10px] font-semibold uppercase leading-none tracking-wide text-white">
               {t('badge.business')}
             </span>
+            {!uploadLicensed && <Lock size={13} className="text-text-secondary" />}
           </button>
           <button
             onClick={() => setMode({ kind: 'create' })}
