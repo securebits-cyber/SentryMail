@@ -2,8 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-import { KeyRound, Mail, Smartphone } from 'lucide-react'
+import { Fingerprint, KeyRound, Mail, Smartphone } from 'lucide-react'
 import { useState } from 'react'
+import { useFeatures } from '../hooks/useFeatures'
 import { useI18n } from '../i18n'
 import { api } from '../services/api'
 import type { TotpSetup, TwoFAActivated } from '../types'
@@ -24,6 +25,8 @@ function detail(e: unknown, fallback: string): string {
  */
 export default function TwoFASetup({ onDone, onCancel }: { onDone: (a: TwoFAActivated) => void; onCancel: () => void }) {
   const { t } = useI18n()
+  const features = useFeatures()
+  const passkeysAvailable = Boolean(features?.features?.business)
   const [stage, setStage] = useState<'choose' | 'totp' | 'email' | 'backup'>('choose')
   const [totp, setTotp] = useState<TotpSetup | null>(null)
   const [code, setCode] = useState('')
@@ -55,6 +58,38 @@ export default function TwoFASetup({ onDone, onCancel }: { onDone: (a: TwoFAActi
       setStage('email')
     } catch (e) {
       setError(detail(e, t('tfa.err.setup')))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function startPasskey() {
+    setError(null)
+    setBusy(true)
+    try {
+      const options = await api.post('/me/2fa/passkey/register/options')
+      const { startRegistration } = await import('@simplewebauthn/browser')
+      const attResp = await startRegistration({ optionsJSON: options.data })
+      const res = await api.post<{ success: boolean; backup_codes: string[]; access_token: string | null }>(
+        '/me/2fa/passkey/register/verify',
+        { credential: attResp, name: t('tfa.passkeyDefaultName') },
+      )
+      const activatedData: TwoFAActivated = { backup_codes: res.data.backup_codes, access_token: res.data.access_token }
+      if (res.data.backup_codes.length > 0) {
+        setActivated(activatedData)
+        setStage('backup')
+      } else {
+        // Weiterer Passkey (nicht die erste Aktivierung) -> keine neuen Backup-Codes.
+        onDone(activatedData)
+      }
+    } catch (e) {
+      // Abbruch durch den Nutzer im Browser-Dialog ist kein echter Fehler.
+      const name = (e as { name?: string })?.name
+      if (name === 'NotAllowedError' || name === 'AbortError') {
+        setError(t('tfa.passkeyCancelled'))
+      } else {
+        setError(detail(e, t('tfa.err.passkey')))
+      }
     } finally {
       setBusy(false)
     }
@@ -97,6 +132,15 @@ export default function TwoFASetup({ onDone, onCancel }: { onDone: (a: TwoFAActi
                 <span className="block text-xs text-text-secondary">{t('tfa.emailDesc')}</span>
               </span>
             </button>
+            {passkeysAvailable && (
+              <button onClick={startPasskey} disabled={busy} className="flex flex-1 items-start gap-3 rounded-lg border border-border p-4 text-left hover:bg-bg">
+                <Fingerprint size={20} className="mt-0.5 text-accent" />
+                <span>
+                  <span className="block text-sm font-medium">{t('prof.2fa.methodPasskey')}</span>
+                  <span className="block text-xs text-text-secondary">{t('tfa.passkeyDesc')}</span>
+                </span>
+              </button>
+            )}
           </div>
           <button onClick={onCancel} className="mt-4 text-sm text-text-secondary hover:underline">{t('common.cancel')}</button>
         </>

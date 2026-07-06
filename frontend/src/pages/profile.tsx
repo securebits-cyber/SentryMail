@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-import { ShieldCheck } from 'lucide-react'
+import { Fingerprint, ShieldCheck, Trash2 } from 'lucide-react'
 import { FormEvent, useEffect, useState } from 'react'
 import Badge from '../components/Badge'
 import PageScaffold from '../components/PageScaffold'
@@ -35,9 +35,49 @@ export default function ProfilePage() {
   const [twofaPw, setTwofaPw] = useState('')
   const [newBackup, setNewBackup] = useState<string[] | null>(null)
   const [twofaMsg, setTwofaMsg] = useState<{ kind: 'error' | 'info'; text: string } | null>(null)
+  const [passkeys, setPasskeys] = useState<{ id: string; name: string; created_at: string | null }[]>([])
+  const [passkeyBusy, setPasskeyBusy] = useState(false)
 
   function loadTwofa() {
     api.get<TwoFAStatus>('/me/2fa').then((res) => setTwofa(res.data))
+  }
+
+  function loadPasskeys() {
+    api
+      .get<{ id: string; name: string; created_at: string | null }[]>('/me/2fa/passkey')
+      .then((res) => setPasskeys(res.data))
+      .catch(() => setPasskeys([]))
+  }
+
+  async function addPasskey() {
+    setTwofaMsg(null)
+    setPasskeyBusy(true)
+    try {
+      const options = await api.post('/me/2fa/passkey/register/options')
+      const { startRegistration } = await import('@simplewebauthn/browser')
+      const attResp = await startRegistration({ optionsJSON: options.data })
+      await api.post('/me/2fa/passkey/register/verify', { credential: attResp, name: t('tfa.passkeyDefaultName') })
+      loadPasskeys()
+      setTwofaMsg({ kind: 'info', text: t('prof.2fa.passkeyAdded') })
+    } catch (e) {
+      const name = (e as { name?: string })?.name
+      if (name !== 'NotAllowedError' && name !== 'AbortError') {
+        setTwofaMsg({ kind: 'error', text: errText(e, t('prof.2fa.passkeyErr')) })
+      }
+    } finally {
+      setPasskeyBusy(false)
+    }
+  }
+
+  async function deletePasskey(id: string) {
+    setTwofaMsg(null)
+    try {
+      await api.delete(`/me/2fa/passkey/${id}`)
+      loadPasskeys()
+      loadTwofa()
+    } catch (e) {
+      setTwofaMsg({ kind: 'error', text: errText(e, t('prof.2fa.passkeyErr')) })
+    }
   }
 
   useEffect(() => {
@@ -47,6 +87,10 @@ export default function ProfilePage() {
     })
     loadTwofa()
   }, [])
+
+  useEffect(() => {
+    if (twofa?.method === 'passkey') loadPasskeys()
+  }, [twofa?.method])
 
   async function saveName(event: FormEvent) {
     event.preventDefault()
@@ -201,10 +245,53 @@ export default function ProfilePage() {
               <div className="flex flex-wrap items-center gap-3 text-sm">
                 <Badge tone="success">{t('common.active')}</Badge>
                 <span className="text-text-secondary">
-                  {t('prof.2fa.method')}: {twofa.method === 'totp' ? t('prof.2fa.methodTotp') : t('prof.2fa.methodEmail')} ·{' '}
-                  {t('prof.2fa.backupRemaining')}: <span className="font-mono text-text-primary">{twofa.backup_codes_remaining}</span>
+                  {t('prof.2fa.method')}:{' '}
+                  {twofa.method === 'totp'
+                    ? t('prof.2fa.methodTotp')
+                    : twofa.method === 'passkey'
+                      ? t('prof.2fa.methodPasskey')
+                      : t('prof.2fa.methodEmail')}{' '}
+                  · {t('prof.2fa.backupRemaining')}:{' '}
+                  <span className="font-mono text-text-primary">{twofa.backup_codes_remaining}</span>
                 </span>
               </div>
+
+              {twofa.method === 'passkey' && (
+                <div className="flex flex-col gap-2 rounded-md border border-border bg-surface p-4">
+                  <div className="mb-1 flex items-center gap-2 text-sm font-medium">
+                    <Fingerprint size={16} className="text-accent" /> {t('prof.2fa.passkeys')}
+                  </div>
+                  {passkeys.length === 0 ? (
+                    <p className="text-sm text-text-secondary">{t('prof.2fa.passkeysEmpty')}</p>
+                  ) : (
+                    <ul className="flex flex-col gap-1">
+                      {passkeys.map((p) => (
+                        <li key={p.id} className="flex items-center justify-between gap-3 text-sm">
+                          <span>
+                            {p.name}
+                            {p.created_at && (
+                              <span className="ml-2 text-xs text-text-secondary">{new Date(p.created_at).toLocaleDateString()}</span>
+                            )}
+                          </span>
+                          <button
+                            onClick={() => deletePasskey(p.id)}
+                            className="flex items-center gap-1 text-xs text-status-danger hover:underline"
+                          >
+                            <Trash2 size={13} /> {t('common.remove')}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  <button
+                    onClick={addPasskey}
+                    disabled={passkeyBusy}
+                    className="mt-1 w-fit rounded-md border border-border px-3 py-1.5 text-sm text-text-primary hover:bg-bg disabled:opacity-60"
+                  >
+                    {passkeyBusy ? t('prof.2fa.passkeyAdding') : t('prof.2fa.addPasskey')}
+                  </button>
+                </div>
+              )}
 
               {newBackup && (
                 <div>
