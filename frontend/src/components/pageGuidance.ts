@@ -72,6 +72,7 @@ const de: Record<string, Guidance> = {
     steps: [
       'Namen vergeben und den Seiteninhalt gestalten — als HTML oder im Markdown-Modus (z. B. eine nachgebaute Login-Seite).',
       'Für ein Eingabeformular HTML verwenden; alle Formulare werden beim Ausliefern automatisch auf die Tracking-URL umgebogen.',
+      'Über „Vorschau“ das Ergebnis mit Beispieldaten prüfen (Formular/Skripte sind in der Vorschau deaktiviert).',
       '„Daten-Capture“ aktivieren, wenn abgeschickte Formulardaten als Signal erfasst werden sollen.',
       'Passwörter nur erfassen, wenn wirklich nötig — Datenschutz und interne Richtlinien beachten.',
       'Optional eine Weiterleitung oder Aufklärungsseite nach dem Absenden hinterlegen.',
@@ -391,6 +392,7 @@ const en: Record<string, Guidance> = {
     steps: [
       'Give it a name and design the page content — as HTML or in markdown mode (e.g. a cloned login page).',
       'For an input form use HTML; all forms are automatically rewritten to the tracking URL on delivery.',
+      'Use “Preview” to check the result with sample data (form/scripts are disabled in the preview).',
       'Enable “data capture” if submitted form data should be recorded as a signal.',
       'Only capture passwords if truly necessary — mind data protection and internal policies.',
       'Optionally add a redirect or awareness page after submission.',
