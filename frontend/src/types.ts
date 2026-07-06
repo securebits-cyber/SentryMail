@@ -117,12 +117,16 @@ export interface LandingPage {
   updated_at: string
 }
 
+export type Criticality = 'low' | 'normal' | 'high'
+
 export interface GroupMember {
   id?: string
   email: string
   first_name?: string | null
   last_name?: string | null
   position?: string | null
+  department?: string | null
+  criticality?: Criticality | null
 }
 
 export interface Group {

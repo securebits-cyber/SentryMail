@@ -139,10 +139,16 @@ class TemplateOut(TemplateBase):
 
 # --- Recipient ---
 
+Criticality = Literal["low", "normal", "high"]
+
+
 class RecipientCreate(BaseModel):
     email: EmailStr
     first_name: str | None = None
     last_name: str | None = None
+    position: str | None = None
+    department: str | None = None
+    criticality: Criticality | None = None
 
 
 class RecipientOut(BaseModel):
@@ -204,6 +210,9 @@ class RecipientResultOut(BaseModel):
     email: str
     first_name: str | None
     last_name: str | None
+    position: str | None = None
+    department: str | None = None
+    criticality: str | None = None
     sent_at: datetime | None
     opened: bool
     clicked: bool
@@ -330,7 +339,9 @@ class GroupMemberIn(BaseModel):
     email: EmailStr
     first_name: str | None = None
     last_name: str | None = None
-    position: str | None = None
+    position: str | None = None          # Funktion im Unternehmen
+    department: str | None = None
+    criticality: Criticality | None = None
 
 
 class GroupMemberOut(GroupMemberIn):
