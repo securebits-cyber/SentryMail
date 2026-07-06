@@ -4,6 +4,7 @@
 
 import { Lock, Sparkles } from 'lucide-react'
 import { useState } from 'react'
+import TierBadge from './TierBadge'
 import { useFeatures } from '../hooks/useFeatures'
 import { useI18n } from '../i18n'
 import { api } from '../services/api'
@@ -31,9 +32,7 @@ export default function AiGenerateBar<T>({ endpoint, onResult, placeholder }: Ai
         <div className="mb-1 flex flex-wrap items-center gap-2 text-sm font-medium text-text-secondary">
           <Sparkles size={15} />
           {t('ai.gen.heading')}
-          <span className="rounded-full bg-green-600 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-white">
-            {t('badge.business')}
-          </span>
+          <TierBadge tier="business" />
           <Lock size={12} />
         </div>
         <p className="text-xs text-text-secondary">{t('ai.gen.locked')}</p>

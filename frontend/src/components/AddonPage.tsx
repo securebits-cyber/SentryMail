@@ -4,6 +4,7 @@
 
 import { Check, Lock, type LucideIcon } from 'lucide-react'
 import PageScaffold from './PageScaffold'
+import TierBadge from './TierBadge'
 import { useFeatures } from '../hooks/useFeatures'
 import { useI18n } from '../i18n'
 
@@ -47,11 +48,13 @@ export default function AddonPage({ tier, title, icon: Icon, tagline, intro, gro
           <span className={`flex h-10 w-10 items-center justify-center rounded-lg ${style.tint}`}>
             <Icon size={20} />
           </span>
-          <span
-            className={`rounded-full px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-white ${style.badge}`}
-          >
-            {t(style.labelKey)}
-          </span>
+          {tier === 'opencore' ? (
+            <span className={`rounded-full px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-white ${style.badge}`}>
+              {t(style.labelKey)}
+            </span>
+          ) : (
+            <TierBadge tier={tier} className="px-2 py-0.5 text-xs" />
+          )}
           <span
             className={`ml-auto rounded-full px-2 py-0.5 text-xs font-semibold ${
               active ? `${style.badge} text-white` : 'border border-border text-text-secondary'
