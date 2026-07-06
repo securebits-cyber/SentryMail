@@ -107,6 +107,7 @@ Der **Kern** von HumanShield.APP (alle oben genannten Funktionen) ist unter der 
 - **Business-Reporting** — Executive Report (PDF), Trendanalyse und Benutzerentwicklung
 - **Wiederkehrende Kampagnen** — automatischer, terminierter Wiederversand per Scheduler
 - **Mehrstufige Kampagnen** — Kampagnen-Sequenzen (mehrere Stufen mit zeitlichem Abstand)
+- **Compliance-Nachweise** — Compliance-Report (DSGVO/NIS2/ISO 27001) und Awareness-Zertifikat als PDF
 
 **Enterprise-Add-on** (enthält alle Business-Funktionen)
 - White-Label, Multi-Tenant, SAML-SSO, AI-Scoring, SIEM-Export u. a.
