@@ -5,6 +5,7 @@
 """CRUD- und Versand-Endpunkte fuer Kampagnen."""
 import uuid
 
+from aiosmtplib.errors import SMTPException
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -12,7 +13,7 @@ from app.auth.permissions import get_current_user
 from app.database import get_db
 from app.models import Campaign, GroupMember, Recipient, User
 from app.schemas import CampaignCreate, CampaignOut, CampaignUpdate
-from app.services.campaign import send_campaign
+from app.services.campaign import SmtpNotConfiguredError, send_campaign
 from app.utils.security import generate_tracking_token
 
 router = APIRouter(prefix="/campaigns", tags=["campaigns"])
@@ -108,5 +109,13 @@ async def trigger_campaign(campaign_id: uuid.UUID, db: Session = Depends(get_db)
     if campaign is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Kampagne nicht gefunden")
 
-    results = await send_campaign(db, campaign)
+    try:
+        results = await send_campaign(db, campaign)
+    except SmtpNotConfiguredError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except SMTPException as e:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"SMTP-Verbindung fehlgeschlagen: {e}",
+        )
     return {"campaign_id": campaign_id, **results}

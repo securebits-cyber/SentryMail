@@ -46,8 +46,22 @@ def _smtp_params(db: Session, campaign: Campaign) -> dict:
     }
 
 
+class SmtpNotConfiguredError(Exception):
+    """Kein gueltiges SMTP fuer den Versand hinterlegt (Profil oder Fallback)."""
+
+
 async def send_campaign(db: Session, campaign: Campaign) -> dict[str, int]:
     """Versendet eine Kampagne an alle noch nicht versendeten Empfaenger."""
+    smtp = _smtp_params(db, campaign)
+    host = (smtp.get("host") or "").strip()
+    # Ohne gueltigen Host wuerde _open_smtp mit einer ungefangenen Exception
+    # abbrechen (500, nichts versendet). Vorher klar melden.
+    if not host or host.endswith("example.com"):
+        raise SmtpNotConfiguredError(
+            "Kein gültiges SMTP konfiguriert. Wähle für die Kampagne ein Sending Profile "
+            "oder richte das Fallback-SMTP unter Einstellungen → SMTP ein."
+        )
+
     recipients = db.query(Recipient).filter(Recipient.campaign_id == campaign.id, Recipient.sent_at.is_(None)).all()
 
     recipient_payload = [
@@ -62,7 +76,7 @@ async def send_campaign(db: Session, campaign: Campaign) -> dict[str, int]:
 
     base = f"https://{settings.APP_DOMAIN}/track"
     results = await send_campaign_messages(
-        **_smtp_params(db, campaign),
+        **smtp,
         subject=campaign.template.subject,
         template_html=campaign.template.html_content,
         template_text=campaign.template.text_content,
