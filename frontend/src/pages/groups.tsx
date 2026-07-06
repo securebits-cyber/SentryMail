@@ -80,6 +80,18 @@ export default function GroupsPage() {
     }
   }
 
+  async function handleEntraImport(summary: GroupSummary) {
+    if (!window.confirm(t('grp.entra.confirm', { name: summary.name }))) return
+    setMessage({ kind: 'info', text: t('grp.entra.running') })
+    try {
+      const res = await api.post<{ success: boolean; detail: string }>(`/groups/${summary.id}/import/entra`)
+      setMessage({ kind: res.data.success ? 'info' : 'error', text: res.data.detail })
+      if (res.data.success) load()
+    } catch {
+      setMessage({ kind: 'error', text: t('grp.entra.err') })
+    }
+  }
+
   if (mode.kind !== 'list') {
     return (
       <PageScaffold title={mode.kind === 'edit' ? t('grp.editTitle') : t('grp.newTitle')}>
@@ -138,6 +150,9 @@ export default function GroupsPage() {
                   <td className="py-2 text-right whitespace-nowrap">
                     <button onClick={() => handleLdapImport(group)} className="mr-3 text-text-secondary hover:text-accent hover:underline">
                       {t('grp.ldapImport')}
+                    </button>
+                    <button onClick={() => handleEntraImport(group)} className="mr-3 text-text-secondary hover:text-accent hover:underline">
+                      {t('grp.entraImport')}
                     </button>
                     <button onClick={() => openEdit(group)} className="mr-3 text-text-secondary hover:text-accent hover:underline">
                       {t('common.edit')}

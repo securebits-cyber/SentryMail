@@ -98,6 +98,7 @@ Der **Kern** von HumanShield.APP (alle oben genannten Funktionen) ist unter der 
 
 **Business-Add-on**
 - **LDAP**-Verzeichnisimport von Empfängern
+- **Azure AD / Entra ID**-Import von Empfängern (Microsoft Graph)
 - **E-Mail-Upload** (`.eml`) als Vorlagen-Entwurf
 - **Vorlagen-Bibliothek** (fertige Awareness-Vorlagen: DHL, Amazon, Rechnung, M365, HR, Bank, PayPal, LinkedIn, PDF-Köder, QR-Kampagne)
 - **Angriffsarten** — Spear-Phishing-, Whaling- (CEO-Fraud) und dateibasierte Vorlagen (Köder-Anhang) in der Bibliothek
