@@ -2,11 +2,37 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-"""Tracking-Logik: Events zu Empfaengern erfassen und Kampagnen-Ergebnisse aggregieren."""
+"""Tracking-Logik: Events zu Empfaengern erfassen und Kampagnen-Ergebnisse aggregieren.
+
+Event-Hook: Add-ons koennen sich fuer erfasste Tracking-Events registrieren
+(z. B. Webhooks im Business-Add-on), ohne dass der Core deren Logik kennt. Ein
+Listener bekommt (event, recipient); Fehler eines Listeners brechen das Tracking
+nicht ab.
+"""
+import logging
+from collections.abc import Callable
+
 from sqlalchemy.orm import Session
 
 from app.models import Recipient, TrackingEvent, TrackingEventType
 from app.schemas import CampaignResultOut, RecipientResultOut
+
+logger = logging.getLogger(__name__)
+
+_event_listeners: list[Callable[[TrackingEvent, Recipient], None]] = []
+
+
+def register_event_listener(listener: Callable[[TrackingEvent, Recipient], None]) -> None:
+    """Registriert einen Listener fuer erfasste Tracking-Events (von Add-ons)."""
+    _event_listeners.append(listener)
+
+
+def _notify(event: TrackingEvent, recipient: Recipient) -> None:
+    for listener in _event_listeners:
+        try:
+            listener(event, recipient)
+        except Exception:  # noqa: BLE001 - ein Listener darf das Tracking nie abbrechen
+            logger.exception("Tracking-Event-Listener fehlgeschlagen")
 
 
 def record_event(
@@ -29,6 +55,7 @@ def record_event(
     db.add(event)
     db.commit()
     db.refresh(event)
+    _notify(event, recipient)
     return event
 
 
