@@ -480,6 +480,8 @@ class EngagementAnalytics(BaseModel):
     browsers: list[BreakdownSlice]
     operating_systems: list[BreakdownSlice]
     devices: list[BreakdownSlice]
+    languages: list[BreakdownSlice]
+    resolutions: list[BreakdownSlice]
     utm_sources: list[BreakdownSlice]
 
 

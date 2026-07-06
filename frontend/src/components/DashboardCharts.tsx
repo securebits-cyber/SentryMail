@@ -137,6 +137,8 @@ export interface EngagementAnalytics {
   browsers: BreakdownSlice[]
   operating_systems: BreakdownSlice[]
   devices: BreakdownSlice[]
+  languages: BreakdownSlice[]
+  resolutions: BreakdownSlice[]
   utm_sources: BreakdownSlice[]
 }
 
@@ -192,6 +194,8 @@ export function EngagementBreakdown({ analytics }: { analytics: EngagementAnalyt
           <BarList title={t('analytics.browsers')} slices={analytics.browsers} total={analytics.total_events} />
           <BarList title={t('analytics.os')} slices={analytics.operating_systems} total={analytics.total_events} />
           <BarList title={t('analytics.devices')} slices={analytics.devices} total={analytics.total_events} />
+          <BarList title={t('analytics.languages')} slices={analytics.languages} total={analytics.total_events} />
+          <BarList title={t('analytics.resolutions')} slices={analytics.resolutions} total={analytics.total_events} />
           <BarList title={t('analytics.utm')} slices={analytics.utm_sources} total={analytics.total_events} />
         </div>
       )}

@@ -18,7 +18,7 @@ from sqlalchemy.orm import Session
 from app.config import get_settings
 from app.database import get_db
 from app.models import Recipient, TrackingEventType
-from app.services.tracking import notify_submission, record_event
+from app.services.tracking import notify_submission, record_client_meta, record_event
 
 settings = get_settings()
 
@@ -84,18 +84,34 @@ def track_landing(t: str, request: Request, db: Session = Depends(get_db)):
     page = campaign.landing_page if campaign is not None else None
     html = page.html_content if page is not None else _DEFAULT_PAGE
 
-    # Alle Formulare auf die Submit-Erfassung umbiegen (mit Tracking-Token).
+    # Alle Formulare auf die Submit-Erfassung umbiegen (mit Tracking-Token) und
+    # per Beacon clientseitige Metadaten (Aufloesung/Sprache) nachtragen.
     inject = (
         "<script>document.addEventListener('DOMContentLoaded',function(){"
         "document.querySelectorAll('form').forEach(function(f){"
         f"f.setAttribute('action','/track/submit?t={t}');f.setAttribute('method','POST');"
-        "});});</script>"
+        "});"
+        "try{new Image().src='/track/client?t=" + t + "'"
+        "+'&res='+encodeURIComponent(screen.width+'x'+screen.height)"
+        "+'&lang='+encodeURIComponent(navigator.language||'');}catch(e){}"
+        "});</script>"
     )
     if "</body>" in html:
         html = html.replace("</body>", inject + "</body>", 1)
     else:
         html = html + inject
     return HTMLResponse(content=html)
+
+
+@router.get("/client")
+def track_client(t: str, db: Session = Depends(get_db), res: str | None = None, lang: str | None = None):
+    """Beacon der Landing Page: traegt Bildschirmaufloesung/Sprache nach.
+
+    Liefert immer den 1x1-Pixel zurueck (verraet dem Empfaenger nichts, auch bei
+    unbekanntem Token).
+    """
+    record_client_meta(db, tracking_token=t, screen_resolution=res, client_language=lang)
+    return Response(content=_TRANSPARENT_PIXEL, media_type="image/gif")
 
 
 @router.post("/submit")

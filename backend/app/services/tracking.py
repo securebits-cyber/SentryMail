@@ -10,6 +10,7 @@ Listener bekommt (event, recipient); Fehler eines Listeners brechen das Tracking
 nicht ab.
 """
 import logging
+import re
 from collections.abc import Callable
 
 from sqlalchemy.orm import Session
@@ -22,6 +23,9 @@ logger = logging.getLogger(__name__)
 
 _event_listeners: list[Callable[[TrackingEvent, Recipient], None]] = []
 _submission_handlers: list[Callable[[Recipient, dict], None]] = []
+
+# Erlaubtes Format der clientseitigen Aufloesung, z. B. "1920x1080".
+_VALID_RESOLUTION = re.compile(r"^\d{2,5}x\d{2,5}$")
 
 
 def register_event_listener(listener: Callable[[TrackingEvent, Recipient], None]) -> None:
@@ -90,6 +94,45 @@ def record_event(
     db.refresh(event)
     _notify(event, recipient)
     return event
+
+
+def record_client_meta(
+    db: Session,
+    tracking_token: str,
+    screen_resolution: str | None = None,
+    client_language: str | None = None,
+) -> bool:
+    """Traegt clientseitig erfasste Metadaten am juengsten Klick-Event nach.
+
+    Wird vom Landing-Page-Beacon aufgerufen (Bildschirmaufloesung/Sprache stehen
+    nur im Browser zur Verfuegung). Aktualisiert nur leere Felder und nur, wenn
+    der Token bekannt ist. Gibt zurueck, ob ein Event aktualisiert wurde.
+    """
+    if not screen_resolution and not client_language:
+        return False
+    recipient = db.query(Recipient).filter(Recipient.tracking_token == tracking_token).first()
+    if recipient is None:
+        return False
+
+    event = (
+        db.query(TrackingEvent)
+        .filter(
+            TrackingEvent.recipient_id == recipient.id,
+            TrackingEvent.event_type == TrackingEventType.CLICKED,
+        )
+        .order_by(TrackingEvent.occurred_at.desc())
+        .first()
+    )
+    if event is None:
+        return False
+
+    # Plausibilitaet: "1920x1080"-Muster, sonst verwerfen (unvertrauenswuerdiger Client).
+    if screen_resolution and _VALID_RESOLUTION.match(screen_resolution) and not event.screen_resolution:
+        event.screen_resolution = screen_resolution
+    if client_language and not event.client_language:
+        event.client_language = client_language[:16]
+    db.commit()
+    return True
 
 
 def get_campaign_results(db: Session, campaign_id) -> CampaignResultOut:
