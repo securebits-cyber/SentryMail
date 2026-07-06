@@ -13,7 +13,13 @@ from sqlalchemy.orm import Session
 from app.auth.permissions import get_current_user
 from app.database import get_db
 from app.models import User
-from app.schemas import DashboardSummary, FailedRecipient, RiskSummary, TimelinePoint
+from app.schemas import (
+    DashboardSummary,
+    EngagementAnalytics,
+    FailedRecipient,
+    RiskSummary,
+    TimelinePoint,
+)
 from app.services import reporting
 
 router = APIRouter(prefix="/dashboard", tags=["dashboard"])
@@ -37,3 +43,8 @@ def risk(db: Session = Depends(get_db), _: User = Depends(get_current_user)):
 @router.get("/timeline", response_model=list[TimelinePoint])
 def timeline(db: Session = Depends(get_db), _: User = Depends(get_current_user)):
     return reporting.timeline(db)
+
+
+@router.get("/analytics", response_model=EngagementAnalytics)
+def analytics(db: Session = Depends(get_db), _: User = Depends(get_current_user)):
+    return reporting.engagement_analytics(db)

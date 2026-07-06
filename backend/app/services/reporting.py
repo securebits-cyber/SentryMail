@@ -16,8 +16,10 @@ from sqlalchemy.orm import Session
 
 from app.models import Campaign, Recipient, TrackingEvent, TrackingEventType
 from app.schemas import (
+    BreakdownSlice,
     CampaignRisk,
     DashboardSummary,
+    EngagementAnalytics,
     FailedRecipient,
     ManagementReport,
     ReportCampaignRow,
@@ -25,6 +27,8 @@ from app.schemas import (
     RiskSummary,
     TimelinePoint,
 )
+
+_ENGAGED = [TrackingEventType.CLICKED, TrackingEventType.SUBMITTED]
 
 
 def risk_points(types) -> int:
@@ -146,6 +150,40 @@ def timeline(db: Session) -> list[TimelinePoint]:
         point = by_date.setdefault(str(day_value), {"opened": 0, "clicked": 0, "submitted": 0})
         point[event_type.value] = count
     return [TimelinePoint(date=date, **counts) for date, counts in sorted(by_date.items())]
+
+
+def _breakdown(db: Session, column, *, drop_null: bool = False) -> list[BreakdownSlice]:
+    """Zaehlt Interaktions-Events (Klick/Absenden) gruppiert nach ``column``.
+
+    NULL-Werte werden als "Unbekannt" gebuendelt; mit ``drop_null`` (z. B. fuer
+    UTM-Quellen) ganz ausgelassen. Absteigend nach Haeufigkeit sortiert.
+    """
+    query = db.query(column, func.count().label("count")).filter(
+        TrackingEvent.event_type.in_(_ENGAGED)
+    )
+    if drop_null:
+        query = query.filter(column.isnot(None))
+    rows = query.group_by(column).all()
+    slices = [BreakdownSlice(label=value or "Unbekannt", count=count) for value, count in rows]
+    return sorted(slices, key=lambda s: s.count, reverse=True)
+
+
+def engagement_analytics(db: Session) -> EngagementAnalytics:
+    """Aufschluesselung der Interaktionen nach Browser, OS, Geraet und UTM-Quelle."""
+    total = (
+        db.query(func.count())
+        .select_from(TrackingEvent)
+        .filter(TrackingEvent.event_type.in_(_ENGAGED))
+        .scalar()
+        or 0
+    )
+    return EngagementAnalytics(
+        total_events=total,
+        browsers=_breakdown(db, TrackingEvent.browser),
+        operating_systems=_breakdown(db, TrackingEvent.os),
+        devices=_breakdown(db, TrackingEvent.device_type),
+        utm_sources=_breakdown(db, TrackingEvent.utm_source, drop_null=True),
+    )
 
 
 def failed_recipients(db: Session, limit: int | None = None) -> list[FailedRecipient]:

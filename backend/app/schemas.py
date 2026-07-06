@@ -457,6 +457,21 @@ class TimelinePoint(BaseModel):
     submitted: int = 0
 
 
+class BreakdownSlice(BaseModel):
+    label: str
+    count: int
+
+
+class EngagementAnalytics(BaseModel):
+    """Aufschluesselung der Interaktionen (Klick/Absenden) nach Kontext-
+    Metadaten der Tracking-Events."""
+    total_events: int
+    browsers: list[BreakdownSlice]
+    operating_systems: list[BreakdownSlice]
+    devices: list[BreakdownSlice]
+    utm_sources: list[BreakdownSlice]
+
+
 # --- Management Report (Open Core) ---
 
 class ReportCampaignRow(BaseModel):
