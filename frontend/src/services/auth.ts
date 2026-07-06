@@ -16,10 +16,25 @@ export function loginUrl(): string {
   return `${apiUrl}/auth/login`
 }
 
+export function samlLoginUrl(): string {
+  return `${apiUrl}/auth/saml/login`
+}
+
 export async function getAuthConfig(): Promise<{ oidc_enabled: boolean }> {
   const response = await fetch(`${apiUrl}/auth/config`)
   if (!response.ok) return { oidc_enabled: false }
   return response.json()
+}
+
+/** SAML ist ein Enterprise-Add-on-Endpunkt; ohne Add-on/Config ist er nicht da. */
+export async function getSamlConfig(): Promise<{ saml_enabled: boolean }> {
+  try {
+    const response = await fetch(`${apiUrl}/auth/saml/config`)
+    if (!response.ok) return { saml_enabled: false }
+    return response.json()
+  } catch {
+    return { saml_enabled: false }
+  }
 }
 
 export interface LoginResult {

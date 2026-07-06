@@ -8,7 +8,7 @@ import TwoFASetup from '../components/TwoFASetup'
 import LanguageSwitcher from '../components/LanguageSwitcher'
 import { useBranding } from '../components/BrandingProvider'
 import { useI18n } from '../i18n'
-import { getAuthConfig, loginLocal, loginUrl, loginVerify2fa, setToken } from '../services/auth'
+import { getAuthConfig, getSamlConfig, loginLocal, loginUrl, loginVerify2fa, samlLoginUrl, setToken } from '../services/auth'
 
 const fieldClass = 'rounded-md border border-border bg-surface px-3 py-2 text-text-primary'
 const primaryBtn = 'rounded-md bg-accent px-5 py-2 font-medium text-white disabled:opacity-60'
@@ -22,6 +22,7 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [oidcEnabled, setOidcEnabled] = useState(false)
+  const [samlEnabled, setSamlEnabled] = useState(false)
 
   // 2FA-Zwischenschritt
   const [stage, setStage] = useState<'password' | 'verify' | 'setup'>('password')
@@ -31,6 +32,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     getAuthConfig().then((config) => setOidcEnabled(config.oidc_enabled))
+    getSamlConfig().then((config) => setSamlEnabled(config.saml_enabled))
   }, [])
 
   async function handlePassword(event: FormEvent) {
@@ -105,6 +107,12 @@ export default function LoginPage() {
           {oidcEnabled && (
             <a href={loginUrl()} className="text-sm text-text-secondary underline">
               {t('login.sso')}
+            </a>
+          )}
+
+          {samlEnabled && (
+            <a href={samlLoginUrl()} className="text-sm text-text-secondary underline">
+              {t('login.ssoSaml')}
             </a>
           )}
         </>
