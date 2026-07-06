@@ -201,6 +201,11 @@ class Recipient(Base):
     last_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
     tracking_token: Mapped[str] = mapped_column(String(64), unique=True, index=True, nullable=False)
     sent_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    # Denormalisierter Schnappschuss aus dem GroupMember zum Zeitpunkt des Kampagnen-
+    # aufbaus - erlaubt Abteilungsvergleich und Kritikalitaet je Kampagne.
+    position: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    department: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    criticality: Mapped[str | None] = mapped_column(String(16), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     campaign: Mapped["Campaign"] = relationship(back_populates="recipients")
@@ -366,7 +371,10 @@ class GroupMember(Base):
     email: Mapped[str] = mapped_column(String(320), nullable=False)
     first_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
     last_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    position: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    position: Mapped[str | None] = mapped_column(String(255), nullable=True)  # Funktion im Unternehmen
+    department: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    # Kritikalitaet der Person fuers Human Risk Management: "low" | "normal" | "high".
+    criticality: Mapped[str | None] = mapped_column(String(16), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     group: Mapped["Group"] = relationship(back_populates="members")

@@ -545,6 +545,11 @@ export const translations: Record<Lang, Record<string, string>> = {
     // Gruppen-Formular
     'grf.manualAdd': 'Empfänger manuell hinzufügen',
     'grf.position': 'Position',
+    'grf.department': 'Abteilung',
+    'grf.criticality': 'Kritikalität',
+    'crit.low': 'Niedrig',
+    'crit.normal': 'Normal',
+    'crit.high': 'Hoch',
     'grf.add': 'Hinzufügen',
     'grf.csvLabel': 'Empfänger per CSV (email,first_name,last_name,position)',
     'grf.addCsv': 'Aus CSV hinzufügen',
@@ -1232,6 +1237,11 @@ export const translations: Record<Lang, Record<string, string>> = {
     // Group form
     'grf.manualAdd': 'Add recipient manually',
     'grf.position': 'Position',
+    'grf.department': 'Department',
+    'grf.criticality': 'Criticality',
+    'crit.low': 'Low',
+    'crit.normal': 'Normal',
+    'crit.high': 'High',
     'grf.add': 'Add',
     'grf.csvLabel': 'Recipients via CSV (email,first_name,last_name,position)',
     'grf.addCsv': 'Add from CSV',
