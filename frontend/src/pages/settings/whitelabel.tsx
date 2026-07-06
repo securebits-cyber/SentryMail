@@ -72,14 +72,14 @@ export default function WhitelabelSettingsPage() {
   if (features === null) return <p className="text-text-secondary">{t('common.loadingSettings')}</p>
   if (!licensed)
     return (
-      <PageScaffold title={t('wl.title')} subtitle={t('wl.subtitle')} breadcrumb={breadcrumb}>
+      <PageScaffold title={t('wl.title')} subtitle={t('wl.subtitle')} breadcrumb={breadcrumb} guidanceKey="settings-whitelabel">
         <LockedFeatureNotice tier="enterprise" />
       </PageScaffold>
     )
   if (!form) return <p className="text-text-secondary">{t('common.loadingSettings')}</p>
 
   return (
-    <PageScaffold title={t('wl.title')} subtitle={t('wl.subtitle')} breadcrumb={breadcrumb}>
+    <PageScaffold title={t('wl.title')} subtitle={t('wl.subtitle')} breadcrumb={breadcrumb} guidanceKey="settings-whitelabel">
       {message && <p className="mb-4 text-sm text-text-secondary">{message}</p>}
 
       <form onSubmit={save} className="flex max-w-xl flex-col gap-4">

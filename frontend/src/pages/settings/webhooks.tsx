@@ -63,13 +63,13 @@ export default function WebhooksSettingsPage() {
 
   if (!licensed)
     return (
-      <PageScaffold title={t('wh.title')} subtitle={t('wh.subtitle')} breadcrumb={breadcrumb}>
+      <PageScaffold title={t('wh.title')} subtitle={t('wh.subtitle')} breadcrumb={breadcrumb} guidanceKey="settings-webhooks">
         <LockedFeatureNotice tier="business" />
       </PageScaffold>
     )
 
   return (
-    <PageScaffold title={t('wh.title')} subtitle={t('wh.subtitle')} breadcrumb={breadcrumb}>
+    <PageScaffold title={t('wh.title')} subtitle={t('wh.subtitle')} breadcrumb={breadcrumb} guidanceKey="settings-webhooks">
       <p className="mb-4 max-w-2xl text-sm text-text-secondary">{t('wh.intro')}</p>
       {error && <p className="mb-3 text-sm text-status-danger">{error}</p>}
 
