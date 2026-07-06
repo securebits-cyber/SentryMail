@@ -477,6 +477,33 @@ class RiskSummary(BaseModel):
     per_campaign: list[CampaignRisk]
 
 
+# --- Human Risk Management (Open Core, personenbezogen) ---
+
+class HumanRiskPerson(BaseModel):
+    """Personenbezogener Risiko-Score (ueber alle Kampagnen der Person)."""
+    email: str
+    first_name: str | None = None
+    last_name: str | None = None
+    department: str | None = None
+    position: str | None = None
+    criticality: str | None = None
+    campaigns: int          # Anzahl Kampagnen-Teilnahmen
+    fails: int              # Kampagnen mit Klick oder Abgeschickt
+    repeat_offender: bool   # Wiederholungsfehler (>= 2 Fails)
+    behavior_score: int     # 0-100, Mittel des schwerwiegendsten Ereignisses je Kampagne
+    score: int              # 0-100, gewichtet (Wiederholungsfehler + Kritikalitaet)
+    level: str              # "high" | "medium" | "low"
+
+
+class HumanRiskSummary(BaseModel):
+    score: int              # 0-100, Mittel ueber alle Personen
+    level: str
+    people: int
+    repeat_offenders: int
+    distribution: RiskDistribution
+    top_people: list[HumanRiskPerson]
+
+
 class TimelinePoint(BaseModel):
     date: str         # ISO-Datum (YYYY-MM-DD)
     opened: int = 0
