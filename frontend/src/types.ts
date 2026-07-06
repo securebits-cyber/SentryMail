@@ -225,6 +225,7 @@ export interface LdapConfig {
   port: number
   use_ssl: boolean
   start_tls: boolean
+  ca_cert: string
   bind_dn: string
   has_bind_password: boolean
   base_dn: string
