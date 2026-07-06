@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-import { Sparkles } from 'lucide-react'
+import { Lock, Sparkles } from 'lucide-react'
 import { useState } from 'react'
 import { useFeatures } from '../hooks/useFeatures'
 import { useI18n } from '../i18n'
@@ -24,7 +24,22 @@ export default function AiGenerateBar<T>({ endpoint, onResult, placeholder }: Ai
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  if (!features?.features?.business) return null
+  // KI-Erstellung ist ein Business-Feature: ohne Lizenz sichtbar, aber gesperrt.
+  if (!features?.features?.business) {
+    return (
+      <div className="rounded-lg border border-border bg-bg/40 p-3">
+        <div className="mb-1 flex flex-wrap items-center gap-2 text-sm font-medium text-text-secondary">
+          <Sparkles size={15} />
+          {t('ai.gen.heading')}
+          <span className="rounded-full bg-green-600 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-white">
+            {t('badge.business')}
+          </span>
+          <Lock size={12} />
+        </div>
+        <p className="text-xs text-text-secondary">{t('ai.gen.locked')}</p>
+      </div>
+    )
+  }
 
   async function run() {
     if (!brief.trim() || busy) return

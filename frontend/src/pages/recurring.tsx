@@ -91,13 +91,13 @@ export default function RecurringPage() {
   if (features === null) return <p className="text-text-secondary">{t('dash.loading')}</p>
   if (!licensed)
     return (
-      <PageScaffold title={t('rec.title')} subtitle={t('rec.subtitle')}>
+      <PageScaffold title={t('rec.title')} subtitle={t('rec.subtitle')} guidanceKey="recurring">
         <LockedFeatureNotice tier="business" />
       </PageScaffold>
     )
 
   return (
-    <PageScaffold title={t('rec.title')} subtitle={t('rec.subtitle')}>
+    <PageScaffold title={t('rec.title')} subtitle={t('rec.subtitle')} guidanceKey="recurring">
       {error && <p className="mb-3 text-sm text-status-danger">{error}</p>}
 
       <form onSubmit={add} className="mb-8 flex max-w-2xl flex-col gap-3">
