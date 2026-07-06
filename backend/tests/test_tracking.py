@@ -99,6 +99,29 @@ def test_click_endpoint_records_click_and_redirects(client, db, campaign_with_re
     assert events[0].event_type == TrackingEventType.CLICKED
 
 
+def test_click_rejects_non_http_scheme(client, db, campaign_with_recipient):
+    """Open-Redirect-Schutz: javascript:/data:-Ziele werden nicht weitergeleitet."""
+    resp = client.get(
+        "/track/click",
+        params={"t": "tok-known-123", "url": "javascript:alert(1)"},
+        follow_redirects=False,
+    )
+    assert resp.status_code == 200
+    assert "location" not in resp.headers
+
+
+def test_click_unknown_token_does_not_redirect(client, db):
+    """Ohne gueltiges Token darf der Endpunkt kein offener Redirector sein."""
+    resp = client.get(
+        "/track/click",
+        params={"t": "unknown", "url": "https://evil.example/phish"},
+        follow_redirects=False,
+    )
+    assert resp.status_code == 200
+    assert "location" not in resp.headers
+    assert db.query(TrackingEvent).count() == 0
+
+
 def test_pixel_unknown_token_still_returns_gif(client, db):
     """Unbekannter Token -> kein Event, aber der Pixel wird trotzdem ausgeliefert
     (verraet dem Empfaenger nichts)."""

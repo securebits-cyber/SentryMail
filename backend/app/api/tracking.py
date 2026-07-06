@@ -9,6 +9,8 @@ aufgerufen. Erfasst wird nur, DASS jemand geoeffnet/geklickt/abgeschickt hat
 (Awareness-Signal); die eingegebenen Formulardaten werden bewusst nicht
 gespeichert.
 """
+from urllib.parse import urlparse
+
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from sqlalchemy.orm import Session
@@ -48,7 +50,13 @@ def track_open(t: str, request: Request, db: Session = Depends(get_db)):
 @router.get("/click")
 def track_click(t: str, url: str, request: Request, db: Session = Depends(get_db)):
     ip, ua = _client_meta(request)
-    record_event(db, tracking_token=t, event_type=TrackingEventType.CLICKED, ip_address=ip, user_agent=ua)
+    event = record_event(db, tracking_token=t, event_type=TrackingEventType.CLICKED, ip_address=ip, user_agent=ua)
+
+    # Open-Redirect-Schutz: nur bei bekanntem Tracking-Token und nur auf
+    # http(s)-Ziele weiterleiten (kein javascript:/data: und kein token-loser
+    # Missbrauch als offener Redirector).
+    if event is None or urlparse(url).scheme not in ("http", "https"):
+        return HTMLResponse(content=_DEFAULT_PAGE)
     return RedirectResponse(url=url)
 
 
@@ -59,7 +67,8 @@ def track_landing(t: str, request: Request, db: Session = Depends(get_db)):
     record_event(db, tracking_token=t, event_type=TrackingEventType.CLICKED, ip_address=ip, user_agent=ua)
 
     recipient = db.query(Recipient).filter(Recipient.tracking_token == t).first()
-    page = recipient.campaign.landing_page if recipient is not None else None
+    campaign = recipient.campaign if recipient is not None else None
+    page = campaign.landing_page if campaign is not None else None
     html = page.html_content if page is not None else _DEFAULT_PAGE
 
     # Alle Formulare auf die Submit-Erfassung umbiegen (mit Tracking-Token).
@@ -83,10 +92,15 @@ async def track_submit(t: str, request: Request, db: Session = Depends(get_db)):
     record_event(db, tracking_token=t, event_type=TrackingEventType.SUBMITTED, ip_address=ip, user_agent=ua)
 
     recipient = db.query(Recipient).filter(Recipient.tracking_token == t).first()
-    if recipient is not None:
-        # Abgeschickte Textfelder an registrierte Handler geben (Passwortabfrage
-        # ist ein Business-Add-on; ohne Handler werden sie verworfen). Dateien
-        # (UploadFile mit .filename) werden bewusst ausgelassen.
+    campaign = recipient.campaign if recipient is not None else None
+    page = campaign.landing_page if campaign is not None else None
+
+    # Abgeschickte Textfelder nur weiterreichen, wenn die Landing Page das
+    # Erfassen aktiviert hat (capture_credentials). Der Core speichert selbst
+    # nichts; ein Business-Add-on (Passwortabfrage) verarbeitet die Felder ueber
+    # notify_submission und liest bei Bedarf capture_passwords von der Page.
+    # Dateien (UploadFile mit .filename) werden bewusst ausgelassen.
+    if recipient is not None and page is not None and page.capture_credentials:
         try:
             form = await request.form()
             data = {k: str(v) for k, v in form.items() if k != "t" and not hasattr(v, "filename")}
@@ -95,7 +109,6 @@ async def track_submit(t: str, request: Request, db: Session = Depends(get_db)):
         if data:
             notify_submission(recipient, data)
 
-    page = recipient.campaign.landing_page if recipient is not None else None
     target = (page.redirect_url if page is not None else None) or f"https://{settings.APP_DOMAIN}/track/done"
     return RedirectResponse(url=target, status_code=303)
 
