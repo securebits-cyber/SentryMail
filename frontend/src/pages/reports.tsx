@@ -219,30 +219,6 @@ export default function ReportsPage() {
             </span>
             {!businessLicensed && <Lock size={13} className="text-text-secondary" />}
           </button>
-          <button
-            onClick={() => exportBusinessPdf('/reports/compliance/pdf', 'compliance_report.pdf')}
-            disabled={exporting}
-            className="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2 text-sm text-text-primary hover:bg-bg disabled:opacity-60"
-          >
-            <FileText size={15} />
-            {t('rep.exportCompliance')}
-            <span className="rounded-full bg-green-600 px-1.5 py-0.5 text-[10px] font-semibold uppercase leading-none tracking-wide text-white">
-              {t('badge.business')}
-            </span>
-            {!businessLicensed && <Lock size={13} className="text-text-secondary" />}
-          </button>
-          <button
-            onClick={() => exportBusinessPdf('/reports/certificate/pdf', 'awareness_certificate.pdf')}
-            disabled={exporting}
-            className="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2 text-sm text-text-primary hover:bg-bg disabled:opacity-60"
-          >
-            <FileText size={15} />
-            {t('rep.exportCertificate')}
-            <span className="rounded-full bg-green-600 px-1.5 py-0.5 text-[10px] font-semibold uppercase leading-none tracking-wide text-white">
-              {t('badge.business')}
-            </span>
-            {!businessLicensed && <Lock size={13} className="text-text-secondary" />}
-          </button>
         </div>
       }
     >
@@ -417,6 +393,29 @@ export default function ReportsPage() {
           </div>
         </div>
       )}
+      {/* Business: Nachweise & Zertifikate */}
+      <div className="mt-8">
+        <h2 className="mb-3 text-lg font-semibold">
+          {t('rep.evidence.heading')}
+          <span className="ml-2 rounded-full bg-green-600 px-1.5 py-0.5 align-middle text-[10px] font-semibold uppercase tracking-wide text-white">
+            {t('badge.business')}
+          </span>
+        </h2>
+        <div className="flex flex-wrap gap-2">
+          {(['dsgvo', 'nis2', 'iso27001', 'awareness', 'audit', 'certificate', 'training'] as const).map((kind) => (
+            <button
+              key={kind}
+              onClick={() => exportBusinessPdf(`/reports/evidence/${kind}/pdf`, `${kind}.pdf`)}
+              disabled={exporting}
+              className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-2 text-sm text-text-primary hover:bg-bg disabled:opacity-60"
+            >
+              <FileText size={14} />
+              {t(`rep.evidence.${kind}`)}
+              {!businessLicensed && <Lock size={12} className="text-text-secondary" />}
+            </button>
+          ))}
+        </div>
+      </div>
     </PageScaffold>
   )
 }

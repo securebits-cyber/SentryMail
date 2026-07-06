@@ -107,7 +107,7 @@ The **core** of HumanShield.APP (all features above) is open source under the **
 - **Business reporting** — executive report (PDF), trend analysis and user development
 - **Recurring campaigns** — automatic, scheduled re-send via a scheduler
 - **Multi-stage campaigns** — campaign sequences (several stages with a time gap)
-- **Compliance evidence** — compliance report (GDPR/NIS2/ISO 27001) and awareness certificate as PDF
+- **Evidence center** — separate PDF for **GDPR** (Art. 32), **NIS2** (Art. 21), **ISO 27001** (A.6.3), **awareness record**, **audit report**, **certificate** and **training records**
 
 **Enterprise add-on** (includes all Business features)
 - White-label, multi-tenant, SAML SSO, AI scoring, SIEM export, etc.
