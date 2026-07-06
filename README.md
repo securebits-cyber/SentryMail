@@ -25,7 +25,7 @@ HumanShield.APP hilft Organisationen, ihre menschliche Angriffsfläche zu verkle
 **Kampagnen & Tracking**
 - Kampagnen-Assistent mit optionaler Zeitplanung
 - Tracking von **Öffnungen, Klicks und Formular-Eingaben** — ausgewertet **pro Empfänger**
-- Control-Center-Dashboard mit KPIs und CSV-Export
+- Control-Center-Dashboard mit **KPIs, Risiko-Score (Ampel), Trichter & Zeitachse**; **Management Report** und CSV-Export
 
 **Inhalte**
 - Vorlagen mit **HTML- oder Markdown-Editor**, Personalisierungs-Variablen und Live-Vorschau
@@ -94,13 +94,18 @@ Details im [Sicherheits-Wiki](https://github.com/securebitsorg/HumanShield.APP/w
 
 ## 🧩 Editionen (Open Core)
 
-Der **Kern** von HumanShield.APP (alle oben genannten Funktionen) ist unter der **Mozilla Public License 2.0 (MPL-2.0)** quelloffen und vollständig nutzbar. Kostenpflichtige **Enterprise-Add-ons** werden per Lizenz freigeschaltet und als separate Pakete ausgeliefert:
+Der **Kern** von HumanShield.APP (alle oben genannten Funktionen) ist unter der **Mozilla Public License 2.0 (MPL-2.0)** quelloffen und vollständig nutzbar. Zusätzlich gibt es **zwei kostenpflichtige Add-ons**, die per Lizenz freigeschaltet und als separate, private Pakete ausgeliefert werden.
 
-| Add-on | Beschreibung |
-|---|---|
-| White-Label | Eigenes Branding (Logo, Farben, Absenderdomains) |
-| Multi-Tenant | Mehrere Mandanten strikt getrennt in einer Installation |
-| AI-Scoring | KI-gestützte Risiko-Bewertung pro Empfänger/Kampagne |
+**Business-Add-on**
+- **LDAP**-Verzeichnisimport von Empfängern
+- **E-Mail-Upload** (`.eml`) als Vorlagen-Entwurf
+- **Vorlagen-Bibliothek** (fertige Awareness-Vorlagen: DHL, Amazon, Rechnung, M365, HR, Bank, PayPal, LinkedIn, PDF-Köder, QR-Kampagne)
+- **PDF-Export** (Management Report & Kampagnen-Ergebnisse)
+- **QR-Code-Phishing (Quishing)** — QR-Codes pro Empfänger
+- **Webhooks** — Event-Trigger (Öffnung/Klick/Submit) an externe Systeme
+
+**Enterprise-Add-on** (enthält alle Business-Funktionen)
+- White-Label, Multi-Tenant, SAML-SSO, AI-Scoring, SIEM-Export u. a.
 
 Ohne Lizenz läuft die Plattform als reiner Open-Core-Betrieb — ohne Fehler, ohne Sperren.
 

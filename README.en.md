@@ -94,13 +94,18 @@ See the [security wiki](https://github.com/securebitsorg/HumanShield.APP/wiki/Si
 
 ## 🧩 Editions (open core)
 
-The **core** of HumanShield.APP (all features above) is open source under the **Mozilla Public License 2.0 (MPL-2.0)** and fully usable. Paid **enterprise add-ons** are unlocked by license and shipped as separate packages:
+The **core** of HumanShield.APP (all features above) is open source under the **Mozilla Public License 2.0 (MPL-2.0)** and fully usable. In addition there are **two paid add-ons**, unlocked by license and shipped as separate, private packages.
 
-| Add-on | Description |
-|---|---|
-| White-Label | Custom branding (logo, colors, sender domains) |
-| Multi-Tenant | Multiple strictly separated tenants in one installation |
-| AI-Scoring | AI-assisted risk scoring per recipient/campaign |
+**Business add-on**
+- **LDAP** directory import of recipients
+- **Email upload** (`.eml`) as a template draft
+- **Template library** (ready-made awareness templates: DHL, Amazon, invoice, M365, HR, bank, PayPal, LinkedIn, PDF lure, QR campaign)
+- **PDF export** (management report & campaign results)
+- **QR code phishing (quishing)** — per-recipient QR codes
+- **Webhooks** — event triggers (open/click/submit) to external systems
+
+**Enterprise add-on** (includes all Business features)
+- White-label, multi-tenant, SAML SSO, AI scoring, SIEM export, etc.
 
 Without a license the platform runs as pure open core — no errors, no lockouts.
 
