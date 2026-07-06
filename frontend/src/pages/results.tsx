@@ -14,23 +14,43 @@ export default function ResultsPage() {
   const { t } = useI18n()
   const { campaignId } = useParams<{ campaignId: string }>()
   const [result, setResult] = useState<CampaignResult | null>(null)
+  const [exporting, setExporting] = useState(false)
 
   useEffect(() => {
     if (!campaignId) return
     api.get<CampaignResult>(`/results/${campaignId}`).then((res) => setResult(res.data))
   }, [campaignId])
 
+  async function exportCsv() {
+    if (!campaignId) return
+    setExporting(true)
+    try {
+      // Über axios (Auth-Header via Interceptor) als Blob laden und herunterladen —
+      // ein reiner <a href> würde das Bearer-Token nicht mitsenden (401).
+      const res = await api.get(`/results/${campaignId}/export`, { responseType: 'blob' })
+      const url = URL.createObjectURL(res.data as Blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `campaign_${campaignId}_results.csv`
+      a.click()
+      URL.revokeObjectURL(url)
+    } finally {
+      setExporting(false)
+    }
+  }
+
   if (!result) return <p className="text-text-secondary">{t('res.loading')}</p>
 
   return (
     <PageScaffold title={t('res.title')} guidanceKey="results">
       <ResultsTable result={result} />
-      <a
-        href={`${import.meta.env.VITE_API_URL}/results/${campaignId}/export`}
-        className="mt-4 inline-block text-accent underline"
+      <button
+        onClick={exportCsv}
+        disabled={exporting}
+        className="mt-4 inline-block text-accent underline disabled:opacity-60"
       >
         {t('res.exportCsv')}
-      </a>
+      </button>
     </PageScaffold>
   )
 }
