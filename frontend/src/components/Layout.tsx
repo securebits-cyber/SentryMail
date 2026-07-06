@@ -35,7 +35,7 @@ const profileNav: NavItem[] = [{ to: '/profile', labelKey: 'nav.profile', icon: 
 const adminNav: NavItem[] = [
   { to: '/users', labelKey: 'nav.users', icon: UserCog, end: false },
   { to: '/settings', labelKey: 'nav.settings', icon: Settings, end: false },
-  { to: '/integrations', labelKey: 'nav.integrations', icon: Blocks, end: false, badge: 'Enterprise' },
+  { to: '/integrations', labelKey: 'nav.integrations', icon: Blocks, end: false },
 ]
 
 const linkClass = ({ isActive }: { isActive: boolean }) =>

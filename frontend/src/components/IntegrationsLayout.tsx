@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-import { Brain, Building2, LayoutGrid, Lock, Palette, type LucideIcon } from 'lucide-react'
+import { Briefcase, Building2, LayoutGrid, Lock, type LucideIcon } from 'lucide-react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { useFeatures } from '../hooks/useFeatures'
 import { useI18n } from '../i18n'
@@ -17,13 +17,13 @@ interface NavItem {
 // Integrationsbereiche als Unterpunkte (gleiches Prinzip wie SettingsLayout:
 // eigene zweite Sidebar-Spalte). `feature` verweist auf das Add-on-Entitlement;
 // ohne gueltige Lizenz wird der Punkt als gesperrt markiert.
+// Genau zwei kostenpflichtige Add-ons: Business und Enterprise. `feature`
+// verweist auf das Lizenz-Entitlement; ohne gültige Lizenz wird der Punkt als
+// gesperrt markiert.
 const integrationsNav: NavItem[] = [
   { to: '/integrations/overview', labelKey: 'integrations.overview', icon: LayoutGrid },
-  // White-Label, Multi-Tenant und AI-Scoring sind Bestandteil des Enterprise
-  // Add-ons -> alle drei am selben Feature-Entitlement `enterprise` gegated.
-  { to: '/integrations/white-label', labelKey: 'integrations.whiteLabel', icon: Palette, feature: 'enterprise' },
-  { to: '/integrations/multi-tenant', labelKey: 'integrations.multiTenant', icon: Building2, feature: 'enterprise' },
-  { to: '/integrations/ai-scoring', labelKey: 'integrations.aiScoring', icon: Brain, feature: 'enterprise' },
+  { to: '/integrations/business', labelKey: 'integrations.business', icon: Briefcase, feature: 'business' },
+  { to: '/integrations/enterprise', labelKey: 'integrations.enterprise', icon: Building2, feature: 'enterprise' },
 ]
 
 const linkClass = ({ isActive }: { isActive: boolean }) =>

@@ -58,9 +58,8 @@ export const translations: Record<Lang, Record<string, string>> = {
 
     // Integrationen (Untermenü)
     'integrations.overview': 'Übersicht',
-    'integrations.whiteLabel': 'White-Label',
-    'integrations.multiTenant': 'Multi-Tenant',
-    'integrations.aiScoring': 'AI-Scoring',
+    'integrations.business': 'Business',
+    'integrations.enterprise': 'Enterprise',
 
     // Gemeinsam (Listen/Aktionen)
     'common.edit': 'Bearbeiten',
@@ -457,38 +456,73 @@ export const translations: Record<Lang, Record<string, string>> = {
     'guide.title': 'Anleitung',
     'guide.variables': 'Variablen',
 
-    // Enterprise-Platzhalter
-    'ent.notActivated': 'Diese Funktion ist Teil des Enterprise-Pakets und in dieser Installation nicht aktiviert.',
+    // Add-ons (Business / Enterprise) — Übersicht
+    'io.subtitle': 'Die kostenpflichtigen Add-ons und die darin enthaltenen Funktionen im Überblick.',
+    'addon.active': 'Aktiv',
+    'addon.locked': 'Gesperrt',
+    'addon.notActivated': 'Dieses Add-on ist in dieser Installation nicht lizenziert. Über „Upgrade Lizenz“ freischalten.',
+    'addon.ent.includesBusiness': 'Enthält alle Business-Funktionen — plus:',
 
-    // Integrationen-Übersicht
-    'io.subtitle': 'Verbindungen zu externen Systemen — hier werden künftige Integrationen konfiguriert.',
-    'io.noneTitle': 'Noch keine Integrationen aktiv.',
-    'io.noneBody':
-      'Dieser Bereich ist für spätere Erweiterungen vorbereitet — etwa die Anbindung an Ticketing-, SIEM- oder Chat-Systeme. Neue Integrationen erscheinen dann als eigene Punkte in der linken Spalte, analog zum Einstellungen-Menü.',
+    // Business Add-on
+    'addon.biz.tagline': 'Der volle Funktionsumfang für den produktiven Awareness-Betrieb.',
+    'addon.biz.intro': 'Das Business Add-on schaltet alle folgenden Funktionen frei.',
+    'addon.biz.cat.campaigns': 'Kampagnen',
+    'addon.biz.f.recurring': 'Wiederkehrende Kampagnen',
+    'addon.biz.f.multistage': 'Mehrstufige Kampagnen',
+    'addon.biz.f.byGroup': 'Kampagnen nach Benutzergruppen',
+    'addon.biz.f.spear': 'Spear Phishing',
+    'addon.biz.f.whaling': 'Whaling',
+    'addon.biz.f.quishing': 'QR-Code-Phishing (Quishing)',
+    'addon.biz.f.fileBased': 'Dateibasierte Angriffe',
+    'addon.biz.f.credCapture': 'Passwortabfrage',
+    'addon.biz.cat.templates': 'Fertige Vorlagen',
+    'addon.biz.f.brandTemplates': 'Vorlagen für DHL, Amazon, Rechnungen',
+    'addon.biz.f.vendorLogins': 'Vorlagen für Hersteller-Logins',
+    'addon.biz.f.banks': 'Vorlagen für Banken',
+    'addon.biz.f.social': 'Vorlagen für Social Media',
+    'addon.biz.f.hr': 'Vorlagen für HR-Mails',
+    'addon.biz.f.pdfLure': 'Vorlagen für PDF-Köder',
+    'addon.biz.f.qrTemplates': 'Vorlagen für QR-Code-Kampagnen',
+    'addon.biz.cat.directory': 'Integrationen & Verzeichnis',
+    'addon.biz.f.webhooks': 'Webhooks',
+    'addon.biz.f.ldap': 'LDAP',
+    'addon.biz.f.azureEntra': 'Azure AD / Entra ID',
+    'addon.biz.f.groupMgmt': 'Gruppenverwaltung',
+    'addon.biz.f.siem': 'SIEM-Export (Wazuh, Splunk, Elasticsearch Security, Microsoft Sentinel)',
+    'addon.biz.f.mailReport': 'Mail-Report-Button (Outlook)',
+    'addon.biz.cat.reporting': 'Reporting',
+    'addon.biz.f.pdfExport': 'PDF-Export',
+    'addon.biz.f.executive': 'Executive Reports',
+    'addon.biz.f.management': 'Management Reports',
+    'addon.biz.f.complianceReports': 'Compliance Reports',
+    'addon.biz.f.userDev': 'Benutzerentwicklung',
+    'addon.biz.f.deptCompare': 'Abteilungsvergleich',
+    'addon.biz.f.trends': 'Trendanalysen',
+    'addon.biz.f.learning': 'Lernfortschritt',
+    'addon.biz.cat.compliance': 'Compliance',
+    'addon.biz.f.gdpr': 'DSGVO',
+    'addon.biz.f.nis2': 'NIS2',
+    'addon.biz.f.iso27001': 'ISO 27001',
+    'addon.biz.f.awarenessProof': 'Awareness-Nachweise',
+    'addon.biz.f.auditReports': 'Audit-Berichte',
+    'addon.biz.f.certificates': 'Zertifikate',
+    'addon.biz.f.trainingProofs': 'Schulungsnachweise',
 
-    // White-Label
-    'wl.tagline': 'Die Plattform im eigenen Marken-Auftritt.',
-    'wl.intro':
-      'Betreibe HumanShield.APP unter deiner eigenen Marke – Logo, Farben, Absenderdomains und Portal-URL individuell für deine Kunden.',
-    'wl.f1': 'Eigenes Logo, Farbschema und Favicon',
-    'wl.f2': 'Eigene Portal-Domain und E-Mail-Absender',
-    'wl.f3': 'Angepasste Login- und Report-Vorlagen',
-
-    // Multi-Tenant
-    'mt.tagline': 'Mehrere Mandanten strikt getrennt verwalten.',
-    'mt.intro':
-      'Verwalte mehrere Organisationen oder Kunden getrennt in einer Installation – mit eigenen Nutzern, Kampagnen und Auswertungen je Mandant.',
-    'mt.f1': 'Strikte Datentrennung pro Mandant',
-    'mt.f2': 'Mandanten-Administratoren mit eigenem Scope',
-    'mt.f3': 'Zentrale Verwaltung und Abrechnung',
-
-    // AI-Scoring
-    'ai.tagline': 'Risiko-Bewertung mit KI-Unterstützung.',
-    'ai.intro':
-      'Bewerte das Phishing-Risiko pro Empfänger und Kampagne automatisch und erkenne gefährdete Gruppen früher.',
-    'ai.f1': 'Risiko-Score je Empfänger und Abteilung',
-    'ai.f2': 'Automatische Erkennung auffälliger Muster',
-    'ai.f3': 'Empfehlungen für gezielte Trainings',
+    // Enterprise Add-on (zusätzlich zu Business)
+    'addon.ent.tagline': 'Alles aus Business — plus Skalierung, Automatisierung und KI.',
+    'addon.ent.intro': 'Das Enterprise Add-on ergänzt Business um folgende Funktionen.',
+    'addon.ent.cat.platform': 'Plattform',
+    'addon.ent.f.whiteLabel': 'White-Label (eigene Marke, Domain, Absender)',
+    'addon.ent.f.multiTenant': 'Multi-Tenant (Mandantentrennung)',
+    'addon.ent.f.saml': 'SAML-SSO',
+    'addon.ent.cat.intelligence': 'Risiko & KI',
+    'addon.ent.f.aiScoring': 'AI-Scoring (KI-Risikobewertung)',
+    'addon.ent.f.riskBased': 'Risikoabhängige Kampagnen',
+    'addon.ent.f.automatic': 'Automatische Kampagnen',
+    'addon.ent.cat.reporting': 'Reporting',
+    'addon.ent.f.trainingProgress': 'Schulungsfortschritt',
+    'addon.ent.f.certStatus': 'Zertifikatsstatus',
+    'addon.ent.f.customReports': 'Individuelle Berichte',
   },
   en: {
     // Navigation
@@ -540,9 +574,8 @@ export const translations: Record<Lang, Record<string, string>> = {
 
     // Integrations (submenu)
     'integrations.overview': 'Overview',
-    'integrations.whiteLabel': 'White-Label',
-    'integrations.multiTenant': 'Multi-Tenant',
-    'integrations.aiScoring': 'AI-Scoring',
+    'integrations.business': 'Business',
+    'integrations.enterprise': 'Enterprise',
 
     // Common (lists/actions)
     'common.edit': 'Edit',
@@ -935,37 +968,72 @@ export const translations: Record<Lang, Record<string, string>> = {
     'guide.title': 'Guide',
     'guide.variables': 'Variables',
 
-    // Enterprise placeholder
-    'ent.notActivated': 'This feature is part of the Enterprise package and is not activated in this installation.',
+    // Add-ons (Business / Enterprise) — overview
+    'io.subtitle': 'The paid add-ons and the features they include, at a glance.',
+    'addon.active': 'Active',
+    'addon.locked': 'Locked',
+    'addon.notActivated': 'This add-on is not licensed in this installation. Unlock it via “Upgrade license”.',
+    'addon.ent.includesBusiness': 'Includes all Business features — plus:',
 
-    // Integrations overview
-    'io.subtitle': 'Connections to external systems — future integrations are configured here.',
-    'io.noneTitle': 'No integrations active yet.',
-    'io.noneBody':
-      'This area is prepared for future extensions — such as connections to ticketing, SIEM or chat systems. New integrations will then appear as their own entries in the left column, similar to the settings menu.',
+    // Business add-on
+    'addon.biz.tagline': 'The full feature set for productive awareness operations.',
+    'addon.biz.intro': 'The Business add-on unlocks all of the following features.',
+    'addon.biz.cat.campaigns': 'Campaigns',
+    'addon.biz.f.recurring': 'Recurring campaigns',
+    'addon.biz.f.multistage': 'Multi-stage campaigns',
+    'addon.biz.f.byGroup': 'Campaigns by user group',
+    'addon.biz.f.spear': 'Spear phishing',
+    'addon.biz.f.whaling': 'Whaling',
+    'addon.biz.f.quishing': 'QR code phishing (quishing)',
+    'addon.biz.f.fileBased': 'File-based attacks',
+    'addon.biz.f.credCapture': 'Password capture',
+    'addon.biz.cat.templates': 'Ready-made templates',
+    'addon.biz.f.brandTemplates': 'Templates for DHL, Amazon, invoices',
+    'addon.biz.f.vendorLogins': 'Templates for vendor logins',
+    'addon.biz.f.banks': 'Templates for banks',
+    'addon.biz.f.social': 'Templates for social media',
+    'addon.biz.f.hr': 'Templates for HR emails',
+    'addon.biz.f.pdfLure': 'Templates for PDF lures',
+    'addon.biz.f.qrTemplates': 'Templates for QR code campaigns',
+    'addon.biz.cat.directory': 'Integrations & directory',
+    'addon.biz.f.webhooks': 'Webhooks',
+    'addon.biz.f.ldap': 'LDAP',
+    'addon.biz.f.azureEntra': 'Azure AD / Entra ID',
+    'addon.biz.f.groupMgmt': 'Group management',
+    'addon.biz.f.siem': 'SIEM export (Wazuh, Splunk, Elasticsearch Security, Microsoft Sentinel)',
+    'addon.biz.f.mailReport': 'Mail report button (Outlook)',
+    'addon.biz.cat.reporting': 'Reporting',
+    'addon.biz.f.pdfExport': 'PDF export',
+    'addon.biz.f.executive': 'Executive reports',
+    'addon.biz.f.management': 'Management reports',
+    'addon.biz.f.complianceReports': 'Compliance reports',
+    'addon.biz.f.userDev': 'User development',
+    'addon.biz.f.deptCompare': 'Department comparison',
+    'addon.biz.f.trends': 'Trend analyses',
+    'addon.biz.f.learning': 'Learning progress',
+    'addon.biz.cat.compliance': 'Compliance',
+    'addon.biz.f.gdpr': 'GDPR',
+    'addon.biz.f.nis2': 'NIS2',
+    'addon.biz.f.iso27001': 'ISO 27001',
+    'addon.biz.f.awarenessProof': 'Awareness records',
+    'addon.biz.f.auditReports': 'Audit reports',
+    'addon.biz.f.certificates': 'Certificates',
+    'addon.biz.f.trainingProofs': 'Training records',
 
-    // White-Label
-    'wl.tagline': 'The platform in your own brand.',
-    'wl.intro':
-      'Run HumanShield.APP under your own brand – logo, colors, sender domains and portal URL customized for your customers.',
-    'wl.f1': 'Custom logo, color scheme and favicon',
-    'wl.f2': 'Own portal domain and email sender',
-    'wl.f3': 'Customized login and report templates',
-
-    // Multi-Tenant
-    'mt.tagline': 'Manage multiple tenants strictly separated.',
-    'mt.intro':
-      'Manage several organizations or customers separately in one installation – with their own users, campaigns and analytics per tenant.',
-    'mt.f1': 'Strict data separation per tenant',
-    'mt.f2': 'Tenant administrators with their own scope',
-    'mt.f3': 'Central administration and billing',
-
-    // AI-Scoring
-    'ai.tagline': 'Risk scoring with AI support.',
-    'ai.intro':
-      'Automatically assess phishing risk per recipient and campaign and spot vulnerable groups earlier.',
-    'ai.f1': 'Risk score per recipient and department',
-    'ai.f2': 'Automatic detection of suspicious patterns',
-    'ai.f3': 'Recommendations for targeted training',
+    // Enterprise add-on (in addition to Business)
+    'addon.ent.tagline': 'Everything in Business — plus scaling, automation and AI.',
+    'addon.ent.intro': 'The Enterprise add-on extends Business with the following features.',
+    'addon.ent.cat.platform': 'Platform',
+    'addon.ent.f.whiteLabel': 'White-label (own brand, domain, sender)',
+    'addon.ent.f.multiTenant': 'Multi-tenant (tenant separation)',
+    'addon.ent.f.saml': 'SAML SSO',
+    'addon.ent.cat.intelligence': 'Risk & AI',
+    'addon.ent.f.aiScoring': 'AI scoring (AI risk assessment)',
+    'addon.ent.f.riskBased': 'Risk-based campaigns',
+    'addon.ent.f.automatic': 'Automatic campaigns',
+    'addon.ent.cat.reporting': 'Reporting',
+    'addon.ent.f.trainingProgress': 'Training progress',
+    'addon.ent.f.certStatus': 'Certificate status',
+    'addon.ent.f.customReports': 'Custom reports',
   },
 }
