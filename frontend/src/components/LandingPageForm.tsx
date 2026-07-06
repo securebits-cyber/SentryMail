@@ -3,6 +3,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
 import { FormEvent, useEffect, useState } from 'react'
+import AiGenerateBar from './AiGenerateBar'
 import MarkdownEditor from './MarkdownEditor'
 import { mdToHtml } from '../utils/markdown'
 import Toggle from './Toggle'
@@ -68,6 +69,14 @@ export default function LandingPageForm({ initial, onSubmit, onCancel, submittin
 
   return (
     <form onSubmit={handleSubmit} className="flex max-w-3xl flex-col gap-4">
+      <AiGenerateBar<{ html: string }>
+        endpoint="/ai/generate-landing"
+        placeholder={t('ai.gen.landing.placeholder')}
+        onResult={(d) => {
+          setEditorMode('html')
+          setHtml(d.html)
+        }}
+      />
       <label className={labelClass}>
         {t('common.name')}
         <input value={name} onChange={(e) => setName(e.target.value)} required className={fieldClass} />

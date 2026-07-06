@@ -4,6 +4,7 @@
 
 import { ChangeEvent, FormEvent, useEffect, useState } from 'react'
 import { Lock, Paperclip, QrCode, X } from 'lucide-react'
+import AiGenerateBar from './AiGenerateBar'
 import MarkdownEditor from './MarkdownEditor'
 import { mdToHtml } from '../utils/markdown'
 import { useFeatures } from '../hooks/useFeatures'
@@ -125,6 +126,16 @@ export default function TemplateForm({ initial, isEdit, onSubmit, onCancel, subm
 
   return (
     <form onSubmit={handleSubmit} className="flex max-w-2xl flex-col gap-4">
+      <AiGenerateBar<{ subject: string; html: string; text: string | null }>
+        endpoint="/ai/generate-template"
+        placeholder={t('ai.gen.template.placeholder')}
+        onResult={(d) => {
+          setSubject(d.subject)
+          setEditorMode('html')
+          setHtmlContent(d.html)
+          if (d.text) setTextContent(d.text)
+        }}
+      />
       <label className={labelClass}>
         {t('common.name')}
         <input value={name} onChange={(e) => setName(e.target.value)} required className={fieldClass} />
