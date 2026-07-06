@@ -182,6 +182,7 @@ def engagement_analytics(db: Session) -> EngagementAnalytics:
         browsers=_breakdown(db, TrackingEvent.browser),
         operating_systems=_breakdown(db, TrackingEvent.os),
         devices=_breakdown(db, TrackingEvent.device_type),
+        countries=_breakdown(db, TrackingEvent.country, drop_null=True),
         languages=_breakdown(db, TrackingEvent.client_language, drop_null=True),
         resolutions=_breakdown(db, TrackingEvent.screen_resolution, drop_null=True),
         utm_sources=_breakdown(db, TrackingEvent.utm_source, drop_null=True),

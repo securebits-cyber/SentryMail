@@ -17,6 +17,7 @@ from sqlalchemy.orm import Session
 
 from app.models import Recipient, TrackingEvent, TrackingEventType
 from app.schemas import CampaignResultOut, RecipientResultOut
+from app.utils.geoip import lookup_country
 from app.utils.useragent import parse_user_agent
 
 logger = logging.getLogger(__name__)
@@ -83,6 +84,7 @@ def record_event(
         browser=browser,
         os=os_name,
         device_type=device_type,
+        country=lookup_country(ip_address),
         referrer=referrer,
         accept_language=accept_language,
         utm_source=utm.get("utm_source"),

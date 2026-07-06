@@ -230,6 +230,8 @@ class TrackingEvent(Base):
     browser: Mapped[str | None] = mapped_column(String(64), nullable=True)
     os: Mapped[str | None] = mapped_column(String(64), nullable=True)
     device_type: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    # Laendercode (ISO 3166-1 alpha-2) via optionaler GeoIP-MMDB (app/utils/geoip.py).
+    country: Mapped[str | None] = mapped_column(String(2), nullable=True)
     # Aus Request-Headern / Query-Parametern erfasst.
     referrer: Mapped[str | None] = mapped_column(String(512), nullable=True)
     accept_language: Mapped[str | None] = mapped_column(String(64), nullable=True)
