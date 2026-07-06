@@ -106,6 +106,7 @@ The **core** of HumanShield.APP (all features above) is open source under the **
 - **Password capture** — capture submitted form data (passwords masked, never plaintext)
 - **Business reporting** — executive report (PDF), trend analysis and user development
 - **Recurring campaigns** — automatic, scheduled re-send via a scheduler
+- **Multi-stage campaigns** — campaign sequences (several stages with a time gap)
 
 **Enterprise add-on** (includes all Business features)
 - White-label, multi-tenant, SAML SSO, AI scoring, SIEM export, etc.

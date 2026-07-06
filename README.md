@@ -106,6 +106,7 @@ Der **Kern** von HumanShield.APP (alle oben genannten Funktionen) ist unter der 
 - **Passwortabfrage** — abgeschickte Formulardaten erfassen (Passwörter maskiert, nie im Klartext)
 - **Business-Reporting** — Executive Report (PDF), Trendanalyse und Benutzerentwicklung
 - **Wiederkehrende Kampagnen** — automatischer, terminierter Wiederversand per Scheduler
+- **Mehrstufige Kampagnen** — Kampagnen-Sequenzen (mehrere Stufen mit zeitlichem Abstand)
 
 **Enterprise-Add-on** (enthält alle Business-Funktionen)
 - White-Label, Multi-Tenant, SAML-SSO, AI-Scoring, SIEM-Export u. a.
