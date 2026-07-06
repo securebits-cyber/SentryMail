@@ -20,6 +20,45 @@ def _seed(db, owner_id, event_type: TrackingEventType, token: str = "tok-dash-1"
     return campaign
 
 
+_CHROME_WIN = (
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
+    "Chrome/120.0.0.0 Safari/537.36"
+)
+
+
+def test_analytics_empty(client, make_user, auth_headers):
+    admin = make_user(role=UserRole.ADMIN)
+    body = client.get("/dashboard/analytics", headers=auth_headers(admin)).json()
+    assert body["total_events"] == 0
+    assert body["browsers"] == []
+    assert body["utm_sources"] == []
+
+
+def test_analytics_breaks_down_engaged_events(client, db, make_user, auth_headers):
+    admin = make_user(role=UserRole.ADMIN)
+    template = Template(name="T", subject="S", html_content="<p>x</p>", created_by_id=admin.id)
+    db.add(template)
+    db.flush()
+    campaign = Campaign(name="C", template_id=template.id, created_by_id=admin.id)
+    db.add(campaign)
+    db.flush()
+    db.add(Recipient(campaign_id=campaign.id, email="z@example.com", tracking_token="tok-an-1"))
+    db.commit()
+    # Ein reines OPEN (nicht "engaged") darf nicht in die Aufschluesselung zaehlen.
+    record_event(db, "tok-an-1", TrackingEventType.OPENED, user_agent=_CHROME_WIN)
+    record_event(
+        db, "tok-an-1", TrackingEventType.CLICKED, user_agent=_CHROME_WIN,
+        utm={"utm_source": "newsletter", "utm_medium": None, "utm_campaign": None},
+    )
+
+    body = client.get("/dashboard/analytics", headers=auth_headers(admin)).json()
+    assert body["total_events"] == 1  # nur der Klick
+    assert body["browsers"] == [{"label": "Chrome", "count": 1}]
+    assert body["operating_systems"] == [{"label": "Windows 10/11", "count": 1}]
+    assert body["devices"] == [{"label": "desktop", "count": 1}]
+    assert body["utm_sources"] == [{"label": "newsletter", "count": 1}]
+
+
 def test_risk_empty_is_zero(client, make_user, auth_headers):
     admin = make_user(role=UserRole.ADMIN)
     body = client.get("/dashboard/risk", headers=auth_headers(admin)).json()

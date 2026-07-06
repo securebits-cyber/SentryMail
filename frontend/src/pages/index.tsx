@@ -5,7 +5,16 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Badge from '../components/Badge'
-import { Funnel, RiskMeter, Timeline, type RiskSummary, type Summary, type TimelinePoint } from '../components/DashboardCharts'
+import {
+  EngagementBreakdown,
+  Funnel,
+  RiskMeter,
+  Timeline,
+  type EngagementAnalytics,
+  type RiskSummary,
+  type Summary,
+  type TimelinePoint,
+} from '../components/DashboardCharts'
 import PageHeader from '../components/PageHeader'
 import { useI18n } from '../i18n'
 import { api } from '../services/api'
@@ -51,6 +60,7 @@ export default function DashboardPage() {
   const [summary, setSummary] = useState<Summary | null>(null)
   const [risk, setRisk] = useState<RiskSummary | null>(null)
   const [timeline, setTimeline] = useState<TimelinePoint[]>([])
+  const [analytics, setAnalytics] = useState<EngagementAnalytics | null>(null)
   const [failed, setFailed] = useState<Failed[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -59,6 +69,7 @@ export default function DashboardPage() {
       api.get<Summary>('/dashboard/summary').then((r) => setSummary(r.data)),
       api.get<RiskSummary>('/dashboard/risk').then((r) => setRisk(r.data)),
       api.get<TimelinePoint[]>('/dashboard/timeline').then((r) => setTimeline(r.data)),
+      api.get<EngagementAnalytics>('/dashboard/analytics').then((r) => setAnalytics(r.data)),
       api.get<Failed[]>('/dashboard/failed').then((r) => setFailed(r.data)),
     ]).finally(() => setLoading(false))
   }, [])
@@ -83,9 +94,15 @@ export default function DashboardPage() {
         {summary && <Funnel summary={summary} />}
       </div>
 
-      <div className="mb-8">
+      <div className="mb-6">
         <Timeline points={timeline} />
       </div>
+
+      {analytics && (
+        <div className="mb-8">
+          <EngagementBreakdown analytics={analytics} />
+        </div>
+      )}
 
       <h2 className="mb-3 text-lg font-semibold">{t('dash.failed.heading')}</h2>
       {failed.length === 0 ? (

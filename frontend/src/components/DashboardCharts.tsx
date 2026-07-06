@@ -127,6 +127,78 @@ export function Funnel({ summary }: { summary: Summary }) {
   )
 }
 
+export interface BreakdownSlice {
+  label: string
+  count: number
+}
+
+export interface EngagementAnalytics {
+  total_events: number
+  browsers: BreakdownSlice[]
+  operating_systems: BreakdownSlice[]
+  devices: BreakdownSlice[]
+  utm_sources: BreakdownSlice[]
+}
+
+/** Eine Balkenliste (Top 6) mit Anteil je Kategorie. */
+function BarList({ title, slices, total }: { title: string; slices: BreakdownSlice[]; total: number }) {
+  const { t } = useI18n()
+  return (
+    <div>
+      <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-secondary">{title}</h4>
+      {slices.length === 0 ? (
+        <p className="text-sm text-text-secondary">{t('analytics.none')}</p>
+      ) : (
+        <div className="flex flex-col gap-2">
+          {slices.slice(0, 6).map((s) => {
+            const pct = total > 0 ? Math.round((s.count / total) * 100) : 0
+            return (
+              <div key={s.label}>
+                <div className="mb-1 flex items-center justify-between text-sm">
+                  <span className="truncate pr-2 text-text-primary">{s.label}</span>
+                  <span className="shrink-0 font-mono tabular-nums text-text-secondary">
+                    {s.count}
+                    <span className="ml-1.5 text-xs">({pct}%)</span>
+                  </span>
+                </div>
+                <div className="h-2 w-full overflow-hidden rounded-full bg-border/50">
+                  <div className="bg-accent h-2 rounded-full" style={{ width: `${Math.max(3, pct)}%` }} />
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
+
+/** Interaktions-Aufschluesselung nach Browser, OS, Geraet und UTM-Quelle. */
+export function EngagementBreakdown({ analytics }: { analytics: EngagementAnalytics }) {
+  const { t } = useI18n()
+
+  return (
+    <div className="elevated rounded-lg border border-border bg-surface p-5">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+        <h3 className="text-sm font-semibold text-text-secondary">{t('analytics.heading')}</h3>
+        <span className="text-xs text-text-secondary">
+          {t('analytics.basis', { count: String(analytics.total_events) })}
+        </span>
+      </div>
+      {analytics.total_events === 0 ? (
+        <p className="text-sm text-text-secondary">{t('analytics.empty')}</p>
+      ) : (
+        <div className="grid gap-6 sm:grid-cols-2">
+          <BarList title={t('analytics.browsers')} slices={analytics.browsers} total={analytics.total_events} />
+          <BarList title={t('analytics.os')} slices={analytics.operating_systems} total={analytics.total_events} />
+          <BarList title={t('analytics.devices')} slices={analytics.devices} total={analytics.total_events} />
+          <BarList title={t('analytics.utm')} slices={analytics.utm_sources} total={analytics.total_events} />
+        </div>
+      )}
+    </div>
+  )
+}
+
 const SERIES: { key: keyof Omit<TimelinePoint, 'date'>; color: string; labelKey: string }[] = [
   { key: 'opened', color: 'var(--color-chart-opened)', labelKey: 'dash.tile.opened' },
   { key: 'clicked', color: 'var(--color-chart-clicked)', labelKey: 'dash.tile.clicked' },
