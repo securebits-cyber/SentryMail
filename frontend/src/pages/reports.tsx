@@ -151,6 +151,19 @@ export default function ReportsPage() {
     }
   }
 
+  async function exportBusinessPdf(path: string, filename: string) {
+    if (!businessLicensed) {
+      setError(t('locked.body'))
+      return
+    }
+    setExporting(true)
+    try {
+      await downloadBlob(path, filename)
+    } finally {
+      setExporting(false)
+    }
+  }
+
   if (loading) return <p className="text-text-secondary">{t('dash.loading')}</p>
   if (!report) return <p className="text-text-secondary">{t('rep.empty')}</p>
 
@@ -173,7 +186,7 @@ export default function ReportsPage() {
       title={t('rep.title')}
       subtitle={`${t('rep.generated')}: ${new Date(report.generated_at).toLocaleString()}`}
       actions={
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={exportCsv}
             disabled={exporting}
@@ -201,6 +214,30 @@ export default function ReportsPage() {
           >
             <FileText size={15} />
             {t('rep.exportExec')}
+            <span className="rounded-full bg-green-600 px-1.5 py-0.5 text-[10px] font-semibold uppercase leading-none tracking-wide text-white">
+              {t('badge.business')}
+            </span>
+            {!businessLicensed && <Lock size={13} className="text-text-secondary" />}
+          </button>
+          <button
+            onClick={() => exportBusinessPdf('/reports/compliance/pdf', 'compliance_report.pdf')}
+            disabled={exporting}
+            className="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2 text-sm text-text-primary hover:bg-bg disabled:opacity-60"
+          >
+            <FileText size={15} />
+            {t('rep.exportCompliance')}
+            <span className="rounded-full bg-green-600 px-1.5 py-0.5 text-[10px] font-semibold uppercase leading-none tracking-wide text-white">
+              {t('badge.business')}
+            </span>
+            {!businessLicensed && <Lock size={13} className="text-text-secondary" />}
+          </button>
+          <button
+            onClick={() => exportBusinessPdf('/reports/certificate/pdf', 'awareness_certificate.pdf')}
+            disabled={exporting}
+            className="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2 text-sm text-text-primary hover:bg-bg disabled:opacity-60"
+          >
+            <FileText size={15} />
+            {t('rep.exportCertificate')}
             <span className="rounded-full bg-green-600 px-1.5 py-0.5 text-[10px] font-semibold uppercase leading-none tracking-wide text-white">
               {t('badge.business')}
             </span>
