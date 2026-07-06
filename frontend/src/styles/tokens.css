@@ -49,6 +49,11 @@
   --color-status-success: #1A7F4B;
   --color-status-warning: #B7791F;
   --color-status-danger: #B91C1C;
+
+  /* Diagramm-Serienfarben (Zeitachse) — validiert (dataviz, CVD-sicher, light) */
+  --color-chart-opened: #2a78d6;
+  --color-chart-clicked: #b7791f;
+  --color-chart-submitted: #b91c1c;
 }
 
 [data-theme='dark'] {
@@ -63,6 +68,11 @@
   --color-status-success: #34D399;
   --color-status-warning: #FBBF24;
   --color-status-danger: #F87171;
+
+  /* Diagramm-Serienfarben — validiert für die dunkle Fläche */
+  --color-chart-opened: #3987e5;
+  --color-chart-clicked: #c98500;
+  --color-chart-submitted: #e66767;
 }
 
 * {

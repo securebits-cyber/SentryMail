@@ -2,17 +2,33 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-"""Aggregierte Uebersicht: KPIs und durchgefallene Empfaenger."""
+"""Aggregierte Uebersicht: KPIs, Risikobewertung, Zeitachse, Durchgefallene."""
 from fastapi import APIRouter, Depends
-from sqlalchemy import func
+from sqlalchemy import Date, cast, func
 from sqlalchemy.orm import Session
 
 from app.auth.permissions import get_current_user
 from app.database import get_db
 from app.models import Campaign, Recipient, TrackingEvent, TrackingEventType, User
-from app.schemas import DashboardSummary, FailedRecipient
+from app.schemas import (
+    CampaignRisk,
+    DashboardSummary,
+    FailedRecipient,
+    RiskDistribution,
+    RiskSummary,
+    TimelinePoint,
+)
 
 router = APIRouter(prefix="/dashboard", tags=["dashboard"])
+
+
+def _risk_level(score: int) -> str:
+    """Ampel-Stufe aus dem 0-100-Score (regelbasiert, kein KI-Scoring)."""
+    if score >= 67:
+        return "high"
+    if score >= 34:
+        return "medium"
+    return "low"
 
 
 @router.get("/summary", response_model=DashboardSummary)
@@ -78,3 +94,88 @@ def failed_recipients(db: Session = Depends(get_db), _: User = Depends(get_curre
 
     result = sorted(best.values(), key=lambda r: (r["sev"], r["occurred_at"]), reverse=True)
     return [FailedRecipient(**{k: v for k, v in r.items() if k != "sev"}) for r in result]
+
+
+@router.get("/risk", response_model=RiskSummary)
+def risk(db: Session = Depends(get_db), _: User = Depends(get_current_user)):
+    """Regelbasierte Risikobewertung: pro Empfaenger das schwerwiegendste Ereignis
+    (abgeschickt=100, geklickt=60, geoeffnet=20, nichts=0). Score = Mittelwert."""
+    recipients = db.query(Recipient.id, Recipient.campaign_id).all()
+    events = db.query(TrackingEvent.recipient_id, TrackingEvent.event_type).all()
+
+    types_by_recipient: dict = {}
+    for recipient_id, event_type in events:
+        types_by_recipient.setdefault(recipient_id, set()).add(event_type)
+
+    def points_for(recipient_id) -> int:
+        types = types_by_recipient.get(recipient_id, ())
+        if TrackingEventType.SUBMITTED in types:
+            return 100
+        if TrackingEventType.CLICKED in types:
+            return 60
+        if TrackingEventType.OPENED in types:
+            return 20
+        return 0
+
+    dist = {"high": 0, "medium": 0, "low": 0, "none": 0}
+    total_points = 0
+    per_campaign_acc: dict = {}  # campaign_id -> [summe_punkte, anzahl]
+
+    for recipient_id, campaign_id in recipients:
+        pts = points_for(recipient_id)
+        total_points += pts
+        band = "high" if pts == 100 else "medium" if pts == 60 else "low" if pts == 20 else "none"
+        dist[band] += 1
+        acc = per_campaign_acc.setdefault(campaign_id, [0, 0])
+        acc[0] += pts
+        acc[1] += 1
+
+    total = len(recipients)
+    score = round(total_points / total) if total else 0
+
+    campaign_names = dict(db.query(Campaign.id, Campaign.name).all())
+    per_campaign = []
+    for campaign_id, (pts_sum, count) in per_campaign_acc.items():
+        cscore = round(pts_sum / count) if count else 0
+        per_campaign.append(
+            CampaignRisk(
+                campaign_id=campaign_id,
+                name=campaign_names.get(campaign_id, "—"),
+                recipients=count,
+                score=cscore,
+                level=_risk_level(cscore),
+            )
+        )
+    per_campaign.sort(key=lambda c: c.score, reverse=True)
+
+    return RiskSummary(
+        score=score,
+        level=_risk_level(score),
+        recipients=total,
+        distribution=RiskDistribution(**dist),
+        per_campaign=per_campaign,
+    )
+
+
+@router.get("/timeline", response_model=list[TimelinePoint])
+def timeline(db: Session = Depends(get_db), _: User = Depends(get_current_user)):
+    """Ereignisse pro Tag (geoeffnet/geklickt/abgeschickt) fuer die Zeitachse."""
+    day = cast(TrackingEvent.occurred_at, Date)
+    rows = (
+        db.query(day.label("day"), TrackingEvent.event_type, func.count().label("count"))
+        .filter(
+            TrackingEvent.event_type.in_(
+                [TrackingEventType.OPENED, TrackingEventType.CLICKED, TrackingEventType.SUBMITTED]
+            )
+        )
+        .group_by(day, TrackingEvent.event_type)
+        .order_by(day)
+        .all()
+    )
+
+    by_date: dict[str, dict] = {}
+    for day_value, event_type, count in rows:
+        point = by_date.setdefault(str(day_value), {"opened": 0, "clicked": 0, "submitted": 0})
+        point[event_type.value] = count
+
+    return [TimelinePoint(date=date, **counts) for date, counts in sorted(by_date.items())]
