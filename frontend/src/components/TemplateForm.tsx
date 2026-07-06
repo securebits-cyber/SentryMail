@@ -3,9 +3,10 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
 import { ChangeEvent, FormEvent, useEffect, useState } from 'react'
-import { Paperclip, X } from 'lucide-react'
+import { Lock, Paperclip, QrCode, X } from 'lucide-react'
 import MarkdownEditor from './MarkdownEditor'
 import { mdToHtml } from '../utils/markdown'
+import { useFeatures } from '../hooks/useFeatures'
 import { useI18n } from '../i18n'
 import type { Template, TemplateAttachment } from '../types'
 
@@ -50,13 +51,19 @@ const SAMPLE: Record<string, string> = {
 /** Ersetzt die bekannten Platzhalter mit Beispielwerten (nur fuer die Vorschau). */
 function fillSample(text: string): string {
   return text.replace(
-    /\{\{\s*(first_name|last_name|email|link|recipient_name|recipient_email|click_link)\s*\}\}/g,
-    (_, key: string) => SAMPLE[key] ?? '',
+    /\{\{\s*(first_name|last_name|email|link|recipient_name|recipient_email|click_link|qr_code)\s*\}\}/g,
+    (_, key: string) =>
+      key === 'qr_code'
+        ? '<span style="display:inline-block;border:1px dashed #999;padding:14px 18px;color:#666;font-size:12px">QR-Code</span>'
+        : SAMPLE[key] ?? '',
   )
 }
 
 export default function TemplateForm({ initial, isEdit, onSubmit, onCancel, submitting }: TemplateFormProps) {
   const { t } = useI18n()
+  // Quishing ({{ qr_code }}) ist ein Business-Feature (Add-on rendert es beim Versand).
+  const features = useFeatures()
+  const businessLicensed = Boolean(features?.features?.business)
   const [name, setName] = useState('')
   const [subject, setSubject] = useState('')
   const [htmlContent, setHtmlContent] = useState('')
@@ -79,6 +86,12 @@ export default function TemplateForm({ initial, isEdit, onSubmit, onCancel, subm
   function onMarkdownChange(value: string) {
     setMarkdown(value)
     setHtmlContent(mdToHtml(value))
+  }
+
+  function insertQr() {
+    if (!businessLicensed) return
+    setEditorMode('html')
+    setHtmlContent((prev) => `${prev}\n<p style="text-align:center;margin:24px 0">{{ qr_code }}</p>`)
   }
 
   function addFiles(e: ChangeEvent<HTMLInputElement>) {
@@ -134,7 +147,21 @@ export default function TemplateForm({ initial, isEdit, onSubmit, onCancel, subm
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
           <span className="text-sm">{t('form.content')}</span>
-          <div className="flex gap-0.5 rounded-md border border-border p-0.5 text-xs">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={insertQr}
+              className="inline-flex items-center gap-1.5 rounded-md border border-border px-2 py-1 text-xs text-text-primary hover:bg-bg"
+              title={t('tf.qrHint')}
+            >
+              <QrCode size={13} />
+              {t('tf.qr')}
+              <span className="rounded-full bg-green-600 px-1 py-px text-[9px] font-semibold uppercase leading-none text-white">
+                {t('badge.business')}
+              </span>
+              {!businessLicensed && <Lock size={11} className="text-text-secondary" />}
+            </button>
+            <div className="flex gap-0.5 rounded-md border border-border p-0.5 text-xs">
             <button
               type="button"
               onClick={() => setEditorMode('html')}
@@ -149,6 +176,7 @@ export default function TemplateForm({ initial, isEdit, onSubmit, onCancel, subm
             >
               Markdown
             </button>
+            </div>
           </div>
         </div>
         {editorMode === 'markdown' ? (

@@ -22,6 +22,7 @@ from aiosmtplib import SMTP
 from jinja2 import Template
 
 from app.config import get_settings
+from app.services import template as template_service
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
@@ -162,6 +163,8 @@ async def send_campaign_messages(
                 "recipient_email": recipient.get("email") or "",
                 "click_link": click_link,
             }
+            # Add-on-Platzhalter (z. B. {{ qr_code }} aus dem Quishing-Add-on).
+            ctx.update(template_service.extra_placeholders(ctx))
             html_body = Template(template_html).render(**ctx)
             text_body = (
                 Template(template_text).render(**ctx)
