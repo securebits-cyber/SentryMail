@@ -100,6 +100,7 @@ Der **Kern** von HumanShield.APP (alle oben genannten Funktionen) ist unter der 
 - **LDAP**-Verzeichnisimport von Empfängern
 - **E-Mail-Upload** (`.eml`) als Vorlagen-Entwurf
 - **Vorlagen-Bibliothek** (fertige Awareness-Vorlagen: DHL, Amazon, Rechnung, M365, HR, Bank, PayPal, LinkedIn, PDF-Köder, QR-Kampagne)
+- **Angriffsarten** — Spear-Phishing-, Whaling- (CEO-Fraud) und dateibasierte Vorlagen (Köder-Anhang) in der Bibliothek
 - **PDF-Export** (Management Report & Kampagnen-Ergebnisse)
 - **QR-Code-Phishing (Quishing)** — QR-Codes pro Empfänger
 - **Webhooks** — Event-Trigger (Öffnung/Klick/Submit) an externe Systeme
