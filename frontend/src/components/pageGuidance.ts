@@ -149,6 +149,7 @@ const de: Record<string, Guidance> = {
     steps: [
       'Host und Port des LDAP-Servers eintragen (Standard: 389, LDAPS: 636).',
       'Verschlüsselung wählen: LDAPS (SSL) oder StartTLS — für Produktivbetrieb empfohlen.',
+      'Bei LDAPS/StartTLS optional das CA-/Server-Zertifikat (PEM) hinterlegen, damit der Server verifiziert wird (empfohlen bei internen/selbstsignierten CAs). Leer = keine Prüfung.',
       'Bind-DN eines Dienstkontos mit Lesezugriff angeben, z. B. cn=svc,ou=service,dc=example,dc=com.',
       'Das Bind-Passwort eintragen — es wird verschlüsselt gespeichert und nie wieder angezeigt.',
       'Base-DN setzen, unterhalb dessen nach Benutzern gesucht wird, z. B. ou=users,dc=example,dc=com.',
@@ -467,6 +468,7 @@ const en: Record<string, Guidance> = {
     steps: [
       'Enter host and port of the LDAP server (default: 389, LDAPS: 636).',
       'Choose encryption: LDAPS (SSL) or StartTLS — recommended for production.',
+      'For LDAPS/StartTLS optionally add the CA/server certificate (PEM) so the server is verified (recommended for internal/self-signed CAs). Empty = no validation.',
       'Provide the bind DN of a service account with read access, e.g. cn=svc,ou=service,dc=example,dc=com.',
       'Enter the bind password — it is stored encrypted and never shown again.',
       'Set the base DN below which users are searched, e.g. ou=users,dc=example,dc=com.',

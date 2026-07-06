@@ -149,6 +149,20 @@ export default function LdapSettingsPage() {
           </div>
         </div>
 
+        {(form.use_ssl || form.start_tls) && (
+          <label className={labelClass}>
+            {t('ldap.caCert')}
+            <textarea
+              value={form.ca_cert}
+              onChange={(e) => set('ca_cert', e.target.value)}
+              rows={5}
+              placeholder="-----BEGIN CERTIFICATE-----"
+              className={`${fieldClass} font-mono text-xs`}
+            />
+            <span className="text-xs text-text-secondary">{t('ldap.caCertHint')}</span>
+          </label>
+        )}
+
         <label className={labelClass}>
           {t('ldap.bindDn')}
           <input value={form.bind_dn} onChange={(e) => set('bind_dn', e.target.value)} placeholder="cn=svc,dc=example,dc=com" className={`${fieldClass} font-mono`} />
