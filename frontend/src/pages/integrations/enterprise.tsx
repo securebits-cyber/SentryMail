@@ -24,7 +24,6 @@ export default function EnterpriseAddonPage() {
           title: t('addon.ent.cat.platform'),
           items: [
             t('addon.ent.f.whiteLabel'),
-            t('addon.ent.f.multiTenant'),
             t('addon.ent.f.saml'),
             t('addon.ent.f.siem'),
           ],
