@@ -77,6 +77,34 @@ def test_get_campaign_results_aggregates(db, campaign_with_recipient):
     assert results.recipients[0].submitted is False
 
 
+def test_visits_counts_multiple_clicks(db, campaign_with_recipient):
+    """Mehrfachbesuche: die Klick-Anzahl je Empfaenger wird gezaehlt."""
+    recipient = campaign_with_recipient
+    for _ in range(3):
+        record_event(db, tracking_token=recipient.tracking_token, event_type=TrackingEventType.CLICKED)
+
+    results = get_campaign_results(db, recipient.campaign_id)
+    assert results.clicked == 1  # ein Empfaenger hat geklickt
+    assert results.recipients[0].visits == 3
+
+
+def test_recipient_events_endpoint_returns_session_history(
+    client, db, campaign_with_recipient, make_user, auth_headers
+):
+    recipient = campaign_with_recipient
+    record_event(db, tracking_token=recipient.tracking_token, event_type=TrackingEventType.OPENED)
+    record_event(db, tracking_token=recipient.tracking_token, event_type=TrackingEventType.CLICKED)
+
+    admin = make_user(email="viewer@example.com")
+    resp = client.get(
+        f"/results/{recipient.campaign_id}/recipients/{recipient.id}/events",
+        headers=auth_headers(admin),
+    )
+    assert resp.status_code == 200
+    body = resp.json()
+    assert [e["event_type"] for e in body] == ["opened", "clicked"]
+
+
 def test_pixel_endpoint_records_open(client, db, campaign_with_recipient):
     resp = client.get("/track/pixel", params={"t": "tok-known-123"})
     assert resp.status_code == 200

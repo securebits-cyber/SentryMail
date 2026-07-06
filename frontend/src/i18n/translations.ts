@@ -391,6 +391,15 @@ export const translations: Record<Lang, Record<string, string>> = {
     'res.badge.opened': 'Geöffnet',
     'res.badge.clicked': 'Geklickt',
     'res.badge.submitted': 'Abgeschickt',
+    'res.badge.revisit': 'Mehrfach',
+    'res.col.visits': 'Besuche',
+    'res.session.heading': 'Session-Verlauf',
+    'res.session.empty': 'Keine Ereignisse erfasst.',
+    'res.session.error': 'Verlauf konnte nicht geladen werden.',
+    'res.event.sent': 'Versendet',
+    'res.event.opened': 'Geöffnet',
+    'res.event.clicked': 'Geklickt',
+    'res.event.submitted': 'Daten abgeschickt',
 
     // Gemeinsam (Settings)
     'common.saving': 'Speichern...',
@@ -1093,6 +1102,15 @@ export const translations: Record<Lang, Record<string, string>> = {
     'res.badge.opened': 'Opened',
     'res.badge.clicked': 'Clicked',
     'res.badge.submitted': 'Submitted',
+    'res.badge.revisit': 'Multiple',
+    'res.col.visits': 'Visits',
+    'res.session.heading': 'Session history',
+    'res.session.empty': 'No events recorded.',
+    'res.session.error': 'Could not load history.',
+    'res.event.sent': 'Sent',
+    'res.event.opened': 'Opened',
+    'res.event.clicked': 'Clicked',
+    'res.event.submitted': 'Data submitted',
 
     // Common (settings)
     'common.saving': 'Saving...',

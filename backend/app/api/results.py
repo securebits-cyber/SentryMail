@@ -14,7 +14,7 @@ from sqlalchemy.orm import Session
 from app.auth.permissions import get_current_user
 from app.database import get_db
 from app.models import Campaign, Recipient, TrackingEvent, User
-from app.schemas import CampaignResultOut
+from app.schemas import CampaignResultOut, RecipientEventOut
 from app.services.tracking import get_campaign_results
 
 router = APIRouter(prefix="/results", tags=["results"])
@@ -26,6 +26,43 @@ def campaign_results(campaign_id: uuid.UUID, db: Session = Depends(get_db), _: U
     if campaign is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Kampagne nicht gefunden")
     return get_campaign_results(db, campaign_id)
+
+
+@router.get("/{campaign_id}/recipients/{recipient_id}/events", response_model=list[RecipientEventOut])
+def recipient_events(
+    campaign_id: uuid.UUID,
+    recipient_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    _: User = Depends(get_current_user),
+):
+    """Session-Verlauf: chronologische Ereignis-Chronik eines Empfaengers."""
+    recipient = (
+        db.query(Recipient)
+        .filter(Recipient.id == recipient_id, Recipient.campaign_id == campaign_id)
+        .first()
+    )
+    if recipient is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Empfänger nicht gefunden")
+
+    events = (
+        db.query(TrackingEvent)
+        .filter(TrackingEvent.recipient_id == recipient_id)
+        .order_by(TrackingEvent.occurred_at)
+        .all()
+    )
+    return [
+        RecipientEventOut(
+            event_type=e.event_type.value,
+            occurred_at=e.occurred_at,
+            browser=e.browser,
+            os=e.os,
+            device_type=e.device_type,
+            country=e.country,
+            ip_address=e.ip_address,
+            referrer=e.referrer,
+        )
+        for e in events
+    ]
 
 
 @router.get("/{campaign_id}/export")

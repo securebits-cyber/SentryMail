@@ -148,11 +148,15 @@ def get_campaign_results(db: Session, campaign_id) -> CampaignResultOut:
         .all()
     )
     types_by_recipient: dict = {}
+    clicks_by_recipient: dict = {}
     for recipient_id, event_type in events:
         types_by_recipient.setdefault(recipient_id, set()).add(event_type)
+        if event_type == TrackingEventType.CLICKED:
+            clicks_by_recipient[recipient_id] = clicks_by_recipient.get(recipient_id, 0) + 1
 
     rows = [
         RecipientResultOut(
+            id=r.id,
             email=r.email,
             first_name=r.first_name,
             last_name=r.last_name,
@@ -163,6 +167,7 @@ def get_campaign_results(db: Session, campaign_id) -> CampaignResultOut:
             opened=TrackingEventType.OPENED in types_by_recipient.get(r.id, ()),
             clicked=TrackingEventType.CLICKED in types_by_recipient.get(r.id, ()),
             submitted=TrackingEventType.SUBMITTED in types_by_recipient.get(r.id, ()),
+            visits=clicks_by_recipient.get(r.id, 0),
         )
         for r in recipients
     ]

@@ -207,6 +207,7 @@ class TrackingEventOut(BaseModel):
 
 
 class RecipientResultOut(BaseModel):
+    id: uuid.UUID
     email: str
     first_name: str | None
     last_name: str | None
@@ -217,6 +218,20 @@ class RecipientResultOut(BaseModel):
     opened: bool
     clicked: bool
     submitted: bool
+    # Anzahl der Klick-Ereignisse: > 1 = Mehrfachbesuch der Landing Page.
+    visits: int = 0
+
+
+class RecipientEventOut(BaseModel):
+    """Ein Tracking-Ereignis in der Session-Chronik eines Empfaengers."""
+    event_type: str
+    occurred_at: datetime
+    browser: str | None = None
+    os: str | None = None
+    device_type: str | None = None
+    country: str | None = None
+    ip_address: str | None = None
+    referrer: str | None = None
 
 
 class CampaignResultOut(BaseModel):

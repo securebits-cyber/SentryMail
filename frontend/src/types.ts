@@ -43,6 +43,7 @@ export interface Campaign {
 }
 
 export interface RecipientResult {
+  id: string
   email: string
   first_name: string | null
   last_name: string | null
@@ -50,6 +51,18 @@ export interface RecipientResult {
   opened: boolean
   clicked: boolean
   submitted: boolean
+  visits: number
+}
+
+export interface RecipientEvent {
+  event_type: string
+  occurred_at: string
+  browser: string | null
+  os: string | null
+  device_type: string | null
+  country: string | null
+  ip_address: string | null
+  referrer: string | null
 }
 
 export interface CampaignResult {
