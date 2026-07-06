@@ -16,6 +16,7 @@ from sqlalchemy.orm import Session
 
 from app.models import Recipient, TrackingEvent, TrackingEventType
 from app.schemas import CampaignResultOut, RecipientResultOut
+from app.utils.useragent import parse_user_agent
 
 logger = logging.getLogger(__name__)
 
@@ -60,16 +61,29 @@ def record_event(
     event_type: TrackingEventType,
     ip_address: str | None = None,
     user_agent: str | None = None,
+    referrer: str | None = None,
+    accept_language: str | None = None,
+    utm: dict[str, str | None] | None = None,
 ) -> TrackingEvent | None:
     recipient = db.query(Recipient).filter(Recipient.tracking_token == tracking_token).first()
     if recipient is None:
         return None
 
+    browser, os_name, device_type = parse_user_agent(user_agent)
+    utm = utm or {}
     event = TrackingEvent(
         recipient_id=recipient.id,
         event_type=event_type,
         ip_address=ip_address,
         user_agent=user_agent,
+        browser=browser,
+        os=os_name,
+        device_type=device_type,
+        referrer=referrer,
+        accept_language=accept_language,
+        utm_source=utm.get("utm_source"),
+        utm_medium=utm.get("utm_medium"),
+        utm_campaign=utm.get("utm_campaign"),
     )
     db.add(event)
     db.commit()
