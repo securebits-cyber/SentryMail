@@ -466,6 +466,8 @@ export const translations: Record<Lang, Record<string, string>> = {
 
     // Vorlagen-Formular
     'tf.variables': 'Variablen (in Betreff, HTML und Text nutzbar):',
+    'tf.qr': 'QR-Code',
+    'tf.qrHint': 'Fügt {{ qr_code }} ein — beim Versand wird pro Empfänger ein QR-Code auf den Tracking-Link erzeugt (Quishing).',
     'tf.markdownNote':
       'Markdown wird beim Speichern in HTML umgewandelt; Variablen und der Tracking-Link funktionieren weiterhin.',
     'tf.textPart': 'Text-Teil (optional, Plain-Text-Alternative)',
@@ -1045,6 +1047,8 @@ export const translations: Record<Lang, Record<string, string>> = {
 
     // Template form
     'tf.variables': 'Variables (usable in subject, HTML and text):',
+    'tf.qr': 'QR code',
+    'tf.qrHint': 'Inserts {{ qr_code }} — on send, a per-recipient QR code to the tracking link is generated (quishing).',
     'tf.markdownNote': 'Markdown is converted to HTML on save; variables and the tracking link keep working.',
     'tf.textPart': 'Text part (optional, plain-text alternative)',
     'tf.attachments': 'Attachments',
