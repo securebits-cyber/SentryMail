@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-import { Blocks, ChevronDown, CircleUser, FileBarChart, FileText, Globe, Layers, LayoutDashboard, LogOut, Mail, Moon, Radar, Repeat, Server, Settings, Sun, UserCog, Users, type LucideIcon } from 'lucide-react'
+import { Blocks, BookOpen, ChevronDown, CircleUser, FileBarChart, FileText, Globe, Layers, LayoutDashboard, LogOut, Mail, Moon, Radar, Repeat, Server, Settings, Sun, UserCog, Users, type LucideIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import LanguageSwitcher from './LanguageSwitcher'
@@ -129,6 +129,8 @@ export default function Layout() {
   const me = useMe()
   const branding = useBranding()
   const isAdmin = me?.role === 'admin'
+  // Wiki-Ziel konfigurierbar (vendor-neutral); Default: Projekt-Wiki auf GitHub.
+  const wikiUrl = import.meta.env.VITE_WIKI_URL || 'https://github.com/securebitsorg/HumanShield.APP/wiki'
 
   return (
     <div className="flex min-h-screen flex-col bg-bg text-text-primary">
@@ -149,7 +151,7 @@ export default function Layout() {
       </header>
 
       <div className="flex flex-1">
-      <aside className="flex w-64 shrink-0 flex-col justify-between border-r border-border bg-surface">
+      <aside className="flex w-64 shrink-0 flex-col border-r border-border bg-surface">
         <div>
           <nav className="flex flex-col gap-1 px-3 pt-4">
             <NavItems items={mainNav} />
@@ -158,7 +160,7 @@ export default function Layout() {
 
         <div>
           {/* Trennlinie: Workflow oben, Profil/Verwaltung/Einstellungen unten. */}
-          <div className="mb-2 border-t border-border" />
+          <div className="mb-2 mt-4 border-t border-border" />
           <nav className="flex flex-col gap-1 px-3">
             <NavItems items={profileNav} />
           </nav>
@@ -198,10 +200,21 @@ export default function Layout() {
             </div>
           </div>
 
-          <div className="mx-3 mb-3 flex items-center justify-between rounded-md border border-border bg-bg px-3 py-2 text-xs text-text-secondary">
+          <div className="mx-3 mb-2 flex items-center justify-between rounded-md border border-border bg-bg px-3 py-2 text-xs text-text-secondary">
             <span>{branding.app_name}</span>
             <span className="font-mono">v0.1.0</span>
           </div>
+
+          {/* Wiki-Button, volle Breite des Sidebar-Bereichs. */}
+          <a
+            href={wikiUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="mx-3 mb-3 flex items-center justify-center gap-2 rounded-md border border-border px-3 py-2 text-sm text-text-primary hover:bg-bg"
+          >
+            <BookOpen size={16} />
+            {t('nav.wiki')}
+          </a>
         </div>
       </aside>
 
