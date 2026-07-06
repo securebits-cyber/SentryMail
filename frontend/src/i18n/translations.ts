@@ -695,6 +695,11 @@ export const translations: Record<Lang, Record<string, string>> = {
     'lpf.capturePw': 'Auch Passwörter erfassen',
     'lpf.redirect': 'Weiterleitung nach Absenden (optional)',
     'lpf.create': 'Landing Page anlegen',
+    'lpf.preview': 'Vorschau',
+    'lpf.hidePreview': 'Editor',
+    'lpf.previewHeading': 'Vorschau (Beispieldaten)',
+    'lpf.previewNote': 'Formular/Skripte sind in der Vorschau deaktiviert.',
+    'lpf.previewEmpty': 'Noch kein Inhalt für die Vorschau.',
 
     // Anleitungs-Panel (PageScaffold)
     'guide.title': 'Anleitung',
@@ -1484,6 +1489,11 @@ export const translations: Record<Lang, Record<string, string>> = {
     'lpf.capturePw': 'Also capture passwords',
     'lpf.redirect': 'Redirect after submit (optional)',
     'lpf.create': 'Create landing page',
+    'lpf.preview': 'Preview',
+    'lpf.hidePreview': 'Editor',
+    'lpf.previewHeading': 'Preview (sample data)',
+    'lpf.previewNote': 'Form/scripts are disabled in the preview.',
+    'lpf.previewEmpty': 'No content to preview yet.',
 
     // Guidance panel (PageScaffold)
     'guide.title': 'Guide',
