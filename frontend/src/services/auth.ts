@@ -61,6 +61,32 @@ export async function loginLocal(email: string, password: string): Promise<Login
   return data
 }
 
+/** Schritt 2 (Passkey): Optionen für die WebAuthn-Anmeldung holen. */
+export async function loginPasskeyOptions(preAuthToken: string): Promise<Record<string, unknown>> {
+  const response = await fetch(`${apiUrl}/auth/local/login/passkey/options`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${preAuthToken}` },
+  })
+  if (!response.ok) {
+    throw new Error('Passkey-Anmeldung nicht verfügbar')
+  }
+  return response.json()
+}
+
+/** Schritt 2 (Passkey): signierte Assertion prüfen und Session-Token speichern. */
+export async function loginPasskeyVerify(preAuthToken: string, credential: unknown): Promise<void> {
+  const response = await fetch(`${apiUrl}/auth/local/login/passkey/verify`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${preAuthToken}` },
+    body: JSON.stringify({ credential }),
+  })
+  if (!response.ok) {
+    throw new Error('Passkey-Signatur ungültig')
+  }
+  const data: { access_token: string } = await response.json()
+  setToken(data.access_token)
+}
+
 /** Schritt 2: 2FA-Code oder Backup-Code mit dem Pre-Auth-Token bestaetigen. */
 export async function loginVerify2fa(preAuthToken: string, code: string): Promise<void> {
   const response = await fetch(`${apiUrl}/auth/local/login/2fa`, {
