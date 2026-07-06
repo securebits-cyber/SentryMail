@@ -11,6 +11,7 @@ import BusinessAddonPage from './pages/integrations/business'
 import EnterpriseAddonPage from './pages/integrations/enterprise'
 import OpenCorePage from './pages/integrations/opencore'
 import IntegrationsOverviewPage from './pages/integrations/overview'
+import AiSettingsPage from './pages/settings/ai'
 import AuditEventsPage from './pages/settings/audit-events'
 import EntraSettingsPage from './pages/settings/entra'
 import LicenseSettingsPage from './pages/settings/license'
@@ -81,6 +82,7 @@ export default function App() {
             <Route path="ldap" element={<LdapSettingsPage />} />
             <Route path="webhooks" element={<WebhooksSettingsPage />} />
             <Route path="entra" element={<EntraSettingsPage />} />
+            <Route path="ai" element={<AiSettingsPage />} />
             <Route path="whitelabel" element={<WhitelabelSettingsPage />} />
             <Route path="siem" element={<SiemSettingsPage />} />
             <Route path="saml" element={<SamlSettingsPage />} />
