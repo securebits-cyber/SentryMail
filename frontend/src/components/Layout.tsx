@@ -2,8 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-import { Blocks, CircleUser, FileBarChart, FileText, Globe, Layers, LayoutDashboard, LogOut, Mail, Moon, Radar, Repeat, Server, Settings, Sun, UserCog, Users, type LucideIcon } from 'lucide-react'
-import { Link, NavLink, Outlet } from 'react-router-dom'
+import { Blocks, ChevronDown, CircleUser, FileBarChart, FileText, Globe, Layers, LayoutDashboard, LogOut, Mail, Moon, Radar, Repeat, Server, Settings, Sun, UserCog, Users, type LucideIcon } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import LanguageSwitcher from './LanguageSwitcher'
 import { useI18n } from '../i18n'
 import { useMe } from '../hooks/useMe'
@@ -17,6 +18,7 @@ interface NavItem {
   icon: LucideIcon
   end: boolean
   badge?: string
+  children?: NavItem[]
 }
 
 const mainNav: NavItem[] = [
@@ -25,10 +27,17 @@ const mainNav: NavItem[] = [
   { to: '/groups', labelKey: 'nav.groups', icon: Users, end: false },
   { to: '/sending-profiles', labelKey: 'nav.sendingProfiles', icon: Server, end: false },
   { to: '/landing-pages', labelKey: 'nav.landingPages', icon: Globe, end: false },
-  { to: '/campaigns', labelKey: 'nav.campaigns', icon: Mail, end: false },
-  { to: '/recurring', labelKey: 'nav.recurring', icon: Repeat, end: false },
-  { to: '/multistage', labelKey: 'nav.multistage', icon: Layers, end: false },
-  { to: '/auto-campaigns', labelKey: 'nav.autocampaigns', icon: Radar, end: false },
+  {
+    to: '/campaigns',
+    labelKey: 'nav.campaigns',
+    icon: Mail,
+    end: false,
+    children: [
+      { to: '/recurring', labelKey: 'nav.recurring', icon: Repeat, end: false },
+      { to: '/multistage', labelKey: 'nav.multistage', icon: Layers, end: false },
+      { to: '/auto-campaigns', labelKey: 'nav.autocampaigns', icon: Radar, end: false },
+    ],
+  },
   { to: '/reports', labelKey: 'nav.reports', icon: FileBarChart, end: false },
 ]
 
@@ -50,21 +59,66 @@ const linkClass = ({ isActive }: { isActive: boolean }) =>
       : 'text-text-secondary hover:bg-bg hover:text-text-primary'
   }`
 
-function NavItems({ items }: { items: NavItem[] }) {
+function NavEntry({ to, labelKey, icon: Icon, end, badge }: NavItem) {
   const { t } = useI18n()
   return (
-    <>
-      {items.map(({ to, labelKey, icon: Icon, end, badge }) => (
-        <NavLink key={to} to={to} end={end} className={linkClass}>
-          <Icon size={16} className="shrink-0" />
-          <span className="truncate">{t(labelKey)}</span>
-          {badge && (
-            <span className="ml-auto shrink-0 rounded-full bg-green-600 px-1.5 py-px text-[9px] font-semibold uppercase leading-normal tracking-tight text-white">
-              {badge}
-            </span>
-          )}
+    <NavLink to={to} end={end} className={linkClass}>
+      <Icon size={16} className="shrink-0" />
+      <span className="truncate">{t(labelKey)}</span>
+      {badge && (
+        <span className="ml-auto shrink-0 rounded-full bg-green-600 px-1.5 py-px text-[9px] font-semibold uppercase leading-normal tracking-tight text-white">
+          {badge}
+        </span>
+      )}
+    </NavLink>
+  )
+}
+
+/** Eltern-Eintrag mit auf-/zuklappbarem Child-Menue (klappt automatisch auf,
+ *  sobald eine Route des Bereichs aktiv ist). */
+function NavGroup({ item }: { item: NavItem }) {
+  const { t } = useI18n()
+  const { pathname } = useLocation()
+  const children = item.children ?? []
+  const inside = [item, ...children].some((c) => pathname.startsWith(c.to))
+  const [open, setOpen] = useState(inside)
+  useEffect(() => {
+    if (inside) setOpen(true)
+  }, [inside])
+
+  return (
+    <div>
+      <div className="flex items-center gap-1">
+        <NavLink to={item.to} end={item.end} className={(p) => `${linkClass(p)} flex-1`}>
+          <item.icon size={16} className="shrink-0" />
+          <span className="truncate">{t(item.labelKey)}</span>
         </NavLink>
-      ))}
+        <button
+          onClick={() => setOpen((o) => !o)}
+          aria-expanded={open}
+          aria-label={t(item.labelKey)}
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-text-secondary hover:bg-bg hover:text-text-primary"
+        >
+          <ChevronDown size={14} className={`transition-transform ${open ? 'rotate-180' : ''}`} />
+        </button>
+      </div>
+      {open && (
+        <div className="ml-4 mt-1 flex flex-col gap-1 border-l border-border pl-2">
+          {children.map((c) => (
+            <NavEntry key={c.to} {...c} />
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function NavItems({ items }: { items: NavItem[] }) {
+  return (
+    <>
+      {items.map((item) =>
+        item.children?.length ? <NavGroup key={item.to} item={item} /> : <NavEntry key={item.to} {...item} />,
+      )}
     </>
   )
 }
@@ -103,6 +157,8 @@ export default function Layout() {
         </div>
 
         <div>
+          {/* Trennlinie: Workflow oben, Profil/Verwaltung/Einstellungen unten. */}
+          <div className="mb-2 border-t border-border" />
           <nav className="flex flex-col gap-1 px-3">
             <NavItems items={profileNav} />
           </nav>
