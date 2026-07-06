@@ -54,6 +54,7 @@ services:
     container_name: humanshield-web
     environment:
       VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
+      VITE_WIKI_URL: ${VITE_WIKI_URL:-}
       APP_DOMAIN: ${APP_DOMAIN:-localhost}
     depends_on:
       - backend

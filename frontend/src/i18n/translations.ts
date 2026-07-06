@@ -96,6 +96,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     'nav.settings': 'Einstellungen',
     'nav.integrations': 'Integrationen',
     'nav.administration': 'Verwaltung',
+    'nav.wiki': 'Wiki / Doku',
 
     // Kopfzeile / allgemein
     'header.upgradeLicense': 'Upgrade Lizenz',
@@ -260,8 +261,6 @@ export const translations: Record<Lang, Record<string, string>> = {
     'dash.col.time': 'Zeitpunkt',
     'dash.event.submitted': 'Daten abgeschickt',
     'dash.event.clicked': 'Link geklickt',
-    'dash.intro':
-      'Willkommen im Control-Center. Hier hast du alle laufenden Phishing-Awareness-Kampagnen auf einen Blick: Die Kacheln oben zeigen die Gesamtzahlen — von versendeten Mails über Öffnungen bis zu geklickten Links und abgeschickten Daten. Die Tabelle „Nicht bestanden“ listet Empfänger, die auf eine Simulation hereingefallen sind. Zum Starten legst du unter „Kampagnen“ eine neue Kampagne an; Vorlagen, Gruppen und Landing Pages dafür findest du in der Seitenleiste.',
 
     // Vorlagen
     'tpl.new': 'Neue Vorlage',
@@ -846,6 +845,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     'nav.settings': 'Settings',
     'nav.integrations': 'Integrations',
     'nav.administration': 'Administration',
+    'nav.wiki': 'Wiki / Docs',
 
     // Header / common
     'header.upgradeLicense': 'Upgrade License',
@@ -1009,8 +1009,6 @@ export const translations: Record<Lang, Record<string, string>> = {
     'dash.col.time': 'Time',
     'dash.event.submitted': 'Data submitted',
     'dash.event.clicked': 'Link clicked',
-    'dash.intro':
-      'Welcome to the control center. Here you have all running phishing-awareness campaigns at a glance: the tiles above show the totals — from sent mails through opens to clicked links and submitted data. The “Failed” table lists recipients who fell for a simulation. To get started, create a new campaign under “Campaigns”; templates, groups and landing pages are in the sidebar.',
 
     // Templates
     'tpl.new': 'New template',

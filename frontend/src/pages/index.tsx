@@ -163,10 +163,6 @@ export default function DashboardPage() {
           </table>
         </div>
       )}
-
-      <div className="mt-10 border-t border-border pt-6">
-        <p className="max-w-3xl text-sm text-text-secondary">{t('dash.intro')}</p>
-      </div>
     </>
   )
 }
