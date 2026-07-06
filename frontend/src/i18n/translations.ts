@@ -120,6 +120,11 @@ export const translations: Record<Lang, Record<string, string>> = {
     // Vorlagen
     'tpl.new': 'Neue Vorlage',
     'tpl.upload': 'E-Mail hochladen',
+    'tpl.library': 'Bibliothek',
+    'tpl.library.title': 'Vorlagen-Bibliothek',
+    'tpl.library.intro': 'Kuratierte Awareness-Vorlagen. „Übernehmen" erstellt eine editierbare Kopie in deinen Vorlagen.',
+    'tpl.library.use': 'Übernehmen',
+    'tpl.library.back': 'Zurück',
     'badge.business': 'Business',
     'tpl.loading': 'Lade Vorlagen...',
     'tpl.empty': 'Noch keine Vorlage vorhanden → Erste Vorlage anlegen oder eine E-Mail hochladen.',
@@ -694,6 +699,11 @@ export const translations: Record<Lang, Record<string, string>> = {
     // Templates
     'tpl.new': 'New template',
     'tpl.upload': 'Upload email',
+    'tpl.library': 'Library',
+    'tpl.library.title': 'Template library',
+    'tpl.library.intro': 'Curated awareness templates. “Use” creates an editable copy in your templates.',
+    'tpl.library.use': 'Use',
+    'tpl.library.back': 'Back',
     'badge.business': 'Business',
     'tpl.loading': 'Loading templates...',
     'tpl.empty': 'No template yet → create your first template or upload an email.',
