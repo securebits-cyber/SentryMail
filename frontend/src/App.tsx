@@ -29,6 +29,7 @@ import ResultsPage from './pages/results'
 import SendingProfilesPage from './pages/sending-profiles'
 import LdapSettingsPage from './pages/settings/ldap'
 import OidcSettingsPage from './pages/settings/oidc'
+import SiemSettingsPage from './pages/settings/siem'
 import SmtpSettingsPage from './pages/settings/smtp'
 import WebhooksSettingsPage from './pages/settings/webhooks'
 import WhitelabelSettingsPage from './pages/settings/whitelabel'
@@ -80,6 +81,7 @@ export default function App() {
             <Route path="webhooks" element={<WebhooksSettingsPage />} />
             <Route path="entra" element={<EntraSettingsPage />} />
             <Route path="whitelabel" element={<WhitelabelSettingsPage />} />
+            <Route path="siem" element={<SiemSettingsPage />} />
             <Route path="oidc" element={<OidcSettingsPage />} />
             <Route path="smtp" element={<SmtpSettingsPage />} />
             <Route path="security" element={<SecuritySettingsPage />} />

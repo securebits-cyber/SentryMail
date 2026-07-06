@@ -115,7 +115,8 @@ The **core** of HumanShield.APP (all features above) is open source under the **
 - **White-label** — custom branding (app name, accent colors, logo)
 - **Automatic/risk campaigns** — recipients are chosen automatically by risk and sent at a fixed interval
 - **Enterprise reporting** — training progress, certificate status and individual per-person reports (PDF)
-- planned: multi-tenant, SAML SSO, AI scoring, SIEM export, etc.
+- **SIEM export** — tracking events to Splunk HEC, Elasticsearch, Microsoft Sentinel or generic JSON
+- planned: multi-tenant, SAML SSO, AI scoring, etc.
 
 Without a license the platform runs as pure open core — no errors, no lockouts.
 
