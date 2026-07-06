@@ -5,18 +5,10 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Badge from '../components/Badge'
+import { Funnel, RiskMeter, Timeline, type RiskSummary, type Summary, type TimelinePoint } from '../components/DashboardCharts'
 import PageHeader from '../components/PageHeader'
 import { useI18n } from '../i18n'
 import { api } from '../services/api'
-
-interface Summary {
-  campaigns: number
-  recipients: number
-  sent: number
-  opened: number
-  clicked: number
-  submitted: number
-}
 
 interface Failed {
   email: string
@@ -46,7 +38,7 @@ const toneNumber: Record<Tone, string> = {
   danger: 'text-status-danger',
 }
 
-// Dezent getönter Kachel-Hintergrund je nach Bedeutung (etwas mehr Farbe).
+// Dezent getönter Kachel-Hintergrund je nach Bedeutung.
 const toneTile: Record<Tone, string> = {
   neutral: 'border-border bg-surface',
   accent: 'border-accent/25 bg-accent/8',
@@ -57,12 +49,16 @@ const toneTile: Record<Tone, string> = {
 export default function DashboardPage() {
   const { t } = useI18n()
   const [summary, setSummary] = useState<Summary | null>(null)
+  const [risk, setRisk] = useState<RiskSummary | null>(null)
+  const [timeline, setTimeline] = useState<TimelinePoint[]>([])
   const [failed, setFailed] = useState<Failed[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     Promise.all([
       api.get<Summary>('/dashboard/summary').then((r) => setSummary(r.data)),
+      api.get<RiskSummary>('/dashboard/risk').then((r) => setRisk(r.data)),
+      api.get<TimelinePoint[]>('/dashboard/timeline').then((r) => setTimeline(r.data)),
       api.get<Failed[]>('/dashboard/failed').then((r) => setFailed(r.data)),
     ]).finally(() => setLoading(false))
   }, [])
@@ -73,13 +69,22 @@ export default function DashboardPage() {
     <>
       <PageHeader title={t('nav.controlCenter')} subtitle={t('dash.subtitle')} />
 
-      <div className="mb-8 grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))' }}>
+      <div className="mb-6 grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))' }}>
         {tiles.map(({ key, labelKey, tone }) => (
           <div key={key} className={`elevated rounded-lg border p-4 ${toneTile[tone]}`}>
             <div className="text-sm text-text-secondary">{t(labelKey)}</div>
             <div className={`mt-1 font-mono text-3xl font-semibold ${toneNumber[tone]}`}>{summary?.[key] ?? 0}</div>
           </div>
         ))}
+      </div>
+
+      <div className="mb-6 grid gap-4 lg:grid-cols-2">
+        {risk && <RiskMeter risk={risk} />}
+        {summary && <Funnel summary={summary} />}
+      </div>
+
+      <div className="mb-8">
+        <Timeline points={timeline} />
       </div>
 
       <h2 className="mb-3 text-lg font-semibold">{t('dash.failed.heading')}</h2>

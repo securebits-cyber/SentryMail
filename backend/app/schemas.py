@@ -422,3 +422,36 @@ class FailedRecipient(BaseModel):
     campaign_name: str
     status: str  # "submitted" (Daten abgeschickt) oder "clicked" (Link geklickt)
     occurred_at: datetime
+
+
+# --- Risikobewertung (Open Core, regelbasiert) ---
+
+class RiskDistribution(BaseModel):
+    """Anzahl Empfaenger je Risikostufe (schwerwiegendstes Ereignis)."""
+    high: int = 0     # Daten abgeschickt
+    medium: int = 0   # geklickt (nicht abgeschickt)
+    low: int = 0      # nur geoeffnet
+    none: int = 0     # keine Interaktion
+
+
+class CampaignRisk(BaseModel):
+    campaign_id: uuid.UUID
+    name: str
+    recipients: int
+    score: int        # 0-100
+    level: str        # "high" | "medium" | "low"
+
+
+class RiskSummary(BaseModel):
+    score: int        # 0-100, Mittel ueber alle Empfaenger
+    level: str        # "high" | "medium" | "low"
+    recipients: int
+    distribution: RiskDistribution
+    per_campaign: list[CampaignRisk]
+
+
+class TimelinePoint(BaseModel):
+    date: str         # ISO-Datum (YYYY-MM-DD)
+    opened: int = 0
+    clicked: int = 0
+    submitted: int = 0
