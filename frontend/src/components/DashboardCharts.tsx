@@ -3,6 +3,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
 import { ShieldAlert, ShieldCheck, ShieldX, type LucideIcon } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
 import { useI18n } from '../i18n'
 
 export interface Summary {
@@ -209,9 +210,23 @@ const SERIES: { key: keyof Omit<TimelinePoint, 'date'>; color: string; labelKey:
   { key: 'submitted', color: 'var(--color-chart-submitted)', labelKey: 'dash.tile.submitted' },
 ]
 
-/** Zeitachse: Ereignisse pro Tag (3 Serien). SVG-Linien + Legende + Tabellen-Fallback. */
+/** Zeitachse: Ereignisse pro Tag (3 Serien). SVG-Linien + Legende + Tabellen-Fallback.
+ *  Feste Hoehe in Pixeln — nur die Breite folgt dem Container (per ResizeObserver),
+ *  damit das Diagramm auf breiten Monitoren nicht riesig mitskaliert. */
 export function Timeline({ points }: { points: TimelinePoint[] }) {
   const { t } = useI18n()
+  const wrapRef = useRef<HTMLDivElement>(null)
+  const [width, setWidth] = useState(640)
+  const hasData = points.length > 0
+
+  useEffect(() => {
+    // Abhaengig von hasData: das div existiert erst, wenn Daten da sind.
+    const el = wrapRef.current
+    if (!el) return
+    const ro = new ResizeObserver(() => setWidth(Math.max(320, el.clientWidth)))
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [hasData])
 
   if (points.length === 0) {
     return (
@@ -222,8 +237,8 @@ export function Timeline({ points }: { points: TimelinePoint[] }) {
     )
   }
 
-  const W = 640
-  const H = 220
+  const W = width
+  const H = 190
   const pad = { l: 34, r: 14, t: 14, b: 30 }
   const maxY = Math.max(1, ...points.flatMap((p) => [p.opened, p.clicked, p.submitted]))
   const n = points.length
@@ -250,7 +265,8 @@ export function Timeline({ points }: { points: TimelinePoint[] }) {
         </div>
       </div>
 
-      <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="img" aria-label={t('timeline.heading')}>
+      <div ref={wrapRef}>
+      <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} role="img" aria-label={t('timeline.heading')}>
         {ticks.map((tk) => (
           <g key={tk}>
             <line x1={pad.l} x2={W - pad.r} y1={y(tk)} y2={y(tk)} stroke="var(--color-border)" strokeWidth={1} />
@@ -286,6 +302,7 @@ export function Timeline({ points }: { points: TimelinePoint[] }) {
           </g>
         ))}
       </svg>
+      </div>
 
       {/* Tabellen-Fallback (Barrierefreiheit / Print / forced-colors). */}
       <details className="mt-2">
