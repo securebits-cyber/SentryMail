@@ -13,6 +13,7 @@ import { useTheme } from '../hooks/useTheme'
 import { useBranding } from './BrandingProvider'
 import TierBadge, { type Tier } from './TierBadge'
 import { logout } from '../services/auth'
+import { APP_VERSION } from '../version'
 
 interface NavItem {
   to: string
@@ -202,7 +203,7 @@ export default function Layout() {
 
           <div className="mx-3 mb-2 flex items-center justify-between rounded-md border border-border bg-bg px-3 py-2 text-xs text-text-secondary">
             <span>{branding.app_name}</span>
-            <span className="font-mono">v0.1.0</span>
+            <span className="font-mono">v{APP_VERSION}</span>
           </div>
 
           {/* Wiki-Button, volle Breite des Sidebar-Bereichs. */}
