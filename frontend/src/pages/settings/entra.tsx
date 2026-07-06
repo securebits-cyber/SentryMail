@@ -94,14 +94,14 @@ export default function EntraSettingsPage() {
   if (features === null) return <p className="text-text-secondary">{t('common.loadingSettings')}</p>
   if (!licensed)
     return (
-      <PageScaffold title={t('entra.title')} subtitle={t('entra.subtitle')} breadcrumb={breadcrumb}>
+      <PageScaffold title={t('entra.title')} subtitle={t('entra.subtitle')} breadcrumb={breadcrumb} guidanceKey="settings-entra">
         <LockedFeatureNotice tier="business" />
       </PageScaffold>
     )
   if (!form) return <p className="text-text-secondary">{t('common.loadingSettings')}</p>
 
   return (
-    <PageScaffold title={t('entra.title')} subtitle={t('entra.subtitle')} breadcrumb={breadcrumb}>
+    <PageScaffold title={t('entra.title')} subtitle={t('entra.subtitle')} breadcrumb={breadcrumb} guidanceKey="settings-entra">
       {message && (
         <p className={`mb-4 text-sm ${message.kind === 'error' ? 'text-status-danger' : 'text-text-secondary'}`}>
           {message.text}

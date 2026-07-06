@@ -86,13 +86,13 @@ export default function AutoCampaignsPage() {
   if (features === null) return <p className="text-text-secondary">{t('dash.loading')}</p>
   if (!licensed)
     return (
-      <PageScaffold title={t('ac.title')} subtitle={t('ac.subtitle')}>
+      <PageScaffold title={t('ac.title')} subtitle={t('ac.subtitle')} guidanceKey="auto-campaigns">
         <LockedFeatureNotice tier="enterprise" />
       </PageScaffold>
     )
 
   return (
-    <PageScaffold title={t('ac.title')} subtitle={t('ac.subtitle')}>
+    <PageScaffold title={t('ac.title')} subtitle={t('ac.subtitle')} guidanceKey="auto-campaigns">
       {error && <p className="mb-3 text-sm text-status-danger">{error}</p>}
 
       <form onSubmit={add} className="mb-8 flex max-w-xl flex-col gap-3">

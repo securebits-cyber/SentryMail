@@ -101,13 +101,13 @@ export default function MultiStagePage() {
   if (features === null) return <p className="text-text-secondary">{t('dash.loading')}</p>
   if (!licensed)
     return (
-      <PageScaffold title={t('ms.title')} subtitle={t('ms.subtitle')}>
+      <PageScaffold title={t('ms.title')} subtitle={t('ms.subtitle')} guidanceKey="multistage">
         <LockedFeatureNotice tier="business" />
       </PageScaffold>
     )
 
   return (
-    <PageScaffold title={t('ms.title')} subtitle={t('ms.subtitle')}>
+    <PageScaffold title={t('ms.title')} subtitle={t('ms.subtitle')} guidanceKey="multistage">
       {error && <p className="mb-3 text-sm text-status-danger">{error}</p>}
 
       <form onSubmit={add} className="mb-8 flex max-w-2xl flex-col gap-3">

@@ -65,14 +65,14 @@ export default function SamlSettingsPage() {
   if (features === null) return <p className="text-text-secondary">{t('common.loadingSettings')}</p>
   if (!licensed)
     return (
-      <PageScaffold title={t('saml.title')} subtitle={t('saml.subtitle')} breadcrumb={breadcrumb}>
+      <PageScaffold title={t('saml.title')} subtitle={t('saml.subtitle')} breadcrumb={breadcrumb} guidanceKey="settings-saml">
         <LockedFeatureNotice tier="enterprise" />
       </PageScaffold>
     )
   if (!form) return <p className="text-text-secondary">{t('common.loadingSettings')}</p>
 
   return (
-    <PageScaffold title={t('saml.title')} subtitle={t('saml.subtitle')} breadcrumb={breadcrumb}>
+    <PageScaffold title={t('saml.title')} subtitle={t('saml.subtitle')} breadcrumb={breadcrumb} guidanceKey="settings-saml">
       {message && (
         <p className={`mb-4 text-sm ${message.kind === 'error' ? 'text-status-danger' : 'text-text-secondary'}`}>
           {message.text}
