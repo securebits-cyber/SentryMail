@@ -61,6 +61,12 @@ export const translations: Record<Lang, Record<string, string>> = {
 
     // Einstellungen (Untermenü)
     'settings.ldap': 'LDAP',
+    'settings.webhooks': 'Webhooks',
+    'wh.title': 'Webhooks',
+    'wh.subtitle': 'Ausgehende Event-Benachrichtigungen an externe Systeme.',
+    'wh.intro': 'Bei jedem Tracking-Ereignis (Öffnung, Klick, Absenden) wird ein JSON-POST an die hinterlegten URLs gesendet.',
+    'wh.add': 'Hinzufügen',
+    'wh.empty': 'Noch keine Webhooks konfiguriert.',
     'settings.oidc': 'OIDC / SSO',
     'settings.smtp': 'SMTP',
     'settings.security': 'Sicherheit',
@@ -645,6 +651,12 @@ export const translations: Record<Lang, Record<string, string>> = {
 
     // Settings (submenu)
     'settings.ldap': 'LDAP',
+    'settings.webhooks': 'Webhooks',
+    'wh.title': 'Webhooks',
+    'wh.subtitle': 'Outgoing event notifications to external systems.',
+    'wh.intro': 'On every tracking event (open, click, submit) a JSON POST is sent to the configured URLs.',
+    'wh.add': 'Add',
+    'wh.empty': 'No webhooks configured yet.',
     'settings.oidc': 'OIDC / SSO',
     'settings.smtp': 'SMTP',
     'settings.security': 'Security',

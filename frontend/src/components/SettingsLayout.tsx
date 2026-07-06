@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-import { BadgeCheck, KeyRound, Lock, MailCheck, Network, ScrollText, ShieldCheck, type LucideIcon } from 'lucide-react'
+import { BadgeCheck, KeyRound, Lock, MailCheck, Network, ScrollText, ShieldCheck, Webhook, type LucideIcon } from 'lucide-react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { useFeatures } from '../hooks/useFeatures'
 import { useI18n } from '../i18n'
@@ -21,6 +21,7 @@ const groups: { labelKey: string | null; items: NavItem[] }[] = [
     labelKey: null,
     items: [
       { to: '/settings/ldap', labelKey: 'settings.ldap', icon: Network, feature: 'business' },
+      { to: '/settings/webhooks', labelKey: 'settings.webhooks', icon: Webhook, feature: 'business' },
       { to: '/settings/oidc', labelKey: 'settings.oidc', icon: KeyRound },
       { to: '/settings/smtp', labelKey: 'settings.smtp', icon: MailCheck },
       { to: '/settings/security', labelKey: 'settings.security', icon: ShieldCheck },

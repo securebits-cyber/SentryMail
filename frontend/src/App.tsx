@@ -26,6 +26,7 @@ import SendingProfilesPage from './pages/sending-profiles'
 import LdapSettingsPage from './pages/settings/ldap'
 import OidcSettingsPage from './pages/settings/oidc'
 import SmtpSettingsPage from './pages/settings/smtp'
+import WebhooksSettingsPage from './pages/settings/webhooks'
 import TemplatesPage from './pages/templates'
 import UsersPage from './pages/users'
 import { consumeTokenFromUrlFragment, isAuthenticated } from './services/auth'
@@ -68,6 +69,7 @@ export default function App() {
           <Route path="/settings" element={<SettingsLayout />}>
             <Route index element={<Navigate to="/settings/ldap" replace />} />
             <Route path="ldap" element={<LdapSettingsPage />} />
+            <Route path="webhooks" element={<WebhooksSettingsPage />} />
             <Route path="oidc" element={<OidcSettingsPage />} />
             <Route path="smtp" element={<SmtpSettingsPage />} />
             <Route path="security" element={<SecuritySettingsPage />} />
