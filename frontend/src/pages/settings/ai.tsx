@@ -96,14 +96,14 @@ export default function AiSettingsPage() {
   if (features === null) return <p className="text-text-secondary">{t('common.loadingSettings')}</p>
   if (!licensed)
     return (
-      <PageScaffold title={t('ai.title')} subtitle={t('ai.subtitle')} breadcrumb={breadcrumb}>
+      <PageScaffold title={t('ai.title')} subtitle={t('ai.subtitle')} breadcrumb={breadcrumb} guidanceKey="settings-ai">
         <LockedFeatureNotice tier="business" />
       </PageScaffold>
     )
   if (!form) return <p className="text-text-secondary">{t('common.loadingSettings')}</p>
 
   return (
-    <PageScaffold title={t('ai.title')} subtitle={t('ai.subtitle')} breadcrumb={breadcrumb}>
+    <PageScaffold title={t('ai.title')} subtitle={t('ai.subtitle')} breadcrumb={breadcrumb} guidanceKey="settings-ai">
       {message && (
         <p className={`mb-4 text-sm ${message.kind === 'error' ? 'text-status-danger' : 'text-text-secondary'}`}>
           {message.text}

@@ -47,6 +47,7 @@ export default function AuditEventsPage() {
         { label: t('settings.activity'), icon: Activity },
         { label: t('settings.auditEvents'), icon: ScrollText },
       ]}
+      guidanceKey="settings-audit"
     >
       {error && <p className="mb-4 text-sm text-status-danger">{error}</p>}
 
