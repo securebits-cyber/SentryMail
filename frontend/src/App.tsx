@@ -30,6 +30,7 @@ import LdapSettingsPage from './pages/settings/ldap'
 import OidcSettingsPage from './pages/settings/oidc'
 import SmtpSettingsPage from './pages/settings/smtp'
 import WebhooksSettingsPage from './pages/settings/webhooks'
+import WhitelabelSettingsPage from './pages/settings/whitelabel'
 import TemplatesPage from './pages/templates'
 import UsersPage from './pages/users'
 import { consumeTokenFromUrlFragment, isAuthenticated } from './services/auth'
@@ -76,6 +77,7 @@ export default function App() {
             <Route path="ldap" element={<LdapSettingsPage />} />
             <Route path="webhooks" element={<WebhooksSettingsPage />} />
             <Route path="entra" element={<EntraSettingsPage />} />
+            <Route path="whitelabel" element={<WhitelabelSettingsPage />} />
             <Route path="oidc" element={<OidcSettingsPage />} />
             <Route path="smtp" element={<SmtpSettingsPage />} />
             <Route path="security" element={<SecuritySettingsPage />} />

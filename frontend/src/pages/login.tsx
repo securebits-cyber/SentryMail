@@ -6,6 +6,7 @@ import { FormEvent, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import TwoFASetup from '../components/TwoFASetup'
 import LanguageSwitcher from '../components/LanguageSwitcher'
+import { useBranding } from '../components/BrandingProvider'
 import { useI18n } from '../i18n'
 import { getAuthConfig, loginLocal, loginUrl, loginVerify2fa, setToken } from '../services/auth'
 
@@ -14,6 +15,7 @@ const primaryBtn = 'rounded-md bg-accent px-5 py-2 font-medium text-white disabl
 
 export default function LoginPage() {
   const navigate = useNavigate()
+  const branding = useBranding()
   const { t } = useI18n()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -78,7 +80,11 @@ export default function LoginPage() {
       <div className="absolute right-4 top-4">
         <LanguageSwitcher />
       </div>
-      <h1 className="text-2xl font-semibold">HumanShield.APP</h1>
+      {branding.logo_b64 ? (
+        <img src={branding.logo_b64} alt="" className="h-10 max-w-[240px] object-contain" />
+      ) : (
+        <h1 className="text-2xl font-semibold">{branding.app_name}</h1>
+      )}
 
       {stage === 'password' && (
         <>

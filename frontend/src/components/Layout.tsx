@@ -8,6 +8,7 @@ import LanguageSwitcher from './LanguageSwitcher'
 import { useI18n } from '../i18n'
 import { useMe } from '../hooks/useMe'
 import { useTheme } from '../hooks/useTheme'
+import { useBranding } from './BrandingProvider'
 import { logout } from '../services/auth'
 
 interface NavItem {
@@ -71,14 +72,21 @@ export default function Layout() {
   const { theme, toggleTheme } = useTheme()
   const { t } = useI18n()
   const me = useMe()
+  const branding = useBranding()
   const isAdmin = me?.role === 'admin'
 
   return (
     <div className="flex min-h-screen flex-col bg-bg text-text-primary">
       {/* Kopfzeile mit durchgehender Trennlinie ueber die volle Breite (Netbird-Stil). */}
       <header className="flex shrink-0 items-center gap-2 border-b border-border bg-surface px-4 py-3">
-        <span className="h-6 w-6 rounded-md bg-accent" aria-hidden />
-        <span className="text-lg font-semibold tracking-tight">HumanShield.APP</span>
+        {branding.logo_b64 ? (
+          <img src={branding.logo_b64} alt="" className="h-7 max-w-[180px] object-contain" />
+        ) : (
+          <>
+            <span className="h-6 w-6 rounded-md bg-accent" aria-hidden />
+            <span className="text-lg font-semibold tracking-tight">{branding.app_name}</span>
+          </>
+        )}
         <Link
           to="/settings/license"
           className="ml-auto rounded-md border border-green-600 px-3 py-1.5 text-sm font-medium text-green-600 transition-colors hover:bg-green-600/10"
@@ -136,7 +144,7 @@ export default function Layout() {
           </div>
 
           <div className="mx-3 mb-3 flex items-center justify-between rounded-md border border-border bg-bg px-3 py-2 text-xs text-text-secondary">
-            <span>HumanShield.APP</span>
+            <span>{branding.app_name}</span>
             <span className="font-mono">v0.1.0</span>
           </div>
         </div>
