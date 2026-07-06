@@ -118,6 +118,64 @@ def test_heatmap_counts_events(client, db, make_user, auth_headers):
     assert cell["count"] == 1
 
 
+def _seed_person_over_campaigns(db, owner_id, email, per_campaign_events, criticality=None):
+    """Legt fuer eine Person je Kampagne einen Recipient an und erfasst das
+    angegebene Ereignis. ``per_campaign_events`` ist eine Liste von Event-Typen
+    (oder None fuer keine Interaktion)."""
+    template = Template(name="T", subject="S", html_content="<p>x</p>", created_by_id=owner_id)
+    db.add(template)
+    db.flush()
+    for i, ev in enumerate(per_campaign_events):
+        campaign = Campaign(name=f"C{i}", template_id=template.id, created_by_id=owner_id)
+        db.add(campaign)
+        db.flush()
+        token = f"tok-{email}-{i}"
+        db.add(Recipient(
+            campaign_id=campaign.id, email=email, tracking_token=token, criticality=criticality,
+        ))
+        db.commit()
+        if ev is not None:
+            record_event(db, tracking_token=token, event_type=ev)
+
+
+def test_human_risk_empty(client, make_user, auth_headers):
+    admin = make_user(role=UserRole.ADMIN)
+    body = client.get("/dashboard/human-risk", headers=auth_headers(admin)).json()
+    assert body["people"] == 0
+    assert body["score"] == 0
+    assert body["top_people"] == []
+
+
+def test_human_risk_flags_repeat_offender(client, db, make_user, auth_headers):
+    admin = make_user(role=UserRole.ADMIN)
+    # Person klickt in 2 von 2 Kampagnen -> Wiederholungstaeter.
+    _seed_person_over_campaigns(
+        db, admin.id, "wiederholt@example.com",
+        [TrackingEventType.CLICKED, TrackingEventType.CLICKED],
+    )
+    body = client.get("/dashboard/human-risk", headers=auth_headers(admin)).json()
+    assert body["people"] == 1
+    assert body["repeat_offenders"] == 1
+    person = body["top_people"][0]
+    assert person["fails"] == 2
+    assert person["repeat_offender"] is True
+    assert person["behavior_score"] == 60
+    # 60 + Wiederholungszuschlag (10) = 70, ohne Kritikalitaets-Faktor.
+    assert person["score"] == 70
+
+
+def test_human_risk_weights_criticality(client, db, make_user, auth_headers):
+    admin = make_user(role=UserRole.ADMIN)
+    _seed_person_over_campaigns(
+        db, admin.id, "kritisch@example.com", [TrackingEventType.CLICKED], criticality="high",
+    )
+    body = client.get("/dashboard/human-risk", headers=auth_headers(admin)).json()
+    person = body["top_people"][0]
+    assert person["criticality"] == "high"
+    # 60 * 1.2 (high) = 72, kein Wiederholungszuschlag (nur 1 Fail).
+    assert person["score"] == 72
+
+
 def test_management_report_reflects_click(client, db, make_user, auth_headers):
     admin = make_user(role=UserRole.ADMIN)
     _seed(db, admin.id, TrackingEventType.CLICKED)

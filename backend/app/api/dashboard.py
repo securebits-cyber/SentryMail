@@ -18,6 +18,7 @@ from app.schemas import (
     DashboardSummary,
     EngagementAnalytics,
     FailedRecipient,
+    HumanRiskSummary,
     RiskSummary,
     TimelinePoint,
 )
@@ -54,3 +55,8 @@ def analytics(db: Session = Depends(get_db), _: User = Depends(get_current_user)
 @router.get("/heatmap", response_model=ActivityHeatmap)
 def heatmap(db: Session = Depends(get_db), _: User = Depends(get_current_user)):
     return reporting.activity_heatmap(db)
+
+
+@router.get("/human-risk", response_model=HumanRiskSummary)
+def human_risk(db: Session = Depends(get_db), _: User = Depends(get_current_user)):
+    return reporting.human_risk(db)

@@ -9,10 +9,12 @@ import {
   ActivityHeatmapCard,
   EngagementBreakdown,
   Funnel,
+  HumanRiskCard,
   RiskMeter,
   Timeline,
   type ActivityHeatmap,
   type EngagementAnalytics,
+  type HumanRiskSummary,
   type RiskSummary,
   type Summary,
   type TimelinePoint,
@@ -64,6 +66,7 @@ export default function DashboardPage() {
   const [timeline, setTimeline] = useState<TimelinePoint[]>([])
   const [analytics, setAnalytics] = useState<EngagementAnalytics | null>(null)
   const [heatmap, setHeatmap] = useState<ActivityHeatmap | null>(null)
+  const [humanRisk, setHumanRisk] = useState<HumanRiskSummary | null>(null)
   const [failed, setFailed] = useState<Failed[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -74,6 +77,7 @@ export default function DashboardPage() {
       api.get<TimelinePoint[]>('/dashboard/timeline').then((r) => setTimeline(r.data)),
       api.get<EngagementAnalytics>('/dashboard/analytics').then((r) => setAnalytics(r.data)),
       api.get<ActivityHeatmap>('/dashboard/heatmap').then((r) => setHeatmap(r.data)),
+      api.get<HumanRiskSummary>('/dashboard/human-risk').then((r) => setHumanRisk(r.data)),
       api.get<Failed[]>('/dashboard/failed').then((r) => setFailed(r.data)),
     ]).finally(() => setLoading(false))
   }, [])
@@ -109,8 +113,14 @@ export default function DashboardPage() {
       )}
 
       {heatmap && (
-        <div className="mb-8">
+        <div className="mb-6">
           <ActivityHeatmapCard heatmap={heatmap} />
+        </div>
+      )}
+
+      {humanRisk && (
+        <div className="mb-8">
+          <HumanRiskCard summary={humanRisk} />
         </div>
       )}
 

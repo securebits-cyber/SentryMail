@@ -4,6 +4,7 @@
 
 import { ShieldAlert, ShieldCheck, ShieldX, type LucideIcon } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
+import Badge from './Badge'
 import { useI18n } from '../i18n'
 
 export interface Summary {
@@ -200,6 +201,105 @@ export function EngagementBreakdown({ analytics }: { analytics: EngagementAnalyt
           <BarList title={t('analytics.languages')} slices={analytics.languages} total={analytics.total_events} />
           <BarList title={t('analytics.resolutions')} slices={analytics.resolutions} total={analytics.total_events} />
           <BarList title={t('analytics.utm')} slices={analytics.utm_sources} total={analytics.total_events} />
+        </div>
+      )}
+    </div>
+  )
+}
+
+export interface HumanRiskPerson {
+  email: string
+  first_name: string | null
+  last_name: string | null
+  department: string | null
+  position: string | null
+  criticality: string | null
+  campaigns: number
+  fails: number
+  repeat_offender: boolean
+  behavior_score: number
+  score: number
+  level: 'high' | 'medium' | 'low'
+}
+
+export interface HumanRiskSummary {
+  score: number
+  level: 'high' | 'medium' | 'low'
+  people: number
+  repeat_offenders: number
+  distribution: { high: number; medium: number; low: number; none: number }
+  top_people: HumanRiskPerson[]
+}
+
+const LEVEL_TEXT: Record<'high' | 'medium' | 'low', string> = {
+  high: 'text-status-danger',
+  medium: 'text-status-warning',
+  low: 'text-status-success',
+}
+
+/** Human Risk Management: personenbezogene Risiko-Rangliste ueber alle Kampagnen. */
+export function HumanRiskCard({ summary }: { summary: HumanRiskSummary }) {
+  const { t } = useI18n()
+
+  return (
+    <div className="elevated rounded-lg border border-border bg-surface p-5">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+        <h3 className="text-sm font-semibold text-text-secondary">{t('hrm.heading')}</h3>
+        <div className="flex items-center gap-4 text-xs text-text-secondary">
+          <span>{t('hrm.people', { count: String(summary.people) })}</span>
+          <span className="text-status-danger">{t('hrm.repeat', { count: String(summary.repeat_offenders) })}</span>
+          <span className={`font-semibold ${LEVEL_TEXT[summary.level]}`}>
+            ⌀ {summary.score}/100
+          </span>
+        </div>
+      </div>
+      {summary.top_people.length === 0 ? (
+        <p className="text-sm text-text-secondary">{t('hrm.empty')}</p>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="border-b border-border text-left text-xs text-text-secondary">
+                <th className="py-2 pr-4 font-medium">{t('common.name')}</th>
+                <th className="py-2 pr-4 font-medium">{t('hrm.department')}</th>
+                <th className="py-2 pr-4 font-medium">{t('hrm.criticality')}</th>
+                <th className="py-2 pr-4 font-medium">{t('hrm.campaigns')}</th>
+                <th className="py-2 pr-4 font-medium">{t('hrm.fails')}</th>
+                <th className="py-2 font-medium">{t('hrm.score')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {summary.top_people.map((p) => {
+                const name = [p.first_name, p.last_name].filter(Boolean).join(' ') || p.email
+                return (
+                  <tr key={p.email} className="border-b border-border">
+                    <td className="py-2 pr-4">
+                      <div className="text-sm text-text-primary">{name}</div>
+                      <div className="font-mono text-xs text-text-secondary">{p.email}</div>
+                    </td>
+                    <td className="py-2 pr-4 text-sm text-text-secondary">{p.department || '—'}</td>
+                    <td className="py-2 pr-4 text-sm">
+                      {p.criticality ? t(`crit.${p.criticality}`) : '—'}
+                    </td>
+                    <td className="py-2 pr-4 font-mono text-sm tabular-nums text-text-secondary">{p.campaigns}</td>
+                    <td className="py-2 pr-4 font-mono text-sm tabular-nums">
+                      {p.fails}
+                      {p.repeat_offender && (
+                        <span className="ml-1.5 align-middle">
+                          <Badge tone="danger">{t('hrm.repeatBadge')}</Badge>
+                        </span>
+                      )}
+                    </td>
+                    <td className="py-2">
+                      <span className={`font-mono text-sm font-semibold tabular-nums ${LEVEL_TEXT[p.level]}`}>
+                        {p.score}
+                      </span>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
         </div>
       )}
     </div>

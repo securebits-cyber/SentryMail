@@ -23,6 +23,8 @@ from app.schemas import (
     EngagementAnalytics,
     FailedRecipient,
     HeatmapCell,
+    HumanRiskPerson,
+    HumanRiskSummary,
     ManagementReport,
     ReportCampaignRow,
     RiskDistribution,
@@ -131,6 +133,119 @@ def compute_risk(db: Session) -> RiskSummary:
         distribution=RiskDistribution(**dist),
         per_campaign=per_campaign,
     )
+
+
+# Kritikalitaets-Gewicht: eine kritische Person, die durchfaellt, ist ein
+# hoeheres Geschaeftsrisiko als eine unkritische mit gleichem Klickverhalten.
+_CRITICALITY_FACTOR = {"low": 0.9, "normal": 1.0, "high": 1.2}
+
+
+def _is_fail(types) -> bool:
+    return TrackingEventType.CLICKED in types or TrackingEventType.SUBMITTED in types
+
+
+def human_risk(db: Session, top: int = 20) -> HumanRiskSummary:
+    """Personenbezogener Risiko-Score ueber alle Kampagnen (Human Risk Management).
+
+    Aggregiert je Person (identifiziert per E-Mail) ihre Teilnahmen und bewertet
+    nach den CLAUDE.MD-Kriterien:
+    - Klickverhalten / Passworteingaben: schwerwiegendstes Ereignis je Kampagne,
+      gemittelt (``behavior_score``).
+    - Wiederholungsfehler: >= 2 Kampagnen mit Klick/Abgeschickt erhoehen den Score.
+    - Kritikalitaet: gewichtet den Score (``_CRITICALITY_FACTOR``).
+    - Abteilung / Funktion: als Attribute gefuehrt (Gruppierung/Anzeige).
+    Trainingsfortschritt ist im Open Core nicht erfasst und geht nicht ein.
+    """
+    types_by_recipient = _events_by_recipient(db)
+    rows = db.query(
+        Recipient.email,
+        Recipient.first_name,
+        Recipient.last_name,
+        Recipient.department,
+        Recipient.position,
+        Recipient.criticality,
+        Recipient.id,
+    ).all()
+
+    # Je Person sammeln: Punkte je Kampagne, Fails, beste bekannte Attribute.
+    people: dict[str, dict] = {}
+    for email, first, last, dept, pos, crit, rid in rows:
+        key = email.lower()
+        p = people.setdefault(
+            key,
+            {"email": email, "first": first, "last": last, "dept": dept,
+             "pos": pos, "crit": crit, "points": [], "fails": 0},
+        )
+        # Attribute nachtragen, wenn in einer Teilnahme gepflegt.
+        p["first"] = p["first"] or first
+        p["last"] = p["last"] or last
+        p["dept"] = p["dept"] or dept
+        p["pos"] = p["pos"] or pos
+        # Hoechste Kritikalitaet gewinnt.
+        if crit and _CRITICALITY_FACTOR.get(crit, 1.0) > _CRITICALITY_FACTOR.get(p["crit"] or "normal", 1.0):
+            p["crit"] = crit
+        types = types_by_recipient.get(rid, set())
+        p["points"].append(risk_points(types))
+        if _is_fail(types):
+            p["fails"] += 1
+
+    dist = {"high": 0, "medium": 0, "low": 0, "none": 0}
+    total_score = 0
+    repeat_offenders = 0
+    persons: list[HumanRiskPerson] = []
+
+    for p in people.values():
+        n = len(p["points"])
+        behavior = round(sum(p["points"]) / n) if n else 0
+        fails = p["fails"]
+        repeat = fails >= 2
+        if repeat:
+            repeat_offenders += 1
+        # Wiederholungsfehler-Zuschlag (max. +20), dann Kritikalitaets-Faktor.
+        repeat_bonus = min(20, (fails - 1) * 10) if fails >= 2 else 0
+        factor = _CRITICALITY_FACTOR.get(p["crit"] or "normal", 1.0)
+        score = max(0, min(100, round((behavior + repeat_bonus) * factor)))
+        total_score += score
+        dist[_band_from_score(score)] += 1
+        persons.append(
+            HumanRiskPerson(
+                email=p["email"],
+                first_name=p["first"],
+                last_name=p["last"],
+                department=p["dept"],
+                position=p["pos"],
+                criticality=p["crit"],
+                campaigns=n,
+                fails=fails,
+                repeat_offender=repeat,
+                behavior_score=behavior,
+                score=score,
+                level=risk_level(score),
+            )
+        )
+
+    persons.sort(key=lambda x: x.score, reverse=True)
+    count = len(persons)
+    overall = round(total_score / count) if count else 0
+    return HumanRiskSummary(
+        score=overall,
+        level=risk_level(overall),
+        people=count,
+        repeat_offenders=repeat_offenders,
+        distribution=RiskDistribution(**dist),
+        top_people=persons[:top],
+    )
+
+
+def _band_from_score(score: int) -> str:
+    """Verteilungs-Band aus einem personenbezogenen Score (nicht Event-Punkte)."""
+    if score == 0:
+        return "none"
+    if score >= 67:
+        return "high"
+    if score >= 34:
+        return "medium"
+    return "low"
 
 
 def timeline(db: Session) -> list[TimelinePoint]:
