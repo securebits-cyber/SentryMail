@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-import { Download, FileText, Lock } from 'lucide-react'
+import { Download, FileText, Lock, Sparkles } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { RiskMeter, type RiskSummary } from '../components/DashboardCharts'
@@ -113,11 +113,19 @@ interface Progress {
   cert_status: string
 }
 
+interface AiScoring {
+  assessment: string
+  recommendations: string[]
+}
+
 export default function ReportsPage() {
-  const { t } = useI18n()
+  const { t, lang } = useI18n()
   const features = useFeatures()
   const businessLicensed = Boolean(features?.features?.business)
   const enterpriseLicensed = Boolean(features?.features?.enterprise)
+  const [aiScore, setAiScore] = useState<AiScoring | null>(null)
+  const [aiBusy, setAiBusy] = useState(false)
+  const [aiError, setAiError] = useState<string | null>(null)
   const [report, setReport] = useState<Report | null>(null)
   const [trend, setTrend] = useState<TrendRow[]>([])
   const [users, setUsers] = useState<UserRow[]>([])
@@ -147,6 +155,20 @@ export default function ReportsPage() {
     if (!enterpriseLicensed) return
     api.get<Progress[]>('/enterprise-reports/users').then((r) => setProgress(r.data)).catch(() => setProgress([]))
   }, [enterpriseLicensed])
+
+  async function runAiScoring() {
+    setAiBusy(true)
+    setAiError(null)
+    try {
+      const res = await api.post<AiScoring>('/enterprise-reports/ai-scoring', null, { params: { lang } })
+      setAiScore(res.data)
+    } catch (e) {
+      const detail = (e as { response?: { data?: { detail?: string } } })?.response?.data?.detail
+      setAiError(detail || t('rep.ai.error'))
+    } finally {
+      setAiBusy(false)
+    }
+  }
 
   async function exportCsv() {
     setExporting(true)
@@ -534,6 +556,42 @@ export default function ReportsPage() {
                   ))}
                 </tbody>
               </table>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Enterprise: KI-gestützte Risikoanalyse (AI-Scoring) */}
+      {enterpriseLicensed && (
+        <div className="mt-8">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <h2 className="flex items-center gap-2 text-lg font-semibold">
+              <Sparkles size={18} className="text-accent" />
+              {t('rep.ai.heading')}
+            </h2>
+            <button
+              onClick={runAiScoring}
+              disabled={aiBusy}
+              className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+            >
+              {aiBusy ? t('rep.ai.busy') : t('rep.ai.run')}
+            </button>
+          </div>
+          <p className="mb-3 max-w-3xl text-sm text-text-secondary">{t('rep.ai.intro')}</p>
+          {aiError && <p className="mb-3 text-sm text-status-danger">{aiError}</p>}
+          {aiScore && (
+            <div className="elevated rounded-lg border border-border bg-surface p-5">
+              <p className="text-sm text-text-primary">{aiScore.assessment}</p>
+              {aiScore.recommendations.length > 0 && (
+                <>
+                  <h3 className="mb-2 mt-4 text-sm font-semibold text-text-secondary">{t('rep.ai.recommendations')}</h3>
+                  <ul className="list-disc space-y-1 pl-5 text-sm text-text-primary">
+                    {aiScore.recommendations.map((r, i) => (
+                      <li key={i}>{r}</li>
+                    ))}
+                  </ul>
+                </>
+              )}
             </div>
           )}
         </div>
