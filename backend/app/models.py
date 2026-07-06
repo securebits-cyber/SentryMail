@@ -236,6 +236,9 @@ class TrackingEvent(Base):
     utm_source: Mapped[str | None] = mapped_column(String(128), nullable=True)
     utm_medium: Mapped[str | None] = mapped_column(String(128), nullable=True)
     utm_campaign: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    # Clientseitig per Landing-Page-Beacon nachgetragen (JavaScript).
+    screen_resolution: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    client_language: Mapped[str | None] = mapped_column(String(16), nullable=True)
 
     recipient: Mapped["Recipient"] = relationship(back_populates="tracking_events")
 

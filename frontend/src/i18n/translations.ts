@@ -211,6 +211,8 @@ export const translations: Record<Lang, Record<string, string>> = {
     'analytics.browsers': 'Browser',
     'analytics.os': 'Betriebssystem',
     'analytics.devices': 'Gerätetyp',
+    'analytics.languages': 'Sprache',
+    'analytics.resolutions': 'Bildschirmauflösung',
     'analytics.utm': 'UTM-Quelle',
     'dash.failed.heading': 'Nicht bestanden',
     'dash.failed.empty':
@@ -911,6 +913,8 @@ export const translations: Record<Lang, Record<string, string>> = {
     'analytics.browsers': 'Browser',
     'analytics.os': 'Operating system',
     'analytics.devices': 'Device type',
+    'analytics.languages': 'Language',
+    'analytics.resolutions': 'Screen resolution',
     'analytics.utm': 'UTM source',
     'dash.failed.heading': 'Failed',
     'dash.failed.empty': 'Nobody has clicked or submitted data yet — or no campaign has been evaluated.',

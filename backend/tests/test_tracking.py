@@ -165,6 +165,36 @@ def test_click_unknown_token_does_not_redirect(client, db):
     assert db.query(TrackingEvent).count() == 0
 
 
+def test_client_beacon_enriches_latest_click(client, db, campaign_with_recipient):
+    """Der Landing-Beacon traegt Aufloesung/Sprache am juengsten Klick-Event nach."""
+    client.get("/track/landing", params={"t": "tok-known-123"})
+    resp = client.get(
+        "/track/client",
+        params={"t": "tok-known-123", "res": "1920x1080", "lang": "de-DE"},
+    )
+    assert resp.status_code == 200
+    assert resp.headers["content-type"] == "image/gif"
+    click = (
+        db.query(TrackingEvent)
+        .filter(TrackingEvent.event_type == TrackingEventType.CLICKED)
+        .one()
+    )
+    assert click.screen_resolution == "1920x1080"
+    assert click.client_language == "de-DE"
+
+
+def test_client_beacon_rejects_bogus_resolution(client, db, campaign_with_recipient):
+    client.get("/track/landing", params={"t": "tok-known-123"})
+    client.get("/track/client", params={"t": "tok-known-123", "res": "drop table", "lang": "en"})
+    click = (
+        db.query(TrackingEvent)
+        .filter(TrackingEvent.event_type == TrackingEventType.CLICKED)
+        .one()
+    )
+    assert click.screen_resolution is None  # ungueltiges Format verworfen
+    assert click.client_language == "en"
+
+
 def test_pixel_unknown_token_still_returns_gif(client, db):
     """Unbekannter Token -> kein Event, aber der Pixel wird trotzdem ausgeliefert
     (verraet dem Empfaenger nichts)."""
