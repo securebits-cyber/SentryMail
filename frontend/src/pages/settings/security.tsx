@@ -50,6 +50,7 @@ export default function SecuritySettingsPage() {
         { label: t('nav.settings'), icon: Settings },
         { label: t('settings.security'), icon: ShieldCheck },
       ]}
+      guidanceKey="settings-security"
     >
       {message && (
         <p className={`mb-4 text-sm ${message.kind === 'error' ? 'text-status-danger' : 'text-text-secondary'}`}>

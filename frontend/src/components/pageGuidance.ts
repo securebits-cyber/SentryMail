@@ -72,6 +72,7 @@ const de: Record<string, Guidance> = {
     steps: [
       'Namen vergeben und den Seiteninhalt gestalten — als HTML oder im Markdown-Modus (z. B. eine nachgebaute Login-Seite).',
       'Für ein Eingabeformular HTML verwenden; alle Formulare werden beim Ausliefern automatisch auf die Tracking-URL umgebogen.',
+      'Über „Vorschau“ das Ergebnis mit Beispieldaten prüfen (Formular/Skripte sind in der Vorschau deaktiviert).',
       '„Daten-Capture“ aktivieren, wenn abgeschickte Formulardaten als Signal erfasst werden sollen.',
       'Passwörter nur erfassen, wenn wirklich nötig — Datenschutz und interne Richtlinien beachten.',
       'Optional eine Weiterleitung oder Aufklärungsseite nach dem Absenden hinterlegen.',
@@ -135,13 +136,15 @@ const de: Record<string, Guidance> = {
     note: 'Bei aktivem OIDC müssen Nutzer trotzdem als lokale Konten mit passender E-Mail existieren.',
   },
   profile: {
-    intro: 'Hier änderst du deinen angezeigten Namen und dein Passwort.',
+    intro: 'Hier änderst du deinen angezeigten Namen, dein Passwort und die Zwei-Faktor-Authentifizierung (2FA).',
     steps: [
       'Namen anpassen und speichern.',
       'Zum Passwortwechsel das aktuelle Passwort und zweimal das neue eingeben.',
       'Ein starkes, einzigartiges Passwort verwenden.',
+      '2FA einrichten: Authenticator-App (TOTP) und E-Mail-Einmalcode sind immer verfügbar; Passkey (WebAuthn: Fingerabdruck, Gesicht oder Sicherheitsschlüssel) mit Business-Lizenz.',
+      'Bei der Einrichtung Backup-Codes sicher aufbewahren — sie sind die Wiederherstellung bei Geräteverlust.',
     ],
-    note: 'Deine E-Mail-Adresse und Rolle kann nur ein Admin ändern.',
+    note: 'Deine E-Mail-Adresse und Rolle kann nur ein Admin ändern. Bei Passkey kannst du mehrere Geräte hinterlegen.',
   },
   'settings-ldap': {
     intro:
@@ -149,6 +152,7 @@ const de: Record<string, Guidance> = {
     steps: [
       'Host und Port des LDAP-Servers eintragen (Standard: 389, LDAPS: 636).',
       'Verschlüsselung wählen: LDAPS (SSL) oder StartTLS — für Produktivbetrieb empfohlen.',
+      'Bei LDAPS/StartTLS optional das CA-/Server-Zertifikat (PEM) hinterlegen, damit der Server verifiziert wird (empfohlen bei internen/selbstsignierten CAs). Leer = keine Prüfung.',
       'Bind-DN eines Dienstkontos mit Lesezugriff angeben, z. B. cn=svc,ou=service,dc=example,dc=com.',
       'Das Bind-Passwort eintragen — es wird verschlüsselt gespeichert und nie wieder angezeigt.',
       'Base-DN setzen, unterhalb dessen nach Benutzern gesucht wird, z. B. ou=users,dc=example,dc=com.',
@@ -180,6 +184,154 @@ const de: Record<string, Guidance> = {
       '„Verbindung testen“ klicken — speichert die Werte und prüft Verbindung und Anmeldung.',
     ],
     note: 'Bei einer frischen Installation ist diese Seite mit den SMTP-Werten aus der .env vorbefüllt.',
+  },
+  recurring: {
+    intro:
+      'Wiederkehrende Kampagnen versenden in festem Intervall automatisch eine neue Iteration an dieselben Gruppen — ideal für kontinuierliche Awareness.',
+    steps: [
+      'Vorlage, Sending Profile und Landing Page auswählen wie bei einer normalen Kampagne.',
+      'Empfängergruppen zuweisen — bei jeder Fälligkeit werden daraus frische Empfänger mit neuen Tracking-Token erzeugt.',
+      'Intervall in Tagen festlegen (z. B. 30) und die Automatik aktivieren.',
+      'Ergebnisse je Iteration findest du wie bei einzelnen Kampagnen unter den Kampagnen-Ergebnissen.',
+    ],
+    note: 'Business-Funktion. Der Scheduler löst die Fälligkeiten serverseitig aus — es muss niemand angemeldet sein.',
+  },
+  multistage: {
+    intro:
+      'Mehrstufige Kampagnen versenden eine Abfolge von Vorlagen an dieselben Empfänger, jeweils mit zeitlichem Abstand — z. B. Köder, dann Erinnerung.',
+    steps: [
+      'Name, Gruppen, Sending Profile und Landing Page festlegen.',
+      'Stufen hinzufügen: je Stufe eine Vorlage und eine Verzögerung in Tagen ab Kampagnenstart.',
+      'Reihenfolge und Abstände prüfen und die Kampagne starten.',
+      'Der Fortschritt (versendete Stufen) wird je Kampagne mitgezählt.',
+    ],
+    note: 'Business-Funktion. Die Stufen werden automatisch fällig — kein manuelles Nachfassen nötig.',
+  },
+  'auto-campaigns': {
+    intro:
+      'Automatische, risikoabhängige Kampagnen wählen Empfänger dynamisch nach Risiko aus und versenden in festem Intervall — gezielt an die, die es am nötigsten haben.',
+    steps: [
+      'Vorlage, Sending Profile und Landing Page auswählen.',
+      'Risiko-Ziel wählen: „Daten abgeschickt“, „geklickt“ oder „alle“ — danach werden die Empfänger bestimmt.',
+      'Intervall in Tagen setzen und aktivieren.',
+      'Bei jeder Fälligkeit ermittelt das System die passenden Empfänger neu und versendet automatisch.',
+    ],
+    note: 'Enterprise-Funktion. Baut auf dem Human-Risk-Score der Empfänger auf.',
+  },
+  reports: {
+    intro:
+      'Die Berichte bündeln Kennzahlen, Risiko und Nachweise. Der obere Teil ist Open Core; Benutzerentwicklung, Abteilungsvergleich und PDF-Nachweise sind Business, Schulungsfortschritt und KI-Risikoanalyse Enterprise.',
+    steps: [
+      'Management Report oben gibt den Gesamtüberblick (Kennzahlen, Kampagnenvergleich, Risikoverteilung) — als CSV/PDF exportierbar.',
+      'Benutzerentwicklung und Abteilungsvergleich zeigen, wo das Risiko konzentriert ist.',
+      'KI-Risikoanalyse erstellt auf Knopfdruck eine Einschätzung mit priorisierten Maßnahmen (benötigt eine konfigurierte KI-Anbindung).',
+      'Unter „Nachweise & Zertifikate“ lädst du Compliance-Dokumente (DSGVO, NIS2, ISO 27001 …) als PDF.',
+    ],
+    note: 'Gesperrte Abschnitte werden erst mit passender Lizenz mit Daten gefüllt.',
+  },
+  integrations: {
+    intro:
+      'Der Integrationsbereich bündelt Verbindungen zu externen Systemen (SIEM, Verzeichnisdienste, SSO) sowie die lizenzabhängigen Zusatzfunktionen.',
+    steps: [
+      'In der linken Spalte den gewünschten Bereich wählen (analog zum Einstellungen-Menü).',
+      'Business-/Enterprise-Integrationen sind mit einem Lizenz-Badge markiert und ohne gültige Lizenz gesperrt.',
+      'Die eigentliche Konfiguration (z. B. LDAP, SIEM, SAML) erfolgt in den jeweiligen Einstellungsseiten.',
+    ],
+    note: 'Neue Integrationen erscheinen hier automatisch, sobald sie per Lizenz freigeschaltet sind.',
+  },
+  'settings-entra': {
+    intro:
+      'Über Azure AD / Entra ID importierst du Empfänger direkt aus dem Microsoft-Verzeichnis (Graph API, App-Registrierung mit Client-Credentials).',
+    steps: [
+      'In Entra eine App-Registrierung anlegen und die Berechtigung zum Lesen von Benutzern/Gruppen erteilen.',
+      'Tenant-ID, Client-ID und Client-Secret hier eintragen — das Secret wird verschlüsselt gespeichert.',
+      'Integration aktivieren; anschließend unter „Gruppen → Entra-Import“ eine Gruppe importieren.',
+    ],
+    note: 'Business-Funktion. Das Client-Secret wird über die API nie zurückgegeben (nur ein has_*-Flag).',
+  },
+  'settings-webhooks': {
+    intro:
+      'Webhooks senden bei jedem Tracking-Ereignis (Öffnung, Klick, Absenden) einen JSON-POST an eine oder mehrere URLs — z. B. für Ticketing oder eigene Automationen.',
+    steps: [
+      'Ziel-URL des empfangenden Systems eintragen und den Webhook aktivieren.',
+      'Optional mehrere URLs anlegen — jedes Ereignis wird an alle aktiven Webhooks zugestellt.',
+      'Beim Empfänger die eingehenden JSON-Payloads verarbeiten (Ereignistyp, Empfänger, Kampagne, Zeit).',
+    ],
+    note: 'Business-Funktion. Die Zustellung erfolgt asynchron und blockiert das Tracking nicht.',
+  },
+  'settings-whitelabel': {
+    intro:
+      'White-Label passt das Erscheinungsbild an dein Unternehmen an: App-Name, Akzentfarben und Logo — app-weit inkl. Login-Seite.',
+    steps: [
+      'App-Namen setzen (erscheint in Kopfzeile und Titel).',
+      'Primär- und Verlaufs-Akzentfarbe wählen, passend zum Corporate Design.',
+      'Optional ein Logo hochladen (wird als Data-URI gespeichert).',
+      'Speichern — die Änderungen greifen sofort; die Login-Seite nach dem nächsten Abmelden.',
+    ],
+    note: 'Enterprise-Funktion.',
+  },
+  'settings-siem': {
+    intro:
+      'Der SIEM-Export leitet jedes Tracking-Ereignis an ein SIEM weiter: Splunk HEC, Elasticsearch, Microsoft Sentinel oder generisches JSON.',
+    steps: [
+      'Format des Ziel-SIEM wählen.',
+      'Endpoint-URL und Token/API-Key eintragen — der Token wird verschlüsselt gespeichert.',
+      'Optional einen Index/eine Quelle angeben (z. B. Splunk-Index).',
+      'Mit „Verbindung testen“ ein Testereignis senden, dann aktivieren.',
+    ],
+    note: 'Enterprise-Funktion. Die Zustellung erfolgt asynchron je Ereignis.',
+  },
+  'settings-saml': {
+    intro:
+      'SAML Single Sign-On erlaubt die Anmeldung über einen SAML-2.0-Identity-Provider (ADFS, Entra ID, Keycloak, Okta …) als optionale Zweitmethode.',
+    steps: [
+      'Beim IdP eine Anwendung anlegen; die SP-Metadaten dieser App (Button „SP-Metadaten“) dort importieren.',
+      'IdP-Entity-ID, SSO-URL und Signatur-Zertifikat hier eintragen; SP-Entity-ID und ACS-URL setzen.',
+      'Optional das Attribut-Mapping für E-Mail/Anzeigename füllen (leer = NameID als E-Mail).',
+      'Aktivieren — auf der Login-Seite erscheint dann ein SAML-SSO-Button.',
+    ],
+    note: 'Enterprise-Funktion. Die Assertion muss signiert sein; Signatur, Gültigkeit und Audience werden geprüft.',
+  },
+  'settings-ai': {
+    intro:
+      'Die KI-Anbindung ist anbieter-neutral: sie spricht eine OpenAI-kompatible API an und treibt die KI-Erstellung von Vorlagen/Landing Pages sowie das AI-Scoring.',
+    steps: [
+      'Anbieter frei wählen (OpenAI, Azure OpenAI, Anthropic-kompatibel, Mistral, Groq, OpenRouter oder lokal via Ollama/vLLM/LM Studio).',
+      'Basis-URL (…/v1), Modell und API-Key eintragen — der Key wird verschlüsselt gespeichert.',
+      'Mit „Verbindung testen“ prüfen und aktivieren.',
+      'Danach erscheint in den Editoren „Mit KI erstellen“, und die KI-Risikoanalyse ist nutzbar.',
+    ],
+    note: 'Business-Funktion. Es wird nie ein Anbieter im Code fest verdrahtet.',
+  },
+  'settings-security': {
+    intro:
+      'Hier legst du die sicherheitsrelevanten Richtlinien fest — etwa die Erzwingung von Zwei-Faktor-Authentifizierung.',
+    steps: [
+      'Richtlinien nach Bedarf setzen (z. B. 2FA verpflichtend).',
+      'Änderungen speichern — sie gelten ab der nächsten Anmeldung.',
+      'Die eigene 2FA-Methode richtest du unter „Mein Profil“ ein.',
+    ],
+    note: 'Änderungen an Sicherheitsrichtlinien werden im Audit-Log protokolliert.',
+  },
+  'settings-license': {
+    intro:
+      'Über die Lizenz schaltest du die Business- und Enterprise-Funktionen frei. Ohne Lizenz läuft die Open-Core-Version vollständig.',
+    steps: [
+      'Lizenzschlüssel eintragen und aktivieren — der Status (Kunde, Ablauf, Features) wird angezeigt.',
+      'Freigeschaltete Funktionen erscheinen danach ohne Sperr-Symbol.',
+      'Der Status wird regelmäßig automatisch aktualisiert.',
+    ],
+    note: 'Ohne Lizenzschlüssel bleiben Business-/Enterprise-Bereiche sichtbar, aber gesperrt.',
+  },
+  'settings-audit': {
+    intro:
+      'Das Audit-Log zeichnet Anmelde-Ereignisse (Erfolg/Fehlschlag/blockiert) und Systemänderungen (Benutzer, Einstellungen, 2FA) mit Zeitstempel und IP auf.',
+    steps: [
+      'Die Liste zeigt die jüngsten Ereignisse zuerst.',
+      'Nach Anmeldeproblemen hier nach fehlgeschlagenen/blockierten Logins suchen.',
+      'Änderungen an Einstellungen und Konten sind hier nachvollziehbar dokumentiert.',
+    ],
+    note: 'Das Audit-Log dient auch als Nachweis für Compliance-Anforderungen.',
   },
 }
 
@@ -242,6 +394,7 @@ const en: Record<string, Guidance> = {
     steps: [
       'Give it a name and design the page content — as HTML or in markdown mode (e.g. a cloned login page).',
       'For an input form use HTML; all forms are automatically rewritten to the tracking URL on delivery.',
+      'Use “Preview” to check the result with sample data (form/scripts are disabled in the preview).',
       'Enable “data capture” if submitted form data should be recorded as a signal.',
       'Only capture passwords if truly necessary — mind data protection and internal policies.',
       'Optionally add a redirect or awareness page after submission.',
@@ -305,13 +458,15 @@ const en: Record<string, Guidance> = {
     note: 'With OIDC active, users must still exist as local accounts with a matching email.',
   },
   profile: {
-    intro: 'Here you change your displayed name and your password.',
+    intro: 'Here you change your displayed name, your password and two-factor authentication (2FA).',
     steps: [
       'Adjust the name and save.',
       'To change the password, enter the current password and the new one twice.',
       'Use a strong, unique password.',
+      'Set up 2FA: authenticator app (TOTP) and email one-time code are always available; passkey (WebAuthn: fingerprint, face or security key) requires a Business license.',
+      'During setup, store the backup codes safely — they are the recovery if you lose your device.',
     ],
-    note: 'Your email address and role can only be changed by an admin.',
+    note: 'Your email address and role can only be changed by an admin. With passkeys you can register multiple devices.',
   },
   'settings-ldap': {
     intro:
@@ -319,6 +474,7 @@ const en: Record<string, Guidance> = {
     steps: [
       'Enter host and port of the LDAP server (default: 389, LDAPS: 636).',
       'Choose encryption: LDAPS (SSL) or StartTLS — recommended for production.',
+      'For LDAPS/StartTLS optionally add the CA/server certificate (PEM) so the server is verified (recommended for internal/self-signed CAs). Empty = no validation.',
       'Provide the bind DN of a service account with read access, e.g. cn=svc,ou=service,dc=example,dc=com.',
       'Enter the bind password — it is stored encrypted and never shown again.',
       'Set the base DN below which users are searched, e.g. ou=users,dc=example,dc=com.',
@@ -350,6 +506,154 @@ const en: Record<string, Guidance> = {
       'Click “Test connection” — it saves the values and checks connection and login.',
     ],
     note: 'On a fresh installation this page is pre-filled with the SMTP values from .env.',
+  },
+  recurring: {
+    intro:
+      'Recurring campaigns automatically send a new iteration to the same groups at a fixed interval — ideal for continuous awareness.',
+    steps: [
+      'Pick template, sending profile and landing page like for a normal campaign.',
+      'Assign recipient groups — on each due date fresh recipients with new tracking tokens are generated from them.',
+      'Set the interval in days (e.g. 30) and enable the automation.',
+      'Results per iteration appear under the campaign results, like for single campaigns.',
+    ],
+    note: 'Business feature. The scheduler triggers due dates server-side — nobody needs to be logged in.',
+  },
+  multistage: {
+    intro:
+      'Multi-stage campaigns send a sequence of templates to the same recipients, each with a time delay — e.g. lure, then reminder.',
+    steps: [
+      'Set name, groups, sending profile and landing page.',
+      'Add stages: each stage has a template and a delay in days from campaign start.',
+      'Review the order and gaps, then start the campaign.',
+      'Progress (stages sent) is counted per campaign.',
+    ],
+    note: 'Business feature. Stages become due automatically — no manual follow-up needed.',
+  },
+  'auto-campaigns': {
+    intro:
+      'Automatic, risk-based campaigns dynamically pick recipients by risk and send at a fixed interval — targeting those who need it most.',
+    steps: [
+      'Pick template, sending profile and landing page.',
+      'Choose the risk target: “submitted data”, “clicked” or “all” — this determines the recipients.',
+      'Set the interval in days and enable it.',
+      'On each due date the system re-selects the matching recipients and sends automatically.',
+    ],
+    note: 'Enterprise feature. Builds on the recipients’ human risk score.',
+  },
+  reports: {
+    intro:
+      'Reports bundle metrics, risk and evidence. The top part is Open Core; user development, department comparison and PDF evidence are Business, training progress and AI risk analysis are Enterprise.',
+    steps: [
+      'The management report at the top gives the overall picture (metrics, campaign comparison, risk distribution) — exportable as CSV/PDF.',
+      'User development and department comparison show where risk is concentrated.',
+      'AI risk analysis creates an assessment with prioritized actions on demand (requires a configured AI integration).',
+      'Under “Evidence & certificates” you download compliance documents (GDPR, NIS2, ISO 27001 …) as PDF.',
+    ],
+    note: 'Locked sections only fill with data once the matching license is active.',
+  },
+  integrations: {
+    intro:
+      'The integrations area bundles connections to external systems (SIEM, directories, SSO) and the license-dependent add-on features.',
+    steps: [
+      'Pick the desired area in the left column (like the settings menu).',
+      'Business/Enterprise integrations are marked with a license badge and locked without a valid license.',
+      'The actual configuration (e.g. LDAP, SIEM, SAML) happens on the respective settings pages.',
+    ],
+    note: 'New integrations appear here automatically once unlocked by a license.',
+  },
+  'settings-entra': {
+    intro:
+      'Via Azure AD / Entra ID you import recipients directly from the Microsoft directory (Graph API, app registration with client credentials).',
+    steps: [
+      'Create an app registration in Entra and grant permission to read users/groups.',
+      'Enter tenant ID, client ID and client secret here — the secret is stored encrypted.',
+      'Enable the integration, then import a group under “Groups → Entra import”.',
+    ],
+    note: 'Business feature. The client secret is never returned via the API (only a has_* flag).',
+  },
+  'settings-webhooks': {
+    intro:
+      'Webhooks send a JSON POST to one or more URLs on every tracking event (open, click, submit) — e.g. for ticketing or your own automations.',
+    steps: [
+      'Enter the receiving system’s target URL and enable the webhook.',
+      'Optionally add multiple URLs — each event is delivered to all active webhooks.',
+      'Process the incoming JSON payloads on the receiver (event type, recipient, campaign, time).',
+    ],
+    note: 'Business feature. Delivery is asynchronous and does not block tracking.',
+  },
+  'settings-whitelabel': {
+    intro:
+      'White-label adapts the look to your company: app name, accent colors and logo — app-wide including the login page.',
+    steps: [
+      'Set the app name (shown in header and title).',
+      'Choose the primary and gradient accent color to match your corporate design.',
+      'Optionally upload a logo (stored as a data URI).',
+      'Save — changes apply immediately; the login page after the next logout.',
+    ],
+    note: 'Enterprise feature.',
+  },
+  'settings-siem': {
+    intro:
+      'The SIEM export forwards every tracking event to a SIEM: Splunk HEC, Elasticsearch, Microsoft Sentinel or generic JSON.',
+    steps: [
+      'Choose the target SIEM’s format.',
+      'Enter the endpoint URL and token/API key — the token is stored encrypted.',
+      'Optionally specify an index/source (e.g. Splunk index).',
+      'Send a test event with “Test connection”, then enable it.',
+    ],
+    note: 'Enterprise feature. Delivery is asynchronous per event.',
+  },
+  'settings-saml': {
+    intro:
+      'SAML single sign-on allows login via a SAML 2.0 identity provider (ADFS, Entra ID, Keycloak, Okta …) as an optional second method.',
+    steps: [
+      'Create an application at the IdP; import this app’s SP metadata (button “SP metadata”) there.',
+      'Enter the IdP entity ID, SSO URL and signing certificate here; set the SP entity ID and ACS URL.',
+      'Optionally fill the attribute mapping for email/display name (empty = NameID as email).',
+      'Enable it — a SAML SSO button then appears on the login page.',
+    ],
+    note: 'Enterprise feature. The assertion must be signed; signature, validity and audience are checked.',
+  },
+  'settings-ai': {
+    intro:
+      'The AI integration is provider-neutral: it talks to an OpenAI-compatible API and powers AI creation of templates/landing pages and AI scoring.',
+    steps: [
+      'Choose any provider (OpenAI, Azure OpenAI, Anthropic-compatible, Mistral, Groq, OpenRouter or local via Ollama/vLLM/LM Studio).',
+      'Enter the base URL (…/v1), model and API key — the key is stored encrypted.',
+      'Verify with “Test connection” and enable it.',
+      'Afterwards “Create with AI” appears in the editors and the AI risk analysis becomes usable.',
+    ],
+    note: 'Business feature. No provider is ever hard-wired in the code.',
+  },
+  'settings-security': {
+    intro:
+      'Here you set the security-relevant policies — such as enforcing two-factor authentication.',
+    steps: [
+      'Set policies as needed (e.g. mandatory 2FA).',
+      'Save changes — they apply from the next login.',
+      'You set up your own 2FA method under “My profile”.',
+    ],
+    note: 'Changes to security policies are recorded in the audit log.',
+  },
+  'settings-license': {
+    intro:
+      'The license unlocks the Business and Enterprise features. Without a license the Open Core version runs fully.',
+    steps: [
+      'Enter and activate a license key — the status (customer, expiry, features) is shown.',
+      'Unlocked features then appear without the lock icon.',
+      'The status is refreshed automatically at regular intervals.',
+    ],
+    note: 'Without a license key the Business/Enterprise areas stay visible but locked.',
+  },
+  'settings-audit': {
+    intro:
+      'The audit log records login events (success/failure/blocked) and system changes (users, settings, 2FA) with timestamp and IP.',
+    steps: [
+      'The list shows the most recent events first.',
+      'After login problems, look here for failed/blocked logins.',
+      'Changes to settings and accounts are documented here for traceability.',
+    ],
+    note: 'The audit log also serves as evidence for compliance requirements.',
   },
 }
 

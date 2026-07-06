@@ -36,6 +36,7 @@ export default function IntegrationsOverviewPage() {
         { label: t('nav.integrations'), icon: Blocks },
         { label: t('integrations.overview'), icon: LayoutGrid },
       ]}
+      guidanceKey="integrations"
     >
       <div className="grid max-w-4xl gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {cards.map(({ tier, to, labelKey, descKey, icon: Icon }) => {

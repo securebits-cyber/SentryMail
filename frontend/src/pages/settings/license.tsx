@@ -81,7 +81,7 @@ export default function LicenseSettingsPage() {
   const tone = status ? statusTone[status.status] ?? 'text-text-secondary' : ''
 
   return (
-    <PageScaffold title={t('settings.license')}>
+    <PageScaffold title={t('settings.license')} guidanceKey="settings-license">
       <div className="flex max-w-2xl flex-col gap-6">
         {message && (
           <div
