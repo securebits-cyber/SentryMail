@@ -299,6 +299,8 @@ export const translations: Record<Lang, Record<string, string>> = {
     'lic.server.notConfigured': 'nicht konfiguriert',
     'lic.unlockedAddons': 'Freigeschaltete Add-ons',
     'lic.none': 'keine',
+    'lic.addon.business': 'Business Add-on',
+    'lic.addon.enterprise': 'Enterprise Add-on',
     'lic.noServerNote':
       'Es ist kein Lizenzserver konfiguriert (LICENSE_SERVER_URL in der .env). Ohne Lizenzserver läuft die Instanz als reiner Open-Core ohne Add-ons.',
     'lic.keyLabel': 'Lizenzschlüssel',
@@ -778,6 +780,8 @@ export const translations: Record<Lang, Record<string, string>> = {
     'lic.server.notConfigured': 'not configured',
     'lic.unlockedAddons': 'Unlocked add-ons',
     'lic.none': 'none',
+    'lic.addon.business': 'Business add-on',
+    'lic.addon.enterprise': 'Enterprise add-on',
     'lic.noServerNote':
       'No license server is configured (LICENSE_SERVER_URL in .env). Without a license server the instance runs as pure open core without add-ons.',
     'lic.keyLabel': 'License key',

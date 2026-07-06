@@ -21,9 +21,8 @@ const statusTone: Record<string, string> = {
 }
 
 const featureLabelKeys: Record<string, string> = {
-  white_label: 'integrations.whiteLabel',
-  multi_tenant: 'integrations.multiTenant',
-  ai_scoring: 'integrations.aiScoring',
+  business: 'lic.addon.business',
+  enterprise: 'lic.addon.enterprise',
 }
 
 function fmt(value: string | null): string {
