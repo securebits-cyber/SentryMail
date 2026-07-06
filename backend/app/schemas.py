@@ -271,43 +271,6 @@ class SendingProfileTestResult(BaseModel):
 
 # --- LDAP-Konfiguration (Settings-Dashboard) ---
 
-class LdapConfigUpdate(BaseModel):
-    enabled: bool | None = None
-    host: str | None = None
-    port: int | None = None
-    use_ssl: bool | None = None
-    start_tls: bool | None = None
-    bind_dn: str | None = None
-    bind_password: str | None = None  # write-only, verschluesselt gespeichert
-    base_dn: str | None = None
-    user_filter: str | None = None
-    attr_email: str | None = None
-    attr_first_name: str | None = None
-    attr_last_name: str | None = None
-
-
-class LdapConfigOut(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    enabled: bool
-    host: str
-    port: int
-    use_ssl: bool
-    start_tls: bool
-    bind_dn: str
-    has_bind_password: bool
-    base_dn: str
-    user_filter: str
-    attr_email: str
-    attr_first_name: str
-    attr_last_name: str
-
-
-class LdapTestResult(BaseModel):
-    success: bool
-    detail: str
-
-
 # --- SMTP-Fallback (Settings-Dashboard) ---
 # Globales Fallback-SMTP, greift wenn eine Kampagne kein Sending Profile hat.
 # Beim ersten Zugriff aus der .env befuellt, danach in der DB verwaltet.
@@ -406,13 +369,6 @@ class GroupSummary(BaseModel):
     member_count: int
     created_at: datetime
     updated_at: datetime
-
-
-class LdapImportResult(BaseModel):
-    success: bool
-    detail: str
-    found: int = 0
-    added: int = 0
 
 
 # --- Landing Pages ---

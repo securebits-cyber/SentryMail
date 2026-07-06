@@ -255,35 +255,6 @@ class SendingProfile(Base):
         return self.password_encrypted is not None
 
 
-class LdapConfig(Base):
-    """LDAP-Anbindung fuer den Empfaenger-Import.
-
-    Singleton: es existiert genau eine Zeile (siehe app/api/settings.py).
-    Das Bind-Passwort liegt verschluesselt (Fernet) in ``bind_password_encrypted``.
-    """
-
-    __tablename__ = "ldap_config"
-
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    enabled: Mapped[bool] = mapped_column(default=False, nullable=False)
-    host: Mapped[str] = mapped_column(String(255), default="", nullable=False)
-    port: Mapped[int] = mapped_column(default=389, nullable=False)
-    use_ssl: Mapped[bool] = mapped_column(default=False, nullable=False)
-    start_tls: Mapped[bool] = mapped_column(default=False, nullable=False)
-    bind_dn: Mapped[str] = mapped_column(String(512), default="", nullable=False)
-    bind_password_encrypted: Mapped[str | None] = mapped_column(Text, nullable=True)
-    base_dn: Mapped[str] = mapped_column(String(512), default="", nullable=False)
-    user_filter: Mapped[str] = mapped_column(String(512), default="(objectClass=person)", nullable=False)
-    attr_email: Mapped[str] = mapped_column(String(64), default="mail", nullable=False)
-    attr_first_name: Mapped[str] = mapped_column(String(64), default="givenName", nullable=False)
-    attr_last_name: Mapped[str] = mapped_column(String(64), default="sn", nullable=False)
-    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
-
-    @property
-    def has_bind_password(self) -> bool:
-        return self.bind_password_encrypted is not None
-
-
 class SmtpConfig(Base):
     """Globales Fallback-SMTP, im Dashboard verwaltet.
 
@@ -334,7 +305,7 @@ class OidcConfig(Base):
 class Group(Base):
     """Wiederverwendbare Empfaengerliste (GoPhish: 'Group').
 
-    Mitglieder koennen per CSV oder LDAP importiert werden. Beim Start einer
+    Mitglieder koennen per CSV importiert werden (LDAP via Business-Add-on). Beim Start einer
     Kampagne werden sie in campaign-eigene Recipients kopiert.
     """
 
