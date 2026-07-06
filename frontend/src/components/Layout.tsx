@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-import { Blocks, CircleUser, FileText, Globe, LayoutDashboard, LogOut, Mail, Moon, Server, Settings, Sun, UserCog, Users, type LucideIcon } from 'lucide-react'
+import { Blocks, CircleUser, FileBarChart, FileText, Globe, LayoutDashboard, LogOut, Mail, Moon, Server, Settings, Sun, UserCog, Users, type LucideIcon } from 'lucide-react'
 import { Link, NavLink, Outlet } from 'react-router-dom'
 import LanguageSwitcher from './LanguageSwitcher'
 import { useI18n } from '../i18n'
@@ -25,6 +25,7 @@ const mainNav: NavItem[] = [
   { to: '/sending-profiles', labelKey: 'nav.sendingProfiles', icon: Server, end: false },
   { to: '/landing-pages', labelKey: 'nav.landingPages', icon: Globe, end: false },
   { to: '/campaigns', labelKey: 'nav.campaigns', icon: Mail, end: false },
+  { to: '/reports', labelKey: 'nav.reports', icon: FileBarChart, end: false },
 ]
 
 // Fuer alle Nutzer sichtbar.

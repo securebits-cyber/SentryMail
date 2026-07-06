@@ -20,6 +20,7 @@ import DashboardPage from './pages/index'
 import LandingPagesPage from './pages/landing-pages'
 import LoginPage from './pages/login'
 import ProfilePage from './pages/profile'
+import ReportsPage from './pages/reports'
 import ResultsPage from './pages/results'
 import SendingProfilesPage from './pages/sending-profiles'
 import LdapSettingsPage from './pages/settings/ldap'
@@ -61,6 +62,7 @@ export default function App() {
           <Route path="/sending-profiles" element={<SendingProfilesPage />} />
           <Route path="/landing-pages" element={<LandingPagesPage />} />
           <Route path="/campaigns" element={<CampaignsPage />} />
+          <Route path="/reports" element={<ReportsPage />} />
           <Route path="/users" element={<UsersPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/settings" element={<SettingsLayout />}>

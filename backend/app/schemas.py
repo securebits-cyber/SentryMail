@@ -455,3 +455,38 @@ class TimelinePoint(BaseModel):
     opened: int = 0
     clicked: int = 0
     submitted: int = 0
+
+
+# --- Management Report (Open Core) ---
+
+class ReportCampaignRow(BaseModel):
+    campaign_id: uuid.UUID
+    name: str
+    recipients: int
+    sent: int
+    opened: int
+    clicked: int
+    submitted: int
+    open_rate: int    # % der Empfaenger
+    click_rate: int
+    submit_rate: int
+    risk_score: int
+    risk_level: str
+
+
+class ManagementReport(BaseModel):
+    generated_at: datetime
+    campaigns_total: int
+    recipients: int
+    sent: int
+    opened: int
+    clicked: int
+    submitted: int
+    open_rate: int
+    click_rate: int
+    submit_rate: int
+    risk_score: int
+    risk_level: str
+    risk_distribution: RiskDistribution
+    campaign_rows: list[ReportCampaignRow]
+    top_failed: list[FailedRecipient]

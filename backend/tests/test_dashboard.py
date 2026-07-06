@@ -56,3 +56,27 @@ def test_timeline_point_after_open(client, db, make_user, auth_headers):
     assert len(points) == 1
     assert points[0]["opened"] == 1
     assert points[0]["clicked"] == 0
+
+
+def test_management_report_reflects_click(client, db, make_user, auth_headers):
+    admin = make_user(role=UserRole.ADMIN)
+    _seed(db, admin.id, TrackingEventType.CLICKED)
+    body = client.get("/reports/management", headers=auth_headers(admin)).json()
+    assert body["recipients"] == 1
+    assert body["clicked"] == 1
+    assert body["click_rate"] == 100
+    assert body["risk_score"] == 60
+    assert body["risk_level"] == "medium"
+    assert len(body["campaign_rows"]) == 1
+    assert body["campaign_rows"][0]["click_rate"] == 100
+    assert len(body["top_failed"]) == 1
+
+
+def test_management_report_csv_export(client, db, make_user, auth_headers):
+    admin = make_user(role=UserRole.ADMIN)
+    _seed(db, admin.id, TrackingEventType.CLICKED)
+    resp = client.get("/reports/management/export", headers=auth_headers(admin))
+    assert resp.status_code == 200
+    assert resp.headers["content-type"].startswith("text/csv")
+    assert "Management Report" in resp.text
+    assert "Kampagne" in resp.text  # Vergleichs-Tabellenkopf
