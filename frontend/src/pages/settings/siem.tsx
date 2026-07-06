@@ -103,14 +103,14 @@ export default function SiemSettingsPage() {
   if (features === null) return <p className="text-text-secondary">{t('common.loadingSettings')}</p>
   if (!licensed)
     return (
-      <PageScaffold title={t('siem.title')} subtitle={t('siem.subtitle')} breadcrumb={breadcrumb}>
+      <PageScaffold title={t('siem.title')} subtitle={t('siem.subtitle')} breadcrumb={breadcrumb} guidanceKey="settings-siem">
         <LockedFeatureNotice tier="enterprise" />
       </PageScaffold>
     )
   if (!form) return <p className="text-text-secondary">{t('common.loadingSettings')}</p>
 
   return (
-    <PageScaffold title={t('siem.title')} subtitle={t('siem.subtitle')} breadcrumb={breadcrumb}>
+    <PageScaffold title={t('siem.title')} subtitle={t('siem.subtitle')} breadcrumb={breadcrumb} guidanceKey="settings-siem">
       {message && (
         <p className={`mb-4 text-sm ${message.kind === 'error' ? 'text-status-danger' : 'text-text-secondary'}`}>
           {message.text}
