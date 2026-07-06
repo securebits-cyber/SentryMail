@@ -52,7 +52,6 @@ export default function BusinessAddonPage() {
             t('addon.biz.f.ldap'),
             t('addon.biz.f.azureEntra'),
             t('addon.biz.f.groupMgmt'),
-            t('addon.biz.f.siem'),
             t('addon.biz.f.mailReport'),
           ],
         },
