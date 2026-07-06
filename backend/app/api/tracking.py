@@ -36,21 +36,35 @@ _DEFAULT_PAGE = (
 )
 
 
-def _client_meta(request: Request) -> tuple[str | None, str | None]:
-    return (request.client.host if request.client else None), request.headers.get("user-agent")
+def _client_meta(request: Request) -> dict:
+    """Sammelt Kontext-Metadaten des Aufrufers fuer die Event-Anreicherung.
+
+    Referrer und Accept-Language kommen aus den Request-Headern; UTM-Parameter
+    (sofern der Betreiber sie an die Tracking-Links haengt) aus der Query.
+    """
+    params = request.query_params
+    return {
+        "ip_address": request.client.host if request.client else None,
+        "user_agent": request.headers.get("user-agent"),
+        "referrer": request.headers.get("referer"),
+        "accept_language": request.headers.get("accept-language"),
+        "utm": {
+            "utm_source": params.get("utm_source"),
+            "utm_medium": params.get("utm_medium"),
+            "utm_campaign": params.get("utm_campaign"),
+        },
+    }
 
 
 @router.get("/pixel")
 def track_open(t: str, request: Request, db: Session = Depends(get_db)):
-    ip, ua = _client_meta(request)
-    record_event(db, tracking_token=t, event_type=TrackingEventType.OPENED, ip_address=ip, user_agent=ua)
+    record_event(db, tracking_token=t, event_type=TrackingEventType.OPENED, **_client_meta(request))
     return Response(content=_TRANSPARENT_PIXEL, media_type="image/gif")
 
 
 @router.get("/click")
 def track_click(t: str, url: str, request: Request, db: Session = Depends(get_db)):
-    ip, ua = _client_meta(request)
-    event = record_event(db, tracking_token=t, event_type=TrackingEventType.CLICKED, ip_address=ip, user_agent=ua)
+    event = record_event(db, tracking_token=t, event_type=TrackingEventType.CLICKED, **_client_meta(request))
 
     # Open-Redirect-Schutz: nur bei bekanntem Tracking-Token und nur auf
     # http(s)-Ziele weiterleiten (kein javascript:/data: und kein token-loser
@@ -63,8 +77,7 @@ def track_click(t: str, url: str, request: Request, db: Session = Depends(get_db
 @router.get("/landing", response_class=HTMLResponse)
 def track_landing(t: str, request: Request, db: Session = Depends(get_db)):
     """Zaehlt den Klick und liefert die Landing Page der Kampagne aus."""
-    ip, ua = _client_meta(request)
-    record_event(db, tracking_token=t, event_type=TrackingEventType.CLICKED, ip_address=ip, user_agent=ua)
+    record_event(db, tracking_token=t, event_type=TrackingEventType.CLICKED, **_client_meta(request))
 
     recipient = db.query(Recipient).filter(Recipient.tracking_token == t).first()
     campaign = recipient.campaign if recipient is not None else None
@@ -88,8 +101,7 @@ def track_landing(t: str, request: Request, db: Session = Depends(get_db)):
 @router.post("/submit")
 async def track_submit(t: str, request: Request, db: Session = Depends(get_db)):
     """Erfasst das Absenden (Awareness-Signal) und leitet weiter."""
-    ip, ua = _client_meta(request)
-    record_event(db, tracking_token=t, event_type=TrackingEventType.SUBMITTED, ip_address=ip, user_agent=ua)
+    record_event(db, tracking_token=t, event_type=TrackingEventType.SUBMITTED, **_client_meta(request))
 
     recipient = db.query(Recipient).filter(Recipient.tracking_token == t).first()
     campaign = recipient.campaign if recipient is not None else None

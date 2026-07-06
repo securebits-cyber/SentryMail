@@ -99,6 +99,49 @@ def test_click_endpoint_records_click_and_redirects(client, db, campaign_with_re
     assert events[0].event_type == TrackingEventType.CLICKED
 
 
+def test_pixel_enriches_event_from_headers(client, db, campaign_with_recipient):
+    """Browser/OS/Device werden aus dem User-Agent abgeleitet, Referrer/Sprache
+    aus den Headern erfasst."""
+    resp = client.get(
+        "/track/pixel",
+        params={"t": "tok-known-123"},
+        headers={
+            "user-agent": (
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+            ),
+            "referer": "https://mail.example.com/inbox",
+            "accept-language": "de-DE,de;q=0.9",
+        },
+    )
+    assert resp.status_code == 200
+    event = db.query(TrackingEvent).one()
+    assert event.browser == "Chrome"
+    assert event.os == "Windows 10/11"
+    assert event.device_type == "desktop"
+    assert event.referrer == "https://mail.example.com/inbox"
+    assert event.accept_language.startswith("de-DE")
+
+
+def test_click_captures_utm_params(client, db, campaign_with_recipient):
+    resp = client.get(
+        "/track/click",
+        params={
+            "t": "tok-known-123",
+            "url": "https://example.com/ziel",
+            "utm_source": "newsletter",
+            "utm_medium": "email",
+            "utm_campaign": "q3-awareness",
+        },
+        follow_redirects=False,
+    )
+    assert resp.status_code in (302, 307)
+    event = db.query(TrackingEvent).one()
+    assert event.utm_source == "newsletter"
+    assert event.utm_medium == "email"
+    assert event.utm_campaign == "q3-awareness"
+
+
 def test_click_rejects_non_http_scheme(client, db, campaign_with_recipient):
     """Open-Redirect-Schutz: javascript:/data:-Ziele werden nicht weitergeleitet."""
     resp = client.get(

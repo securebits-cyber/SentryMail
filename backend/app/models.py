@@ -221,6 +221,16 @@ class TrackingEvent(Base):
     occurred_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     ip_address: Mapped[str | None] = mapped_column(String(45), nullable=True)
     user_agent: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    # Aus dem User-Agent abgeleitete Buckets (siehe app/utils/useragent.py).
+    browser: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    os: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    device_type: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    # Aus Request-Headern / Query-Parametern erfasst.
+    referrer: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    accept_language: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    utm_source: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    utm_medium: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    utm_campaign: Mapped[str | None] = mapped_column(String(128), nullable=True)
 
     recipient: Mapped["Recipient"] = relationship(back_populates="tracking_events")
 
