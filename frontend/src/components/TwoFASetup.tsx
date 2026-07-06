@@ -4,6 +4,7 @@
 
 import { Fingerprint, KeyRound, Lock, Mail, Smartphone } from 'lucide-react'
 import { useState } from 'react'
+import TierBadge from './TierBadge'
 import { useFeatures } from '../hooks/useFeatures'
 import { useI18n } from '../i18n'
 import { api } from '../services/api'
@@ -144,9 +145,7 @@ export default function TwoFASetup({ onDone, onCancel }: { onDone: (a: TwoFAActi
                   {t('prof.2fa.methodPasskey')}
                   {!passkeysAvailable && (
                     <>
-                      <span className="rounded-full bg-green-600 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-white">
-                        {t('badge.business')}
-                      </span>
+                      <TierBadge tier="business" />
                       <Lock size={12} className="text-text-secondary" />
                     </>
                   )}

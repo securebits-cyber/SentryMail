@@ -4,6 +4,7 @@
 
 import { Briefcase, Building2, LayoutGrid, Lock, PackageOpen, type LucideIcon } from 'lucide-react'
 import { NavLink, Outlet } from 'react-router-dom'
+import TierBadge, { type Tier } from './TierBadge'
 import { useFeatures } from '../hooks/useFeatures'
 import { useI18n } from '../i18n'
 
@@ -11,7 +12,7 @@ interface NavItem {
   to: string
   labelKey: string
   icon: LucideIcon
-  feature?: string
+  feature?: Tier
 }
 
 // Integrationsbereiche als Unterpunkte (gleiches Prinzip wie SettingsLayout:
@@ -48,14 +49,12 @@ export default function IntegrationsLayout() {
               <NavLink key={to} to={to} className={linkClass}>
                 <Icon size={16} className="shrink-0" />
                 <span className="truncate">{t(labelKey)}</span>
-                {feature &&
-                  (active ? (
-                    <span className="ml-auto shrink-0 rounded-full bg-green-600 px-1.5 py-px text-[9px] font-semibold uppercase leading-normal tracking-tight text-white">
-                      Aktiv
-                    </span>
-                  ) : (
-                    <Lock size={13} className="ml-auto shrink-0 text-text-secondary" />
-                  ))}
+                {feature && (
+                  <span className="ml-auto flex shrink-0 items-center gap-1">
+                    <TierBadge tier={feature} />
+                    {!active && <Lock size={13} className="text-text-secondary" />}
+                  </span>
+                )}
               </NavLink>
             )
           })}

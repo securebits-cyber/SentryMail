@@ -7,6 +7,7 @@ import { useEffect, useRef, useState, type ChangeEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import PageScaffold from '../components/PageScaffold'
 import TemplateForm, { TemplateFormValues } from '../components/TemplateForm'
+import TierBadge from '../components/TierBadge'
 import { useFeatures } from '../hooks/useFeatures'
 import { useI18n } from '../i18n'
 import { api } from '../services/api'
@@ -213,9 +214,7 @@ export default function TemplatesPage() {
           >
             <BookOpen size={15} />
             {t('tpl.library')}
-            <span className="rounded-full bg-green-600 px-1.5 py-0.5 text-[10px] font-semibold uppercase leading-none tracking-wide text-white">
-              {t('badge.business')}
-            </span>
+            <TierBadge tier="business" />
             {!businessLicensed && <Lock size={13} className="text-text-secondary" />}
           </button>
           <button
@@ -229,9 +228,7 @@ export default function TemplatesPage() {
             className="flex items-center gap-2 rounded-md border border-border px-4 py-2 text-sm text-text-primary hover:bg-bg"
           >
             {t('tpl.upload')}
-            <span className="rounded-full bg-green-600 px-1.5 py-0.5 text-[10px] font-semibold uppercase leading-none tracking-wide text-white">
-              {t('badge.business')}
-            </span>
+            <TierBadge tier="business" />
             {!businessLicensed && <Lock size={13} className="text-text-secondary" />}
           </button>
           <button

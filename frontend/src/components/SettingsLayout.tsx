@@ -4,6 +4,7 @@
 
 import { BadgeCheck, Cloud, KeyRound, KeySquare, Lock, MailCheck, Network, Palette, ScrollText, Share2, ShieldCheck, Sparkles, Webhook, type LucideIcon } from 'lucide-react'
 import { NavLink, Outlet } from 'react-router-dom'
+import TierBadge from './TierBadge'
 import { useFeatures } from '../hooks/useFeatures'
 import { useI18n } from '../i18n'
 
@@ -66,7 +67,12 @@ export default function SettingsLayout() {
                   <NavLink key={to} to={to} className={linkClass}>
                     <Icon size={16} className="shrink-0" />
                     <span className="flex-1 truncate">{t(labelKey)}</span>
-                    {locked && <Lock size={13} className="ml-auto shrink-0 text-text-secondary" />}
+                    {feature && (
+                      <span className="ml-auto flex shrink-0 items-center gap-1">
+                        <TierBadge tier={feature} />
+                        {locked && <Lock size={13} className="text-text-secondary" />}
+                      </span>
+                    )}
                   </NavLink>
                 )
               })}

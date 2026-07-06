@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { RiskMeter, type RiskSummary } from '../components/DashboardCharts'
 import PageScaffold from '../components/PageScaffold'
+import TierBadge from '../components/TierBadge'
 import { useFeatures } from '../hooks/useFeatures'
 import { useI18n } from '../i18n'
 import { api } from '../services/api'
@@ -257,9 +258,7 @@ export default function ReportsPage() {
           >
             <FileText size={15} />
             {t('rep.exportPdf')}
-            <span className="rounded-full bg-green-600 px-1.5 py-0.5 text-[10px] font-semibold uppercase leading-none tracking-wide text-white">
-              {t('badge.business')}
-            </span>
+            <TierBadge tier="business" />
             {!businessLicensed && <Lock size={13} className="text-text-secondary" />}
           </button>
           <button
@@ -269,9 +268,7 @@ export default function ReportsPage() {
           >
             <FileText size={15} />
             {t('rep.exportExec')}
-            <span className="rounded-full bg-green-600 px-1.5 py-0.5 text-[10px] font-semibold uppercase leading-none tracking-wide text-white">
-              {t('badge.business')}
-            </span>
+            <TierBadge tier="business" />
             {!businessLicensed && <Lock size={13} className="text-text-secondary" />}
           </button>
         </div>
@@ -380,9 +377,7 @@ export default function ReportsPage() {
         <div className="mt-8">
           <h2 className="mb-3 text-lg font-semibold">
             {t('rep.trend.heading')}
-            <span className="ml-2 rounded-full bg-green-600 px-1.5 py-0.5 align-middle text-[10px] font-semibold uppercase tracking-wide text-white">
-              {t('badge.business')}
-            </span>
+            <TierBadge tier="business" className="ml-2 align-middle" />
           </h2>
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-sm">
@@ -416,9 +411,7 @@ export default function ReportsPage() {
         <div className="mt-8">
           <h2 className="mb-3 text-lg font-semibold">
             {t('rep.users.heading')}
-            <span className="ml-2 rounded-full bg-green-600 px-1.5 py-0.5 align-middle text-[10px] font-semibold uppercase tracking-wide text-white">
-              {t('badge.business')}
-            </span>
+            <TierBadge tier="business" className="ml-2 align-middle" />
           </h2>
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-sm">
@@ -453,9 +446,7 @@ export default function ReportsPage() {
         <div className="mt-8">
           <h2 className="mb-3 text-lg font-semibold">
             {t('rep.dept.heading')}
-            <span className="ml-2 rounded-full bg-green-600 px-1.5 py-0.5 align-middle text-[10px] font-semibold uppercase tracking-wide text-white">
-              {t('badge.business')}
-            </span>
+            <TierBadge tier="business" className="ml-2 align-middle" />
           </h2>
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-sm">
@@ -527,9 +518,7 @@ export default function ReportsPage() {
       <div className="mt-8">
         <h2 className="mb-3 text-lg font-semibold">
           {t('rep.evidence.heading')}
-          <span className="ml-2 rounded-full bg-green-600 px-1.5 py-0.5 align-middle text-[10px] font-semibold uppercase tracking-wide text-white">
-            {t('badge.business')}
-          </span>
+          <TierBadge tier="business" className="ml-2 align-middle" />
         </h2>
         <div className="flex flex-wrap gap-2">
           {(['dsgvo', 'nis2', 'iso27001', 'awareness', 'audit', 'certificate', 'training'] as const).map((kind) => (
@@ -552,9 +541,7 @@ export default function ReportsPage() {
         <div className="mt-8">
           <h2 className="mb-3 text-lg font-semibold">
             {t('rep.progress.heading')}
-            <span className="ml-2 rounded-full bg-blue-600 px-1.5 py-0.5 align-middle text-[10px] font-semibold uppercase tracking-wide text-white">
-              {t('badge.enterprise')}
-            </span>
+            <TierBadge tier="enterprise" className="ml-2 align-middle" />
           </h2>
           {progress.length === 0 ? (
             <p className="text-text-secondary">{t('rep.progress.empty')}</p>

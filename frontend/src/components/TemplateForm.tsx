@@ -6,6 +6,7 @@ import { ChangeEvent, FormEvent, useEffect, useState } from 'react'
 import { Lock, Paperclip, QrCode, X } from 'lucide-react'
 import AiGenerateBar from './AiGenerateBar'
 import MarkdownEditor from './MarkdownEditor'
+import TierBadge from './TierBadge'
 import { mdToHtml } from '../utils/markdown'
 import { useFeatures } from '../hooks/useFeatures'
 import { useI18n } from '../i18n'
@@ -167,9 +168,7 @@ export default function TemplateForm({ initial, isEdit, onSubmit, onCancel, subm
             >
               <QrCode size={13} />
               {t('tf.qr')}
-              <span className="rounded-full bg-green-600 px-1 py-px text-[9px] font-semibold uppercase leading-none text-white">
-                {t('badge.business')}
-              </span>
+              <TierBadge tier="business" />
               {!businessLicensed && <Lock size={11} className="text-text-secondary" />}
             </button>
             <div className="flex gap-0.5 rounded-md border border-border p-0.5 text-xs">
