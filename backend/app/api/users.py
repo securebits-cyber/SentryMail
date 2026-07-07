@@ -14,6 +14,7 @@ from app.auth.permissions import require_admin
 from app.database import get_db
 from app.models import User, UserRole
 from app.schemas import UserOut
+from app.services import license as license_service
 from app.services.audit import client_ip, record_audit
 from app.utils.passwords import hash_password
 
@@ -27,6 +28,20 @@ def _active_admin_count(db: Session) -> int:
         .scalar()
         or 0
     )
+
+
+def _enforce_seat_limit(db: Session) -> None:
+    """Hartes Lizenz-Limit: blockt das Anlegen/Reaktivieren ab der erlaubten
+    Nutzerzahl (nur bei Business/Enterprise-Lease; ohne Lizenz kein Limit)."""
+    limit = license_service.license_seats(db)
+    if limit is not None and license_service.active_user_count(db) >= limit:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=(
+                f"Nutzer-Limit der Lizenz erreicht ({limit}/{limit}). "
+                "Bitte Lizenz erweitern oder inaktive Konten entfernen."
+            ),
+        )
 
 
 class UserCreate(BaseModel):
@@ -83,6 +98,8 @@ def create_user(
     if db.query(User).filter(User.email == payload.email).first() is not None:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="E-Mail wird bereits verwendet")
 
+    _enforce_seat_limit(db)
+
     user = User(
         email=payload.email,
         full_name=payload.full_name,
@@ -113,6 +130,10 @@ def update_user(
     user = _get_or_404(db, user_id)
     if user.id == current_user.id and payload.is_active is False:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Eigenes Konto nicht deaktivieren")
+
+    # Reaktivieren belegt einen Seat -> gegen das Lizenz-Limit prüfen.
+    if payload.is_active is True and not user.is_active:
+        _enforce_seat_limit(db)
 
     # Letzten aktiven Admin nicht per Deaktivieren/Herabstufen entfernen.
     demoting = payload.role is not None and payload.role != UserRole.ADMIN

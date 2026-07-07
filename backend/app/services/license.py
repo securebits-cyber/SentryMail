@@ -91,6 +91,36 @@ def has_feature(db: Session, feature_id: str) -> bool:
     return feature_id in active_features(db)
 
 
+def license_seats(db: Session) -> int | None:
+    """Erlaubte Nutzerzahl aus dem gültigen Lease.
+
+    None = kein Limit: entweder keine (gültige) Lizenz (reiner Core, unbegrenzt)
+    oder das Lease enthält kein ``max_users``. Nur Business/Enterprise-Leases
+    tragen ggf. ein Limit.
+    """
+    claims = verify_lease(get_or_create_license_state(db).lease_jwt)
+    if not claims:
+        return None
+    value = claims.get("max_users")
+    return int(value) if isinstance(value, int) and value > 0 else None
+
+
+def active_user_count(db: Session) -> int:
+    """Anzahl aktiver Nutzer (ein Seat = ein aktives Konto)."""
+    return db.query(User).filter(User.is_active.is_(True)).count()
+
+
+def seat_status(db: Session) -> dict:
+    """Nutzer-Limit + aktuelle Belegung (für Anzeige/Prüfung)."""
+    limit = license_seats(db)
+    used = active_user_count(db)
+    return {
+        "max_users": limit,
+        "active_users": used,
+        "over_limit": limit is not None and used > limit,
+    }
+
+
 def _parse_iso(value) -> datetime | None:
     if not value:
         return None
@@ -119,6 +149,8 @@ def refresh_license(db: Session) -> LicenseState:
                 "instance_id": str(state.instance_id),
                 "product": settings.LICENSE_PRODUCT,
                 "product_version": APP_VERSION,
+                # Aktuelle Nutzung mitmelden, damit der Anbieter Überschreitungen sieht.
+                "active_users": active_user_count(db),
             },
             timeout=10.0,
         )
@@ -182,6 +214,7 @@ def license_status(db: Session) -> dict:
         "has_key": _current_key(state) is not None,
         "key_from_env": bool(settings.LICENSE_KEY),
         "server_configured": bool(settings.LICENSE_SERVER_URL),
+        **seat_status(db),
     }
 
 
@@ -196,6 +229,7 @@ def features_map(db: Session) -> dict:
             "customer": state.customer,
             "expires": state.license_expires.isoformat() if state.license_expires else None,
         },
+        "seats": seat_status(db),
     }
 
 

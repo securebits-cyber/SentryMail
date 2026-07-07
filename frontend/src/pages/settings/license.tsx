@@ -113,6 +113,12 @@ export default function LicenseSettingsPage() {
                 <dd className="truncate font-mono text-xs">{status.instance_id}</dd>
                 <dt className="text-text-secondary">{t('lic.label.server')}</dt>
                 <dd>{status.server_configured ? t('lic.server.configured') : t('lic.server.notConfigured')}</dd>
+                <dt className="text-text-secondary">{t('lic.label.seats')}</dt>
+                <dd className={status.over_limit ? 'font-semibold text-status-danger' : ''}>
+                  {status.max_users === null
+                    ? `${status.active_users} · ${t('lic.seats.unlimited')}`
+                    : `${status.active_users} / ${status.max_users}${status.over_limit ? ` · ${t('lic.seats.over')}` : ''}`}
+                </dd>
               </dl>
               <div className="mt-4">
                 <div className="mb-1 text-sm text-text-secondary">{t('lic.unlockedAddons')}</div>
