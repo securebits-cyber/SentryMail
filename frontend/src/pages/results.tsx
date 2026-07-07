@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import PageScaffold from '../components/PageScaffold'
 import ResultsTable from '../components/ResultsTable'
+import TierBadge from '../components/TierBadge'
 import { useFeatures } from '../hooks/useFeatures'
 import { useI18n } from '../i18n'
 import { api } from '../services/api'
@@ -129,9 +130,7 @@ export default function ResultsPage() {
         >
           <FileText size={14} />
           {t('res.exportPdf')}
-          <span className="rounded-full bg-green-600 px-1.5 py-0.5 text-[10px] font-semibold uppercase leading-none tracking-wide text-white no-underline">
-            {t('badge.business')}
-          </span>
+          <TierBadge tier="business" locked={!businessLicensed} className="no-underline" />
           {!businessLicensed && <Lock size={13} className="text-text-secondary" />}
         </button>
       </div>

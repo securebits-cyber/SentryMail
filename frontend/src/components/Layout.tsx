@@ -7,17 +7,20 @@ import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import LanguageSwitcher from './LanguageSwitcher'
 import { useI18n } from '../i18n'
+import { useFeatures } from '../hooks/useFeatures'
 import { useMe } from '../hooks/useMe'
 import { useTheme } from '../hooks/useTheme'
 import { useBranding } from './BrandingProvider'
+import TierBadge, { type Tier } from './TierBadge'
 import { logout } from '../services/auth'
+import { APP_VERSION } from '../version'
 
 interface NavItem {
   to: string
   labelKey: string
   icon: LucideIcon
   end: boolean
-  badge?: string
+  tier?: Tier
   children?: NavItem[]
 }
 
@@ -33,9 +36,9 @@ const mainNav: NavItem[] = [
     icon: Mail,
     end: false,
     children: [
-      { to: '/recurring', labelKey: 'nav.recurring', icon: Repeat, end: false },
-      { to: '/multistage', labelKey: 'nav.multistage', icon: Layers, end: false },
-      { to: '/auto-campaigns', labelKey: 'nav.autocampaigns', icon: Radar, end: false },
+      { to: '/recurring', labelKey: 'nav.recurring', icon: Repeat, end: false, tier: 'business' },
+      { to: '/multistage', labelKey: 'nav.multistage', icon: Layers, end: false, tier: 'business' },
+      { to: '/auto-campaigns', labelKey: 'nav.autocampaigns', icon: Radar, end: false, tier: 'enterprise' },
     ],
   },
   { to: '/reports', labelKey: 'nav.reports', icon: FileBarChart, end: false },
@@ -59,17 +62,15 @@ const linkClass = ({ isActive }: { isActive: boolean }) =>
       : 'text-text-secondary hover:bg-bg hover:text-text-primary'
   }`
 
-function NavEntry({ to, labelKey, icon: Icon, end, badge }: NavItem) {
+function NavEntry({ to, labelKey, icon: Icon, end, tier }: NavItem) {
   const { t } = useI18n()
+  const features = useFeatures()
+  const locked = tier ? !features?.features?.[tier] : false
   return (
     <NavLink to={to} end={end} className={linkClass}>
       <Icon size={16} className="shrink-0" />
       <span className="truncate">{t(labelKey)}</span>
-      {badge && (
-        <span className="ml-auto shrink-0 rounded-full bg-green-600 px-1.5 py-px text-[9px] font-semibold uppercase leading-normal tracking-tight text-white">
-          {badge}
-        </span>
-      )}
+      {tier && <TierBadge tier={tier} locked={locked} className="ml-auto shrink-0" />}
     </NavLink>
   )
 }
@@ -202,7 +203,7 @@ export default function Layout() {
 
           <div className="mx-3 mb-2 flex items-center justify-between rounded-md border border-border bg-bg px-3 py-2 text-xs text-text-secondary">
             <span>{branding.app_name}</span>
-            <span className="font-mono">v0.1.0</span>
+            <span className="font-mono">v{APP_VERSION}</span>
           </div>
 
           {/* Wiki-Button, volle Breite des Sidebar-Bereichs. */}
