@@ -8,7 +8,7 @@ Konten werden ausschliesslich von Admins angelegt (siehe app/api/users.py),
 kein Self-Signup. OIDC (app/auth/oidc.py) ist eine optionale Zweitmethode.
 Der Login ist zweistufig, sobald 2FA aktiv oder per Policy erzwungen ist.
 """
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
@@ -21,7 +21,7 @@ from app.schemas import LoginResult, TwoFACodeIn
 from app.services import ratelimit, twofa
 from app.services.audit import client_ip, record_audit
 from app.utils.passwords import hash_password, verify_password
-from app.utils.security import create_access_token
+from app.utils.security import clear_session, create_access_token, issue_session
 
 router = APIRouter(prefix="/auth/local", tags=["auth"])
 
@@ -76,7 +76,7 @@ def _pre_auth_token(user: User) -> str:
 
 
 @router.post("/login", response_model=LoginResult)
-def login(payload: LocalLoginRequest, request: Request, db: Session = Depends(get_db)) -> LoginResult:
+def login(payload: LocalLoginRequest, request: Request, response: Response, db: Session = Depends(get_db)) -> LoginResult:
     ip = client_ip(request)
     invalid_credentials = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED, detail="E-Mail oder Passwort ist falsch"
@@ -136,14 +136,17 @@ def login(payload: LocalLoginRequest, request: Request, db: Session = Depends(ge
     if twofa.twofa_required_for(user, policy):
         return LoginResult(twofa_required=True, setup_required=True, pre_auth_token=_pre_auth_token(user))
 
+    token = create_access_token(subject=str(user.id))
+    issue_session(response, token)
     record_audit(db, action="login.success", category="auth", description="Erfolgreiche Anmeldung", actor=user, ip=ip)
-    return LoginResult(access_token=create_access_token(subject=str(user.id)))
+    return LoginResult(access_token=token)
 
 
 @router.post("/login/2fa", response_model=LoginResult)
 def login_verify_2fa(
     payload: TwoFACodeIn,
     request: Request,
+    response: Response,
     db: Session = Depends(get_db),
     user: User = Depends(get_twofa_pending_user),
 ) -> LoginResult:
@@ -159,9 +162,18 @@ def login_verify_2fa(
     if twofa.verify_second_factor(user, payload.code):
         ratelimit.reset(twofa_key)
         db.commit()  # verbrauchten Backup-Code / geleerten E-Mail-Code persistieren
+        token = create_access_token(subject=str(user.id))
+        issue_session(response, token)
         record_audit(db, action="login.success", category="auth", description="Erfolgreiche Anmeldung (2FA)", actor=user, ip=ip)
-        return LoginResult(access_token=create_access_token(subject=str(user.id)))
+        return LoginResult(access_token=token)
 
     ratelimit.register_failure(twofa_key, window_seconds=_TWOFA_WINDOW_SECONDS)
     record_audit(db, action="login.failed", category="auth", description="Falscher 2FA-Code", actor=user, ip=ip)
     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Code ist ungültig")
+
+
+@router.post("/logout")
+def logout(response: Response) -> dict:
+    """Meldet den Browser ab, indem Session- und CSRF-Cookie gelöscht werden."""
+    clear_session(response)
+    return {"ok": True}
