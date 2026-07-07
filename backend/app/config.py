@@ -67,6 +67,14 @@ class Settings(BaseSettings):
     # (GeoLite2-Country, DB-IP Lite, IPinfo Country, ...). Leer = kein Laender-Lookup.
     GEOIP_DB_PATH: str | None = None
 
+    # Update-Check (optional, vendor-neutral). Prueft periodisch gegen eine URL
+    # (Default: GitHub-Releases-API des Projekts), ob ein neueres Release vorliegt.
+    # URL leeren = Update-Check komplett deaktiviert (z. B. Air-Gapped/White-Label).
+    UPDATE_CHECK_URL: str = "https://api.github.com/repos/securebitsorg/HumanShield.APP/releases/latest"
+    UPDATE_CHANGELOG_URL: str = "https://github.com/securebitsorg/HumanShield.APP/releases"
+    UPDATE_CHECK_INTERVAL_HOURS: int = 6
+    UPDATE_CHECK_TIMEOUT: int = 4  # Sekunden fuer den externen Request
+
     # Lizenzierung / Add-ons (Online-Aktivierung). Leer = reiner Open-Core-Betrieb ohne Add-ons.
     LICENSE_SERVER_URL: str = ""
     LICENSE_KEY: str = ""  # optionaler .env-Seed; kann auch im Dashboard gepflegt werden

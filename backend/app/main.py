@@ -14,6 +14,7 @@ from starlette.middleware.sessions import SessionMiddleware
 
 from app.api import audit, campaigns, dashboard, groups, health, landing_pages, license as license_api, me as me_api, reports, results, sending_profiles, settings as settings_api, templates, tracking
 from app.api import users as users_api
+from app.api import version as version_api
 from app.addon_loader import load_addons
 from app.auth import local as local_auth
 from app.auth.oidc import is_oidc_enabled
@@ -22,6 +23,7 @@ from app.config import get_settings
 from app.database import SessionLocal, get_db
 from app.services import license as license_service
 from app.utils.logging import configure_logging
+from app.version import APP_VERSION
 
 configure_logging()
 settings = get_settings()
@@ -63,7 +65,7 @@ async def lifespan(_: FastAPI):
             refresh_task.cancel()
 
 
-app = FastAPI(title="HumanShield.APP API", version="0.1.0", lifespan=lifespan)
+app = FastAPI(title="HumanShield.APP API", version=APP_VERSION, lifespan=lifespan)
 
 # Session-Cookie fuer den OIDC-Authorization-Code-Flow (State/Nonce).
 app.add_middleware(SessionMiddleware, secret_key=settings.SECRET_KEY)
@@ -100,6 +102,7 @@ app.include_router(results.router)
 app.include_router(reports.router)
 app.include_router(tracking.router)
 app.include_router(license_api.router)
+app.include_router(version_api.router)
 
 # Private Add-on-Pakete (falls installiert) registrieren. Ohne Paket ein No-Op.
 load_addons(app)

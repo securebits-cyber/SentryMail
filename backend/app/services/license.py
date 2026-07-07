@@ -27,6 +27,7 @@ from app.config import get_settings
 from app.database import get_db
 from app.models import LicenseState, User
 from app.utils.crypto import decrypt, encrypt
+from app.version import APP_VERSION
 
 logger = logging.getLogger(__name__)
 
@@ -117,7 +118,7 @@ def refresh_license(db: Session) -> LicenseState:
                 "license_key": key,
                 "instance_id": str(state.instance_id),
                 "product": settings.LICENSE_PRODUCT,
-                "product_version": "0.1.0",
+                "product_version": APP_VERSION,
             },
             timeout=10.0,
         )
