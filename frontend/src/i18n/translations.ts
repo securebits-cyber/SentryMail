@@ -106,6 +106,9 @@ export const translations: Record<Lang, Record<string, string>> = {
 
     // Kopfzeile / allgemein
     'header.upgradeLicense': 'Upgrade Lizenz',
+    'header.slogan': 'Awareness-Training - Made in Germany',
+    'update.available': 'Update verfügbar',
+    'update.changelog': 'Changelog',
     'common.logout': 'Logout',
     'common.toggleTheme': 'Farbmodus umschalten',
     'common.language': 'Sprache',
@@ -912,6 +915,9 @@ export const translations: Record<Lang, Record<string, string>> = {
 
     // Header / common
     'header.upgradeLicense': 'Upgrade License',
+    'header.slogan': 'Awareness Training - Made in Germany',
+    'update.available': 'Update available',
+    'update.changelog': 'Changelog',
     'common.logout': 'Log out',
     'common.toggleTheme': 'Toggle color mode',
     'common.language': 'Language',

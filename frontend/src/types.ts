@@ -81,6 +81,13 @@ export interface FeaturesResponse {
   license: { status: string; customer: string | null; expires: string | null }
 }
 
+export interface VersionResponse {
+  current: string
+  latest: string | null
+  update_available: boolean
+  changelog_url: string | null
+}
+
 export interface LicenseStatus {
   instance_id: string
   status: string
