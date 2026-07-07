@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.8.0](https://github.com/securebitsorg/HumanShield.APP/compare/v0.7.0...v0.8.0) (2026-07-07)
+
+
+### Features
+
+* **license:** Nutzer-Limit (Seats) für Business/Enterprise durchsetzen ([384f67c](https://github.com/securebitsorg/HumanShield.APP/commit/384f67c8d6d05e705fe2b27a88db66db50ae5cc6))
+* **users:** Hauptadmin schützen – Löschen verhindern ([5347567](https://github.com/securebitsorg/HumanShield.APP/commit/53475672d15351cb9aafd53d28fa2be1af6c6572))
+
 ## [0.7.0](https://github.com/securebitsorg/HumanShield.APP/compare/v0.6.0...v0.7.0) (2026-07-07)
 
 
