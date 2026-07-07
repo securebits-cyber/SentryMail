@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.6.0](https://github.com/securebitsorg/HumanShield.APP/compare/v0.5.0...v0.6.0) (2026-07-07)
+
+
+### Features
+
+* **security:** Session über httpOnly-Cookie + CSRF statt localStorage-Token ([b592526](https://github.com/securebitsorg/HumanShield.APP/commit/b592526a6961f7329a9f912314e2bf52e34bd627))
+
+
+### Bug Fixes
+
+* **security:** Brute-Force-Lockout für Login/2FA + CORS-Wildcard-Schutz ([c98ba73](https://github.com/securebitsorg/HumanShield.APP/commit/c98ba73459ca14d6af653385b3085316303961e6))
+* **security:** Update-Check gegen SSRF härten ([4e72e99](https://github.com/securebitsorg/HumanShield.APP/commit/4e72e991f5ff8f8f3ed744aaabda5f4184247b71))
+* **security:** Vorlagen-/Markdown-Vorschau in sandboxed iframe (Stored-XSS) ([4b1a9d1](https://github.com/securebitsorg/HumanShield.APP/commit/4b1a9d1a8493fe941db38fc7cc050c1d366e3961))
+
 ## [0.5.0](https://github.com/securebitsorg/HumanShield.APP/compare/v0.4.0...v0.5.0) (2026-07-07)
 
 
