@@ -24,13 +24,14 @@ HumanShield.APP helps organizations shrink their human attack surface: run reali
 
 **Campaigns & tracking**
 - Campaign wizard with optional scheduling
-- Tracking of **opens, clicks and form submissions** — evaluated **per recipient**
-- Control-center dashboard with KPIs and CSV export
+- Tracking of **opens, clicks and form submissions** — evaluated **per recipient**, with a **session history** (repeat visits) per recipient
+- **Engagement analytics** — breakdown by browser, operating system, device type and **country** (optional local GeoIP database), UTM parameters and referrer
+- Control-center dashboard with **KPIs, risk score (traffic light), funnel, timeline, activity heatmap** and **human-risk score**; **management report** and CSV export
 
 **Content**
 - Templates with an **HTML or Markdown editor**, personalization variables and live preview
 - **`.eml` import** of real emails, including attachments
-- Landing pages with optional form capture and redirect
+- Landing pages with optional form capture, redirect and **live preview in the editor**
 
 **Recipients**
 - Groups via **manual entry, CSV or LDAP import**
@@ -39,6 +40,9 @@ HumanShield.APP helps organizations shrink their human attack surface: run reali
 - Local login and optional **OIDC / single sign-on**
 - **Two-factor authentication** (authenticator app or email code, enforceable, backup codes)
 - Roles, audit log, secrets encrypted at rest (Argon2id, Fernet)
+
+**AI assistance** (Business, provider-neutral)
+- **AI-assisted creation** of email templates and landing pages via a freely configurable, OpenAI-compatible connection (OpenAI, Azure, Mistral, Groq, OpenRouter, Ollama, etc.)
 
 **Delivery**
 - **Sending profiles** (SMTP per sender) plus a global fallback SMTP — any provider
@@ -97,15 +101,18 @@ See the [security wiki](https://github.com/securebitsorg/HumanShield.APP/wiki/Si
 The **core** of HumanShield.APP (all features above) is open source under the **Mozilla Public License 2.0 (MPL-2.0)** and fully usable. In addition there are **two paid add-ons**, unlocked by license and shipped as separate, private packages.
 
 **Business add-on**
-- **LDAP** directory import of recipients
+- **LDAP** directory import of recipients (incl. LDAPS with a custom CA certificate)
 - **Azure AD / Entra ID** import of recipients (Microsoft Graph)
 - **Email upload** (`.eml`) as a template draft
 - **Template library** (ready-made awareness templates: DHL, Amazon, invoice, M365, HR, bank, PayPal, LinkedIn, PDF lure, QR campaign)
+- **Landing page library** — matching, clonable landing pages for every template, available directly in the “Landing pages” menu
 - **Attack types** — spear phishing, whaling (CEO fraud) and file-based (lure attachment) templates in the library
+- **AI connection** — provider-neutral, OpenAI-compatible generation of email templates and landing pages
 - **PDF export** (management report & campaign results)
 - **QR code phishing (quishing)** — per-recipient QR codes
 - **Webhooks** — event triggers (open/click/submit) to external systems
 - **Password capture** — capture submitted form data (passwords masked, never plaintext)
+- **Passkeys (WebAuthn)** — phishing-resistant two-factor authentication
 - **Business reporting** — executive report (PDF), trend analysis and user development
 - **Recurring campaigns** — automatic, scheduled re-send via a scheduler
 - **Multi-stage campaigns** — campaign sequences (several stages with a time gap)
@@ -113,10 +120,11 @@ The **core** of HumanShield.APP (all features above) is open source under the **
 
 **Enterprise add-on** (includes all Business features)
 - **White-label** — custom branding (app name, accent colors, logo)
+- **SAML SSO** — sign-in via SAML 2.0 identity providers (signature-verified assertions)
 - **Automatic/risk campaigns** — recipients are chosen automatically by risk and sent at a fixed interval
 - **Enterprise reporting** — training progress, certificate status and individual per-person reports (PDF)
+- **AI risk analysis** — AI-assisted evaluation of the human-risk metrics
 - **SIEM export** — tracking events to Splunk HEC, Elasticsearch, Microsoft Sentinel or generic JSON
-- planned: multi-tenant, SAML SSO, AI scoring, etc.
 
 Without a license the platform runs as pure open core — no errors, no lockouts.
 

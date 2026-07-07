@@ -24,13 +24,14 @@ HumanShield.APP hilft Organisationen, ihre menschliche Angriffsfläche zu verkle
 
 **Kampagnen & Tracking**
 - Kampagnen-Assistent mit optionaler Zeitplanung
-- Tracking von **Öffnungen, Klicks und Formular-Eingaben** — ausgewertet **pro Empfänger**
-- Control-Center-Dashboard mit **KPIs, Risiko-Score (Ampel), Trichter & Zeitachse**; **Management Report** und CSV-Export
+- Tracking von **Öffnungen, Klicks und Formular-Eingaben** — ausgewertet **pro Empfänger**, mit **Session-Verlauf** (Mehrfachbesuche) je Empfänger
+- **Engagement-Analytics** — Aufschlüsselung nach Browser, Betriebssystem, Gerätetyp und **Ländern** (optionale lokale GeoIP-Datenbank), UTM-Parameter und Referrer
+- Control-Center-Dashboard mit **KPIs, Risiko-Score (Ampel), Trichter, Zeitachse, Aktivitäts-Heatmap** und **Human-Risk-Score**; **Management Report** und CSV-Export
 
 **Inhalte**
 - Vorlagen mit **HTML- oder Markdown-Editor**, Personalisierungs-Variablen und Live-Vorschau
 - **`.eml`-Import** echter E-Mails inklusive Anhänge
-- Landing Pages mit optionaler Formular-Erfassung und Weiterleitung
+- Landing Pages mit optionaler Formular-Erfassung, Weiterleitung und **Live-Vorschau im Editor**
 
 **Empfänger**
 - Gruppen per **manueller Eingabe, CSV oder LDAP-Import**
@@ -39,6 +40,9 @@ HumanShield.APP hilft Organisationen, ihre menschliche Angriffsfläche zu verkle
 - Lokaler Login und optionales **OIDC / Single Sign-On**
 - **Zwei-Faktor-Authentifizierung** (Authenticator-App oder E-Mail-Code, erzwingbar, Backup-Codes)
 - Rollen, Audit-Log, Secrets verschlüsselt at-rest (Argon2id, Fernet)
+
+**KI-Unterstützung** (Business, anbieter-neutral)
+- **KI-gestützte Erstellung** von Mail-Vorlagen und Landing Pages über eine frei konfigurierbare, OpenAI-kompatible Anbindung (OpenAI, Azure, Mistral, Groq, OpenRouter, Ollama u. a.)
 
 **Versand**
 - **Sending Profiles** (SMTP je Absender) plus globales Fallback-SMTP — beliebiger Anbieter
@@ -97,15 +101,18 @@ Details im [Sicherheits-Wiki](https://github.com/securebitsorg/HumanShield.APP/w
 Der **Kern** von HumanShield.APP (alle oben genannten Funktionen) ist unter der **Mozilla Public License 2.0 (MPL-2.0)** quelloffen und vollständig nutzbar. Zusätzlich gibt es **zwei kostenpflichtige Add-ons**, die per Lizenz freigeschaltet und als separate, private Pakete ausgeliefert werden.
 
 **Business-Add-on**
-- **LDAP**-Verzeichnisimport von Empfängern
+- **LDAP**-Verzeichnisimport von Empfängern (inkl. LDAPS mit eigenem CA-Zertifikat)
 - **Azure AD / Entra ID**-Import von Empfängern (Microsoft Graph)
 - **E-Mail-Upload** (`.eml`) als Vorlagen-Entwurf
 - **Vorlagen-Bibliothek** (fertige Awareness-Vorlagen: DHL, Amazon, Rechnung, M365, HR, Bank, PayPal, LinkedIn, PDF-Köder, QR-Kampagne)
+- **Landing-Page-Bibliothek** — passende, klonbare Landing Pages zu jeder Vorlage, direkt im Menü „Landing Pages" verfügbar
 - **Angriffsarten** — Spear-Phishing-, Whaling- (CEO-Fraud) und dateibasierte Vorlagen (Köder-Anhang) in der Bibliothek
+- **KI-Anbindung** — anbieter-neutrale, OpenAI-kompatible Erstellung von Mail-Vorlagen und Landing Pages
 - **PDF-Export** (Management Report & Kampagnen-Ergebnisse)
 - **QR-Code-Phishing (Quishing)** — QR-Codes pro Empfänger
 - **Webhooks** — Event-Trigger (Öffnung/Klick/Submit) an externe Systeme
 - **Passwortabfrage** — abgeschickte Formulardaten erfassen (Passwörter maskiert, nie im Klartext)
+- **Passkeys (WebAuthn)** — phishing-resistente Zwei-Faktor-Authentifizierung
 - **Business-Reporting** — Executive Report (PDF), Trendanalyse und Benutzerentwicklung
 - **Wiederkehrende Kampagnen** — automatischer, terminierter Wiederversand per Scheduler
 - **Mehrstufige Kampagnen** — Kampagnen-Sequenzen (mehrere Stufen mit zeitlichem Abstand)
@@ -113,10 +120,11 @@ Der **Kern** von HumanShield.APP (alle oben genannten Funktionen) ist unter der 
 
 **Enterprise-Add-on** (enthält alle Business-Funktionen)
 - **White-Label** — eigenes Branding (App-Name, Akzentfarben, Logo)
+- **SAML-SSO** — Anmeldung über SAML-2.0-Identity-Provider (signaturgeprüfte Assertions)
 - **Automatische/Risiko-Kampagnen** — Empfänger werden automatisch nach Risiko gewählt und in festem Intervall versendet
 - **Enterprise-Reporting** — Schulungsfortschritt, Zertifikatsstatus und individuelle Berichte je Person (PDF)
+- **KI-Risikoanalyse** — KI-gestützte Auswertung der Human-Risk-Kennzahlen
 - **SIEM-Export** — Tracking-Events an Splunk HEC, Elasticsearch, Microsoft Sentinel oder generisches JSON
-- geplant: Multi-Tenant, SAML-SSO, AI-Scoring u. a.
 
 Ohne Lizenz läuft die Plattform als reiner Open-Core-Betrieb — ohne Fehler, ohne Sperren.
 

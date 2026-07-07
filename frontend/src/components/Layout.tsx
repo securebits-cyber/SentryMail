@@ -2,13 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-import { Blocks, BookOpen, ChevronDown, CircleUser, FileBarChart, FileText, Globe, Layers, LayoutDashboard, LogOut, Mail, Moon, Radar, Repeat, Server, Settings, Sun, UserCog, Users, type LucideIcon } from 'lucide-react'
+import { ArrowUpCircle, Blocks, BookOpen, ChevronDown, CircleUser, ExternalLink, FileBarChart, FileText, Globe, Layers, LayoutDashboard, LogOut, Mail, Moon, Radar, Repeat, Server, Settings, Sun, UserCog, Users, type LucideIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import LanguageSwitcher from './LanguageSwitcher'
 import { useI18n } from '../i18n'
 import { useFeatures } from '../hooks/useFeatures'
 import { useMe } from '../hooks/useMe'
+import { useVersion } from '../hooks/useVersion'
 import { useTheme } from '../hooks/useTheme'
 import { useBranding } from './BrandingProvider'
 import TierBadge, { type Tier } from './TierBadge'
@@ -129,6 +130,7 @@ export default function Layout() {
   const { t } = useI18n()
   const me = useMe()
   const branding = useBranding()
+  const version = useVersion()
   const isAdmin = me?.role === 'admin'
   // Wiki-Ziel konfigurierbar (vendor-neutral); Default: Projekt-Wiki auf GitHub.
   const wikiUrl = import.meta.env.VITE_WIKI_URL || 'https://github.com/securebitsorg/HumanShield.APP/wiki'
@@ -143,9 +145,12 @@ export default function Layout() {
           <span className="h-6 w-6 rounded-md bg-accent" aria-hidden />
         )}
         <span className="text-lg font-semibold tracking-tight">{branding.app_name}</span>
+        <span className="mx-auto hidden select-none text-sm font-medium tracking-wide text-text-secondary sm:block">
+          {t('header.slogan')}
+        </span>
         <Link
           to="/settings/license"
-          className="ml-auto rounded-md border border-green-600 px-3 py-1.5 text-sm font-medium text-green-600 transition-colors hover:bg-green-600/10"
+          className="ml-auto rounded-md border border-green-600 px-3 py-1.5 text-sm font-medium text-green-600 transition-colors hover:bg-green-600/10 sm:ml-0"
         >
           {t('header.upgradeLicense')}
         </Link>
@@ -201,9 +206,29 @@ export default function Layout() {
             </div>
           </div>
 
-          <div className="mx-3 mb-2 flex items-center justify-between rounded-md border border-border bg-bg px-3 py-2 text-xs text-text-secondary">
-            <span>{branding.app_name}</span>
-            <span className="font-mono">v{APP_VERSION}</span>
+          <div className="mx-3 mb-2 space-y-2">
+            <div className="flex items-center justify-between rounded-md border border-border bg-bg px-3 py-2 text-xs text-text-secondary">
+              <span>{branding.app_name}</span>
+              <span className="font-mono">v{version?.current ?? APP_VERSION}</span>
+            </div>
+            {version?.update_available && version.changelog_url && (
+              <a
+                href={version.changelog_url}
+                target="_blank"
+                rel="noreferrer"
+                title={version.latest ? `v${version.latest}` : undefined}
+                className="flex items-center justify-between gap-2 rounded-md border border-accent bg-accent/10 px-3 py-2 text-xs font-medium text-accent transition-colors hover:bg-accent/20"
+              >
+                <span className="flex items-center gap-1.5">
+                  <ArrowUpCircle size={14} className="shrink-0" />
+                  {t('update.available')}
+                </span>
+                <span className="flex items-center gap-1">
+                  {t('update.changelog')}
+                  <ExternalLink size={12} className="shrink-0" />
+                </span>
+              </a>
+            )}
           </div>
 
           {/* Wiki-Button, volle Breite des Sidebar-Bereichs. */}

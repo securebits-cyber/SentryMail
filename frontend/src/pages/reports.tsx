@@ -298,6 +298,42 @@ export default function ReportsPage() {
         <RiskMeter risk={riskForMeter} />
       </div>
 
+      {/* Enterprise: KI-gestützte Risikoanalyse (AI-Scoring) — hervorgehoben über dem Kampagnenvergleich */}
+      {enterpriseLicensed && (
+        <div className="mb-8 rounded-xl border border-accent/40 bg-accent/5 p-5 ring-1 ring-accent/10">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <h2 className="flex items-center gap-2 text-lg font-semibold">
+              <Sparkles size={18} className="text-accent" />
+              {t('rep.ai.heading')}
+            </h2>
+            <button
+              onClick={runAiScoring}
+              disabled={aiBusy}
+              className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+            >
+              {aiBusy ? t('rep.ai.busy') : t('rep.ai.run')}
+            </button>
+          </div>
+          <p className="mb-3 max-w-3xl text-sm text-text-secondary">{t('rep.ai.intro')}</p>
+          {aiError && <p className="mb-3 text-sm text-status-danger">{aiError}</p>}
+          {aiScore && (
+            <div className="elevated rounded-lg border border-border bg-surface p-5">
+              <p className="text-sm text-text-primary">{aiScore.assessment}</p>
+              {aiScore.recommendations.length > 0 && (
+                <>
+                  <h3 className="mb-2 mt-4 text-sm font-semibold text-text-secondary">{t('rep.ai.recommendations')}</h3>
+                  <ul className="list-disc space-y-1 pl-5 text-sm text-text-primary">
+                    {aiScore.recommendations.map((r, i) => (
+                      <li key={i}>{r}</li>
+                    ))}
+                  </ul>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Kampagnenvergleich */}
       <h2 className="mb-3 text-lg font-semibold">{t('rep.campaigns.heading')}</h2>
       {report.campaign_rows.length === 0 ? (
@@ -478,42 +514,6 @@ export default function ReportsPage() {
           </div>
         </div>
       )}
-      {/* Enterprise: KI-gestützte Risikoanalyse (AI-Scoring) — über den Nachweisen */}
-      {enterpriseLicensed && (
-        <div className="mt-8">
-          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-            <h2 className="flex items-center gap-2 text-lg font-semibold">
-              <Sparkles size={18} className="text-accent" />
-              {t('rep.ai.heading')}
-            </h2>
-            <button
-              onClick={runAiScoring}
-              disabled={aiBusy}
-              className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
-            >
-              {aiBusy ? t('rep.ai.busy') : t('rep.ai.run')}
-            </button>
-          </div>
-          <p className="mb-3 max-w-3xl text-sm text-text-secondary">{t('rep.ai.intro')}</p>
-          {aiError && <p className="mb-3 text-sm text-status-danger">{aiError}</p>}
-          {aiScore && (
-            <div className="elevated rounded-lg border border-border bg-surface p-5">
-              <p className="text-sm text-text-primary">{aiScore.assessment}</p>
-              {aiScore.recommendations.length > 0 && (
-                <>
-                  <h3 className="mb-2 mt-4 text-sm font-semibold text-text-secondary">{t('rep.ai.recommendations')}</h3>
-                  <ul className="list-disc space-y-1 pl-5 text-sm text-text-primary">
-                    {aiScore.recommendations.map((r, i) => (
-                      <li key={i}>{r}</li>
-                    ))}
-                  </ul>
-                </>
-              )}
-            </div>
-          )}
-        </div>
-      )}
-
       {/* Business: Nachweise & Zertifikate */}
       <div className="mt-8">
         <h2 className="mb-3 text-lg font-semibold">

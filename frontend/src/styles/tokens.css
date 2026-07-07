@@ -97,6 +97,17 @@ h1, h2, h3 {
   letter-spacing: -0.011em;
 }
 
+/* Abschnitts-Ueberschriften mit dezenter Trennlinie darunter (besserer
+   Ueberblick). Greift automatisch fuer alle Abschnittsueberschriften im
+   Inhaltsbereich (<main> h2) und fuer explizit markierte Kartentitel
+   (.section-heading, z. B. die Dashboard-Karten). Der Seitentitel ist ein
+   <h1> mit eigener Akzentlinie und bleibt unberuehrt. */
+main h2,
+.section-heading {
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
 /* Konsistenter, accent-farbener Fokus-Ring (Barrierefreiheit + Politur) */
 :where(a, button):focus-visible {
   outline: 2px solid var(--color-accent);
