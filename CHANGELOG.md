@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.4.0](https://github.com/securebitsorg/HumanShield.APP/compare/v0.3.0...v0.4.0) (2026-07-07)
+
+
+### Features
+
+* **ui:** aktuelle Release-Version in der Sidebar-Fußzeile anzeigen ([b96fe98](https://github.com/securebitsorg/HumanShield.APP/commit/b96fe983af66b4d55e5b76cc193cb8a42ecc4d00))
+* **ui:** einheitliche Outline-Tier-Badges + Premium überall sichtbar ([5a4bf2f](https://github.com/securebitsorg/HumanShield.APP/commit/5a4bf2f1d89d00fef6d411811eb60ba5c51d4436))
+* **ui:** Tier-Badges nur bei fehlender Lizenz anzeigen ([1a9df5c](https://github.com/securebitsorg/HumanShield.APP/commit/1a9df5c64412a0b6c7d34c1fed36c300b0b9d96a))
+
 ## [0.3.0](https://github.com/securebitsorg/HumanShield.APP/compare/v0.2.0...v0.3.0) (2026-07-06)
 
 
