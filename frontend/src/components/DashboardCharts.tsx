@@ -52,7 +52,7 @@ export function RiskMeter({ risk }: { risk: RiskSummary }) {
 
   return (
     <div className="elevated rounded-lg border border-border bg-surface p-5">
-      <div className="mb-3 flex items-center justify-between">
+      <div className="section-heading mb-3 flex items-center justify-between">
         <h3 className="text-sm font-semibold text-text-secondary">{t('risk.heading')}</h3>
         <span className={`inline-flex items-center gap-1.5 text-sm font-semibold ${tone.text}`}>
           <Icon size={16} />
@@ -103,7 +103,7 @@ export function Funnel({ summary }: { summary: Summary }) {
 
   return (
     <div className="elevated rounded-lg border border-border bg-surface p-5">
-      <h3 className="mb-4 text-sm font-semibold text-text-secondary">{t('funnel.heading')}</h3>
+      <h3 className="section-heading mb-4 text-sm font-semibold text-text-secondary">{t('funnel.heading')}</h3>
       <div className="flex flex-col gap-3">
         {stages.map(({ key, labelKey }) => {
           const value = summary[key]
@@ -184,7 +184,7 @@ export function EngagementBreakdown({ analytics }: { analytics: EngagementAnalyt
 
   return (
     <div className="elevated rounded-lg border border-border bg-surface p-5">
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+      <div className="section-heading mb-4 flex flex-wrap items-center justify-between gap-2">
         <h3 className="text-sm font-semibold text-text-secondary">{t('analytics.heading')}</h3>
         <span className="text-xs text-text-secondary">
           {t('analytics.basis', { count: String(analytics.total_events) })}
@@ -243,7 +243,7 @@ export function HumanRiskCard({ summary }: { summary: HumanRiskSummary }) {
 
   return (
     <div className="elevated rounded-lg border border-border bg-surface p-5">
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+      <div className="section-heading mb-4 flex flex-wrap items-center justify-between gap-2">
         <h3 className="text-sm font-semibold text-text-secondary">{t('hrm.heading')}</h3>
         <div className="flex items-center gap-4 text-xs text-text-secondary">
           <span>{t('hrm.people', { count: String(summary.people) })}</span>
@@ -332,7 +332,7 @@ export function ActivityHeatmapCard({ heatmap }: { heatmap: ActivityHeatmap }) {
 
   return (
     <div className="elevated rounded-lg border border-border bg-surface p-5">
-      <h3 className="mb-4 text-sm font-semibold text-text-secondary">{t('heatmap.heading')}</h3>
+      <h3 className="section-heading mb-4 text-sm font-semibold text-text-secondary">{t('heatmap.heading')}</h3>
       {heatmap.total_events === 0 ? (
         <p className="text-sm text-text-secondary">{t('heatmap.empty')}</p>
       ) : (
@@ -404,7 +404,7 @@ export function Timeline({ points }: { points: TimelinePoint[] }) {
   if (points.length === 0) {
     return (
       <div className="elevated rounded-lg border border-border bg-surface p-5">
-        <h3 className="mb-2 text-sm font-semibold text-text-secondary">{t('timeline.heading')}</h3>
+        <h3 className="section-heading mb-2 text-sm font-semibold text-text-secondary">{t('timeline.heading')}</h3>
         <p className="text-sm text-text-secondary">{t('timeline.empty')}</p>
       </div>
     )
@@ -426,7 +426,7 @@ export function Timeline({ points }: { points: TimelinePoint[] }) {
 
   return (
     <div className="elevated rounded-lg border border-border bg-surface p-5">
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+      <div className="section-heading mb-3 flex flex-wrap items-center justify-between gap-2">
         <h3 className="text-sm font-semibold text-text-secondary">{t('timeline.heading')}</h3>
         <div className="flex items-center gap-4 text-xs text-text-secondary">
           {SERIES.map((s) => (
