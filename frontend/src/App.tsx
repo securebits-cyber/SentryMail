@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-import { useEffect, useState, type ReactElement } from 'react'
+import { type ReactElement } from 'react'
 import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom'
 import IntegrationsLayout from './components/IntegrationsLayout'
 import Layout from './components/Layout'
@@ -37,7 +37,7 @@ import WebhooksSettingsPage from './pages/settings/webhooks'
 import WhitelabelSettingsPage from './pages/settings/whitelabel'
 import TemplatesPage from './pages/templates'
 import UsersPage from './pages/users'
-import { consumeTokenFromUrlFragment, isAuthenticated } from './services/auth'
+import { isAuthenticated } from './services/auth'
 
 function RequireAuth({ children }: { children: ReactElement }) {
   if (!isAuthenticated()) return <Navigate to="/login" replace />
@@ -45,15 +45,6 @@ function RequireAuth({ children }: { children: ReactElement }) {
 }
 
 export default function App() {
-  const [ready, setReady] = useState(false)
-
-  useEffect(() => {
-    consumeTokenFromUrlFragment()
-    setReady(true)
-  }, [])
-
-  if (!ready) return null
-
   return (
     <Router>
       <Routes>

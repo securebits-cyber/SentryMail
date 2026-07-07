@@ -15,6 +15,7 @@ Deaktivieren: ``UPDATE_CHECK_URL`` in der .env leeren.
 """
 from __future__ import annotations
 
+import json
 import logging
 import re
 import time
@@ -31,6 +32,10 @@ _cache: tuple[float, str | None] | None = None
 
 _VERSION_RE = re.compile(r"(\d+)\.(\d+)\.(\d+)")
 
+# Obergrenze fuer die gelesene Antwort (ein Releases-JSON ist wenige KB). Schuetzt
+# vor uebergrossen Antworten einer manipulierten/kompromittierten Update-Quelle.
+_MAX_RESPONSE_BYTES = 256 * 1024
+
 
 def _parse(version: str | None) -> tuple[int, int, int] | None:
     """Extrahiert (major, minor, patch) aus z. B. 'v0.4.0' oder '0.4.0'."""
@@ -43,20 +48,37 @@ def _parse(version: str | None) -> tuple[int, int, int] | None:
 
 
 def _fetch_latest(url: str, timeout: float) -> str | None:
-    """Holt das neueste Release-Tag von der Update-URL (GitHub-Releases-API-Format)."""
+    """Holt das neueste Release-Tag von der Update-URL (GitHub-Releases-API-Format).
+
+    Gehaertet: nur https, keine Redirects (Releases-APIs antworten direkt mit 200 —
+    so kann eine kompromittierte/umleitende Quelle den Server nicht auf interne
+    Adressen lenken), und die gelesene Antwort ist auf _MAX_RESPONSE_BYTES begrenzt.
+    """
+    if not url.lower().startswith("https://"):
+        logger.warning("Update-Check-URL ist nicht https und wird ignoriert: %s", url)
+        return None
     try:
-        resp = httpx.get(url, timeout=timeout, headers={"Accept": "application/json"}, follow_redirects=True)
-        resp.raise_for_status()
+        with httpx.stream(
+            "GET", url, timeout=timeout, headers={"Accept": "application/json"}, follow_redirects=False
+        ) as resp:
+            resp.raise_for_status()
+            body = b""
+            for chunk in resp.iter_bytes():
+                body += chunk
+                if len(body) > _MAX_RESPONSE_BYTES:
+                    logger.info("Update-Check: Antwort zu gross, abgebrochen (> %d Bytes)", _MAX_RESPONSE_BYTES)
+                    return None
     except httpx.HTTPError as exc:
         logger.info("Update-Check nicht erreichbar: %s", exc)
         return None
     try:
-        data = resp.json()
+        data = json.loads(body)
     except ValueError:
         return None
+    if not isinstance(data, dict):
+        return None
     # GitHub-Releases-API: {"tag_name": "v0.4.0", ...}. Fallback: {"version": "..."}.
-    tag = data.get("tag_name") or data.get("name") or data.get("version") if isinstance(data, dict) else None
-    return tag
+    return data.get("tag_name") or data.get("name") or data.get("version")
 
 
 def _latest_version() -> str | None:

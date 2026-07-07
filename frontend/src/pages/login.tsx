@@ -8,7 +8,8 @@ import TwoFASetup from '../components/TwoFASetup'
 import LanguageSwitcher from '../components/LanguageSwitcher'
 import { useBranding } from '../components/BrandingProvider'
 import { useI18n } from '../i18n'
-import { getAuthConfig, getSamlConfig, loginLocal, loginPasskeyOptions, loginPasskeyVerify, loginUrl, loginVerify2fa, samlLoginUrl, setToken } from '../services/auth'
+import { getAuthConfig, getSamlConfig, loginLocal, loginPasskeyOptions, loginPasskeyVerify, loginUrl, loginVerify2fa, samlLoginUrl } from '../services/auth'
+import { setAuthBearer } from '../services/api'
 
 const fieldClass = 'rounded-md border border-border bg-surface px-3 py-2 text-text-primary'
 const primaryBtn = 'rounded-md bg-accent px-5 py-2 font-medium text-white disabled:opacity-60'
@@ -50,8 +51,9 @@ export default function LoginPage() {
         setPreAuth(res.pre_auth_token)
         setMethod(res.method)
         if (res.setup_required) {
-          // Erzwungene Einrichtung: Pre-Auth-Token nutzen, bis das Voll-Token kommt.
-          setToken(res.pre_auth_token)
+          // Erzwungene Einrichtung: Pre-Auth-Token als Übergangs-Bearer nutzen,
+          // bis die Setup-Bestätigung das Session-Cookie setzt.
+          setAuthBearer(res.pre_auth_token)
           setStage('setup')
         } else {
           setStage('verify')
@@ -180,7 +182,8 @@ export default function LoginPage() {
             onCancel={() => setStage('password')}
             onDone={(activated) => {
               if (activated.access_token) {
-                setToken(activated.access_token)
+                // Session-Cookie wurde vom Server gesetzt; Übergangs-Bearer leeren.
+                setAuthBearer(null)
                 navigate('/', { replace: true })
               } else {
                 setStage('verify')

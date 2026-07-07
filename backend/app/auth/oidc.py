@@ -20,7 +20,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models import OidcConfig, User
 from app.utils.crypto import decrypt
-from app.utils.security import create_access_token
+from app.utils.security import create_access_token, issue_session
 
 logger = logging.getLogger(__name__)
 
@@ -95,7 +95,9 @@ async def callback(request: Request, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(user)
 
-    # Token im URL-Fragment (nicht Query-Parameter) uebergeben, damit es nicht
-    # in Server-/Proxy-Zugriffslogs landet - das Frontend liest es clientseitig aus.
+    # Session als httpOnly-Cookie setzen und ohne Token in der URL zur App
+    # zurückleiten (kein Token in Fragment/Logs, nicht per JS lesbar).
     session_token = create_access_token(subject=str(user.id))
-    return RedirectResponse(url=f"/#token={session_token}")
+    redirect = RedirectResponse(url="/")
+    issue_session(redirect, session_token)
+    return redirect

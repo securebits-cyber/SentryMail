@@ -264,10 +264,14 @@ export default function TemplateForm({ initial, isEdit, onSubmit, onCancel, subm
           <div className="border-b border-border px-3 py-2 text-sm">
             <span className="text-text-secondary">{t('common.subject')}:</span> {fillSample(subject)}
           </div>
-          <div
-            className="max-h-96 overflow-auto bg-white p-4 text-black"
-            // Eigene Vorlage des Admins - Vorschau mit Beispieldaten.
-            dangerouslySetInnerHTML={{ __html: fillSample(htmlContent) }}
+          {/* Vorschau in einem sandboxed iframe (kein allow-scripts): das rohe
+              Vorlagen-HTML kann so kein Script/onerror in der Dashboard-Origin
+              ausführen (verhindert Stored-XSS über geteilte Vorlagen). */}
+          <iframe
+            title={t('tf.showPreview')}
+            srcDoc={fillSample(htmlContent)}
+            sandbox=""
+            className="h-96 w-full bg-white"
           />
         </div>
       )}

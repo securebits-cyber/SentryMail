@@ -3,7 +3,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 """Eigenes Profil des angemeldeten Nutzers: Name/Passwort + 2FA-Verwaltung."""
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
@@ -24,7 +24,7 @@ from app.services import twofa
 from app.services.audit import client_ip, record_audit
 from app.utils.crypto import decrypt, encrypt
 from app.utils.passwords import hash_password, verify_password
-from app.utils.security import create_access_token
+from app.utils.security import create_access_token, issue_session
 
 router = APIRouter(prefix="/me", tags=["me"])
 
@@ -95,6 +95,7 @@ def totp_setup(db: Session = Depends(get_db), user: User = Depends(get_user_for_
 def totp_confirm(
     payload: TwoFACodeIn,
     request: Request,
+    response: Response,
     db: Session = Depends(get_db),
     user: User = Depends(get_user_for_2fa_setup),
 ):
@@ -109,7 +110,9 @@ def totp_confirm(
     twofa.set_backup_codes(user, codes)
     db.commit()
     record_audit(db, action="twofa.enabled", description="Zwei-Faktor-Authentifizierung (App) aktiviert", actor=user, ip=client_ip(request))
-    return TwoFAActivated(backup_codes=codes, access_token=create_access_token(subject=str(user.id)))
+    token = create_access_token(subject=str(user.id))
+    issue_session(response, token)
+    return TwoFAActivated(backup_codes=codes, access_token=token)
 
 
 @router.post("/2fa/email/setup", response_model=TwoFAEmailSetupResult)
@@ -128,6 +131,7 @@ def email_setup(db: Session = Depends(get_db), user: User = Depends(get_user_for
 def email_confirm(
     payload: TwoFACodeIn,
     request: Request,
+    response: Response,
     db: Session = Depends(get_db),
     user: User = Depends(get_user_for_2fa_setup),
 ):
@@ -139,7 +143,9 @@ def email_confirm(
     twofa.set_backup_codes(user, codes)
     db.commit()
     record_audit(db, action="twofa.enabled", description="Zwei-Faktor-Authentifizierung (E-Mail) aktiviert", actor=user, ip=client_ip(request))
-    return TwoFAActivated(backup_codes=codes, access_token=create_access_token(subject=str(user.id)))
+    token = create_access_token(subject=str(user.id))
+    issue_session(response, token)
+    return TwoFAActivated(backup_codes=codes, access_token=token)
 
 
 @router.post("/2fa/disable", status_code=status.HTTP_204_NO_CONTENT)

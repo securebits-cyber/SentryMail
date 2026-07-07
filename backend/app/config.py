@@ -10,6 +10,7 @@ bewusst nicht ohne gesetzte .env-Werte (siehe CLAUDE.MD).
 """
 from functools import lru_cache
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -36,6 +37,18 @@ class Settings(BaseSettings):
     SECRET_KEY: str
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    # Session-Cookie als Secure markieren (nur über HTTPS gesendet). Für lokale
+    # HTTP-Entwicklung (http://localhost) ggf. auf false setzen.
+    COOKIE_SECURE: bool = True
+
+    @field_validator("SECRET_KEY")
+    @classmethod
+    def _secret_key_min_length(cls, v: str) -> str:
+        # Der SECRET_KEY signiert Session-JWTs und das Session-Cookie-Secret.
+        # Zu kurze Schlüssel sind rate-/brute-forcebar -> Mindestlänge erzwingen.
+        if len(v) < 32:
+            raise ValueError("SECRET_KEY muss mindestens 32 Zeichen lang sein.")
+        return v
 
     # Lokaler Login: optionaler Bootstrap des ersten Admin-Kontos beim Start.
     # Nur wirksam, solange noch kein User mit dieser E-Mail existiert.

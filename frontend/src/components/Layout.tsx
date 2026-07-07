@@ -195,8 +195,7 @@ export default function Layout() {
               </button>
               <button
                 onClick={() => {
-                  logout()
-                  window.location.assign('/login')
+                  void logout()
                 }}
                 className="flex flex-1 items-center justify-center gap-2 rounded-md border border-border px-3 py-2 text-sm text-text-primary hover:bg-bg"
               >
