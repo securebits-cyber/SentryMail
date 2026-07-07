@@ -432,6 +432,8 @@ export const translations: Record<Lang, Record<string, string>> = {
     'usr.activate': 'Aktivieren',
     'usr.deactivate': 'Deaktivieren',
     'usr.reset2fa': '2FA zurücksetzen',
+    'usr.primaryAdmin': 'Hauptadmin',
+    'usr.primaryAdminHint': 'Der Hauptadmin kann nicht gelöscht werden.',
 
     // Landing Pages
     'lp.new': 'Neue Landing Page',
@@ -1250,6 +1252,8 @@ export const translations: Record<Lang, Record<string, string>> = {
     'usr.activate': 'Activate',
     'usr.deactivate': 'Deactivate',
     'usr.reset2fa': 'Reset 2FA',
+    'usr.primaryAdmin': 'Primary admin',
+    'usr.primaryAdminHint': 'The primary admin cannot be deleted.',
 
     // Landing pages
     'lp.new': 'New landing page',

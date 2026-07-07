@@ -61,6 +61,7 @@ def ensure_bootstrap_admin(db: Session) -> None:
             full_name="Admin",
             password_hash=hash_password(settings.INITIAL_ADMIN_PASSWORD),
             role=UserRole.ADMIN,
+            is_primary=True,  # Hauptadmin: nicht löschbar
         )
     )
     db.commit()

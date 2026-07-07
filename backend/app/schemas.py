@@ -94,6 +94,7 @@ class UserOut(BaseModel):
     full_name: str
     role: UserRole
     is_active: bool
+    is_primary: bool = False
     twofa_enabled: bool
     created_at: datetime
 

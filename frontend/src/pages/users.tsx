@@ -193,9 +193,15 @@ export default function UsersPage() {
                         {t('usr.reset2fa')}
                       </button>
                     )}
-                    <button onClick={() => handleDelete(user)} className="text-status-danger hover:underline">
-                      {t('common.delete')}
-                    </button>
+                    {user.is_primary ? (
+                      <span className="text-xs text-text-secondary" title={t('usr.primaryAdminHint')}>
+                        {t('usr.primaryAdmin')}
+                      </span>
+                    ) : (
+                      <button onClick={() => handleDelete(user)} className="text-status-danger hover:underline">
+                        {t('common.delete')}
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}

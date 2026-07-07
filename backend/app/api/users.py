@@ -150,6 +150,11 @@ def delete_user(
     current_user: User = Depends(require_admin),
 ):
     user = _get_or_404(db, user_id)
+    if user.is_primary:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Der Hauptadmin kann nicht gelöscht werden",
+        )
     if user.id == current_user.id:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Eigenes Konto nicht loeschbar")
     if user.role == UserRole.ADMIN and user.is_active and _active_admin_count(db) <= 1:

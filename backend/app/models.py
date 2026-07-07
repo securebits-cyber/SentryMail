@@ -62,6 +62,8 @@ class User(Base):
         nullable=False,
     )
     is_active: Mapped[bool] = mapped_column(default=True, nullable=False)
+    # Hauptadmin (Bootstrap-/Erstadmin): kann nicht gelöscht werden.
+    is_primary: Mapped[bool] = mapped_column(default=False, nullable=False, server_default="false")
 
     # --- Zwei-Faktor-Authentifizierung (2FA) ---
     # method: None (aus) | "totp" (Authenticator-App) | "email" (Einmalcode per Mail)

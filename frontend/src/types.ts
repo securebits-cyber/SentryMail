@@ -123,6 +123,7 @@ export interface User {
   full_name: string
   role: 'admin' | 'user'
   is_active: boolean
+  is_primary: boolean
   twofa_enabled: boolean
   created_at: string
 }
