@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.5.0](https://github.com/securebitsorg/HumanShield.APP/compare/v0.4.0...v0.5.0) (2026-07-07)
+
+
+### Features
+
+* **ui:** KI-Risikoanalyse über den Kampagnenvergleich, hervorgehoben ([76028af](https://github.com/securebitsorg/HumanShield.APP/commit/76028afcba59b1ba7fa85ff62dc93bad72ca7982))
+* **ui:** Landing-Page-Bibliothek im Menü 'Landing Pages' ([518e737](https://github.com/securebitsorg/HumanShield.APP/commit/518e7371391586831aab1aeb7922de6c732d94c4))
+* **ui:** Trennlinie unter Abschnitts- und Dashboard-Kartenüberschriften ([b36fe8a](https://github.com/securebitsorg/HumanShield.APP/commit/b36fe8ac0d808026564a9aaa2dbb13b3ee286e50))
+* **ui:** Versionsanzeige aus API + Update-Hinweis, Header-Slogan ([76b4162](https://github.com/securebitsorg/HumanShield.APP/commit/76b416259467b48bc5e0b44abeff9fd11e480506))
+* **version:** laufende Version + Update-Check per API ([c455efa](https://github.com/securebitsorg/HumanShield.APP/commit/c455efab9e991d25109657bf3e0ae0f37efd5937))
+
+
+### Dokumentation
+
+* **readme:** Feature-Stand aktualisieren ([0e08662](https://github.com/securebitsorg/HumanShield.APP/commit/0e08662808761b12f36d3254a260df5451aa00b6))
+
 ## [0.4.0](https://github.com/securebitsorg/HumanShield.APP/compare/v0.3.0...v0.4.0) (2026-07-07)
 
 
