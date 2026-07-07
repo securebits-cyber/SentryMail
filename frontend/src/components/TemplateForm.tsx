@@ -19,6 +19,7 @@ export interface TemplateFormValues {
   text_content: string | null
   attachments: TemplateAttachment[]
   markdown_source: string | null
+  logo_b64: string | null
 }
 
 function formatSize(b64: string): string {
@@ -37,7 +38,7 @@ interface TemplateFormProps {
 const fieldClass = 'rounded-md border border-border bg-surface px-3 py-2 text-text-primary'
 const labelClass = 'flex flex-col gap-1 text-sm'
 
-const VARIABLES = ['{{ first_name }}', '{{ last_name }}', '{{ email }}', '{{ link }}']
+const VARIABLES = ['{{ first_name }}', '{{ last_name }}', '{{ email }}', '{{ link }}', '{{ logo }}']
 
 // Beispielwerte fuer die Vorschau.
 const SAMPLE: Record<string, string> = {
@@ -71,6 +72,7 @@ export default function TemplateForm({ initial, isEdit, onSubmit, onCancel, subm
   const [htmlContent, setHtmlContent] = useState('')
   const [textContent, setTextContent] = useState('')
   const [attachments, setAttachments] = useState<TemplateAttachment[]>([])
+  const [logoB64, setLogoB64] = useState<string | null>(null)
   const [showPreview, setShowPreview] = useState(false)
   const [editorMode, setEditorMode] = useState<'html' | 'markdown'>('html')
   const [markdown, setMarkdown] = useState('')
@@ -81,6 +83,7 @@ export default function TemplateForm({ initial, isEdit, onSubmit, onCancel, subm
     setHtmlContent(initial?.html_content ?? '')
     setTextContent(initial?.text_content ?? '')
     setAttachments(initial?.attachments ?? [])
+    setLogoB64(initial?.logo_b64 ?? null)
     setMarkdown(initial?.markdown_source ?? '')
     setEditorMode(initial?.markdown_source ? 'markdown' : 'html')
   }, [initial])
@@ -113,6 +116,24 @@ export default function TemplateForm({ initial, isEdit, onSubmit, onCancel, subm
     })
   }
 
+  function setLogo(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = () => setLogoB64(String(reader.result)) // vollständiger data:image/...-URI
+    reader.readAsDataURL(file)
+  }
+
+  // {{ logo }} in der Vorschau durch das Bild ersetzen (beim Versand macht das der
+  // Server als CID-Inline-Bild).
+  function withLogo(html: string): string {
+    return html.replace(
+      /\{\{\s*logo\s*\}\}/g,
+      logoB64 ? `<img src="${logoB64}" alt="" style="max-height:60px">` : '',
+    )
+  }
+
   function handleSubmit(event: FormEvent) {
     event.preventDefault()
     onSubmit({
@@ -122,6 +143,7 @@ export default function TemplateForm({ initial, isEdit, onSubmit, onCancel, subm
       text_content: textContent.trim() || null,
       attachments,
       markdown_source: editorMode === 'markdown' ? markdown : null,
+      logo_b64: logoB64,
     })
   }
 
@@ -249,6 +271,32 @@ export default function TemplateForm({ initial, isEdit, onSubmit, onCancel, subm
         )}
       </div>
 
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center justify-between">
+          <span className="text-sm">{t('tf.logo')}</span>
+          <label className="cursor-pointer rounded-md border border-border px-3 py-1.5 text-sm text-text-primary hover:bg-bg">
+            {logoB64 ? t('tf.logoReplace') : t('tf.logoAdd')}
+            <input type="file" accept="image/*" onChange={setLogo} className="hidden" />
+          </label>
+        </div>
+        {logoB64 ? (
+          <div className="flex items-center gap-3 rounded-md border border-border bg-surface px-3 py-2">
+            <img src={logoB64} alt="" className="max-h-10 max-w-[140px] object-contain" />
+            <code className="font-mono text-xs text-text-secondary">{'{{ logo }}'}</code>
+            <button
+              type="button"
+              onClick={() => setLogoB64(null)}
+              className="ml-auto shrink-0 text-text-secondary hover:text-status-danger"
+              aria-label={t('tf.logoRemove')}
+            >
+              <X size={14} />
+            </button>
+          </div>
+        ) : (
+          <p className="text-xs text-text-secondary">{t('tf.logoHint')}</p>
+        )}
+      </div>
+
       <div>
         <button
           type="button"
@@ -269,7 +317,7 @@ export default function TemplateForm({ initial, isEdit, onSubmit, onCancel, subm
               ausführen (verhindert Stored-XSS über geteilte Vorlagen). */}
           <iframe
             title={t('tf.showPreview')}
-            srcDoc={fillSample(htmlContent)}
+            srcDoc={fillSample(withLogo(htmlContent))}
             sandbox=""
             className="h-96 w-full bg-white"
           />
