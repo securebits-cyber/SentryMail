@@ -15,6 +15,7 @@ from datetime import datetime
 from email import encoders
 from email.header import Header
 from email.mime.base import MIMEBase
+from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
@@ -135,6 +136,7 @@ async def send_campaign_messages(
     landing_url_base: str,
     pixel_url_base: str,
     attachments: list[dict] | None = None,
+    logo_b64: str | None = None,
 ) -> dict[str, int]:
     """Versendet eine Kampagne ueber ein explizites SMTP-Profil.
 
@@ -143,6 +145,28 @@ async def send_campaign_messages(
     ueber SMTP_BATCH_DELAY.
     """
     results = {"success": 0, "failed": 0}
+
+    # Optionales Logo einmal dekodieren und als Inline-Bild (CID) vorbereiten.
+    # Im HTML über {{ logo }} platzierbar; rendert zuverlässig in Mail-Clients
+    # (data:-URIs werden von vielen Clients blockiert, cid: nicht).
+    _LOGO_CID = "hs-template-logo"
+    logo_bytes: bytes | None = None
+    logo_subtype = "png"
+    if logo_b64:
+        try:
+            header, _, data = logo_b64.partition(",")
+            if "image/" in header:
+                logo_subtype = header.split("image/", 1)[1].split(";", 1)[0] or "png"
+            logo_bytes = base64.b64decode(data)
+        except Exception:  # noqa: BLE001
+            logo_bytes = None
+    logo_html = (
+        f'<img src="cid:{_LOGO_CID}" alt="" '
+        f'style="max-height:60px;border:0;outline:none;text-decoration:none">'
+        if logo_bytes is not None
+        else ""
+    )
+
     client = await _open_smtp(
         host=host, port=port, tls_mode=tls_mode, validate_certs=validate_certs,
         username=username, password=password,
@@ -162,6 +186,7 @@ async def send_campaign_messages(
                 "recipient_name": recipient.get("first_name") or "",
                 "recipient_email": recipient.get("email") or "",
                 "click_link": click_link,
+                "logo": logo_html,
             }
             # Add-on-Platzhalter (z. B. {{ qr_code }} aus dem Quishing-Add-on).
             ctx.update(template_service.extra_placeholders(ctx))
@@ -177,10 +202,21 @@ async def send_campaign_messages(
             alt.attach(MIMEText(text_body, "plain", "utf-8"))
             alt.attach(MIMEText(html_with_pixel, "html", "utf-8"))
 
+            # Inline-Logo -> multipart/related um die Alternative herum.
+            body_part = alt
+            if logo_bytes is not None:
+                related = MIMEMultipart("related")
+                related.attach(alt)
+                img = MIMEImage(logo_bytes, _subtype=logo_subtype)
+                img.add_header("Content-ID", f"<{_LOGO_CID}>")
+                img.add_header("Content-Disposition", "inline", filename=f"logo.{logo_subtype}")
+                related.attach(img)
+                body_part = related
+
             if attachments:
-                # Anhaenge -> multipart/mixed mit der Alternative als erstem Teil.
+                # Anhaenge -> multipart/mixed mit dem Body (Alternative/Related) als erstem Teil.
                 msg = MIMEMultipart("mixed")
-                msg.attach(alt)
+                msg.attach(body_part)
                 for att in attachments:
                     maintype, _, subtype = (att.get("content_type") or "application/octet-stream").partition("/")
                     part = MIMEBase(maintype or "application", subtype or "octet-stream")
@@ -192,12 +228,13 @@ async def send_campaign_messages(
                     part.add_header("Content-Disposition", "attachment", filename=att.get("filename") or "anhang")
                     msg.attach(part)
             else:
-                msg = alt
+                msg = body_part
 
             msg["Subject"] = Header(Template(subject).render(**ctx), "utf-8")
             msg["From"] = f"{from_name} <{from_email}>"
             msg["To"] = recipient["email"]
-            msg["X-Mailer"] = "HumanShield.APP"
+            # Bewusst KEIN X-Mailer/Software-Kennzeichen: die Simulation soll die
+            # eingesetzte Software nicht verraten (siehe from_name = Kampagnenname).
 
             try:
                 await client.send_message(msg, sender=from_email)

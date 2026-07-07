@@ -57,6 +57,23 @@ HumanShield.APP helps organizations shrink their human attack surface: run reali
 | Proxy / TLS | Caddy |
 | Operations | Docker Compose (rootless, hardened) |
 
+## 🖥️ System requirements
+
+Self-hosted as a Docker Compose stack (PostgreSQL, Redis, FastAPI backend, frontend, Caddy). The figures are guidance for a single host; demand grows with the number of recipients, concurrent usage and optional Business features (PDF reports, AI).
+
+| Resource | Minimum | Recommended |
+|---|---|---|
+| CPU | 2 vCPU | 2–4 vCPU |
+| RAM | 2 GB | 4 GB |
+| Disk | 15 GB SSD | 20–40 GB SSD |
+| OS | Linux (x86-64 or ARM64) with Docker Engine (≥ 24) + Docker Compose v2 | same |
+
+- **Docker Compose v2** refers to the current, built-in `docker compose` plugin (current generation, 2.x releases) — not the discontinued legacy `docker-compose` v1. Check with `docker compose version`.
+- **Minimum** is enough for smaller organizations (up to a few hundred recipients, occasional campaigns).
+- **Recommended** leaves headroom for larger campaigns, PDF reporting, AI features and growing tracking data in PostgreSQL.
+- An **SSD** is recommended for the database; tracking events grow with every campaign.
+- Network: outbound SMTP access (sending) and reachability of `APP_DOMAIN` for the recipients (tracking).
+
 ## 🚀 Quick start
 
 ```bash

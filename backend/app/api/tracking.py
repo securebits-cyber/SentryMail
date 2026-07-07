@@ -9,6 +9,7 @@ aufgerufen. Erfasst wird nur, DASS jemand geoeffnet/geklickt/abgeschickt hat
 (Awareness-Signal); die eingegebenen Formulardaten werden bewusst nicht
 gespeichert.
 """
+import re
 from urllib.parse import urlparse
 
 from fastapi import APIRouter, Depends, Request
@@ -83,6 +84,14 @@ def track_landing(t: str, request: Request, db: Session = Depends(get_db)):
     campaign = recipient.campaign if recipient is not None else None
     page = campaign.landing_page if campaign is not None else None
     html = page.html_content if page is not None else _DEFAULT_PAGE
+
+    # {{ logo }} durch das Seiten-Logo ersetzen (data:-URI rendert im Browser direkt).
+    logo_html = (
+        f'<img src="{page.logo_b64}" alt="" style="max-height:60px">'
+        if page is not None and page.logo_b64
+        else ""
+    )
+    html = re.sub(r"\{\{\s*logo\s*\}\}", lambda _: logo_html, html)
 
     # Alle Formulare auf die Submit-Erfassung umbiegen (mit Tracking-Token) und
     # per Beacon clientseitige Metadaten (Aufloesung/Sprache) nachtragen.

@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-import { Eye, Pencil } from 'lucide-react'
-import { FormEvent, useEffect, useMemo, useState } from 'react'
+import { Eye, Pencil, X } from 'lucide-react'
+import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from 'react'
 import AiGenerateBar from './AiGenerateBar'
 import MarkdownEditor from './MarkdownEditor'
 import { mdToHtml } from '../utils/markdown'
@@ -28,6 +28,7 @@ export interface LandingPageFormValues {
   capture_passwords: boolean
   redirect_url: string | null
   markdown_source: string | null
+  logo_b64: string | null
 }
 
 interface LandingPageFormProps {
@@ -49,9 +50,20 @@ export default function LandingPageForm({ initial, onSubmit, onCancel, submittin
   const [redirectUrl, setRedirectUrl] = useState('')
   const [editorMode, setEditorMode] = useState<'html' | 'markdown'>('html')
   const [markdown, setMarkdown] = useState('')
+  const [logoB64, setLogoB64] = useState<string | null>(null)
   const [showPreview, setShowPreview] = useState(false)
 
-  const previewHtml = useMemo(() => fillSample(html), [html])
+  // {{ logo }} in der Vorschau durch das Bild ersetzen (data:-URI rendert im Browser).
+  const previewHtml = useMemo(
+    () =>
+      fillSample(
+        html.replace(
+          /\{\{\s*logo\s*\}\}/g,
+          logoB64 ? `<img src="${logoB64}" alt="" style="max-height:60px">` : '',
+        ),
+      ),
+    [html, logoB64],
+  )
 
   useEffect(() => {
     setName(initial?.name ?? '')
@@ -60,8 +72,18 @@ export default function LandingPageForm({ initial, onSubmit, onCancel, submittin
     setCapturePasswords(initial?.capture_passwords ?? false)
     setRedirectUrl(initial?.redirect_url ?? '')
     setMarkdown(initial?.markdown_source ?? '')
+    setLogoB64(initial?.logo_b64 ?? null)
     setEditorMode(initial?.markdown_source ? 'markdown' : 'html')
   }, [initial])
+
+  function setLogo(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = () => setLogoB64(String(reader.result)) // vollständiger data:image/...-URI
+    reader.readAsDataURL(file)
+  }
 
   function onMarkdownChange(value: string) {
     setMarkdown(value)
@@ -78,6 +100,7 @@ export default function LandingPageForm({ initial, onSubmit, onCancel, submittin
       capture_passwords: captureCredentials && capturePasswords,
       redirect_url: redirectUrl.trim() || null,
       markdown_source: editorMode === 'markdown' ? markdown : null,
+      logo_b64: logoB64,
     })
   }
 
@@ -160,6 +183,32 @@ export default function LandingPageForm({ initial, onSubmit, onCancel, submittin
               </p>
             )}
           </div>
+        )}
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center justify-between">
+          <span className="text-sm">{t('lpf.logo')}</span>
+          <label className="cursor-pointer rounded-md border border-border px-3 py-1.5 text-sm text-text-primary hover:bg-bg">
+            {logoB64 ? t('lpf.logoReplace') : t('lpf.logoAdd')}
+            <input type="file" accept="image/*" onChange={setLogo} className="hidden" />
+          </label>
+        </div>
+        {logoB64 ? (
+          <div className="flex items-center gap-3 rounded-md border border-border bg-surface px-3 py-2">
+            <img src={logoB64} alt="" className="max-h-10 max-w-[140px] object-contain" />
+            <code className="font-mono text-xs text-text-secondary">{'{{ logo }}'}</code>
+            <button
+              type="button"
+              onClick={() => setLogoB64(null)}
+              className="ml-auto shrink-0 text-text-secondary hover:text-status-danger"
+              aria-label={t('lpf.logoRemove')}
+            >
+              <X size={14} />
+            </button>
+          </div>
+        ) : (
+          <p className="text-xs text-text-secondary">{t('lpf.logoHint')}</p>
         )}
       </div>
 

@@ -20,6 +20,7 @@ export interface Template {
   text_content: string | null
   attachments: TemplateAttachment[]
   markdown_source: string | null
+  logo_b64: string | null
   created_by_id: string
   created_at: string
   updated_at: string
@@ -134,6 +135,7 @@ export interface LandingPage {
   capture_passwords: boolean
   redirect_url: string | null
   markdown_source: string | null
+  logo_b64: string | null
   created_at: string
   updated_at: string
 }

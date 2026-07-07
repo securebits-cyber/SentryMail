@@ -7,7 +7,7 @@ import uuid
 from datetime import datetime
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, EmailStr
+from pydantic import BaseModel, ConfigDict, EmailStr, field_validator
 
 from app.models import CampaignStatus, TrackingEventType, UserRole
 
@@ -106,6 +106,21 @@ class TemplateAttachment(BaseModel):
     content_b64: str
 
 
+# Logo wird beim Versand als Inline-Bild eingebettet; nur Bild-Daten-URIs in
+# vernünftiger Größe zulassen (kein data:text/html o. ä.).
+_MAX_LOGO_CHARS = 700_000  # ~512 KB als Base64-URI
+
+
+def _validate_logo(v: str | None) -> str | None:
+    if not v:
+        return v
+    if not v.startswith("data:image/"):
+        raise ValueError("logo_b64 muss ein data:image/-URI sein.")
+    if len(v) > _MAX_LOGO_CHARS:
+        raise ValueError("Logo ist zu groß.")
+    return v
+
+
 class TemplateBase(BaseModel):
     name: str
     subject: str
@@ -113,6 +128,9 @@ class TemplateBase(BaseModel):
     text_content: str | None = None
     attachments: list[TemplateAttachment] = []
     markdown_source: str | None = None
+    logo_b64: str | None = None
+
+    _v_logo = field_validator("logo_b64")(_validate_logo)
 
 
 class TemplateCreate(TemplateBase):
@@ -126,6 +144,9 @@ class TemplateUpdate(BaseModel):
     text_content: str | None = None
     attachments: list[TemplateAttachment] | None = None
     markdown_source: str | None = None
+    logo_b64: str | None = None
+
+    _v_logo = field_validator("logo_b64")(_validate_logo)
 
 
 class TemplateOut(TemplateBase):
@@ -407,6 +428,9 @@ class LandingPageBase(BaseModel):
     capture_passwords: bool = False
     redirect_url: str | None = None
     markdown_source: str | None = None
+    logo_b64: str | None = None
+
+    _v_logo = field_validator("logo_b64")(_validate_logo)
 
 
 class LandingPageCreate(LandingPageBase):
@@ -420,6 +444,9 @@ class LandingPageUpdate(BaseModel):
     capture_passwords: bool | None = None
     redirect_url: str | None = None
     markdown_source: str | None = None
+    logo_b64: str | None = None
+
+    _v_logo = field_validator("logo_b64")(_validate_logo)
 
 
 class LandingPageOut(LandingPageBase):

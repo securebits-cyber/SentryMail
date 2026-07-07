@@ -53,6 +53,9 @@ class SmtpNotConfiguredError(Exception):
 async def send_campaign(db: Session, campaign: Campaign) -> dict[str, int]:
     """Versendet eine Kampagne an alle noch nicht versendeten Empfaenger."""
     smtp = _smtp_params(db, campaign)
+    # Absendername = Name der Kampagne (z. B. "Microsoft"), niemals der Software-/
+    # Profilname. Die Absenderadresse bleibt die des Sending Profiles.
+    smtp["from_name"] = campaign.name
     host = (smtp.get("host") or "").strip()
     # Ohne gueltigen Host wuerde _open_smtp mit einer ungefangenen Exception
     # abbrechen (500, nichts versendet). Vorher klar melden.
@@ -81,6 +84,7 @@ async def send_campaign(db: Session, campaign: Campaign) -> dict[str, int]:
         template_html=campaign.template.html_content,
         template_text=campaign.template.text_content,
         attachments=campaign.template.attachments,
+        logo_b64=campaign.template.logo_b64,
         recipients=recipient_payload,
         landing_url_base=f"{base}/landing",
         pixel_url_base=base,
