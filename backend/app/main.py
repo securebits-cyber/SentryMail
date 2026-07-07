@@ -22,7 +22,7 @@ from app.auth import local as local_auth
 from app.auth.oidc import is_oidc_enabled
 from app.auth.oidc import router as oidc_router
 from app.config import get_settings
-from app.database import SessionLocal, get_db
+from app.database import SessionLocal, get_db, run_core_migrations
 from app.services import license as license_service
 from app.utils.logging import configure_logging
 from app.utils.security import CSRF_COOKIE, CSRF_HEADER, SESSION_COOKIE
@@ -53,6 +53,9 @@ async def _license_refresh_loop() -> None:
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
+    # Core-Schema beim Start automatisch auf head bringen (vor dem ersten DB-Zugriff).
+    run_core_migrations()
+
     db = SessionLocal()
     try:
         local_auth.ensure_bootstrap_admin(db)
