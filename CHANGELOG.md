@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.9.0](https://github.com/securebitsorg/HumanShield.APP/compare/v0.8.0...v0.9.0) (2026-07-08)
+
+
+### Features
+
+* **ui:** HumanShield Design-System umsetzen (Ember, Roboto, light-first) ([de38ef4](https://github.com/securebitsorg/HumanShield.APP/commit/de38ef4dc3b5dc71e47fdc3fc4fb1ac549be36c8))
+* **ui:** HumanShield Design-System umsetzen (Ember, Roboto, light-first) ([#16](https://github.com/securebitsorg/HumanShield.APP/issues/16)) ([caad106](https://github.com/securebitsorg/HumanShield.APP/commit/caad106b13957242832c5d672f5b84686e12fcdc))
+
 ## [0.8.0](https://github.com/securebitsorg/HumanShield.APP/compare/v0.7.0...v0.8.0) (2026-07-07)
 
 
