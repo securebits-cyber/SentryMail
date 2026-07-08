@@ -4,28 +4,28 @@
 
 /*
  * HumanShield.APP Design-Tokens.
- * Verbindliche Palette/Typografie: docs/Phishing awareness design system.md
+ * Verbindliches System: Ordner Design/ (von Claude Design entwickelt).
+ * Light-first: helle, luftige Flaeche mit Ember-Orange als einzigem Akzent,
+ * warmer Near-Black-Dark-Mode als Zweit-Scope. Roboto (Display+Body) /
+ * Roboto Mono (Metriken, Eyebrows, Code). Selbst gehostet, keine externen
+ * Requests (privacy-first). Dark-Mode ueber [data-theme="dark"] (useTheme.ts).
  */
 @import 'tailwindcss';
 
+/* Roboto (variabel 100-900) + Roboto Mono — selbst gehostet, offline-faehig. */
 @font-face {
-  font-family: 'IBM Plex Sans';
-  src: url('/fonts/IBMPlexSans-Regular.woff2') format('woff2');
-  font-weight: 400;
+  font-family: 'Roboto';
+  src: url('/fonts/roboto.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'IBM Plex Sans';
-  src: url('/fonts/IBMPlexSans-SemiBold.woff2') format('woff2');
-  font-weight: 600;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'IBM Plex Mono';
-  src: url('/fonts/IBMPlexMono-Regular.woff2') format('woff2');
-  font-weight: 400;
+  font-family: 'Roboto Mono';
+  src: url('/fonts/roboto-mono.woff2') format('woff2');
+  font-weight: 100 700;
+  font-style: normal;
   font-display: swap;
 }
 
@@ -34,45 +34,111 @@
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 @theme {
-  --font-sans: 'IBM Plex Sans', system-ui, sans-serif;
-  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --font-sans: 'Roboto', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'Roboto Mono', ui-monospace, 'SFMono-Regular', monospace;
 
-  --color-bg: #F7F8FA;
-  --color-surface: #FFFFFF;
-  --color-border: #E2E5EA;
-  --color-text-primary: #12151A;
-  --color-text-secondary: #5B6472;
-  --color-accent: #ff570a;
-  /* Zweite Akzentfarbe fuer Verlaeufe (Orange -> helleres Orange) */
-  --color-accent-2: #ff8a3d;
+  /* ---- Semantische Farb-Aliase (LIGHT) ---- */
+  --color-bg: #FBFBFC;          /* Seiten-Flaeche */
+  --color-sunken: #F5F6F8;      /* eingesenkt / Tracks */
+  --color-surface: #FFFFFF;     /* Karten */
+  --color-border: #ECEDF1;      /* Haarlinie */
+  --color-border-strong: #DEE0E6;
+  --color-text-primary: #17191F;
+  --color-text-secondary: #565C66;
+  --color-text-muted: #868D98;
 
-  --color-status-success: #1A7F4B;
-  --color-status-warning: #B7791F;
-  --color-status-danger: #B91C1C;
+  /* Marke: Ember-Orange + Verlauf (deep ember -> warm amber) */
+  --color-accent: #F0591F;
+  --color-accent-hover: #FF7C3A;
+  --color-accent-active: #D6470F;
+  --color-accent-text: #D6470F; /* Ember als Text auf hellem Grund (AA) */
+  --color-accent-2: #FF9D4D;    /* zweite Verlaufsfarbe (Amber) */
+
+  /* Status / Risiko — Textvarianten AA-tauglich auf Weiss */
+  --color-status-success: #1E7A4F;
+  --color-status-warning: #9A6410;
+  --color-status-danger: #C7383D;
 
   /* Diagramm-Serienfarben (Zeitachse) — validiert (dataviz, CVD-sicher, light) */
   --color-chart-opened: #2a78d6;
   --color-chart-clicked: #b7791f;
   --color-chart-submitted: #b91c1c;
+
+  /* Weichere Radien (Design-Skala: Karten 16px, Inputs/Buttons 12px, Pills). */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 28px;
+  --radius-3xl: 32px;
 }
 
+/* Nicht-Tailwind-Tokens (Verlauf, Glow, Shadows, Fills, Risiko) — als
+   CSS-Custom-Properties fuer feineres Chrome. Theme-scoped weiter unten. */
+:root {
+  --gradient-ember: linear-gradient(103deg, #F0591F 0%, #FF9D4D 100%);
+  --gradient-ember-soft: linear-gradient(103deg, #F0591F 0%, #FFB86B 100%);
+
+  --fill-subtle: #F1F2F5;
+  --fill-strong: #E3E5EA;
+
+  --shadow-sm: 0 1px 2px rgba(20, 23, 33, 0.06);
+  --shadow-md: 0 4px 16px rgba(20, 23, 33, 0.08);
+  --shadow-lg: 0 16px 40px rgba(20, 23, 33, 0.12);
+  --shadow-xl: 0 28px 70px rgba(20, 23, 33, 0.16);
+  --glow-ember: 0 8px 24px rgba(240, 89, 31, 0.26);
+  --glow-ember-sm: 0 3px 12px rgba(240, 89, 31, 0.2);
+
+  --risk-high: #E5484D;
+  --risk-medium: #E9A23B;
+  --risk-low: #2FA271;
+
+  --focus-ring: rgba(240, 89, 31, 0.32);
+  --blur-panel: saturate(140%) blur(16px);
+}
+
+/* ---- Dark-Theme: warmer Near-Black-Scope (Design .hs-dark) ---- */
 [data-theme='dark'] {
-  --color-bg: #0B0E14;
-  --color-surface: #131720;
-  --color-border: #232833;
-  --color-text-primary: #E7EAEE;
-  --color-text-secondary: #8B93A3;
-  --color-accent: #ff570a;
-  --color-accent-2: #ff9a55;
+  --color-bg: #0C0A09;
+  --color-sunken: #14100E;
+  --color-surface: #221B17;
+  --color-border: #322822;
+  --color-border-strong: #453A33;
+  --color-text-primary: #FAF7F5;
+  --color-text-secondary: #B8AEA6;
+  --color-text-muted: #948A82;
 
-  --color-status-success: #34D399;
-  --color-status-warning: #FBBF24;
-  --color-status-danger: #F87171;
+  --color-accent: #F0591F;
+  --color-accent-hover: #FF7C3A;
+  --color-accent-active: #D6470F;
+  --color-accent-text: #FF7C3A; /* helleres Ember als Text auf dunkel */
+  --color-accent-2: #FF9D4D;
 
-  /* Diagramm-Serienfarben — validiert für die dunkle Fläche */
+  --color-status-success: #3DB47E;
+  --color-status-warning: #F3B95C;
+  --color-status-danger: #F16A6E;
+
+  /* Diagramm-Serienfarben — validiert fuer die dunkle Flaeche */
   --color-chart-opened: #3987e5;
   --color-chart-clicked: #c98500;
   --color-chart-submitted: #e66767;
+
+  --fill-subtle: #2A211C;
+  --fill-strong: #342923;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 18px 48px rgba(0, 0, 0, 0.55);
+  --shadow-xl: 0 32px 80px rgba(0, 0, 0, 0.6);
+  --glow-ember: 0 8px 28px rgba(240, 89, 31, 0.35);
+  --glow-ember-sm: 0 4px 14px rgba(240, 89, 31, 0.3);
+
+  --risk-high: #F16A6E;
+  --risk-medium: #F3B95C;
+  --risk-low: #3DB47E;
+
+  --focus-ring: rgba(240, 89, 31, 0.55);
 }
 
 * {
@@ -84,79 +150,104 @@ body {
   font-family: var(--font-sans);
   background: var(--color-bg);
   color: var(--color-text-primary);
+  font-size: 15px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 code, pre {
   font-family: var(--font-mono);
 }
 
-/* Straffere Ueberschriften-Typografie */
+/* Straffere, Roboto-typische Ueberschriften. */
 h1, h2, h3 {
-  letter-spacing: -0.011em;
+  letter-spacing: -0.02em;
+  font-weight: 700;
 }
 
-/* Abschnitts-Ueberschriften mit dezenter Trennlinie darunter (besserer
-   Ueberblick). Greift automatisch fuer alle Abschnittsueberschriften im
-   Inhaltsbereich (<main> h2) und fuer explizit markierte Kartentitel
-   (.section-heading, z. B. die Dashboard-Karten). Der Seitentitel ist ein
-   <h1> mit eigener Akzentlinie und bleibt unberuehrt. */
+/* Mono-Eyebrow / Overline (ALL-CAPS, weite Laufweite, Ember). */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-accent-text);
+  font-weight: 500;
+}
+
+/* Marken-Verlaufswort (eine Akzentzeile pro Ansicht). */
+.gradient-text {
+  background: var(--gradient-ember);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Abschnitts-Ueberschriften mit dezenter Trennlinie darunter. Der Seitentitel
+   (<h1>) bleibt unberuehrt. */
 main h2,
 .section-heading {
   padding-bottom: 0.4rem;
   border-bottom: 1px solid var(--color-border);
 }
 
-/* Konsistenter, accent-farbener Fokus-Ring (Barrierefreiheit + Politur) */
+/* Konsistenter, ember-farbener Fokus-Ring (Barrierefreiheit + Politur). */
 :where(a, button):focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
-  border-radius: 6px;
+  border-radius: 8px;
 }
 
-/* Formularfelder: Akzent-Rahmen + dezenter Glow bei Fokus */
+/* Formularfelder: Ember-Rahmen + dezenter Glow bei Fokus. */
 input:focus,
 select:focus,
 textarea:focus {
   outline: none;
   border-color: var(--color-accent);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 18%, transparent);
+  box-shadow: 0 0 0 3px var(--focus-ring);
 }
 
-/* Buttons fuehlen sich ueberall interaktiv an: Zeiger-Cursor + sichtbarer,
-   theme-tauglicher Hover (leichtes Abdunkeln in Light, Aufhellen in Dark). */
+/* Buttons fuehlen sich interaktiv an: Zeiger-Cursor + weicher Hover. */
 button:not(:disabled) {
   cursor: pointer;
-  transition: filter 150ms ease, background-color 180ms ease, color 180ms ease, border-color 180ms ease;
+  transition: filter 120ms ease, transform 120ms ease,
+    background-color 180ms ease, color 180ms ease, border-color 180ms ease,
+    box-shadow 200ms ease;
 }
 
 button:not(:disabled):hover {
-  filter: brightness(0.93);
+  filter: brightness(0.97);
 }
 
 :root[data-theme='dark'] button:not(:disabled):hover {
-  filter: brightness(1.18);
+  filter: brightness(1.12);
 }
 
 button:disabled {
   cursor: not-allowed;
 }
 
-/* Primaeraktionen (und das Markenzeichen) bekommen einen dezenten
-   Teal->Emerald-Verlauf - etwas mehr Farbe, ohne grell zu wirken. */
+/* Primaeraktionen (und das Markenzeichen) tragen den Ember-Verlauf. */
 .bg-accent {
-  background-image: linear-gradient(135deg, var(--color-accent), var(--color-accent-2));
+  background-image: var(--gradient-ember);
+  background-color: var(--color-accent);
 }
 
-/* Karten-Elevation: dezente Tiefe. Im Dark-Mode kraeftiger, da Schatten dort
-   sonst kaum sichtbar sind. */
+/* Interaktive Ember-Flaechen (Buttons/Links) bekommen beim Hover einen
+   dezenten Ember-Glow + minimalen Lift — ruhig, ohne Bounce. */
+:where(button, a).bg-accent {
+  box-shadow: var(--glow-ember-sm);
+}
+
+:where(button, a).bg-accent:not(:disabled):hover {
+  box-shadow: var(--glow-ember);
+  transform: translateY(-1px);
+}
+
+/* Karten-Elevation: weiche, kuehle Tiefe. Dark kraeftiger. */
 .elevated {
-  box-shadow: 0 1px 2px rgba(16, 21, 26, 0.05), 0 2px 8px rgba(16, 21, 26, 0.06);
-}
-
-:root[data-theme='dark'] .elevated {
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 4px 12px rgba(0, 0, 0, 0.35);
+  box-shadow: var(--shadow-md);
 }
 
 * {

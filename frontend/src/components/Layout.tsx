@@ -4,7 +4,7 @@
 
 import { ArrowUpCircle, Blocks, BookOpen, ChevronDown, CircleUser, ExternalLink, FileBarChart, FileText, Globe, Layers, LayoutDashboard, LogOut, Mail, Moon, Radar, Repeat, Server, Settings, Sun, UserCog, Users, type LucideIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
+import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import LanguageSwitcher from './LanguageSwitcher'
 import { useI18n } from '../i18n'
 import { useFeatures } from '../hooks/useFeatures'
@@ -57,10 +57,10 @@ const adminNav: NavItem[] = [
 ]
 
 const linkClass = ({ isActive }: { isActive: boolean }) =>
-  `flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors ${
+  `flex items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-colors ${
     isActive
-      ? 'bg-accent/12 font-medium text-accent'
-      : 'text-text-secondary hover:bg-bg hover:text-text-primary'
+      ? 'bg-accent/10 font-medium text-accent-text'
+      : 'text-text-secondary hover:bg-sunken hover:text-text-primary'
   }`
 
 function NavEntry({ to, labelKey, icon: Icon, end, tier }: NavItem) {
@@ -140,20 +140,28 @@ export default function Layout() {
       {/* Kopfzeile mit durchgehender Trennlinie ueber die volle Breite (Netbird-Stil). */}
       <header className="flex shrink-0 items-center gap-2 border-b border-border bg-surface px-4 py-3">
         {branding.logo_b64 ? (
-          <img src={branding.logo_b64} alt="" className="h-7 max-w-[140px] object-contain" />
+          <>
+            <img src={branding.logo_b64} alt="" className="h-7 max-w-[140px] object-contain" />
+            <span className="text-lg font-bold tracking-tight">{branding.app_name}</span>
+          </>
         ) : (
-          <span className="h-6 w-6 rounded-md bg-accent" aria-hidden />
+          <img
+            src={theme === 'dark' ? '/brand/logo-wordmark.svg' : '/brand/logo-wordmark-dark.svg'}
+            alt={branding.app_name}
+            className="h-6 object-contain"
+          />
         )}
-        <span className="text-lg font-semibold tracking-tight">{branding.app_name}</span>
-        <span className="mx-auto hidden select-none text-sm font-medium tracking-wide text-text-secondary sm:block">
+        <span className="mx-auto hidden select-none font-mono text-xs uppercase tracking-[0.14em] text-text-secondary sm:block">
           {t('header.slogan')}
         </span>
-        <Link
-          to="/settings/license"
-          className="ml-auto rounded-md border border-green-600 px-3 py-1.5 text-sm font-medium text-green-600 transition-colors hover:bg-green-600/10 sm:ml-0"
+        <a
+          href="https://humanshield-awareness.de/de/preise/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="ml-auto rounded-full border border-green-600 px-4 py-1.5 text-sm font-medium text-green-600 transition-colors hover:bg-green-600/10 sm:ml-0"
         >
           {t('header.upgradeLicense')}
-        </Link>
+        </a>
       </header>
 
       <div className="flex flex-1">
@@ -216,7 +224,7 @@ export default function Layout() {
                 target="_blank"
                 rel="noreferrer"
                 title={version.latest ? `v${version.latest}` : undefined}
-                className="flex items-center justify-between gap-2 rounded-md border border-accent bg-accent/10 px-3 py-2 text-xs font-medium text-accent transition-colors hover:bg-accent/20"
+                className="flex items-center justify-between gap-2 rounded-md border border-accent bg-accent/10 px-3 py-2 text-xs font-medium text-accent-text transition-colors hover:bg-accent/20"
               >
                 <span className="flex items-center gap-1.5">
                   <ArrowUpCircle size={14} className="shrink-0" />
