@@ -12,7 +12,7 @@ import { getAuthConfig, getSamlConfig, loginLocal, loginPasskeyOptions, loginPas
 import { setAuthBearer } from '../services/api'
 
 const fieldClass = 'rounded-md border border-border bg-surface px-3 py-2 text-text-primary'
-const primaryBtn = 'rounded-md bg-accent px-5 py-2 font-medium text-white disabled:opacity-60'
+const primaryBtn = 'rounded-full bg-accent px-5 py-2.5 font-medium text-white disabled:opacity-60'
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -103,13 +103,23 @@ export default function LoginPage() {
         <LanguageSwitcher />
       </div>
       <div className="flex flex-col items-center gap-3">
-        {branding.logo_b64 && <img src={branding.logo_b64} alt="" className="h-12 max-w-[240px] object-contain" />}
-        <h1 className="text-2xl font-semibold">{branding.app_name}</h1>
+        {branding.logo_b64 ? (
+          <>
+            <img src={branding.logo_b64} alt="" className="h-12 max-w-[240px] object-contain" />
+            <h1 className="text-2xl font-bold">{branding.app_name}</h1>
+          </>
+        ) : (
+          <>
+            <img src="/brand/logo-wordmark-dark.svg" alt={branding.app_name} className="h-9 object-contain dark:hidden" />
+            <img src="/brand/logo-wordmark.svg" alt={branding.app_name} className="hidden h-9 object-contain dark:block" />
+          </>
+        )}
+        <span className="eyebrow">{t('header.slogan')}</span>
       </div>
 
       {stage === 'password' && (
-        <>
-          <form onSubmit={handlePassword} className="flex w-72 flex-col gap-3">
+        <div className="elevated flex w-80 flex-col items-stretch gap-4 rounded-2xl border border-border bg-surface p-8">
+          <form onSubmit={handlePassword} className="flex w-full flex-col gap-3">
             <label className="flex flex-col gap-1 text-sm">
               {t('login.email')}
               <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoFocus className={fieldClass} />
@@ -119,23 +129,26 @@ export default function LoginPage() {
               <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className={fieldClass} />
             </label>
             {error && <p className="m-0 text-sm text-status-danger">{error}</p>}
-            <button type="submit" disabled={submitting} className={primaryBtn}>
+            <button type="submit" disabled={submitting} className={`${primaryBtn} mt-1`}>
               {submitting ? t('login.checking') : t('login.signIn')}
             </button>
           </form>
 
-          {oidcEnabled && (
-            <a href={loginUrl()} className="text-sm text-text-secondary underline">
-              {t('login.sso')}
-            </a>
+          {(oidcEnabled || samlEnabled) && (
+            <div className="flex flex-col items-center gap-2 border-t border-border pt-3">
+              {oidcEnabled && (
+                <a href={loginUrl()} className="text-sm text-text-secondary hover:text-accent-text hover:underline">
+                  {t('login.sso')}
+                </a>
+              )}
+              {samlEnabled && (
+                <a href={samlLoginUrl()} className="text-sm text-text-secondary hover:text-accent-text hover:underline">
+                  {t('login.ssoSaml')}
+                </a>
+              )}
+            </div>
           )}
-
-          {samlEnabled && (
-            <a href={samlLoginUrl()} className="text-sm text-text-secondary underline">
-              {t('login.ssoSaml')}
-            </a>
-          )}
-        </>
+        </div>
       )}
 
       {stage === 'verify' && method === 'passkey' && !useBackupCode && (
