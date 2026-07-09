@@ -730,6 +730,8 @@ export const translations: Record<Lang, Record<string, string>> = {
     // Anleitungs-Panel (PageScaffold)
     'guide.title': 'Anleitung',
     'guide.variables': 'Variablen',
+    'guide.businessFeature': 'Business-Funktion',
+    'guide.enterpriseFeature': 'Enterprise-Funktion',
 
     // Add-ons (Business / Enterprise) — Übersicht
     'io.subtitle': 'Die kostenpflichtigen Add-ons und die darin enthaltenen Funktionen im Überblick.',
@@ -1550,6 +1552,8 @@ export const translations: Record<Lang, Record<string, string>> = {
     // Guidance panel (PageScaffold)
     'guide.title': 'Guide',
     'guide.variables': 'Variables',
+    'guide.businessFeature': 'Business feature',
+    'guide.enterpriseFeature': 'Enterprise feature',
 
     // Add-ons (Business / Enterprise) — overview
     'io.subtitle': 'The paid add-ons and the features they include, at a glance.',

@@ -105,8 +105,14 @@ export default function PageScaffold({ title, subtitle, eyebrow, actions, breadc
                 </ul>
               </div>
             )}
-            {guidance.note && (
+            {(guidance.tier || guidance.note) && (
               <p className="mt-4 rounded-md border border-border bg-surface px-3 py-2 text-sm text-text-secondary">
+                {guidance.tier && (
+                  <span className={`font-semibold ${guidance.tier === 'business' ? 'text-green-600' : 'text-blue-600'}`}>
+                    {t(guidance.tier === 'business' ? 'guide.businessFeature' : 'guide.enterpriseFeature')}
+                  </span>
+                )}
+                {guidance.tier && guidance.note ? '. ' : ''}
                 {guidance.note}
               </p>
             )}
