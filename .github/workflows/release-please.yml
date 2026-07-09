@@ -15,6 +15,6 @@ jobs:
   release-please:
     runs-on: ubuntu-latest
     steps:
-      - uses: googleapis/release-please-action@v4
+      - uses: googleapis/release-please-action@v5
         # Nutzt standardmäßig GITHUB_TOKEN sowie release-please-config.json
         # und .release-please-manifest.json aus dem Repo-Root.
