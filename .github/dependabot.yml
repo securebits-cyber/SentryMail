@@ -1,0 +1,33 @@
+# Dependabot – automatische Update-PRs für Abhängigkeiten.
+# Doku: https://docs.github.com/code-security/dependabot
+version: 2
+updates:
+  # Frontend (npm). Hinweis: derzeit kein Lockfile im Repo → Updates gegen package.json.
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    labels: ["dependencies", "frontend"]
+
+  # Backend (pip)
+  - package-ecosystem: "pip"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    labels: ["dependencies", "backend"]
+
+  # GitHub Actions – hält Action-Versionen aktuell (idealerweise auf Commit-SHA gepinnt).
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels: ["dependencies", "ci"]
+
+  # Docker-Basis-Images
+  - package-ecosystem: "docker"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+    labels: ["dependencies", "docker"]

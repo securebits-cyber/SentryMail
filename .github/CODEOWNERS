@@ -1,0 +1,19 @@
+# Code Owners – lösen bei passenden Pfaden automatisch eine Review-Anfrage aus.
+# Doku: https://docs.github.com/articles/about-code-owners
+#
+# Hinweis: @securebitsorg funktioniert als Owner nur, wenn es ein NUTZERKONTO ist.
+# Ist "securebitsorg" eine Organisation, hier ein Team eintragen,
+# z. B.  @securebitsorg/maintainers  (GitHub warnt sonst im CODEOWNERS-Editor).
+
+# Standard-Reviewer für alles.
+*                                   @securebitsorg
+
+# Besonders schützenswerte Pfade – hier immer Review erzwingen.
+/.github/                           @securebitsorg
+/.github/workflows/                 @securebitsorg
+/SECURITY.md                        @securebitsorg
+
+# Sicherheits-/Auth-nahe Bereiche.
+/backend/app/utils/security.py      @securebitsorg
+/backend/app/auth/                  @securebitsorg
+/frontend/src/services/             @securebitsorg
