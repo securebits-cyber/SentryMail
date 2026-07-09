@@ -1,4 +1,4 @@
-# PR-Checks: Typecheck + Build des Frontends.
+# PR-Checks: Frontend (Typecheck + Build) und Backend (pytest).
 # Least privilege: laeuft mit read-only Token und OHNE Zugriff auf Secrets,
 # damit auch Fork-PRs gefahrlos geprueft werden koennen.
 #
@@ -34,3 +34,55 @@ jobs:
       - run: npm run type-check
 
       - run: npm run build
+
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    # Dienst-Container wie in Produktion (Postgres 18, Redis 8). Die Tests legen
+    # eine eigene <db>_test-Datenbank an (siehe tests/conftest.py) und nutzen
+    # Base.metadata.create_all – keine Alembic-Migration noetig.
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: phishaware
+          POSTGRES_PASSWORD: phishaware
+          POSTGRES_DB: phishaware
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U phishaware"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:8-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    # Nur Test-Dummies – keine echten Secrets. Pflicht-Settings ohne Default
+    # (DATABASE_URL, REDIS_URL, SECRET_KEY, SMTP_*) muessen gesetzt sein.
+    env:
+      DATABASE_URL: postgresql+psycopg://phishaware:phishaware@localhost:5432/phishaware
+      REDIS_URL: redis://localhost:6379
+      SECRET_KEY: ci-test-secret-key-at-least-32-characters-long
+      SMTP_HOST: localhost
+      SMTP_USERNAME: ci
+      SMTP_PASSWORD: ci
+      SMTP_FROM_EMAIL: ci@example.com
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - run: pip install -r requirements.txt
+
+      - run: python -m pytest -q
