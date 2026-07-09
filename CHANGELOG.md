@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.10.1](https://github.com/securebitsorg/HumanShield.APP/compare/v0.10.0...v0.10.1) (2026-07-09)
+
+
+### Sonstiges
+
+* Wartungs-Release 0.10.1 ausloesen ([816181c](https://github.com/securebitsorg/HumanShield.APP/commit/816181ca71af63f87bd9c96ac4692bfd3d32ce25))
+
 ## [0.10.0](https://github.com/securebitsorg/HumanShield.APP/compare/v0.9.0...v0.10.0) (2026-07-09)
 
 
