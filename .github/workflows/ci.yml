@@ -1,6 +1,12 @@
 # PR-Checks: Typecheck + Build des Frontends.
 # Least privilege: laeuft mit read-only Token und OHNE Zugriff auf Secrets,
 # damit auch Fork-PRs gefahrlos geprueft werden koennen.
+#
+# WICHTIG (Repo-Setting): Settings -> Actions -> "Allow <owner>, and select
+# non-<owner>, actions" muss GitHub-eigene Actions (actions/*) UND das Muster
+# "googleapis/release-please-action@*" erlauben. Steht die Policy auf
+# "local_only", scheitern alle Workflows mit "startup_failure", da actions/checkout
+# blockiert ist.
 name: CI
 
 on:
