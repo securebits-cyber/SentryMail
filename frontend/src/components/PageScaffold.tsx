@@ -15,6 +15,8 @@ interface BreadcrumbItem {
 interface PageScaffoldProps {
   title: string
   subtitle?: string
+  /** Optionale Mono-Overline (ALL-CAPS, Ember) ueber dem Titel. */
+  eyebrow?: string
   actions?: ReactNode
   breadcrumb?: BreadcrumbItem[]
   /** Schlüssel in pageGuidance; ohne ihn erscheint kein Anleitungs-Bereich. */
@@ -30,7 +32,7 @@ const helpCol = 'hidden w-96 shrink-0 border-l border-border xl:block'
  * darunter eine durchgehende horizontale Trennlinie über die volle Breite, dann
  * Inhalt links und die nummerierten Anleitungs-Schritte rechts.
  */
-export default function PageScaffold({ title, subtitle, actions, breadcrumb, guidanceKey, children }: PageScaffoldProps) {
+export default function PageScaffold({ title, subtitle, eyebrow, actions, breadcrumb, guidanceKey, children }: PageScaffoldProps) {
   const { t, lang } = useI18n()
   const guidance = guidanceKey ? pageGuidance[lang][guidanceKey] : undefined
 
@@ -54,7 +56,8 @@ export default function PageScaffold({ title, subtitle, actions, breadcrumb, gui
           )}
           <div className="flex items-end justify-between gap-4">
             <div>
-              <h1 className="text-xl font-semibold tracking-tight">{title}</h1>
+              {eyebrow && <div className="eyebrow mb-1.5">{eyebrow}</div>}
+              <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
               {subtitle && <p className="mt-1 text-sm text-text-secondary">{subtitle}</p>}
             </div>
             {actions && <div className="shrink-0">{actions}</div>}
@@ -82,7 +85,7 @@ export default function PageScaffold({ title, subtitle, actions, breadcrumb, gui
             <ol className="mt-4 flex flex-col gap-3">
               {guidance.steps.map((step, i) => (
                 <li key={i} className="flex gap-3 text-sm text-text-secondary">
-                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent/12 text-xs font-medium text-accent">
+                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent/12 text-xs font-medium text-accent-text">
                     {i + 1}
                   </span>
                   {step}
@@ -95,15 +98,21 @@ export default function PageScaffold({ title, subtitle, actions, breadcrumb, gui
                 <ul className="mt-2 flex flex-col gap-1.5">
                   {guidance.variables.map((v) => (
                     <li key={v.name} className="text-sm text-text-secondary">
-                      <code className="rounded bg-bg px-1.5 py-0.5 font-mono text-xs text-accent">{v.name}</code>
+                      <code className="rounded bg-sunken px-1.5 py-0.5 font-mono text-xs text-accent-text">{v.name}</code>
                       <span className="ml-2">{v.desc}</span>
                     </li>
                   ))}
                 </ul>
               </div>
             )}
-            {guidance.note && (
+            {(guidance.tier || guidance.note) && (
               <p className="mt-4 rounded-md border border-border bg-surface px-3 py-2 text-sm text-text-secondary">
+                {guidance.tier && (
+                  <span className={`font-semibold ${guidance.tier === 'business' ? 'text-green-600' : 'text-blue-600'}`}>
+                    {t(guidance.tier === 'business' ? 'guide.businessFeature' : 'guide.enterpriseFeature')}
+                  </span>
+                )}
+                {guidance.tier && guidance.note ? '. ' : ''}
                 {guidance.note}
               </p>
             )}

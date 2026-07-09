@@ -11,6 +11,9 @@ export interface Guidance {
   steps: string[]
   note?: string
   variables?: { name: string; desc: string }[]
+  /** Markiert die Seite als Business-/Enterprise-Funktion; im Hinweis farbig
+   *  hervorgehoben (Business = grün, Enterprise = blau). */
+  tier?: 'business' | 'enterprise'
 }
 
 const de: Record<string, Guidance> = {
@@ -194,7 +197,8 @@ const de: Record<string, Guidance> = {
       'Intervall in Tagen festlegen (z. B. 30) und die Automatik aktivieren.',
       'Ergebnisse je Iteration findest du wie bei einzelnen Kampagnen unter den Kampagnen-Ergebnissen.',
     ],
-    note: 'Business-Funktion. Der Scheduler löst die Fälligkeiten serverseitig aus — es muss niemand angemeldet sein.',
+    tier: 'business',
+    note: 'Der Scheduler löst die Fälligkeiten serverseitig aus — es muss niemand angemeldet sein.',
   },
   multistage: {
     intro:
@@ -205,7 +209,8 @@ const de: Record<string, Guidance> = {
       'Reihenfolge und Abstände prüfen und die Kampagne starten.',
       'Der Fortschritt (versendete Stufen) wird je Kampagne mitgezählt.',
     ],
-    note: 'Business-Funktion. Die Stufen werden automatisch fällig — kein manuelles Nachfassen nötig.',
+    tier: 'business',
+    note: 'Die Stufen werden automatisch fällig — kein manuelles Nachfassen nötig.',
   },
   'auto-campaigns': {
     intro:
@@ -216,7 +221,8 @@ const de: Record<string, Guidance> = {
       'Intervall in Tagen setzen und aktivieren.',
       'Bei jeder Fälligkeit ermittelt das System die passenden Empfänger neu und versendet automatisch.',
     ],
-    note: 'Enterprise-Funktion. Baut auf dem Human-Risk-Score der Empfänger auf.',
+    tier: 'enterprise',
+    note: 'Baut auf dem Human-Risk-Score der Empfänger auf.',
   },
   reports: {
     intro:
@@ -247,7 +253,8 @@ const de: Record<string, Guidance> = {
       'Tenant-ID, Client-ID und Client-Secret hier eintragen — das Secret wird verschlüsselt gespeichert.',
       'Integration aktivieren; anschließend unter „Gruppen → Entra-Import“ eine Gruppe importieren.',
     ],
-    note: 'Business-Funktion. Das Client-Secret wird über die API nie zurückgegeben (nur ein has_*-Flag).',
+    tier: 'business',
+    note: 'Das Client-Secret wird über die API nie zurückgegeben (nur ein has_*-Flag).',
   },
   'settings-webhooks': {
     intro:
@@ -257,7 +264,8 @@ const de: Record<string, Guidance> = {
       'Optional mehrere URLs anlegen — jedes Ereignis wird an alle aktiven Webhooks zugestellt.',
       'Beim Empfänger die eingehenden JSON-Payloads verarbeiten (Ereignistyp, Empfänger, Kampagne, Zeit).',
     ],
-    note: 'Business-Funktion. Die Zustellung erfolgt asynchron und blockiert das Tracking nicht.',
+    tier: 'business',
+    note: 'Die Zustellung erfolgt asynchron und blockiert das Tracking nicht.',
   },
   'settings-whitelabel': {
     intro:
@@ -268,7 +276,7 @@ const de: Record<string, Guidance> = {
       'Optional ein Logo hochladen (wird als Data-URI gespeichert).',
       'Speichern — die Änderungen greifen sofort; die Login-Seite nach dem nächsten Abmelden.',
     ],
-    note: 'Enterprise-Funktion.',
+    tier: 'enterprise',
   },
   'settings-siem': {
     intro:
@@ -279,7 +287,8 @@ const de: Record<string, Guidance> = {
       'Optional einen Index/eine Quelle angeben (z. B. Splunk-Index).',
       'Mit „Verbindung testen“ ein Testereignis senden, dann aktivieren.',
     ],
-    note: 'Enterprise-Funktion. Die Zustellung erfolgt asynchron je Ereignis.',
+    tier: 'enterprise',
+    note: 'Die Zustellung erfolgt asynchron je Ereignis.',
   },
   'settings-saml': {
     intro:
@@ -290,7 +299,8 @@ const de: Record<string, Guidance> = {
       'Optional das Attribut-Mapping für E-Mail/Anzeigename füllen (leer = NameID als E-Mail).',
       'Aktivieren — auf der Login-Seite erscheint dann ein SAML-SSO-Button.',
     ],
-    note: 'Enterprise-Funktion. Die Assertion muss signiert sein; Signatur, Gültigkeit und Audience werden geprüft.',
+    tier: 'enterprise',
+    note: 'Die Assertion muss signiert sein; Signatur, Gültigkeit und Audience werden geprüft.',
   },
   'settings-ai': {
     intro:
@@ -301,7 +311,8 @@ const de: Record<string, Guidance> = {
       'Mit „Verbindung testen“ prüfen und aktivieren.',
       'Danach erscheint in den Editoren „Mit KI erstellen“, und die KI-Risikoanalyse ist nutzbar.',
     ],
-    note: 'Business-Funktion. Es wird nie ein Anbieter im Code fest verdrahtet.',
+    tier: 'business',
+    note: 'Es wird nie ein Anbieter im Code fest verdrahtet.',
   },
   'settings-security': {
     intro:
@@ -516,7 +527,8 @@ const en: Record<string, Guidance> = {
       'Set the interval in days (e.g. 30) and enable the automation.',
       'Results per iteration appear under the campaign results, like for single campaigns.',
     ],
-    note: 'Business feature. The scheduler triggers due dates server-side — nobody needs to be logged in.',
+    tier: 'business',
+    note: 'The scheduler triggers due dates server-side — nobody needs to be logged in.',
   },
   multistage: {
     intro:
@@ -527,7 +539,8 @@ const en: Record<string, Guidance> = {
       'Review the order and gaps, then start the campaign.',
       'Progress (stages sent) is counted per campaign.',
     ],
-    note: 'Business feature. Stages become due automatically — no manual follow-up needed.',
+    tier: 'business',
+    note: 'Stages become due automatically — no manual follow-up needed.',
   },
   'auto-campaigns': {
     intro:
@@ -538,7 +551,8 @@ const en: Record<string, Guidance> = {
       'Set the interval in days and enable it.',
       'On each due date the system re-selects the matching recipients and sends automatically.',
     ],
-    note: 'Enterprise feature. Builds on the recipients’ human risk score.',
+    tier: 'enterprise',
+    note: 'Builds on the recipients’ human risk score.',
   },
   reports: {
     intro:
@@ -569,7 +583,8 @@ const en: Record<string, Guidance> = {
       'Enter tenant ID, client ID and client secret here — the secret is stored encrypted.',
       'Enable the integration, then import a group under “Groups → Entra import”.',
     ],
-    note: 'Business feature. The client secret is never returned via the API (only a has_* flag).',
+    tier: 'business',
+    note: 'The client secret is never returned via the API (only a has_* flag).',
   },
   'settings-webhooks': {
     intro:
@@ -579,7 +594,8 @@ const en: Record<string, Guidance> = {
       'Optionally add multiple URLs — each event is delivered to all active webhooks.',
       'Process the incoming JSON payloads on the receiver (event type, recipient, campaign, time).',
     ],
-    note: 'Business feature. Delivery is asynchronous and does not block tracking.',
+    tier: 'business',
+    note: 'Delivery is asynchronous and does not block tracking.',
   },
   'settings-whitelabel': {
     intro:
@@ -590,7 +606,7 @@ const en: Record<string, Guidance> = {
       'Optionally upload a logo (stored as a data URI).',
       'Save — changes apply immediately; the login page after the next logout.',
     ],
-    note: 'Enterprise feature.',
+    tier: 'enterprise',
   },
   'settings-siem': {
     intro:
@@ -601,7 +617,8 @@ const en: Record<string, Guidance> = {
       'Optionally specify an index/source (e.g. Splunk index).',
       'Send a test event with “Test connection”, then enable it.',
     ],
-    note: 'Enterprise feature. Delivery is asynchronous per event.',
+    tier: 'enterprise',
+    note: 'Delivery is asynchronous per event.',
   },
   'settings-saml': {
     intro:
@@ -612,7 +629,8 @@ const en: Record<string, Guidance> = {
       'Optionally fill the attribute mapping for email/display name (empty = NameID as email).',
       'Enable it — a SAML SSO button then appears on the login page.',
     ],
-    note: 'Enterprise feature. The assertion must be signed; signature, validity and audience are checked.',
+    tier: 'enterprise',
+    note: 'The assertion must be signed; signature, validity and audience are checked.',
   },
   'settings-ai': {
     intro:
@@ -623,7 +641,8 @@ const en: Record<string, Guidance> = {
       'Verify with “Test connection” and enable it.',
       'Afterwards “Create with AI” appears in the editors and the AI risk analysis becomes usable.',
     ],
-    note: 'Business feature. No provider is ever hard-wired in the code.',
+    tier: 'business',
+    note: 'No provider is ever hard-wired in the code.',
   },
   'settings-security': {
     intro:

@@ -5,6 +5,7 @@
 import { Palette, Settings, X } from 'lucide-react'
 import { ChangeEvent, FormEvent, useEffect, useState } from 'react'
 import { useBranding } from '../../components/BrandingProvider'
+import Card from '../../components/Card'
 import LockedFeatureNotice from '../../components/LockedFeatureNotice'
 import PageScaffold from '../../components/PageScaffold'
 import { useFeatures } from '../../hooks/useFeatures'
@@ -82,7 +83,8 @@ export default function WhitelabelSettingsPage() {
     <PageScaffold title={t('wl.title')} subtitle={t('wl.subtitle')} breadcrumb={breadcrumb} guidanceKey="settings-whitelabel">
       {message && <p className="mb-4 text-sm text-text-secondary">{message}</p>}
 
-      <form onSubmit={save} className="flex max-w-xl flex-col gap-4">
+      <Card className="max-w-xl">
+      <form onSubmit={save} className="flex flex-col gap-4">
         <label className={labelClass}>
           {t('wl.appName')}
           <input value={form.app_name} onChange={(e) => set('app_name', e.target.value)} className={fieldClass} />
@@ -118,11 +120,12 @@ export default function WhitelabelSettingsPage() {
           </div>
         </div>
 
-        <button type="submit" disabled={busy} className="w-fit rounded-md bg-accent px-5 py-2 font-medium text-white disabled:opacity-60">
+        <button type="submit" disabled={busy} className="w-fit rounded-full bg-accent px-5 py-2.5 font-medium text-white disabled:opacity-60">
           {busy ? t('common.saving') : t('common.save')}
         </button>
         <p className="text-xs text-text-secondary">{t('wl.reloadNote')}</p>
       </form>
+      </Card>
     </PageScaffold>
   )
 }

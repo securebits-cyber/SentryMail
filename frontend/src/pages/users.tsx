@@ -4,6 +4,7 @@
 
 import { FormEvent, useEffect, useState } from 'react'
 import Badge from '../components/Badge'
+import Card from '../components/Card'
 import PageScaffold from '../components/PageScaffold'
 import { useI18n } from '../i18n'
 import { api } from '../services/api'
@@ -103,7 +104,7 @@ export default function UsersPage() {
       actions={
         <button
           onClick={() => setCreating((v) => !v)}
-          className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-white"
+          className="rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-white"
         >
           {creating ? t('usr.close') : t('usr.new')}
         </button>
@@ -116,7 +117,7 @@ export default function UsersPage() {
       )}
 
       {creating && (
-        <form onSubmit={handleCreate} className="elevated mb-6 flex max-w-2xl flex-col gap-3 rounded-md border border-border bg-surface p-4">
+        <form onSubmit={handleCreate} className="elevated mb-6 flex max-w-2xl flex-col gap-3 rounded-lg border border-border bg-surface p-5">
           <div className="flex gap-3">
             <label className={`${labelClass} flex-1`}>
               {t('common.email')}
@@ -144,7 +145,7 @@ export default function UsersPage() {
             <button
               type="submit"
               disabled={submitting}
-              className="rounded-md bg-accent px-5 py-2 text-sm font-medium text-white disabled:opacity-60"
+              className="rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-white disabled:opacity-60"
             >
               {submitting ? t('usr.creating') : t('usr.create')}
             </button>
@@ -155,7 +156,7 @@ export default function UsersPage() {
       {loading ? (
         <p className="text-text-secondary">{t('usr.loading')}</p>
       ) : (
-        <div className="overflow-x-auto">
+        <Card bodyClassName="overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>
               <tr className="border-b border-border text-left text-sm text-text-secondary">
@@ -207,7 +208,7 @@ export default function UsersPage() {
               ))}
             </tbody>
           </table>
-        </div>
+        </Card>
       )}
     </PageScaffold>
   )

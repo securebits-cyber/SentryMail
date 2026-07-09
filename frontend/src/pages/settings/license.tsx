@@ -3,6 +3,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
 import { FormEvent, useEffect, useState } from 'react'
+import Card from '../../components/Card'
 import PageScaffold from '../../components/PageScaffold'
 import { useI18n } from '../../i18n'
 import { api } from '../../services/api'
@@ -95,7 +96,7 @@ export default function LicenseSettingsPage() {
 
         {status && (
           <>
-            <div className="rounded-lg border border-border bg-surface p-4">
+            <div className="elevated rounded-lg border border-border bg-surface p-5">
               <div className="mb-3 flex items-center justify-between">
                 <span className="text-sm text-text-secondary">{t('lic.label.status')}</span>
                 <span className={`text-sm font-semibold ${tone}`}>{statusLabel}</span>
@@ -138,6 +139,7 @@ export default function LicenseSettingsPage() {
 
             {!status.server_configured && <p className="text-sm text-text-secondary">{t('lic.noServerNote')}</p>}
 
+            <Card>
             <form onSubmit={saveKey} className="flex flex-col gap-2">
               <label className="text-sm" htmlFor="license-key">
                 {t('lic.keyLabel')} {status.has_key && <span className="text-text-secondary">{t('lic.keySet')}</span>}
@@ -158,7 +160,7 @@ export default function LicenseSettingsPage() {
                   <button
                     type="submit"
                     disabled={busy || !licenseKey.trim()}
-                    className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+                    className="rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-white disabled:opacity-50"
                   >
                     {t('lic.saveCheck')}
                   </button>
@@ -167,12 +169,13 @@ export default function LicenseSettingsPage() {
                   type="button"
                   onClick={refresh}
                   disabled={busy}
-                  className="rounded-md border border-border px-4 py-2 text-sm text-text-primary hover:bg-bg disabled:opacity-50"
+                  className="rounded-full border border-border px-5 py-2.5 text-sm text-text-primary hover:bg-bg disabled:opacity-50"
                 >
                   {t('lic.recheck')}
                 </button>
               </div>
             </form>
+            </Card>
           </>
         )}
       </div>

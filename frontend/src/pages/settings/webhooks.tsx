@@ -4,6 +4,7 @@
 
 import { Plus, Settings, Trash2, Webhook } from 'lucide-react'
 import { FormEvent, useEffect, useState } from 'react'
+import Card from '../../components/Card'
 import LockedFeatureNotice from '../../components/LockedFeatureNotice'
 import PageScaffold from '../../components/PageScaffold'
 import { useFeatures } from '../../hooks/useFeatures'
@@ -73,7 +74,8 @@ export default function WebhooksSettingsPage() {
       <p className="mb-4 max-w-2xl text-sm text-text-secondary">{t('wh.intro')}</p>
       {error && <p className="mb-3 text-sm text-status-danger">{error}</p>}
 
-      <form onSubmit={add} className="mb-6 flex max-w-2xl gap-2">
+      <Card className="max-w-2xl">
+      <form onSubmit={add} className="mb-6 flex gap-2">
         <input
           value={url}
           onChange={(e) => setUrl(e.target.value)}
@@ -84,7 +86,7 @@ export default function WebhooksSettingsPage() {
         <button
           type="submit"
           disabled={busy || !url.trim()}
-          className="inline-flex items-center gap-1.5 rounded-md bg-accent px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+          className="inline-flex items-center gap-1.5 rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-white disabled:opacity-60"
         >
           <Plus size={15} />
           {t('wh.add')}
@@ -94,9 +96,9 @@ export default function WebhooksSettingsPage() {
       {items.length === 0 ? (
         <p className="text-text-secondary">{t('wh.empty')}</p>
       ) : (
-        <ul className="flex max-w-2xl flex-col gap-2">
+        <ul className="flex flex-col gap-2">
           {items.map((item) => (
-            <li key={item.id} className="flex items-center gap-3 rounded-md border border-border bg-surface px-3 py-2">
+            <li key={item.id} className="flex items-center gap-3 rounded-md border border-border bg-sunken px-3 py-2">
               <Webhook size={15} className="shrink-0 text-text-secondary" />
               <span className="flex-1 truncate font-mono text-sm">{item.url}</span>
               <button
@@ -110,6 +112,7 @@ export default function WebhooksSettingsPage() {
           ))}
         </ul>
       )}
+      </Card>
     </PageScaffold>
   )
 }

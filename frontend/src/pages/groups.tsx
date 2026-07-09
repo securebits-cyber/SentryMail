@@ -3,6 +3,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
 import { useEffect, useState } from 'react'
+import Card from '../components/Card'
 import GroupForm, { GroupFormValues } from '../components/GroupForm'
 import PageScaffold from '../components/PageScaffold'
 import { useI18n } from '../i18n'
@@ -116,7 +117,7 @@ export default function GroupsPage() {
       actions={
         <button
           onClick={() => setMode({ kind: 'create' })}
-          className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-white"
+          className="rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-white"
         >
           {t('grp.new')}
         </button>
@@ -133,7 +134,7 @@ export default function GroupsPage() {
       ) : groups.length === 0 ? (
         <p className="text-text-secondary">{t('grp.empty')}</p>
       ) : (
-        <div className="overflow-x-auto">
+        <Card bodyClassName="overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>
               <tr className="border-b border-border text-left text-sm text-text-secondary">
@@ -165,7 +166,7 @@ export default function GroupsPage() {
               ))}
             </tbody>
           </table>
-        </div>
+        </Card>
       )}
     </PageScaffold>
   )

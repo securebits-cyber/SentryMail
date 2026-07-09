@@ -5,6 +5,7 @@
 import { BookOpen, Globe, Lock } from 'lucide-react'
 import { useEffect, useRef, useState, type ChangeEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
+import Card from '../components/Card'
 import PageScaffold from '../components/PageScaffold'
 import TemplateForm, { TemplateFormValues } from '../components/TemplateForm'
 import TierBadge from '../components/TierBadge'
@@ -144,7 +145,7 @@ export default function TemplatesPage() {
               setMode({ kind: 'list' })
               setError(null)
             }}
-            className="rounded-md border border-border px-4 py-2 text-sm text-text-primary hover:bg-bg"
+            className="rounded-full border border-border px-5 py-2.5 text-sm text-text-primary hover:bg-bg"
           >
             {t('tpl.library.back')}
           </button>
@@ -154,8 +155,8 @@ export default function TemplatesPage() {
         {error && <p className="mb-3 text-sm text-status-danger">{error}</p>}
         <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))' }}>
           {library.map((item) => (
-            <div key={item.id} className="elevated flex flex-col rounded-lg border border-border bg-surface p-4">
-              <span className="mb-2 w-fit rounded-full bg-accent/10 px-2 py-0.5 text-xs font-medium text-accent">
+            <div key={item.id} className="elevated flex flex-col rounded-lg border border-border bg-surface p-5">
+              <span className="mb-2 w-fit rounded-full bg-accent/10 px-2 py-0.5 text-xs font-medium text-accent-text">
                 {item.category}
               </span>
               <h3 className="font-semibold text-text-primary">{item.name}</h3>
@@ -163,14 +164,14 @@ export default function TemplatesPage() {
               <div className="mt-3 flex flex-wrap gap-2">
                 <button
                   onClick={() => cloneFromLibrary(item.id)}
-                  className="bg-accent w-fit rounded-md px-3 py-1.5 text-sm font-medium text-white"
+                  className="bg-accent w-fit rounded-full px-4 py-1.5 text-sm font-medium text-white"
                 >
                   {t('tpl.library.use')}
                 </button>
                 {item.has_landing && (
                   <button
                     onClick={() => cloneLandingFromLibrary(item.id)}
-                    className="flex w-fit items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-sm font-medium text-text-primary hover:bg-bg"
+                    className="flex w-fit items-center gap-1.5 rounded-full border border-border px-4 py-1.5 text-sm font-medium text-text-primary hover:bg-bg"
                   >
                     <Globe size={14} />
                     {t('tpl.library.landing')}
@@ -210,7 +211,7 @@ export default function TemplatesPage() {
         <div className="flex items-center gap-2">
           <button
             onClick={openLibrary}
-            className="flex items-center gap-2 rounded-md border border-border px-4 py-2 text-sm text-text-primary hover:bg-bg"
+            className="flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm text-text-primary hover:bg-bg"
           >
             <BookOpen size={15} />
             {t('tpl.library')}
@@ -225,7 +226,7 @@ export default function TemplatesPage() {
               }
               fileInputRef.current?.click()
             }}
-            className="flex items-center gap-2 rounded-md border border-border px-4 py-2 text-sm text-text-primary hover:bg-bg"
+            className="flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm text-text-primary hover:bg-bg"
           >
             {t('tpl.upload')}
             <TierBadge tier="business" locked={!businessLicensed} />
@@ -233,7 +234,7 @@ export default function TemplatesPage() {
           </button>
           <button
             onClick={() => setMode({ kind: 'create' })}
-            className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-white"
+            className="rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-white"
           >
             {t('tpl.new')}
           </button>
@@ -249,7 +250,7 @@ export default function TemplatesPage() {
       ) : templates.length === 0 ? (
         <p className="text-text-secondary">{t('tpl.empty')}</p>
       ) : (
-        <div className="overflow-x-auto">
+        <Card bodyClassName="overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>
               <tr className="border-b border-border text-left text-sm text-text-secondary">
@@ -282,7 +283,7 @@ export default function TemplatesPage() {
               ))}
             </tbody>
           </table>
-        </div>
+        </Card>
       )}
     </PageScaffold>
   )

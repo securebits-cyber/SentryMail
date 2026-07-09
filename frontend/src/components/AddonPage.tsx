@@ -43,7 +43,7 @@ export default function AddonPage({ tier, title, icon: Icon, tagline, intro, gro
 
   return (
     <PageScaffold title={title} subtitle={tagline} breadcrumb={breadcrumb}>
-      <div className="max-w-3xl rounded-lg border border-border bg-surface p-6">
+      <div className="elevated max-w-3xl rounded-lg border border-border bg-surface p-6">
         <div className="flex items-center gap-3">
           <span className={`flex h-10 w-10 items-center justify-center rounded-lg ${style.tint}`}>
             <Icon size={20} />

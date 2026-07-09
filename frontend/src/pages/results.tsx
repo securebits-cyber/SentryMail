@@ -5,6 +5,7 @@
 import { FileText, Lock } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
+import Card from '../components/Card'
 import PageScaffold from '../components/PageScaffold'
 import ResultsTable from '../components/ResultsTable'
 import TierBadge from '../components/TierBadge'
@@ -83,13 +84,13 @@ export default function ResultsPage() {
 
   return (
     <PageScaffold title={t('res.title')} guidanceKey="results">
-      <ResultsTable result={result} />
+      <Card>
+        <ResultsTable result={result} />
+      </Card>
 
       {captures.length > 0 && (
-        <div className="mt-6">
-          <h2 className="mb-2 text-lg font-semibold">{t('res.captures.heading')}</h2>
-          <p className="mb-3 text-xs text-text-secondary">{t('res.captures.note')}</p>
-          <div className="overflow-x-auto">
+        <Card className="mt-6" title={t('res.captures.heading')} subtitle={t('res.captures.note')} bodyClassName="overflow-x-auto">
+          <div>
             <table className="w-full border-collapse text-sm">
               <thead>
                 <tr className="border-b border-border text-left text-text-secondary">
@@ -115,7 +116,7 @@ export default function ResultsPage() {
               </tbody>
             </table>
           </div>
-        </div>
+        </Card>
       )}
 
       {error && <p className="mt-4 text-sm text-status-danger">{error}</p>}

@@ -4,7 +4,10 @@
 
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { KeyRound, Mail, MailOpen, MousePointerClick, Send, Users, type LucideIcon } from 'lucide-react'
 import Badge from '../components/Badge'
+import Card from '../components/Card'
+import StatCard, { type StatTone } from '../components/StatCard'
 import {
   ActivityHeatmapCard,
   EngagementBreakdown,
@@ -33,31 +36,14 @@ interface Failed {
   occurred_at: string
 }
 
-type Tone = 'neutral' | 'accent' | 'warning' | 'danger'
-
-const tiles: { key: keyof Summary; labelKey: string; tone: Tone }[] = [
-  { key: 'campaigns', labelKey: 'dash.tile.campaigns', tone: 'neutral' },
-  { key: 'recipients', labelKey: 'dash.tile.recipients', tone: 'neutral' },
-  { key: 'sent', labelKey: 'dash.tile.sent', tone: 'accent' },
-  { key: 'opened', labelKey: 'dash.tile.opened', tone: 'neutral' },
-  { key: 'clicked', labelKey: 'dash.tile.clicked', tone: 'warning' },
-  { key: 'submitted', labelKey: 'dash.tile.submitted', tone: 'danger' },
+const tiles: { key: keyof Summary; labelKey: string; tone: StatTone; icon: LucideIcon }[] = [
+  { key: 'campaigns', labelKey: 'dash.tile.campaigns', tone: 'neutral', icon: Send },
+  { key: 'recipients', labelKey: 'dash.tile.recipients', tone: 'neutral', icon: Users },
+  { key: 'sent', labelKey: 'dash.tile.sent', tone: 'accent', icon: Mail },
+  { key: 'opened', labelKey: 'dash.tile.opened', tone: 'neutral', icon: MailOpen },
+  { key: 'clicked', labelKey: 'dash.tile.clicked', tone: 'warning', icon: MousePointerClick },
+  { key: 'submitted', labelKey: 'dash.tile.submitted', tone: 'danger', icon: KeyRound },
 ]
-
-const toneNumber: Record<Tone, string> = {
-  neutral: 'text-text-primary',
-  accent: 'text-accent',
-  warning: 'text-status-warning',
-  danger: 'text-status-danger',
-}
-
-// Dezent getönter Kachel-Hintergrund je nach Bedeutung.
-const toneTile: Record<Tone, string> = {
-  neutral: 'border-border bg-surface',
-  accent: 'border-accent/25 bg-accent/8',
-  warning: 'border-status-warning/30 bg-status-warning/10',
-  danger: 'border-status-danger/30 bg-status-danger/10',
-}
 
 export default function DashboardPage() {
   const { t } = useI18n()
@@ -88,12 +74,9 @@ export default function DashboardPage() {
     <>
       <PageHeader title={t('nav.controlCenter')} subtitle={t('dash.subtitle')} />
 
-      <div className="mb-6 grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))' }}>
-        {tiles.map(({ key, labelKey, tone }) => (
-          <div key={key} className={`elevated rounded-lg border p-4 ${toneTile[tone]}`}>
-            <div className="text-sm text-text-secondary">{t(labelKey)}</div>
-            <div className={`mt-1 font-mono text-3xl font-semibold ${toneNumber[tone]}`}>{summary?.[key] ?? 0}</div>
-          </div>
+      <div className="mb-6 grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(170px, 1fr))' }}>
+        {tiles.map(({ key, labelKey, tone, icon }) => (
+          <StatCard key={key} label={t(labelKey)} value={summary?.[key] ?? 0} tone={tone} icon={icon} />
         ))}
       </div>
 
@@ -124,9 +107,9 @@ export default function DashboardPage() {
         </div>
       )}
 
-      <h2 className="mb-3 text-lg font-semibold">{t('dash.failed.heading')}</h2>
+      <Card title={t('dash.failed.heading')}>
       {failed.length === 0 ? (
-        <p className="text-text-secondary">{t('dash.failed.empty')}</p>
+        <p className="text-sm text-text-secondary">{t('dash.failed.empty')}</p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full border-collapse">
@@ -163,6 +146,7 @@ export default function DashboardPage() {
           </table>
         </div>
       )}
+      </Card>
     </>
   )
 }

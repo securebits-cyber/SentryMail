@@ -5,6 +5,7 @@
 import { ShieldAlert, ShieldCheck, ShieldX, type LucideIcon } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import Badge from './Badge'
+import RiskBadge from './RiskBadge'
 import { useI18n } from '../i18n'
 
 export interface Summary {
@@ -42,7 +43,6 @@ const RISK: Record<RiskSummary['level'], { bar: string; text: string; icon: Luci
 export function RiskMeter({ risk }: { risk: RiskSummary }) {
   const { t } = useI18n()
   const tone = RISK[risk.level]
-  const Icon = tone.icon
   const bands: { key: keyof RiskSummary['distribution']; labelKey: string; dot: string }[] = [
     { key: 'high', labelKey: 'risk.band.high', dot: 'bg-status-danger' },
     { key: 'medium', labelKey: 'risk.band.medium', dot: 'bg-status-warning' },
@@ -54,10 +54,7 @@ export function RiskMeter({ risk }: { risk: RiskSummary }) {
     <div className="elevated rounded-lg border border-border bg-surface p-5">
       <div className="section-heading mb-3 flex items-center justify-between">
         <h3 className="text-sm font-semibold text-text-secondary">{t('risk.heading')}</h3>
-        <span className={`inline-flex items-center gap-1.5 text-sm font-semibold ${tone.text}`}>
-          <Icon size={16} />
-          {t(tone.labelKey)}
-        </span>
+        <RiskBadge level={risk.level} />
       </div>
 
       <div className="flex items-baseline gap-1">

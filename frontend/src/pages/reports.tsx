@@ -5,8 +5,11 @@
 import { Download, FileText, Lock, Sparkles } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import Card from '../components/Card'
 import { RiskMeter, type RiskSummary } from '../components/DashboardCharts'
 import PageScaffold from '../components/PageScaffold'
+import RiskBadge from '../components/RiskBadge'
+import StatCard, { type StatTone } from '../components/StatCard'
 import TierBadge from '../components/TierBadge'
 import { useFeatures } from '../hooks/useFeatures'
 import { useI18n } from '../i18n'
@@ -96,12 +99,6 @@ interface DepartmentRow {
   high_criticality: number
   risk_score: number
   risk_level: 'high' | 'medium' | 'low'
-}
-
-const levelText: Record<string, string> = {
-  high: 'text-status-danger',
-  medium: 'text-status-warning',
-  low: 'text-status-success',
 }
 
 interface Progress {
@@ -222,10 +219,10 @@ export default function ReportsPage() {
   if (loading) return <p className="text-text-secondary">{t('dash.loading')}</p>
   if (!report) return <p className="text-text-secondary">{t('rep.empty')}</p>
 
-  const rates: { key: keyof Report; labelKey: string; rateKey: keyof Report; tone: string }[] = [
-    { key: 'opened', labelKey: 'dash.tile.opened', rateKey: 'open_rate', tone: 'text-text-primary' },
-    { key: 'clicked', labelKey: 'dash.tile.clicked', rateKey: 'click_rate', tone: 'text-status-warning' },
-    { key: 'submitted', labelKey: 'dash.tile.submitted', rateKey: 'submit_rate', tone: 'text-status-danger' },
+  const rates: { key: keyof Report; labelKey: string; rateKey: keyof Report; tone: StatTone }[] = [
+    { key: 'opened', labelKey: 'dash.tile.opened', rateKey: 'open_rate', tone: 'neutral' },
+    { key: 'clicked', labelKey: 'dash.tile.clicked', rateKey: 'click_rate', tone: 'warning' },
+    { key: 'submitted', labelKey: 'dash.tile.submitted', rateKey: 'submit_rate', tone: 'danger' },
   ]
 
   const riskForMeter: RiskSummary = {
@@ -246,7 +243,7 @@ export default function ReportsPage() {
           <button
             onClick={exportCsv}
             disabled={exporting}
-            className="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2 text-sm text-text-primary hover:bg-bg disabled:opacity-60"
+            className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm text-text-primary hover:bg-bg disabled:opacity-60"
           >
             <Download size={15} />
             {t('rep.export')}
@@ -254,7 +251,7 @@ export default function ReportsPage() {
           <button
             onClick={exportPdf}
             disabled={exporting}
-            className="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2 text-sm text-text-primary hover:bg-bg disabled:opacity-60"
+            className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm text-text-primary hover:bg-bg disabled:opacity-60"
           >
             <FileText size={15} />
             {t('rep.exportPdf')}
@@ -264,7 +261,7 @@ export default function ReportsPage() {
           <button
             onClick={exportExecutivePdf}
             disabled={exporting}
-            className="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2 text-sm text-text-primary hover:bg-bg disabled:opacity-60"
+            className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm text-text-primary hover:bg-bg disabled:opacity-60"
           >
             <FileText size={15} />
             {t('rep.exportExec')}
@@ -276,21 +273,17 @@ export default function ReportsPage() {
     >
       {error && <p className="mb-3 text-sm text-status-danger">{error}</p>}
       {/* Kennzahlen + Raten */}
-      <div className="mb-6 grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))' }}>
-        <div className="elevated rounded-lg border border-border bg-surface p-4">
-          <div className="text-sm text-text-secondary">{t('dash.tile.recipients')}</div>
-          <div className="mt-1 font-mono text-3xl font-semibold">{report.recipients}</div>
-        </div>
-        <div className="elevated rounded-lg border border-border bg-surface p-4">
-          <div className="text-sm text-text-secondary">{t('dash.tile.sent')}</div>
-          <div className="mt-1 font-mono text-3xl font-semibold text-accent">{report.sent}</div>
-        </div>
+      <div className="mb-6 grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))' }}>
+        <StatCard label={t('dash.tile.recipients')} value={report.recipients} />
+        <StatCard label={t('dash.tile.sent')} value={report.sent} tone="accent" />
         {rates.map((r) => (
-          <div key={r.key} className="elevated rounded-lg border border-border bg-surface p-4">
-            <div className="text-sm text-text-secondary">{t(r.labelKey)}</div>
-            <div className={`mt-1 font-mono text-3xl font-semibold ${r.tone}`}>{report[r.key] as number}</div>
-            <div className="mt-0.5 text-xs text-text-secondary">{report[r.rateKey] as number}%</div>
-          </div>
+          <StatCard
+            key={r.key}
+            label={t(r.labelKey)}
+            value={report[r.key] as number}
+            tone={r.tone}
+            hint={`${report[r.rateKey] as number}%`}
+          />
         ))}
       </div>
 
@@ -309,7 +302,7 @@ export default function ReportsPage() {
             <button
               onClick={runAiScoring}
               disabled={aiBusy}
-              className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+              className="rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-white disabled:opacity-60"
             >
               {aiBusy ? t('rep.ai.busy') : t('rep.ai.run')}
             </button>
@@ -335,11 +328,10 @@ export default function ReportsPage() {
       )}
 
       {/* Kampagnenvergleich */}
-      <h2 className="mb-3 text-lg font-semibold">{t('rep.campaigns.heading')}</h2>
-      {report.campaign_rows.length === 0 ? (
-        <p className="mb-8 text-text-secondary">{t('rep.campaigns.empty')}</p>
+      <Card className="mb-8" title={t('rep.campaigns.heading')} bodyClassName={report.campaign_rows.length ? 'overflow-x-auto' : ''}>
+        {report.campaign_rows.length === 0 ? (
+        <p className="text-text-secondary">{t('rep.campaigns.empty')}</p>
       ) : (
-        <div className="mb-8 overflow-x-auto">
           <table className="w-full border-collapse text-sm">
             <thead>
               <tr className="border-b border-border text-left text-text-secondary">
@@ -369,22 +361,21 @@ export default function ReportsPage() {
                   <td className="py-2 pr-4 font-mono tabular-nums">
                     {c.submitted} <span className="text-xs text-text-secondary">({c.submit_rate}%)</span>
                   </td>
-                  <td className={`py-2 pr-4 font-mono font-semibold tabular-nums ${levelText[c.risk_level]}`}>
-                    {c.risk_score} · {t(`risk.level.${c.risk_level}`)}
+                  <td className="py-2 pr-4">
+                    <RiskBadge level={c.risk_level} size="sm" label={`${c.risk_score} · ${t(`risk.level.${c.risk_level}`)}`} />
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </div>
       )}
+      </Card>
 
       {/* Top Durchgefallene */}
-      <h2 className="mb-3 text-lg font-semibold">{t('rep.topFailed.heading')}</h2>
-      {report.top_failed.length === 0 ? (
+      <Card className="mb-8" title={t('rep.topFailed.heading')} bodyClassName={report.top_failed.length ? 'overflow-x-auto' : ''}>
+        {report.top_failed.length === 0 ? (
         <p className="text-text-secondary">{t('dash.failed.empty')}</p>
       ) : (
-        <div className="overflow-x-auto">
           <table className="w-full border-collapse text-sm">
             <thead>
               <tr className="border-b border-border text-left text-text-secondary">
@@ -405,17 +396,16 @@ export default function ReportsPage() {
               ))}
             </tbody>
           </table>
-        </div>
       )}
+      </Card>
 
       {/* Business: Trendanalyse */}
       {trend.length > 0 && (
-        <div className="mt-8">
-          <h2 className="mb-3 text-lg font-semibold">
-            {t('rep.trend.heading')}
-            <TierBadge tier="business" locked={!businessLicensed} className="ml-2 align-middle" />
-          </h2>
-          <div className="overflow-x-auto">
+        <Card
+          className="mt-8"
+          title={<>{t('rep.trend.heading')}<TierBadge tier="business" locked={!businessLicensed} className="ml-2 align-middle" /></>}
+          bodyClassName="overflow-x-auto"
+        >
             <table className="w-full border-collapse text-sm">
               <thead>
                 <tr className="border-b border-border text-left text-text-secondary">
@@ -431,25 +421,23 @@ export default function ReportsPage() {
                     <td className="py-2 pr-4">{row.name}</td>
                     <td className="py-2 pr-4 font-mono tabular-nums text-text-secondary">{row.date}</td>
                     <td className="py-2 pr-4 font-mono tabular-nums">{row.click_rate}%</td>
-                    <td className={`py-2 font-mono font-semibold tabular-nums ${levelText[row.risk_level]}`}>
-                      {row.risk_score} · {t(`risk.level.${row.risk_level}`)}
+                    <td className="py-2">
+                      <RiskBadge level={row.risk_level} size="sm" label={`${row.risk_score} · ${t(`risk.level.${row.risk_level}`)}`} />
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
-          </div>
-        </div>
+        </Card>
       )}
 
       {/* Business: Benutzerentwicklung */}
       {users.length > 0 && (
-        <div className="mt-8">
-          <h2 className="mb-3 text-lg font-semibold">
-            {t('rep.users.heading')}
-            <TierBadge tier="business" locked={!businessLicensed} className="ml-2 align-middle" />
-          </h2>
-          <div className="overflow-x-auto">
+        <Card
+          className="mt-8"
+          title={<>{t('rep.users.heading')}<TierBadge tier="business" locked={!businessLicensed} className="ml-2 align-middle" /></>}
+          bodyClassName="overflow-x-auto"
+        >
             <table className="w-full border-collapse text-sm">
               <thead>
                 <tr className="border-b border-border text-left text-text-secondary">
@@ -467,24 +455,22 @@ export default function ReportsPage() {
                     <td className="py-2 pr-4 font-mono tabular-nums">{u.campaigns}</td>
                     <td className="py-2 pr-4 font-mono tabular-nums">{u.clicked}</td>
                     <td className="py-2 pr-4 font-mono tabular-nums">{u.submitted}</td>
-                    <td className={`py-2 font-mono font-semibold tabular-nums ${levelText[u.risk_level]}`}>
-                      {u.risk_score} · {t(`risk.level.${u.risk_level}`)}
+                    <td className="py-2">
+                      <RiskBadge level={u.risk_level} size="sm" label={`${u.risk_score} · ${t(`risk.level.${u.risk_level}`)}`} />
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
-          </div>
-        </div>
+        </Card>
       )}
       {/* Business: Abteilungsvergleich */}
       {departments.length > 0 && (
-        <div className="mt-8">
-          <h2 className="mb-3 text-lg font-semibold">
-            {t('rep.dept.heading')}
-            <TierBadge tier="business" locked={!businessLicensed} className="ml-2 align-middle" />
-          </h2>
-          <div className="overflow-x-auto">
+        <Card
+          className="mt-8"
+          title={<>{t('rep.dept.heading')}<TierBadge tier="business" locked={!businessLicensed} className="ml-2 align-middle" /></>}
+          bodyClassName="overflow-x-auto"
+        >
             <table className="w-full border-collapse text-sm">
               <thead>
                 <tr className="border-b border-border text-left text-text-secondary">
@@ -504,29 +490,27 @@ export default function ReportsPage() {
                     <td className="py-2 pr-4 font-mono tabular-nums">{d.click_rate}%</td>
                     <td className="py-2 pr-4 font-mono tabular-nums">{d.submit_rate}%</td>
                     <td className="py-2 pr-4 font-mono tabular-nums">{d.high_criticality}</td>
-                    <td className={`py-2 font-mono font-semibold tabular-nums ${levelText[d.risk_level]}`}>
-                      {d.risk_score} · {t(`risk.level.${d.risk_level}`)}
+                    <td className="py-2">
+                      <RiskBadge level={d.risk_level} size="sm" label={`${d.risk_score} · ${t(`risk.level.${d.risk_level}`)}`} />
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
-          </div>
-        </div>
+        </Card>
       )}
       {/* Business: Nachweise & Zertifikate */}
-      <div className="mt-8">
-        <h2 className="mb-3 text-lg font-semibold">
-          {t('rep.evidence.heading')}
-          <TierBadge tier="business" locked={!businessLicensed} className="ml-2 align-middle" />
-        </h2>
+      <Card
+        className="mt-8"
+        title={<>{t('rep.evidence.heading')}<TierBadge tier="business" locked={!businessLicensed} className="ml-2 align-middle" /></>}
+      >
         <div className="flex flex-wrap gap-2">
           {(['dsgvo', 'nis2', 'iso27001', 'awareness', 'audit', 'certificate', 'training'] as const).map((kind) => (
             <button
               key={kind}
               onClick={() => exportBusinessPdf(`/reports/evidence/${kind}/pdf`, `${kind}.pdf`)}
               disabled={exporting}
-              className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-2 text-sm text-text-primary hover:bg-bg disabled:opacity-60"
+              className="inline-flex items-center gap-1.5 rounded-full border border-border px-4 py-2 text-sm text-text-primary hover:bg-bg disabled:opacity-60"
             >
               <FileText size={14} />
               {t(`rep.evidence.${kind}`)}
@@ -534,19 +518,18 @@ export default function ReportsPage() {
             </button>
           ))}
         </div>
-      </div>
+      </Card>
 
       {/* Enterprise: Schulungsfortschritt & Zertifikatsstatus */}
       {enterpriseLicensed && (
-        <div className="mt-8">
-          <h2 className="mb-3 text-lg font-semibold">
-            {t('rep.progress.heading')}
-            <TierBadge tier="enterprise" locked={!enterpriseLicensed} className="ml-2 align-middle" />
-          </h2>
+        <Card
+          className="mt-8"
+          title={<>{t('rep.progress.heading')}<TierBadge tier="enterprise" locked={!enterpriseLicensed} className="ml-2 align-middle" /></>}
+          bodyClassName={progress.length ? 'overflow-x-auto' : ''}
+        >
           {progress.length === 0 ? (
             <p className="text-text-secondary">{t('rep.progress.empty')}</p>
           ) : (
-            <div className="overflow-x-auto">
               <table className="w-full border-collapse text-sm">
                 <thead>
                   <tr className="border-b border-border text-left text-text-secondary">
@@ -580,9 +563,8 @@ export default function ReportsPage() {
                   ))}
                 </tbody>
               </table>
-            </div>
           )}
-        </div>
+        </Card>
       )}
 
     </PageScaffold>

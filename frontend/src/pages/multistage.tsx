@@ -4,6 +4,7 @@
 
 import { Play, Plus, Trash2, X } from 'lucide-react'
 import { FormEvent, useEffect, useState } from 'react'
+import Card from '../components/Card'
 import LockedFeatureNotice from '../components/LockedFeatureNotice'
 import PageScaffold from '../components/PageScaffold'
 import { useFeatures } from '../hooks/useFeatures'
@@ -110,7 +111,8 @@ export default function MultiStagePage() {
     <PageScaffold title={t('ms.title')} subtitle={t('ms.subtitle')} guidanceKey="multistage">
       {error && <p className="mb-3 text-sm text-status-danger">{error}</p>}
 
-      <form onSubmit={add} className="mb-8 flex max-w-2xl flex-col gap-3">
+      <Card className="mb-8 max-w-2xl">
+      <form onSubmit={add} className="flex flex-col gap-3">
         <input value={name} onChange={(e) => setName(e.target.value)} required placeholder={t('ms.name')} className={fieldClass} />
 
         <div className="rounded-md border border-border p-3">
@@ -184,17 +186,18 @@ export default function MultiStagePage() {
         <button
           type="submit"
           disabled={busy || !name.trim() || !stages.some((s) => s.template_id)}
-          className="inline-flex w-fit items-center gap-1.5 rounded-md bg-accent px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+          className="inline-flex w-fit items-center gap-1.5 rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-white disabled:opacity-60"
         >
           <Plus size={15} />
           {t('ms.create')}
         </button>
       </form>
+      </Card>
 
       {items.length === 0 ? (
         <p className="text-text-secondary">{t('ms.empty')}</p>
       ) : (
-        <div className="overflow-x-auto">
+        <Card bodyClassName="overflow-x-auto">
           <table className="w-full border-collapse text-sm">
             <thead>
               <tr className="border-b border-border text-left text-text-secondary">
@@ -229,7 +232,7 @@ export default function MultiStagePage() {
               ))}
             </tbody>
           </table>
-        </div>
+        </Card>
       )}
     </PageScaffold>
   )

@@ -5,6 +5,7 @@
 import { BookOpen, KeyRound, Lock } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import Badge from '../components/Badge'
+import Card from '../components/Card'
 import LandingPageForm, { LandingPageFormValues } from '../components/LandingPageForm'
 import PageScaffold from '../components/PageScaffold'
 import TierBadge from '../components/TierBadge'
@@ -109,7 +110,7 @@ export default function LandingPagesPage() {
               setMode({ kind: 'list' })
               setError(null)
             }}
-            className="rounded-md border border-border px-4 py-2 text-sm text-text-primary hover:bg-bg"
+            className="rounded-full border border-border px-5 py-2.5 text-sm text-text-primary hover:bg-bg"
           >
             {t('lp.library.back')}
           </button>
@@ -119,8 +120,8 @@ export default function LandingPagesPage() {
         {error && <p className="mb-3 text-sm text-status-danger">{error}</p>}
         <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))' }}>
           {library.map((item) => (
-            <div key={item.id} className="elevated flex flex-col rounded-lg border border-border bg-surface p-4">
-              <span className="mb-2 w-fit rounded-full bg-accent/10 px-2 py-0.5 text-xs font-medium text-accent">
+            <div key={item.id} className="elevated flex flex-col rounded-lg border border-border bg-surface p-5">
+              <span className="mb-2 w-fit rounded-full bg-accent/10 px-2 py-0.5 text-xs font-medium text-accent-text">
                 {item.category}
               </span>
               <h3 className="font-semibold text-text-primary">{item.name}</h3>
@@ -133,7 +134,7 @@ export default function LandingPagesPage() {
               <div className="mt-3 flex flex-wrap gap-2">
                 <button
                   onClick={() => cloneFromLibrary(item.id)}
-                  className="bg-accent w-fit rounded-md px-3 py-1.5 text-sm font-medium text-white"
+                  className="bg-accent w-fit rounded-full px-4 py-1.5 text-sm font-medium text-white"
                 >
                   {t('lp.library.use')}
                 </button>
@@ -170,7 +171,7 @@ export default function LandingPagesPage() {
         <div className="flex items-center gap-2">
           <button
             onClick={openLibrary}
-            className="flex items-center gap-2 rounded-md border border-border px-4 py-2 text-sm text-text-primary hover:bg-bg"
+            className="flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm text-text-primary hover:bg-bg"
           >
             <BookOpen size={15} />
             {t('lp.library')}
@@ -179,7 +180,7 @@ export default function LandingPagesPage() {
           </button>
           <button
             onClick={() => setMode({ kind: 'create' })}
-            className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-white"
+            className="rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-white"
           >
             {t('lp.new')}
           </button>
@@ -193,7 +194,7 @@ export default function LandingPagesPage() {
       ) : pages.length === 0 ? (
         <p className="text-text-secondary">{t('lp.empty')}</p>
       ) : (
-        <div className="overflow-x-auto">
+        <Card bodyClassName="overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>
               <tr className="border-b border-border text-left text-sm text-text-secondary">
@@ -231,7 +232,7 @@ export default function LandingPagesPage() {
               ))}
             </tbody>
           </table>
-        </div>
+        </Card>
       )}
     </PageScaffold>
   )

@@ -4,6 +4,7 @@
 
 import { KeySquare, Settings } from 'lucide-react'
 import { FormEvent, useEffect, useState } from 'react'
+import Card from '../../components/Card'
 import LockedFeatureNotice from '../../components/LockedFeatureNotice'
 import PageScaffold from '../../components/PageScaffold'
 import Toggle from '../../components/Toggle'
@@ -79,8 +80,9 @@ export default function SamlSettingsPage() {
         </p>
       )}
 
-      <form onSubmit={handleSave} className="flex max-w-2xl flex-col gap-4">
-        <div className="elevated flex items-center justify-between gap-4 rounded-lg border border-border bg-surface p-4">
+      <Card className="max-w-2xl">
+      <form onSubmit={handleSave} className="flex flex-col gap-4">
+        <div className="flex items-center justify-between gap-4 rounded-lg border border-border bg-sunken p-4">
           <div>
             <div className="text-sm font-medium">{t('saml.enable')}</div>
             <div className="text-sm text-text-secondary">{t('saml.enableDesc')}</div>
@@ -132,7 +134,7 @@ export default function SamlSettingsPage() {
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-          <button type="submit" disabled={busy} className="rounded-md bg-accent px-5 py-2 font-medium text-white disabled:opacity-60">
+          <button type="submit" disabled={busy} className="rounded-full bg-accent px-5 py-2.5 font-medium text-white disabled:opacity-60">
             {busy ? t('common.saving') : t('common.save')}
           </button>
           <a href="/auth/saml/metadata" target="_blank" rel="noreferrer" className="text-sm text-accent hover:underline">
@@ -140,6 +142,7 @@ export default function SamlSettingsPage() {
           </a>
         </div>
       </form>
+      </Card>
     </PageScaffold>
   )
 }

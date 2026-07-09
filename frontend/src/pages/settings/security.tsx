@@ -88,7 +88,7 @@ export default function SecuritySettingsPage() {
           </div>
           <p className="text-xs text-text-secondary">{t('sec.note')}</p>
           <div>
-            <button onClick={save} disabled={saving} className="rounded-md bg-accent px-5 py-2 font-medium text-white disabled:opacity-60">
+            <button onClick={save} disabled={saving} className="rounded-full bg-accent px-5 py-2.5 font-medium text-white disabled:opacity-60">
               {saving ? t('common.saving') : t('common.save')}
             </button>
           </div>

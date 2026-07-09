@@ -5,6 +5,7 @@
 import { Fingerprint, ShieldCheck, Trash2 } from 'lucide-react'
 import { FormEvent, useEffect, useState } from 'react'
 import Badge from '../components/Badge'
+import Card from '../components/Card'
 import PageScaffold from '../components/PageScaffold'
 import PasswordStrengthMeter from '../components/PasswordStrengthMeter'
 import TwoFASetup from '../components/TwoFASetup'
@@ -157,7 +158,8 @@ export default function ProfilePage() {
         </p>
       )}
 
-      <div className="flex max-w-2xl flex-col gap-8">
+      <div className="flex max-w-2xl flex-col gap-6">
+        <Card>
         <form onSubmit={saveName} className="flex flex-col gap-4">
           <div className="flex items-center gap-3 text-sm">
             <span className="text-text-secondary">{t('prof.role')}</span>
@@ -174,13 +176,15 @@ export default function ProfilePage() {
             <input value={fullName} onChange={(e) => setFullName(e.target.value)} required className={fieldClass} />
           </label>
           <div>
-            <button type="submit" className="rounded-md bg-accent px-5 py-2 text-sm font-medium text-white">
+            <button type="submit" className="rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-white">
               {t('common.save')}
             </button>
           </div>
         </form>
+        </Card>
 
-        <form onSubmit={changePassword} className="flex flex-col gap-4 border-t border-border pt-8">
+        <Card>
+        <form onSubmit={changePassword} className="flex flex-col gap-4">
           <h2 className="text-lg font-semibold">{t('prof.pw.title')}</h2>
           <label className={labelClass}>
             {t('prof.pw.current')}
@@ -198,13 +202,15 @@ export default function ProfilePage() {
           </div>
           <PasswordStrengthMeter password={newPw} />
           <div>
-            <button type="submit" className="rounded-md bg-accent px-5 py-2 text-sm font-medium text-white">
+            <button type="submit" className="rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-white">
               {t('prof.pw.title')}
             </button>
           </div>
         </form>
+        </Card>
 
-        <section className="flex flex-col gap-4 border-t border-border pt-8">
+        <Card>
+        <section className="flex flex-col gap-4">
           <h2 className="flex items-center gap-2 text-lg font-semibold">
             <ShieldCheck size={18} /> {t('prof.2fa.title')}
           </h2>
@@ -222,7 +228,7 @@ export default function ProfilePage() {
                 {twofa.required && <span className="text-status-warning"> {t('prof.2fa.required')}</span>}
               </p>
               <div>
-                <button onClick={() => setShowSetup(true)} className="rounded-md bg-accent px-5 py-2 text-sm font-medium text-white">
+                <button onClick={() => setShowSetup(true)} className="rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-white">
                   {t('prof.2fa.enable')}
                 </button>
               </div>
@@ -257,7 +263,7 @@ export default function ProfilePage() {
               </div>
 
               {twofa.method === 'passkey' && (
-                <div className="flex flex-col gap-2 rounded-md border border-border bg-surface p-4">
+                <div className="flex flex-col gap-2 rounded-md border border-border bg-sunken p-4">
                   <div className="mb-1 flex items-center gap-2 text-sm font-medium">
                     <Fingerprint size={16} className="text-accent" /> {t('prof.2fa.passkeys')}
                   </div>
@@ -304,7 +310,7 @@ export default function ProfilePage() {
                 </div>
               )}
 
-              <div className="flex flex-col gap-2 rounded-md border border-border bg-surface p-4">
+              <div className="flex flex-col gap-2 rounded-md border border-border bg-sunken p-4">
                 <label className={labelClass}>
                   {t('prof.2fa.confirmPw')}
                   <input type="password" value={twofaPw} onChange={(e) => setTwofaPw(e.target.value)} className={`${fieldClass} max-w-xs`} />
@@ -331,6 +337,7 @@ export default function ProfilePage() {
             </div>
           )}
         </section>
+        </Card>
       </div>
     </PageScaffold>
   )

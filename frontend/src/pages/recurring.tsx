@@ -4,6 +4,7 @@
 
 import { Plus, Trash2 } from 'lucide-react'
 import { FormEvent, useEffect, useState } from 'react'
+import Card from '../components/Card'
 import LockedFeatureNotice from '../components/LockedFeatureNotice'
 import PageScaffold from '../components/PageScaffold'
 import { useFeatures } from '../hooks/useFeatures'
@@ -100,7 +101,8 @@ export default function RecurringPage() {
     <PageScaffold title={t('rec.title')} subtitle={t('rec.subtitle')} guidanceKey="recurring">
       {error && <p className="mb-3 text-sm text-status-danger">{error}</p>}
 
-      <form onSubmit={add} className="mb-8 flex max-w-2xl flex-col gap-3">
+      <Card className="mb-8 max-w-2xl">
+      <form onSubmit={add} className="flex flex-col gap-3">
         <input value={name} onChange={(e) => setName(e.target.value)} required placeholder={t('rec.name')} className={fieldClass} />
 
         <select value={templateId} onChange={(e) => setTemplateId(e.target.value)} required className={fieldClass}>
@@ -145,17 +147,18 @@ export default function RecurringPage() {
         <button
           type="submit"
           disabled={busy || !name.trim() || !templateId}
-          className="inline-flex w-fit items-center gap-1.5 rounded-md bg-accent px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+          className="inline-flex w-fit items-center gap-1.5 rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-white disabled:opacity-60"
         >
           <Plus size={15} />
           {t('rec.add')}
         </button>
       </form>
+      </Card>
 
       {items.length === 0 ? (
         <p className="text-text-secondary">{t('rec.empty')}</p>
       ) : (
-        <div className="overflow-x-auto">
+        <Card bodyClassName="overflow-x-auto">
           <table className="w-full border-collapse text-sm">
             <thead>
               <tr className="border-b border-border text-left text-text-secondary">
@@ -188,7 +191,7 @@ export default function RecurringPage() {
               ))}
             </tbody>
           </table>
-        </div>
+        </Card>
       )}
     </PageScaffold>
   )

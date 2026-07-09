@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Badge, { BadgeTone } from '../components/Badge'
 import CampaignWizard, { CampaignWizardValues } from '../components/CampaignWizard'
+import Card from '../components/Card'
 import PageScaffold from '../components/PageScaffold'
 import { useI18n } from '../i18n'
 import { api } from '../services/api'
@@ -116,7 +117,7 @@ export default function CampaignsPage() {
         <button
           onClick={() => setCreating(true)}
           disabled={templates.length === 0}
-          className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+          className="rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-white disabled:opacity-60"
         >
           {t('camp.new')}
         </button>
@@ -133,7 +134,7 @@ export default function CampaignsPage() {
       ) : campaigns.length === 0 ? (
         <p className="text-text-secondary">{t('camp.empty')}</p>
       ) : (
-        <div className="overflow-x-auto">
+        <Card bodyClassName="overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>
               <tr className="border-b border-border text-left text-sm text-text-secondary">
@@ -164,7 +165,7 @@ export default function CampaignsPage() {
               ))}
             </tbody>
           </table>
-        </div>
+        </Card>
       )}
     </PageScaffold>
   )
