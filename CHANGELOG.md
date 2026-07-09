@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.10.0](https://github.com/securebitsorg/HumanShield.APP/compare/v0.9.0...v0.10.0) (2026-07-09)
+
+
+### Features
+
+* **ui:** Business-/Enterprise-Marker in Anleitungen farbig hervorheben ([cf203d0](https://github.com/securebitsorg/HumanShield.APP/commit/cf203d055f9ea47a191f6f63cd4a15cb455f12dc))
+* **ui:** Feinschliff im Console-Kit-Stil (Primitives + Scaffolding) ([97aa471](https://github.com/securebitsorg/HumanShield.APP/commit/97aa471aca95787087acfbf05a1420873c0aa878))
+* **ui:** restliche Seiten aufs Console-Kit umstellen ([6564226](https://github.com/securebitsorg/HumanShield.APP/commit/656422664b89488de7cf572678caa8df319e011e))
+
 ## [0.9.0](https://github.com/securebitsorg/HumanShield.APP/compare/v0.8.0...v0.9.0) (2026-07-08)
 
 
