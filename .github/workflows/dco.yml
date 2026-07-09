@@ -1,5 +1,7 @@
 # DCO-Check: verlangt, dass jeder Commit eines PRs einen gültigen
 # "Signed-off-by:"-Trailer trägt (Developer Certificate of Origin).
+# Bot-Commits (Dependabot, release-please/github-actions) sind ausgenommen –
+# sie werden automatisch erzeugt und können nicht signiert werden.
 # Self-contained (keine Fremd-Action → keine Supply-Chain-Fläche),
 # read-only Token, kein Secret-Zugriff.
 name: DCO Check
@@ -27,8 +29,15 @@ jobs:
           fail=0
           for sha in $(git rev-list "$BASE_SHA..$HEAD_SHA"); do
             subject="$(git show -s --format='%s' "$sha")"
+            author_email="$(git show -s --format='%ae' "$sha")"
             # Merge-Commits (mehr als ein Parent) überspringen.
             if [ "$(git rev-list --parents -n 1 "$sha" | wc -w)" -gt 2 ]; then
+              continue
+            fi
+            # Bot-Commits (Dependabot, release-please/github-actions) ausnehmen:
+            # ihre Autor-E-Mail enthaelt literal "[bot]".
+            if printf '%s' "$author_email" | grep -qF '[bot]'; then
+              echo "SKIP $sha  (bot: $author_email)"
               continue
             fi
             if git show -s --format='%B' "$sha" | grep -qiE '^Signed-off-by: .+ <[^@]+@[^>]+>'; then
