@@ -21,6 +21,6 @@ pytest==9.1.1
 pytest-asyncio==1.4.0
 black==26.5.1
 ruff==0.15.20
-pyotp==2.9.0
+pyotp==2.10.0
 segno==1.6.6
 maxminddb==2.8.2
