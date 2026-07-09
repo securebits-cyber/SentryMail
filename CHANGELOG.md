@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.10.2](https://github.com/securebitsorg/HumanShield.APP/compare/v0.10.1...v0.10.2) (2026-07-09)
+
+
+### Dokumentation
+
+* **env:** .env.example-Kommentare zweisprachig (DE/EN) ([268343d](https://github.com/securebitsorg/HumanShield.APP/commit/268343d1e3574b10fa16680443de722fd3c9c844))
+* **env:** .env.example-Kommentare zweisprachig (DE/EN) ([#37](https://github.com/securebitsorg/HumanShield.APP/issues/37)) ([96ec17e](https://github.com/securebitsorg/HumanShield.APP/commit/96ec17ea8311db77b86e2a7a8a2efdcd199a5313))
+
 ## [0.10.1](https://github.com/securebitsorg/HumanShield.APP/compare/v0.10.0...v0.10.1) (2026-07-09)
 
 
