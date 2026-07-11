@@ -56,10 +56,10 @@ async def send_campaign(db: Session, campaign: Campaign) -> dict[str, int]:
     # Absendername = Name der Kampagne (z. B. "Microsoft"), niemals der Software-/
     # Profilname. Die Absenderadresse bleibt die des Sending Profiles.
     smtp["from_name"] = campaign.name
-    host = (smtp.get("host") or "").strip()
+    host = (smtp.get("host") or "").strip().lower()
     # Ohne gueltigen Host wuerde _open_smtp mit einer ungefangenen Exception
     # abbrechen (500, nichts versendet). Vorher klar melden.
-    if not host or host.endswith("example.com"):
+    if not host or host == "example.com" or host.endswith(".example.com"):
         raise SmtpNotConfiguredError(
             "Kein gültiges SMTP konfiguriert. Wähle für die Kampagne ein Sending Profile "
             "oder richte das Fallback-SMTP unter Einstellungen → SMTP ein."
