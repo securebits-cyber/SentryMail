@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.14.0](https://github.com/HumanShield-Awareness/HumanShield.APP/compare/v0.13.1...v0.14.0) (2026-07-11)
+
+
+### Features
+
+* **branding:** Light-/Dark-Mode-Logos fuer White-Label und PDF-Report ([#60](https://github.com/HumanShield-Awareness/HumanShield.APP/issues/60)) ([e961a0d](https://github.com/HumanShield-Awareness/HumanShield.APP/commit/e961a0d3713f2e73c65d1a9b1718dbcfa88008f3))
+
 ## [0.13.1](https://github.com/HumanShield-Awareness/HumanShield.APP/compare/v0.13.0...v0.13.1) (2026-07-11)
 
 
