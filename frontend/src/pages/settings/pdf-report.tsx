@@ -51,10 +51,14 @@ export default function PdfReportSettingsPage() {
     setBusy(true)
     setMessage(null)
     try {
-      await api.put('/settings/pdf-branding', form)
+      // Der Server validiert/normalisiert (Typprüfung + Skalierung) und gibt das
+      // bereinigte Logo zurück – Vorschau darauf aktualisieren.
+      const res = await api.put<PdfBranding>('/settings/pdf-branding', form)
+      setForm({ logo_b64: res.data.logo_b64 })
       setMessage(t('pdfReport.saved'))
-    } catch {
-      setMessage(t('form.err.save'))
+    } catch (err) {
+      const detail = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail
+      setMessage(detail || t('form.err.save'))
     } finally {
       setBusy(false)
     }
@@ -98,7 +102,7 @@ export default function PdfReportSettingsPage() {
               ) : (
                 <label className="cursor-pointer rounded-md border border-border px-3 py-1.5 text-sm hover:bg-bg">
                   {t('pdfReport.logoUpload')}
-                  <input type="file" accept="image/png,image/jpeg,image/gif" onChange={onLogo} className="hidden" />
+                  <input type="file" accept="image/png,image/jpeg,image/svg+xml" onChange={onLogo} className="hidden" />
                 </label>
               )}
             </div>
