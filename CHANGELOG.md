@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.12.1](https://github.com/HumanShield-Awareness/HumanShield.APP/compare/v0.12.0...v0.12.1) (2026-07-11)
+
+
+### Bug Fixes
+
+* **tracking:** Reflected XSS in /track/landing beheben ([#52](https://github.com/HumanShield-Awareness/HumanShield.APP/issues/52)) ([4f3810b](https://github.com/HumanShield-Awareness/HumanShield.APP/commit/4f3810bec1a21a80d71dba5568637efc2f1a4030))
+
 ## [0.12.0](https://github.com/HumanShield-Awareness/HumanShield.APP/compare/v0.11.0...v0.12.0) (2026-07-11)
 
 
