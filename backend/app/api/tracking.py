@@ -10,7 +10,7 @@ aufgerufen. Erfasst wird nur, DASS jemand geoeffnet/geklickt/abgeschickt hat
 gespeichert.
 """
 import re
-from urllib.parse import quote, urlparse
+from urllib.parse import quote
 
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
@@ -63,18 +63,11 @@ def track_open(t: str, request: Request, db: Session = Depends(get_db)):
     return Response(content=_TRANSPARENT_PIXEL, media_type="image/gif")
 
 
-@router.get("/click")
-def track_click(t: str, url: str, request: Request, db: Session = Depends(get_db)):
-    event = record_event(db, tracking_token=t, event_type=TrackingEventType.CLICKED, **_client_meta(request))
-
-    # Open-Redirect-Schutz: nur bei bekanntem Tracking-Token und nur auf
-    # http(s)-Ziele weiterleiten (kein javascript:/data: und kein token-loser
-    # Missbrauch als offener Redirector).
-    if event is None or urlparse(url).scheme not in ("http", "https"):
-        return HTMLResponse(content=_DEFAULT_PAGE)
-    return RedirectResponse(url=url)
-
-
+# Hinweis: Es gibt bewusst KEINEN /track/click-Endpunkt mit freiem "url"-Ziel.
+# Klicks werden ueber /track/landing?t=<token> erfasst; das Weiterleitungsziel
+# ergibt sich serverseitig aus der Kampagne (Landing Page bzw. deren
+# redirect_url), niemals aus einem vom Empfaenger gelieferten Query-Parameter
+# (kein offener Redirector).
 @router.get("/landing", response_class=HTMLResponse)
 def track_landing(t: str, request: Request, db: Session = Depends(get_db)):
     """Zaehlt den Klick und liefert die Landing Page der Kampagne aus."""

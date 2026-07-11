@@ -114,19 +114,6 @@ def test_pixel_endpoint_records_open(client, db, campaign_with_recipient):
     assert events[0].event_type == TrackingEventType.OPENED
 
 
-def test_click_endpoint_records_click_and_redirects(client, db, campaign_with_recipient):
-    resp = client.get(
-        "/track/click",
-        params={"t": "tok-known-123", "url": "https://example.com/ziel"},
-        follow_redirects=False,
-    )
-    assert resp.status_code in (302, 307)
-    assert resp.headers["location"] == "https://example.com/ziel"
-    events = db.query(TrackingEvent).all()
-    assert len(events) == 1
-    assert events[0].event_type == TrackingEventType.CLICKED
-
-
 def test_pixel_enriches_event_from_headers(client, db, campaign_with_recipient):
     """Browser/OS/Device werden aus dem User-Agent abgeleitet, Referrer/Sprache
     aus den Headern erfasst."""
@@ -151,46 +138,23 @@ def test_pixel_enriches_event_from_headers(client, db, campaign_with_recipient):
     assert event.accept_language.startswith("de-DE")
 
 
-def test_click_captures_utm_params(client, db, campaign_with_recipient):
+def test_landing_captures_utm_params(client, db, campaign_with_recipient):
+    """UTM-Parameter werden am Klick-Event der Landing Page erfasst."""
     resp = client.get(
-        "/track/click",
+        "/track/landing",
         params={
             "t": "tok-known-123",
-            "url": "https://example.com/ziel",
             "utm_source": "newsletter",
             "utm_medium": "email",
             "utm_campaign": "q3-awareness",
         },
-        follow_redirects=False,
     )
-    assert resp.status_code in (302, 307)
+    assert resp.status_code == 200
     event = db.query(TrackingEvent).one()
+    assert event.event_type == TrackingEventType.CLICKED
     assert event.utm_source == "newsletter"
     assert event.utm_medium == "email"
     assert event.utm_campaign == "q3-awareness"
-
-
-def test_click_rejects_non_http_scheme(client, db, campaign_with_recipient):
-    """Open-Redirect-Schutz: javascript:/data:-Ziele werden nicht weitergeleitet."""
-    resp = client.get(
-        "/track/click",
-        params={"t": "tok-known-123", "url": "javascript:alert(1)"},
-        follow_redirects=False,
-    )
-    assert resp.status_code == 200
-    assert "location" not in resp.headers
-
-
-def test_click_unknown_token_does_not_redirect(client, db):
-    """Ohne gueltiges Token darf der Endpunkt kein offener Redirector sein."""
-    resp = client.get(
-        "/track/click",
-        params={"t": "unknown", "url": "https://evil.example/phish"},
-        follow_redirects=False,
-    )
-    assert resp.status_code == 200
-    assert "location" not in resp.headers
-    assert db.query(TrackingEvent).count() == 0
 
 
 def test_client_beacon_enriches_latest_click(client, db, campaign_with_recipient):

@@ -12,7 +12,7 @@ def test_personalization_variables_substituted():
         html,
         recipient_name="Erika Mustermann",
         recipient_email="erika@example.com",
-        click_link="https://tracker.example.com/track/click?t=abc",
+        click_link="https://tracker.example.com/track/landing?t=abc",
     )
     assert "Erika Mustermann" in out
     assert "erika@example.com" in out
@@ -25,9 +25,9 @@ def test_click_link_injected():
         html,
         recipient_name="X",
         recipient_email="x@example.com",
-        click_link="https://tracker.example.com/track/click?t=xyz",
+        click_link="https://tracker.example.com/track/landing?t=xyz",
     )
-    assert 'href="https://tracker.example.com/track/click?t=xyz"' in out
+    assert 'href="https://tracker.example.com/track/landing?t=xyz"' in out
 
 
 def test_plain_template_without_variables_unchanged():
