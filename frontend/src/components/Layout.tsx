@@ -11,7 +11,7 @@ import { useFeatures } from '../hooks/useFeatures'
 import { useMe } from '../hooks/useMe'
 import { useVersion } from '../hooks/useVersion'
 import { useTheme } from '../hooks/useTheme'
-import { useBranding } from './BrandingProvider'
+import { useBranding, brandingLogoFor } from './BrandingProvider'
 import TierBadge, { type Tier } from './TierBadge'
 import { logout } from '../services/auth'
 import { APP_VERSION } from '../version'
@@ -130,6 +130,7 @@ export default function Layout() {
   const { t } = useI18n()
   const me = useMe()
   const branding = useBranding()
+  const headerLogo = brandingLogoFor(branding, theme)
   const version = useVersion()
   const isAdmin = me?.role === 'admin'
   // Wiki-Ziel konfigurierbar (vendor-neutral); Default: Projekt-Wiki auf GitHub.
@@ -139,9 +140,9 @@ export default function Layout() {
     <div className="flex min-h-screen flex-col bg-bg text-text-primary">
       {/* Kopfzeile mit durchgehender Trennlinie ueber die volle Breite (Netbird-Stil). */}
       <header className="flex shrink-0 items-center gap-2 border-b border-border bg-surface px-4 py-3">
-        {branding.logo_b64 ? (
+        {headerLogo ? (
           <>
-            <img src={branding.logo_b64} alt="" className="h-7 max-w-[140px] object-contain" />
+            <img src={headerLogo} alt="" className="h-7 max-w-[140px] object-contain" />
             <span className="text-lg font-bold tracking-tight">{branding.app_name}</span>
           </>
         ) : (

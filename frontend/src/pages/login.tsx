@@ -6,7 +6,8 @@ import { FormEvent, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import TwoFASetup from '../components/TwoFASetup'
 import LanguageSwitcher from '../components/LanguageSwitcher'
-import { useBranding } from '../components/BrandingProvider'
+import { useBranding, brandingLogoFor } from '../components/BrandingProvider'
+import { useTheme } from '../hooks/useTheme'
 import { useI18n } from '../i18n'
 import { getAuthConfig, getSamlConfig, loginLocal, loginPasskeyOptions, loginPasskeyVerify, loginUrl, loginVerify2fa, samlLoginUrl } from '../services/auth'
 import { setAuthBearer } from '../services/api'
@@ -17,6 +18,8 @@ const primaryBtn = 'rounded-full bg-accent px-5 py-2.5 font-medium text-white di
 export default function LoginPage() {
   const navigate = useNavigate()
   const branding = useBranding()
+  const { theme } = useTheme()
+  const loginLogo = brandingLogoFor(branding, theme)
   const { t } = useI18n()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -103,9 +106,9 @@ export default function LoginPage() {
         <LanguageSwitcher />
       </div>
       <div className="flex flex-col items-center gap-3">
-        {branding.logo_b64 ? (
+        {loginLogo ? (
           <>
-            <img src={branding.logo_b64} alt="" className="h-12 max-w-[240px] object-contain" />
+            <img src={loginLogo} alt="" className="h-12 max-w-[240px] object-contain" />
             <h1 className="text-2xl font-bold">{branding.app_name}</h1>
           </>
         ) : (
