@@ -121,7 +121,7 @@ All settings come from `.env` — see [`.env.example`](.env.example) for every o
 - Two-step login when 2FA is enabled, audit log of sign-ins and system changes
 - Operator secrets only via `.env`, never in code
 
-See the [security wiki](https://github.com/securebitsorg/HumanShield.APP/wiki/Sicherheit). Awareness context for **NIS2 & BSI** is in the [corresponding wiki article](https://github.com/securebitsorg/HumanShield.APP/wiki/NIS2-und-BSI).
+See the [security wiki](https://github.com/HumanShield-Awareness/HumanShield.APP/wiki/Sicherheit). Awareness context for **NIS2 & BSI** is in the [corresponding wiki article](https://github.com/HumanShield-Awareness/HumanShield.APP/wiki/NIS2-und-BSI).
 
 ## 🧩 Editions (open core)
 
@@ -157,12 +157,12 @@ Without a license the platform runs as pure open core — no errors, no lockouts
 
 ## 📖 Documentation
 
-Detailed guides in the **[wiki](https://github.com/securebitsorg/HumanShield.APP/wiki)**:
-[Installation](https://github.com/securebitsorg/HumanShield.APP/wiki/Installation) ·
-[Configuration](https://github.com/securebitsorg/HumanShield.APP/wiki/Konfiguration) ·
-[Features](https://github.com/securebitsorg/HumanShield.APP/wiki/Funktionen) ·
-[Architecture](https://github.com/securebitsorg/HumanShield.APP/wiki/Architektur) ·
-[FAQ](https://github.com/securebitsorg/HumanShield.APP/wiki/FAQ)
+Detailed guides in the **[wiki](https://github.com/HumanShield-Awareness/HumanShield.APP/wiki)**:
+[Installation](https://github.com/HumanShield-Awareness/HumanShield.APP/wiki/Installation) ·
+[Configuration](https://github.com/HumanShield-Awareness/HumanShield.APP/wiki/Konfiguration) ·
+[Features](https://github.com/HumanShield-Awareness/HumanShield.APP/wiki/Funktionen) ·
+[Architecture](https://github.com/HumanShield-Awareness/HumanShield.APP/wiki/Architektur) ·
+[FAQ](https://github.com/HumanShield-Awareness/HumanShield.APP/wiki/FAQ)
 
 ## 🤝 Contributing
 

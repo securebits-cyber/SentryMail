@@ -133,7 +133,7 @@ export default function Layout() {
   const version = useVersion()
   const isAdmin = me?.role === 'admin'
   // Wiki-Ziel konfigurierbar (vendor-neutral); Default: Projekt-Wiki auf GitHub.
-  const wikiUrl = import.meta.env.VITE_WIKI_URL || 'https://github.com/securebitsorg/HumanShield.APP/wiki'
+  const wikiUrl = import.meta.env.VITE_WIKI_URL || 'https://github.com/HumanShield-Awareness/HumanShield.APP/wiki'
 
   return (
     <div className="flex min-h-screen flex-col bg-bg text-text-primary">
