@@ -67,12 +67,18 @@ def track_open(t: str, request: Request, db: Session = Depends(get_db)):
 def track_click(t: str, url: str, request: Request, db: Session = Depends(get_db)):
     event = record_event(db, tracking_token=t, event_type=TrackingEventType.CLICKED, **_client_meta(request))
 
-    # Open-Redirect-Schutz: nur bei bekanntem Tracking-Token und nur auf
-    # http(s)-Ziele weiterleiten (kein javascript:/data: und kein token-loser
-    # Missbrauch als offener Redirector).
-    if event is None or urlparse(url).scheme not in ("http", "https"):
+    # Open-Redirect-Schutz: nur bei bekanntem Tracking-Token und nur auf lokale
+    # relative Pfade weiterleiten. Keine externen Hosts/Schemes akzeptieren.
+    normalized_url = url.replace("\\", "")
+    parsed = urlparse(normalized_url)
+    if (
+        event is None
+        or parsed.netloc
+        or parsed.scheme
+        or not normalized_url.startswith("/")
+    ):
         return HTMLResponse(content=_DEFAULT_PAGE)
-    return RedirectResponse(url=url)
+    return RedirectResponse(url=normalized_url)
 
 
 @router.get("/landing", response_class=HTMLResponse)
