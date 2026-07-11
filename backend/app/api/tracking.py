@@ -10,7 +10,7 @@ aufgerufen. Erfasst wird nur, DASS jemand geoeffnet/geklickt/abgeschickt hat
 gespeichert.
 """
 import re
-from urllib.parse import quote
+from html import escape as html_escape
 
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
@@ -88,11 +88,19 @@ def track_landing(t: str, request: Request, db: Session = Depends(get_db)):
 
     # Alle Formulare auf die Submit-Erfassung umbiegen (mit Tracking-Token) und
     # per Beacon clientseitige Metadaten (Aufloesung/Sprache) nachtragen.
-    t_quoted = quote(t, safe="")
+    #
+    # XSS-Schutz: Das aus der URL stammende Token 't' wird NICHT in den
+    # Script-Text interpoliert, sondern ausschliesslich per html.escape() in ein
+    # HTML-Attribut geschrieben (anerkannter Sanitizer fuer den HTML-Kontext) und
+    # clientseitig per getAttribute gelesen. In den URLs sorgt zusaetzlich
+    # encodeURIComponent fuer die korrekte Kodierung.
+    t_attr = html_escape(t, quote=True)
     inject = (
+        f'<span id="_hs_t" data-t="{t_attr}" hidden></span>'
         "<script>document.addEventListener('DOMContentLoaded',function(){"
+        "var _e=document.getElementById('_hs_t');var _t=_e?_e.getAttribute('data-t')||'':'';"
         "document.querySelectorAll('form').forEach(function(f){"
-        f"f.setAttribute('action','/track/submit?t={t_quoted}');f.setAttribute('method','POST');"
+        "f.setAttribute('action','/track/submit?t='+encodeURIComponent(_t));f.setAttribute('method','POST');"
         "});"
         "try{var fp='';try{"
         # Leichtgewichtiger Fingerprint: Canvas-Rendering + stabile Merkmale,
@@ -105,7 +113,7 @@ def track_landing(t: str, request: Request, db: Session = Depends(get_db)):
         "navigator.platform,c.toDataURL()].join('|');"
         "var h=0;for(var i=0;i<s.length;i++){h=((h<<5)-h+s.charCodeAt(i))|0;}"
         "fp=(h>>>0).toString(16);}catch(e){}"
-        "new Image().src='/track/client?t=" + t_quoted + "'"
+        "new Image().src='/track/client?t='+encodeURIComponent(_t)"
         "+'&res='+encodeURIComponent(screen.width+'x'+screen.height)"
         "+'&lang='+encodeURIComponent(navigator.language||'')"
         "+'&fp='+encodeURIComponent(fp);}catch(e){}"
