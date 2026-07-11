@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.13.0](https://github.com/HumanShield-Awareness/HumanShield.APP/compare/v0.12.1...v0.13.0) (2026-07-11)
+
+
+### Features
+
+* **settings:** PDF-Report-Logo im Dashboard hochladen ([#55](https://github.com/HumanShield-Awareness/HumanShield.APP/issues/55)) ([9352a71](https://github.com/HumanShield-Awareness/HumanShield.APP/commit/9352a71b453f7e64623517974f7b764c08d59b8c))
+
 ## [0.12.1](https://github.com/HumanShield-Awareness/HumanShield.APP/compare/v0.12.0...v0.12.1) (2026-07-11)
 
 
