@@ -39,7 +39,8 @@ jobs:
             # (Dependabot/github-actions: ...+dependabot[bot]@...) ODER nur im Namen
             # (z. B. copilot-swe-agent[bot] mit E-Mail ...+Copilot@users.noreply...).
             # Daher Name UND E-Mail prüfen.
-            if printf '%s\n%s' "$author_name" "$author_email" | grep -qF '[bot]'; then
+            if printf '%s\n%s' "$author_name" "$author_email" | grep -qF '[bot]' \
+              && printf '%s' "$author_email" | grep -qF '@users.noreply.github.com'; then
               echo "SKIP $sha  (bot: $author_name <$author_email>)"
               continue
             fi
