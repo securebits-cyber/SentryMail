@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.12.0](https://github.com/HumanShield-Awareness/HumanShield.APP/compare/v0.11.0...v0.12.0) (2026-07-11)
+
+
+### Features
+
+* **frontend:** "Coming Soon"-Marker fuer Business-/Enterprise-Funktionen ([#48](https://github.com/HumanShield-Awareness/HumanShield.APP/issues/48)) ([8bf22f3](https://github.com/HumanShield-Awareness/HumanShield.APP/commit/8bf22f30b113e69ee487dc71ea0d3ff139a50ad0))
+
+
+### Bug Fixes
+
+* **ci:** DCO-Bot-Ausnahme auch am Autor-Namen prüfen ([#49](https://github.com/HumanShield-Awareness/HumanShield.APP/issues/49)) ([ce82882](https://github.com/HumanShield-Awareness/HumanShield.APP/commit/ce8288220cb325809e5810c086927493efe248f0))
+* **tracking:** Open-Redirect beheben - /track/click-Endpunkt entfernen ([#51](https://github.com/HumanShield-Awareness/HumanShield.APP/issues/51)) ([0e9499d](https://github.com/HumanShield-Awareness/HumanShield.APP/commit/0e9499d6043377d1b72c37f0ace9716a8e6dcf29))
+
 ## [0.11.0](https://github.com/HumanShield-Awareness/HumanShield.APP/compare/v0.10.2...v0.11.0) (2026-07-11)
 
 
