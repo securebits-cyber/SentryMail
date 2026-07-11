@@ -69,10 +69,15 @@ def track_click(t: str, url: str, request: Request, db: Session = Depends(get_db
 
     # Open-Redirect-Schutz: nur bei bekanntem Tracking-Token weiterleiten und
     # nur auf valide http(s)- oder lokale relative Ziele.
-    normalized_url = url.replace("\\", "")
+    normalized_url = url.replace("\\", "").strip()
     parsed = urlparse(normalized_url)
     if event is None:
         return HTMLResponse(content=_DEFAULT_PAGE)
+
+    # Network-Path-Referenzen wie "//evil.example" nie erlauben.
+    if normalized_url.startswith("//"):
+        return HTMLResponse(content=_DEFAULT_PAGE)
+
     if parsed.scheme:
         if parsed.scheme not in {"http", "https"} or not parsed.netloc:
             return HTMLResponse(content=_DEFAULT_PAGE)
