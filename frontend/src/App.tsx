@@ -34,6 +34,7 @@ import SamlSettingsPage from './pages/settings/saml'
 import SiemSettingsPage from './pages/settings/siem'
 import SmtpSettingsPage from './pages/settings/smtp'
 import WebhooksSettingsPage from './pages/settings/webhooks'
+import PdfReportSettingsPage from './pages/settings/pdf-report'
 import WhitelabelSettingsPage from './pages/settings/whitelabel'
 import TemplatesPage from './pages/templates'
 import UsersPage from './pages/users'
@@ -74,6 +75,7 @@ export default function App() {
             <Route path="webhooks" element={<WebhooksSettingsPage />} />
             <Route path="entra" element={<EntraSettingsPage />} />
             <Route path="ai" element={<AiSettingsPage />} />
+            <Route path="pdf-report" element={<PdfReportSettingsPage />} />
             <Route path="whitelabel" element={<WhitelabelSettingsPage />} />
             <Route path="siem" element={<SiemSettingsPage />} />
             <Route path="saml" element={<SamlSettingsPage />} />
