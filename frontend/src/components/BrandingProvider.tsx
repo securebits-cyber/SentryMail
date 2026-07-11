@@ -10,6 +10,7 @@ export interface Branding {
   accent_color: string
   accent_color_2: string
   logo_b64: string | null
+  logo_b64_dark: string | null
 }
 
 const DEFAULT: Branding = {
@@ -17,6 +18,15 @@ const DEFAULT: Branding = {
   accent_color: '#ff570a',
   accent_color_2: '#ff8a3d',
   logo_b64: null,
+  logo_b64_dark: null,
+}
+
+/** Wählt das passende Logo für das aktive Theme (mit Fallback auf die andere
+ *  Variante, falls nur eine hochgeladen wurde). */
+export function brandingLogoFor(branding: Branding, theme: 'light' | 'dark'): string | null {
+  return theme === 'dark'
+    ? branding.logo_b64_dark || branding.logo_b64
+    : branding.logo_b64 || branding.logo_b64_dark
 }
 
 type BrandingValue = Branding & { refresh: () => void }
