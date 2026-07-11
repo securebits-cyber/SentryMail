@@ -5,6 +5,8 @@
 import { Check, Lock, type LucideIcon } from 'lucide-react'
 import PageScaffold from './PageScaffold'
 import TierBadge from './TierBadge'
+import ComingSoonBadge from './ComingSoonBadge'
+import { COMING_SOON } from '../comingSoon'
 import { useFeatures } from '../hooks/useFeatures'
 import { useI18n } from '../i18n'
 
@@ -53,14 +55,23 @@ export default function AddonPage({ tier, title, icon: Icon, tagline, intro, gro
               {t(style.labelKey)}
             </span>
           ) : (
-            <TierBadge tier={tier} locked={!active} className="px-2 py-0.5 text-xs" />
+            <>
+              <TierBadge tier={tier} locked={!active} className="px-2 py-0.5 text-xs" />
+              {!active && <ComingSoonBadge className="px-2 py-0.5 text-xs" />}
+            </>
           )}
           <span
             className={`ml-auto rounded-full px-2 py-0.5 text-xs font-semibold ${
               active ? `${style.badge} text-white` : 'border border-border text-text-secondary'
             }`}
           >
-            {tier === 'opencore' ? t('addon.included') : active ? t('addon.active') : t('addon.locked')}
+            {tier === 'opencore'
+              ? t('addon.included')
+              : active
+                ? t('addon.active')
+                : COMING_SOON
+                  ? t('comingSoon')
+                  : t('addon.locked')}
           </span>
         </div>
 
@@ -92,7 +103,7 @@ export default function AddonPage({ tier, title, icon: Icon, tagline, intro, gro
 
         {!active && tier !== 'opencore' && (
           <div className="mt-6 rounded-md border border-dashed border-border p-4 text-sm text-text-secondary">
-            {t('addon.notActivated')}
+            {COMING_SOON ? t('comingSoon.body') : t('addon.notActivated')}
           </div>
         )}
       </div>

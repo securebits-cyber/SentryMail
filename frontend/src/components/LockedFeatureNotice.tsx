@@ -5,11 +5,16 @@
 import { Lock } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import TierBadge from './TierBadge'
+import ComingSoonBadge from './ComingSoonBadge'
+import { COMING_SOON } from '../comingSoon'
 import { useI18n } from '../i18n'
 
 /** Sperrhinweis für eine nicht lizenzierte Funktion (z. B. LDAP = Business).
  *  Verweist auf die Lizenz-Seite. Die eigentliche Durchsetzung passiert
- *  serverseitig (403); dies ist die zugehörige UI-Hülle. */
+ *  serverseitig (403); dies ist die zugehörige UI-Hülle.
+ *
+ *  Vor-Launch (``COMING_SOON``): Marker „Coming Soon" statt Lizenz-Aufforderung,
+ *  da die Add-ons bis zum Abschluss der Firmengründung nicht angeboten werden. */
 export default function LockedFeatureNotice({ tier }: { tier: 'business' | 'enterprise' }) {
   const { t } = useI18n()
   return (
@@ -19,14 +24,17 @@ export default function LockedFeatureNotice({ tier }: { tier: 'business' | 'ente
           <Lock size={18} />
         </span>
         <TierBadge tier={tier} />
+        <ComingSoonBadge />
       </div>
-      <p className="mt-4 text-sm text-text-secondary">{t('locked.body')}</p>
-      <Link
-        to="/settings/license"
-        className="mt-4 inline-block rounded-md bg-accent px-4 py-2 text-sm font-medium text-white"
-      >
-        {t('locked.toLicense')}
-      </Link>
+      <p className="mt-4 text-sm text-text-secondary">{COMING_SOON ? t('comingSoon.body') : t('locked.body')}</p>
+      {!COMING_SOON && (
+        <Link
+          to="/settings/license"
+          className="mt-4 inline-block rounded-md bg-accent px-4 py-2 text-sm font-medium text-white"
+        >
+          {t('locked.toLicense')}
+        </Link>
+      )}
     </div>
   )
 }
