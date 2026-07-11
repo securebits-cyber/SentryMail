@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.13.1](https://github.com/HumanShield-Awareness/HumanShield.APP/compare/v0.13.0...v0.13.1) (2026-07-11)
+
+
+### Bug Fixes
+
+* **links:** Wiki-Links auf HumanShield-Awareness-Org umstellen ([#59](https://github.com/HumanShield-Awareness/HumanShield.APP/issues/59)) ([758750b](https://github.com/HumanShield-Awareness/HumanShield.APP/commit/758750bc13dfe3ba457eb0050f440526526206b0))
+* **settings:** PDF-Logo-Upload auf PNG/JPG/SVG beschraenken + Serverfehler anzeigen ([#57](https://github.com/HumanShield-Awareness/HumanShield.APP/issues/57)) ([0068917](https://github.com/HumanShield-Awareness/HumanShield.APP/commit/006891712821fd2c9a0dbdb7200a998a7de86f9c))
+
 ## [0.13.0](https://github.com/HumanShield-Awareness/HumanShield.APP/compare/v0.12.1...v0.13.0) (2026-07-11)
 
 
