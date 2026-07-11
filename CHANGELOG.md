@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.11.0](https://github.com/HumanShield-Awareness/HumanShield.APP/compare/v0.10.2...v0.11.0) (2026-07-11)
+
+
+### Features
+
+* **install:** interaktive Installationsroutine (install.sh) ([8fe6026](https://github.com/HumanShield-Awareness/HumanShield.APP/commit/8fe60260bd927a85e472afa6597125481d5a01d7))
+* **install:** interaktive Installationsroutine (install.sh) ([#41](https://github.com/HumanShield-Awareness/HumanShield.APP/issues/41)) ([35ee914](https://github.com/HumanShield-Awareness/HumanShield.APP/commit/35ee914cd9af1e718dc347f8e798d36a11ebe8db))
+
 ## [0.10.2](https://github.com/securebitsorg/HumanShield.APP/compare/v0.10.1...v0.10.2) (2026-07-09)
 
 
