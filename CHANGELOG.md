@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.16.0](https://github.com/HumanShield-Awareness/HumanShield.APP/compare/v0.15.0...v0.16.0) (2026-07-12)
+
+
+### Features
+
+* **ops:** update.sh fuer sichere Stack-Aktualisierung ([#65](https://github.com/HumanShield-Awareness/HumanShield.APP/issues/65)) ([7f481db](https://github.com/HumanShield-Awareness/HumanShield.APP/commit/7f481dbfd84457304dde066fb14a5e82ba4fc874))
+
 ## [0.15.0](https://github.com/HumanShield-Awareness/HumanShield.APP/compare/v0.14.0...v0.15.0) (2026-07-12)
 
 
