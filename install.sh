@@ -175,6 +175,34 @@ else
 fi
 printf '\n'
 
+# --- 1b. Neuestes Release ziehen / pull latest release ----------------------
+# Holt vor der Konfiguration den neuesten veroeffentlichten Release-Tag (v*).
+# Nur in einer Git-Arbeitskopie; ZIP-Installationen ueberspringen das. Da sich
+# install.sh dabei selbst aktualisieren kann, wird das Skript nach dem Wechsel
+# einmal neu gestartet (Guard HS_SELF_UPDATED verhindert eine Schleife).
+if [ "${HS_SELF_UPDATED:-0}" != "1" ] \
+   && command -v git >/dev/null 2>&1 \
+   && git -C "$SCRIPT_DIR" rev-parse --git-dir >/dev/null 2>&1; then
+  printf '%s%s%s\n' "$BOLD" "$(msg 'Neuestes Release' 'Latest release')" "$RESET"
+  git -C "$SCRIPT_DIR" fetch --tags --quiet 2>/dev/null || true
+  latest="$(git -C "$SCRIPT_DIR" tag -l 'v*' --sort=-v:refname | head -n1)"
+  current="$(git -C "$SCRIPT_DIR" describe --tags --always 2>/dev/null || echo '?')"
+  if [ -z "$latest" ]; then
+    printf '   %s!%s %s\n' "$YELLOW" "$RESET" "$(msg 'Kein Release-Tag gefunden - aktuellen Stand verwenden.' 'No release tag found - using current state.')"
+  elif [ "$current" = "$latest" ]; then
+    printf '   %s✓%s %s (%s)\n' "$GREEN" "$RESET" "$(msg 'Bereits auf dem neuesten Release' 'Already on the latest release')" "$latest"
+  elif yesno "Auf neuestes Release $latest wechseln?" "Switch to the latest release $latest?" y; then
+    if git -C "$SCRIPT_DIR" checkout --quiet "$latest" 2>/dev/null; then
+      printf '   %s✓%s %s -> %s\n' "$GREEN" "$RESET" "$(msg 'gewechselt auf' 'switched to')" "$latest"
+      printf '   %s\n' "$(msg 'Starte Installationsroutine des Releases neu ...' 'Restarting the release install routine ...')"
+      HS_SELF_UPDATED=1 exec bash "$SCRIPT_DIR/install.sh" "$@"
+    else
+      printf '   %s!%s %s\n' "$YELLOW" "$RESET" "$(msg 'Wechsel nicht moeglich (lokale Aenderungen?) - aktuellen Stand verwenden.' 'Switch failed (local changes?) - using current state.')"
+    fi
+  fi
+  printf '\n'
+fi
+
 # --- 2. .env vorbereiten / prepare .env -------------------------------------
 [ -f "$EXAMPLE_FILE" ] || die "$(msg '.env.example fehlt' '.env.example missing'): $EXAMPLE_FILE"
 if [ -f "$ENV_FILE" ]; then
