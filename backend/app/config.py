@@ -83,8 +83,8 @@ class Settings(BaseSettings):
     # Update-Check (optional, vendor-neutral). Prueft periodisch gegen eine URL
     # (Default: GitHub-Releases-API des Projekts), ob ein neueres Release vorliegt.
     # URL leeren = Update-Check komplett deaktiviert (z. B. Air-Gapped/White-Label).
-    UPDATE_CHECK_URL: str = "https://api.github.com/repos/securebitsorg/HumanShield.APP/releases/latest"
-    UPDATE_CHANGELOG_URL: str = "https://github.com/securebitsorg/HumanShield.APP/releases"
+    UPDATE_CHECK_URL: str = "https://api.github.com/repos/HumanShield-Awareness/HumanShield.APP/releases/latest"
+    UPDATE_CHANGELOG_URL: str = "https://github.com/HumanShield-Awareness/HumanShield.APP/releases"
     UPDATE_CHECK_INTERVAL_HOURS: int = 6
     UPDATE_CHECK_TIMEOUT: int = 4  # Sekunden fuer den externen Request
 

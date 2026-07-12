@@ -79,7 +79,7 @@ Self-hosted as a Docker Compose stack (PostgreSQL, Redis, FastAPI backend, front
 **Guided (recommended):** The interactive install routine walks you through all important settings, generates secrets and writes a valid `.env`:
 
 ```bash
-git clone https://github.com/securebitsorg/HumanShield.APP.git
+git clone https://github.com/HumanShield-Awareness/HumanShield.APP.git
 cd HumanShield.APP
 ./install.sh
 ```
@@ -87,7 +87,7 @@ cd HumanShield.APP
 **Manual:**
 
 ```bash
-git clone https://github.com/securebitsorg/HumanShield.APP.git
+git clone https://github.com/HumanShield-Awareness/HumanShield.APP.git
 cd HumanShield.APP
 cp .env.example .env
 # fill in .env: SECRET_KEY, database, SMTP, INITIAL_ADMIN_*
