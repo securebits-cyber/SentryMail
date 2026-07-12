@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.15.0](https://github.com/HumanShield-Awareness/HumanShield.APP/compare/v0.14.0...v0.15.0) (2026-07-12)
+
+
+### Features
+
+* **settings:** Firmendaten fuer PDF-Reports in den Einstellungen ([#63](https://github.com/HumanShield-Awareness/HumanShield.APP/issues/63)) ([b475f56](https://github.com/HumanShield-Awareness/HumanShield.APP/commit/b475f563c5fb07bdf804d85f6f18f2e2c9c0a269))
+
 ## [0.14.0](https://github.com/HumanShield-Awareness/HumanShield.APP/compare/v0.13.1...v0.14.0) (2026-07-11)
 
 
