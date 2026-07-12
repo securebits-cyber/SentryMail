@@ -4,7 +4,7 @@
 blank_issues_enabled: false
 contact_links:
   - name: Questions & General Help
-    url: https://github.com/securebitsorg/HumanShield.APP/discussions
+    url: https://github.com/HumanShield-Awareness/HumanShield.APP/discussions
     about: For general questions, use Discussions instead
   - name: Security Issues
     url: mailto:security@humanshield-awareness.de
@@ -13,5 +13,5 @@ contact_links:
     url: https://humanshield-awareness.de/support
     about: Enterprise support and consulting
   - name: BSI Compliance Question
-    url: https://github.com/securebitsorg/HumanShield.APP/discussions/categories/compliance
+    url: https://github.com/HumanShield-Awareness/HumanShield.APP/discussions/categories/compliance
     about: Compliance and BSI/NIS2 questions
