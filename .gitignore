@@ -35,6 +35,9 @@ yarn-error.log*
 # === Docker ===
 docker-compose.override.yml
 
+# === Backups (DB-Dumps aus update.sh) ===
+backups/
+
 # === IDE / Editor ===
 .vscode/
 .idea/
