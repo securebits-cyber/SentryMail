@@ -21,6 +21,7 @@ interface PdfBranding {
   company_city: string | null
   company_contact: string | null
   company_department: string | null
+  company_phone: string | null
 }
 
 const fieldClass = 'rounded-md border border-border bg-surface px-3 py-2 text-text-primary'
@@ -36,6 +37,7 @@ function toForm(data: PdfBranding): PdfBranding {
     company_city: data.company_city,
     company_contact: data.company_contact,
     company_department: data.company_department,
+    company_phone: data.company_phone,
   }
 }
 
@@ -179,6 +181,15 @@ export default function PdfReportSettingsPage() {
                 />
               </label>
             </div>
+            <label className={labelClass}>
+              {t('pdfReport.companyPhone')}
+              <input
+                value={form.company_phone ?? ''}
+                onChange={(e) => setField('company_phone', e.target.value)}
+                maxLength={200}
+                className={fieldClass}
+              />
+            </label>
           </div>
         </Card>
 
