@@ -359,6 +359,7 @@ class OidcConfigUpdate(BaseModel):
     client_id: str | None = None
     client_secret: str | None = None  # write-only, verschluesselt gespeichert
     redirect_uri: str | None = None
+    trust_email: bool | None = None  # E-Mails des IdP als verifiziert behandeln
 
 
 class OidcConfigOut(BaseModel):
@@ -369,6 +370,7 @@ class OidcConfigOut(BaseModel):
     client_id: str
     has_client_secret: bool
     redirect_uri: str
+    trust_email: bool
 
 
 # --- Groups (Empfaengerlisten) ---

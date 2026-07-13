@@ -70,6 +70,23 @@ def test_unknown_subject_and_email_creates_user(db):
     assert result.email == "frisch@example.com"
 
 
+def test_trust_email_setting_roundtrip(client, make_user, auth_headers):
+    """trust_email laesst sich ueber die Settings-API setzen und lesen."""
+    admin = make_user(email="root@example.com")
+    headers = auth_headers(admin)
+
+    resp = client.get("/settings/oidc", headers=headers)
+    assert resp.status_code == 200
+    assert resp.json()["trust_email"] is False
+
+    resp = client.put("/settings/oidc", json={"trust_email": True}, headers=headers)
+    assert resp.status_code == 200
+    assert resp.json()["trust_email"] is True
+
+    resp = client.get("/settings/oidc", headers=headers)
+    assert resp.json()["trust_email"] is True
+
+
 def test_missing_email_keeps_existing_value(db, make_user):
     user = make_user(email="bleibt@example.com")
     user.oidc_subject = "sub-2"

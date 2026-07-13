@@ -237,6 +237,7 @@ export interface OidcConfig {
   client_id: string
   has_client_secret: boolean
   redirect_uri: string
+  trust_email: boolean
 }
 
 export interface LdapConfig {

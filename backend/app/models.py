@@ -322,6 +322,9 @@ class OidcConfig(Base):
     client_id: Mapped[str] = mapped_column(String(255), default="", nullable=False)
     client_secret_encrypted: Mapped[str | None] = mapped_column(Text, nullable=True)
     redirect_uri: Mapped[str] = mapped_column(String(1024), default="", nullable=False)
+    # E-Mails dieses IdP als verifiziert behandeln (bewusste Betreiber-Entscheidung
+    # fuer IdPs, die email_verified nicht oder als false senden).
+    trust_email: Mapped[bool] = mapped_column(default=False, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     @property
