@@ -69,6 +69,45 @@ async def login(request: Request, db: Session = Depends(get_db)):
     return await oauth.oidc.authorize_redirect(request, config.redirect_uri)
 
 
+def _get_or_create_user(
+    db: Session, subject: str, email: str | None, full_name: str, email_verified: bool
+) -> User:
+    """User zum OIDC-Subject finden, per E-Mail verknuepfen oder neu anlegen.
+
+    Der E-Mail-Fallback verknuepft bestehende Konten (lokal angelegt) mit dem
+    SSO-Login - sonst kollidiert das Neuanlegen mit dem Unique-Index auf email
+    (500er im Callback). Verknuepft wird nur, wenn der IdP die E-Mail als
+    verifiziert meldet und das Konto noch nicht foederiert ist; eine beim IdP
+    frei registrierbare, unverifizierte E-Mail darf kein bestehendes Konto
+    uebernehmen.
+    """
+    user = db.query(User).filter(User.oidc_subject == subject).first()
+    if user is not None:
+        user.email = email or user.email
+        user.full_name = full_name
+    else:
+        existing = db.query(User).filter(User.email == email).first() if email else None
+        if existing is not None:
+            if not email_verified or existing.oidc_subject is not None:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail=(
+                        "Es existiert bereits ein Konto mit dieser E-Mail-Adresse. "
+                        "Automatische Verknüpfung nicht möglich (E-Mail nicht "
+                        "verifiziert oder Konto bereits mit SSO verknüpft)."
+                    ),
+                )
+            existing.oidc_subject = subject
+            existing.full_name = full_name
+            user = existing
+        else:
+            user = User(oidc_subject=subject, email=email, full_name=full_name)
+            db.add(user)
+    db.commit()
+    db.refresh(user)
+    return user
+
+
 @router.get("/callback")
 async def callback(request: Request, db: Session = Depends(get_db)):
     """Tauscht den Callback-Code gegen Tokens, legt/aktualisiert den User an und
@@ -85,15 +124,14 @@ async def callback(request: Request, db: Session = Depends(get_db)):
     email = userinfo.get("email")
     full_name = userinfo.get("name", email or subject)
 
-    user = db.query(User).filter(User.oidc_subject == subject).first()
-    if user is None:
-        user = User(oidc_subject=subject, email=email, full_name=full_name)
-        db.add(user)
-    else:
-        user.email = email
-        user.full_name = full_name
-    db.commit()
-    db.refresh(user)
+    email_verified = userinfo.get("email_verified") is True
+
+    user = _get_or_create_user(db, subject, email, full_name, email_verified)
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Konto ist deaktiviert.",
+        )
 
     # Session als httpOnly-Cookie setzen und ohne Token in der URL zur App
     # zurückleiten (kein Token in Fragment/Logs, nicht per JS lesbar).
