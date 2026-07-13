@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.18.0](https://github.com/HumanShield-Awareness/HumanShield.APP/compare/v0.17.2...v0.18.0) (2026-07-13)
+
+
+### Features
+
+* **auth:** OIDC-Option „E-Mails dieses IdP als verifiziert behandeln“ ([#75](https://github.com/HumanShield-Awareness/HumanShield.APP/issues/75)) ([922eb72](https://github.com/HumanShield-Awareness/HumanShield.APP/commit/922eb7200712fe04089d7060c119f1e251cab0c7))
+
 ## [0.17.2](https://github.com/HumanShield-Awareness/HumanShield.APP/compare/v0.17.1...v0.17.2) (2026-07-13)
 
 
