@@ -615,6 +615,9 @@ export const translations: Record<Lang, Record<string, string>> = {
     'oidc.clientId': 'Client-ID',
     'oidc.clientSecret': 'Client-Secret',
     'oidc.redirectUri': 'Redirect-URI',
+    'oidc.trustEmail': 'E-Mails dieses IdP als verifiziert behandeln',
+    'oidc.trustEmailDesc':
+      'Verknüpft bestehende Konten auch dann per E-Mail mit dem SSO-Login, wenn der IdP kein email_verified sendet. Nur aktivieren, wenn alle Konten des IdP vertrauenswürdig gepflegt werden.',
     'oidc.saved': 'OIDC-Einstellungen gespeichert.',
     'oidc.err.save': 'OIDC-Speichern fehlgeschlagen (Admin-Rechte nötig?).',
 
@@ -1462,6 +1465,9 @@ export const translations: Record<Lang, Record<string, string>> = {
     'oidc.clientId': 'Client ID',
     'oidc.clientSecret': 'Client secret',
     'oidc.redirectUri': 'Redirect URI',
+    'oidc.trustEmail': 'Treat emails from this IdP as verified',
+    'oidc.trustEmailDesc':
+      'Links existing accounts to the SSO login by email even when the IdP does not send email_verified. Enable only if all accounts at the IdP are maintained trustworthily.',
     'oidc.saved': 'OIDC settings saved.',
     'oidc.err.save': 'Could not save OIDC (admin rights required?).',
 

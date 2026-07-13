@@ -124,7 +124,9 @@ async def callback(request: Request, db: Session = Depends(get_db)):
     email = userinfo.get("email")
     full_name = userinfo.get("name", email or subject)
 
-    email_verified = userinfo.get("email_verified") is True
+    # Betreiber koennen per Option festlegen, dass E-Mails dieses IdP als
+    # verifiziert gelten (fuer IdPs, die email_verified nicht/als false senden).
+    email_verified = userinfo.get("email_verified") is True or config.trust_email
 
     user = _get_or_create_user(db, subject, email, full_name, email_verified)
     if not user.is_active:

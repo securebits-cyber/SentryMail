@@ -117,6 +117,14 @@ export default function OidcSettingsPage() {
           />
         </label>
 
+        <div className="flex items-center justify-between gap-4 rounded-lg border border-border bg-sunken p-4">
+          <div>
+            <div className="text-sm font-medium">{t('oidc.trustEmail')}</div>
+            <div className="text-sm text-text-secondary">{t('oidc.trustEmailDesc')}</div>
+          </div>
+          <Toggle checked={oidc.trust_email} onChange={(v) => set('trust_email', v)} aria-label={t('oidc.trustEmail')} />
+        </div>
+
         <div>
           <button
             type="submit"
