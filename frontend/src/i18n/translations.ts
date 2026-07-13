@@ -762,7 +762,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     'locked.body': 'Diese Funktion ist nicht lizenziert und daher deaktiviert.',
     'locked.toLicense': 'Zur Lizenz-Seite',
     comingSoon: 'Coming Soon',
-    'comingSoon.body': 'Diese Funktion wird angeboten, sobald die Firmengründung abgeschlossen ist.',
+    'comingSoon.body': 'Diese Funktion ist bald verfügbar…',
     'addon.ent.includesBusiness': 'Enthält alle Business-Funktionen — plus:',
     'addon.included': 'Enthalten',
 
@@ -1607,7 +1607,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     'locked.body': 'This feature is not licensed and therefore disabled.',
     'locked.toLicense': 'Go to license page',
     comingSoon: 'Coming Soon',
-    'comingSoon.body': 'This feature will be available once the company formation is complete.',
+    'comingSoon.body': 'This feature will be available soon…',
     'addon.ent.includesBusiness': 'Includes all Business features — plus:',
     'addon.included': 'Included',
 
