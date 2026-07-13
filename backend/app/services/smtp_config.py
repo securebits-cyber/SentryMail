@@ -13,13 +13,13 @@ from sqlalchemy.orm import Session
 from app.config import get_settings
 from app.models import SmtpConfig
 from app.utils.crypto import encrypt
+from app.utils.singleton import get_or_create_singleton
 
 
 def get_or_create_smtp_config(db: Session) -> SmtpConfig:
-    config = db.query(SmtpConfig).first()
-    if config is None:
+    def _seed() -> SmtpConfig:
         env = get_settings()
-        config = SmtpConfig(
+        return SmtpConfig(
             host=env.SMTP_HOST,
             port=env.SMTP_PORT,
             username=env.SMTP_USERNAME,
@@ -29,7 +29,5 @@ def get_or_create_smtp_config(db: Session) -> SmtpConfig:
             tls_mode=env.SMTP_TLS_MODE,
             verify_ssl=env.SMTP_VERIFY_SSL,
         )
-        db.add(config)
-        db.commit()
-        db.refresh(config)
-    return config
+
+    return get_or_create_singleton(db, SmtpConfig, _seed)

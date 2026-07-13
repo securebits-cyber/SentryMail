@@ -27,6 +27,7 @@ from app.config import get_settings
 from app.database import get_db
 from app.models import LicenseState, User
 from app.utils.crypto import decrypt, encrypt
+from app.utils.singleton import get_or_create_singleton
 from app.version import APP_VERSION
 
 logger = logging.getLogger(__name__)
@@ -46,16 +47,15 @@ KNOWN_FEATURES = ["business", "enterprise"]
 
 def get_or_create_license_state(db: Session) -> LicenseState:
     """Singleton-Zeile; erzeugt sie bei Bedarf und seedet den Key aus .env."""
-    state = db.query(LicenseState).first()
-    if state is None:
+
+    def _seed() -> LicenseState:
         state = LicenseState(features=[], last_status="no_license")
         env_key = get_settings().LICENSE_KEY
         if env_key:
             state.license_key_encrypted = encrypt(env_key)
-        db.add(state)
-        db.commit()
-        db.refresh(state)
-    return state
+        return state
+
+    return get_or_create_singleton(db, LicenseState, _seed)
 
 
 def _current_key(state: LicenseState) -> str | None:

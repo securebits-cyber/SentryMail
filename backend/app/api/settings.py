@@ -26,18 +26,13 @@ from app.schemas import (
 from app.services.mail import test_smtp_params
 from app.services.smtp_config import get_or_create_smtp_config
 from app.utils.crypto import decrypt, encrypt
+from app.utils.singleton import get_or_create_singleton
 
 router = APIRouter(prefix="/settings", tags=["settings"])
 
 
 def get_or_create_oidc_config(db: Session) -> OidcConfig:
-    config = db.query(OidcConfig).first()
-    if config is None:
-        config = OidcConfig()
-        db.add(config)
-        db.commit()
-        db.refresh(config)
-    return config
+    return get_or_create_singleton(db, OidcConfig)
 
 
 @router.get("/smtp", response_model=SmtpConfigOut)
@@ -108,13 +103,7 @@ def update_oidc(
 
 
 def get_or_create_security_config(db: Session) -> SecurityConfig:
-    config = db.query(SecurityConfig).first()
-    if config is None:
-        config = SecurityConfig()
-        db.add(config)
-        db.commit()
-        db.refresh(config)
-    return config
+    return get_or_create_singleton(db, SecurityConfig)
 
 
 @router.get("/security", response_model=SecurityConfigOut)
