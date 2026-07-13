@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.17.1](https://github.com/HumanShield-Awareness/HumanShield.APP/compare/v0.17.0...v0.17.1) (2026-07-13)
+
+
+### Bug Fixes
+
+* **ui:** Coming-Soon-Text ohne Firmengründungs-Verweis ([#71](https://github.com/HumanShield-Awareness/HumanShield.APP/issues/71)) ([fe42000](https://github.com/HumanShield-Awareness/HumanShield.APP/commit/fe4200092893a2db3120c51772e3512ccaed431c))
+
 ## [0.17.0](https://github.com/HumanShield-Awareness/HumanShield.APP/compare/v0.16.1...v0.17.0) (2026-07-12)
 
 
