@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.17.2](https://github.com/HumanShield-Awareness/HumanShield.APP/compare/v0.17.1...v0.17.2) (2026-07-13)
+
+
+### Bug Fixes
+
+* **auth:** OIDC-Callback verknüpft bestehende Konten per E-Mail statt 500 ([#73](https://github.com/HumanShield-Awareness/HumanShield.APP/issues/73)) ([35e64ca](https://github.com/HumanShield-Awareness/HumanShield.APP/commit/35e64cae1228ec6ec836ffdbe2a8c999c067abcc))
+
 ## [0.17.1](https://github.com/HumanShield-Awareness/HumanShield.APP/compare/v0.17.0...v0.17.1) (2026-07-13)
 
 
