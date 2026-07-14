@@ -36,6 +36,8 @@ export interface Campaign {
   id: string
   name: string
   template_id: string
+  sending_profile_id: string | null
+  landing_page_id: string | null
   status: CampaignStatus
   scheduled_at: string | null
   created_by_id: string
