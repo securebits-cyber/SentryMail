@@ -90,11 +90,23 @@ async def send_campaign(db: Session, campaign: Campaign) -> dict[str, int]:
         pixel_url_base=base,
     )
 
+    # Nur tatsaechlich erfolgreich zugestellte Empfaenger als versendet markieren.
+    # Fehlgeschlagene bleiben mit sent_at=None und werden beim naechsten Senden
+    # erneut beruecksichtigt (Filter oben in Zeile 68).
+    sent_tokens = set(results.pop("sent_tokens", []))
     now = datetime.now(timezone.utc)
+    sent_count = 0
     for recipient in recipients:
+        if recipient.tracking_token not in sent_tokens:
+            continue
         recipient.sent_at = now
         record_event(db, recipient.tracking_token, TrackingEventType.SENT)
+        sent_count += 1
 
-    campaign.status = CampaignStatus.COMPLETED
+    # Kampagne gilt als abgeschlossen, wenn alle Empfaenger erfolgreich versendet
+    # wurden; bei Teilfehlern bleibt sie sendbar (RUNNING) fuer einen erneuten Lauf.
+    campaign.status = (
+        CampaignStatus.COMPLETED if sent_count == len(recipients) else CampaignStatus.RUNNING
+    )
     db.commit()
     return results

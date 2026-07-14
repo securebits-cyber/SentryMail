@@ -104,8 +104,16 @@ async def csrf_protect(request, call_next):
     mit Authorization-Header (API-/Bearer-Clients) sind nicht CSRF-anfällig und
     werden übersprungen; ebenso öffentliche Endpunkte ohne Session-Cookie (Login,
     Tracking/Capture, IdP-Callbacks).
+
+    Der öffentliche Tracking-/Capture-Pfad `/track/*` wird immer übersprungen:
+    Die Landing Page wird als reines serverseitiges HTML-Formular ausgeliefert
+    (kein React/Axios, also kein CSRF-Header) und ist bewusst ohne Auth erreichbar.
+    Ohne diese Pfad-Ausnahme schlägt der Formular-POST fehl, sobald der Aufrufer
+    im selben Browser zufällig ein Session-Cookie hat (z. B. der eingeloggte
+    Admin/Tester) — same-origin würde das Cookie mitgesendet und die Prüfung
+    fälschlich greifen.
     """
-    if request.method in ("POST", "PUT", "PATCH", "DELETE"):
+    if request.method in ("POST", "PUT", "PATCH", "DELETE") and not request.url.path.startswith("/track/"):
         has_session = bool(request.cookies.get(SESSION_COOKIE))
         uses_bearer = bool(request.headers.get("authorization"))
         if has_session and not uses_bearer:

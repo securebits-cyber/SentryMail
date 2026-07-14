@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
+import { KeyRound, ShieldCheck } from 'lucide-react'
 import { FormEvent, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import TwoFASetup from '../components/TwoFASetup'
@@ -14,6 +15,10 @@ import { setAuthBearer } from '../services/api'
 
 const fieldClass = 'rounded-md border border-border bg-surface px-3 py-2 text-text-primary'
 const primaryBtn = 'rounded-full bg-accent px-5 py-2.5 font-medium text-white disabled:opacity-60'
+// Sekundaerer Stil fuer den lokalen Login, wenn SSO aktiv ist (dann tritt SSO hervor).
+const secondaryBtn = 'rounded-full border border-border px-5 py-2.5 font-medium text-text-primary hover:bg-bg disabled:opacity-60'
+// Vollbreiter SSO/SAML-Button.
+const ssoBtn = 'flex w-full items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition-colors'
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -122,6 +127,30 @@ export default function LoginPage() {
 
       {stage === 'password' && (
         <div className="elevated flex w-80 flex-col items-stretch gap-4 rounded-2xl border border-border bg-surface p-8">
+          {/* SSO/SAML prominent oben: als bevorzugte Anmeldung fuer Organisationen
+              hervorgehoben. Der lokale Login bleibt darunter voll verfuegbar. */}
+          {(oidcEnabled || samlEnabled) && (
+            <div className="flex flex-col gap-2">
+              {oidcEnabled && (
+                <a href={loginUrl()} className={`${ssoBtn} bg-accent text-white`}>
+                  <ShieldCheck size={18} className="shrink-0" />
+                  {t('login.sso')}
+                </a>
+              )}
+              {samlEnabled && (
+                <a href={samlLoginUrl()} className={`${ssoBtn} border border-accent text-accent-text hover:bg-accent/10`}>
+                  <KeyRound size={18} className="shrink-0" />
+                  {t('login.ssoSaml')}
+                </a>
+              )}
+              <div className="mt-1 flex items-center gap-3 text-xs uppercase tracking-wider text-text-secondary">
+                <span className="h-px flex-1 bg-border" />
+                {t('login.orEmail')}
+                <span className="h-px flex-1 bg-border" />
+              </div>
+            </div>
+          )}
+
           <form onSubmit={handlePassword} className="flex w-full flex-col gap-3">
             <label className="flex flex-col gap-1 text-sm">
               {t('login.email')}
@@ -132,25 +161,18 @@ export default function LoginPage() {
               <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className={fieldClass} />
             </label>
             {error && <p className="m-0 text-sm text-status-danger">{error}</p>}
-            <button type="submit" disabled={submitting} className={`${primaryBtn} mt-1`}>
+            <button
+              type="submit"
+              disabled={submitting}
+              className={
+                oidcEnabled || samlEnabled
+                  ? `${secondaryBtn} mt-1`
+                  : `${primaryBtn} mt-1`
+              }
+            >
               {submitting ? t('login.checking') : t('login.signIn')}
             </button>
           </form>
-
-          {(oidcEnabled || samlEnabled) && (
-            <div className="flex flex-col items-center gap-2 border-t border-border pt-3">
-              {oidcEnabled && (
-                <a href={loginUrl()} className="text-sm text-text-secondary hover:text-accent-text hover:underline">
-                  {t('login.sso')}
-                </a>
-              )}
-              {samlEnabled && (
-                <a href={samlLoginUrl()} className="text-sm text-text-secondary hover:text-accent-text hover:underline">
-                  {t('login.ssoSaml')}
-                </a>
-              )}
-            </div>
-          )}
         </div>
       )}
 

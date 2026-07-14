@@ -24,6 +24,7 @@ from jinja2 import Template
 
 from app.config import get_settings
 from app.services import template as template_service
+from app.utils.images import svg_to_png
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
@@ -144,7 +145,10 @@ async def send_campaign_messages(
     Tracking-Token) gerendert und ein Tracking-Pixel eingebettet. Ratelimiting
     ueber SMTP_BATCH_DELAY.
     """
-    results = {"success": 0, "failed": 0}
+    # sent_tokens: Tracking-Tokens der tatsaechlich erfolgreich zugestellten
+    # Empfaenger. Der Aufrufer markiert nur diese als versendet, damit
+    # Fehlversaende nicht faelschlich als "Abgeschickt" zaehlen.
+    results: dict = {"success": 0, "failed": 0, "sent_tokens": []}
 
     # Optionales Logo einmal dekodieren und als Inline-Bild (CID) vorbereiten.
     # Im HTML über {{ logo }} platzierbar; rendert zuverlässig in Mail-Clients
@@ -160,6 +164,15 @@ async def send_campaign_messages(
             logo_bytes = base64.b64decode(data)
         except Exception:  # noqa: BLE001
             logo_bytes = None
+        # SVG rendern Mail-Clients nicht inline -> nach PNG rastern. Schlaegt die
+        # Konvertierung fehl, wird das Logo weggelassen (kein Versandabbruch).
+        if logo_bytes is not None and logo_subtype in ("svg+xml", "svg"):
+            png = svg_to_png(logo_bytes)
+            if png is not None:
+                logo_bytes = png
+                logo_subtype = "png"
+            else:
+                logo_bytes = None
     logo_html = (
         f'<img src="cid:{_LOGO_CID}" alt="" '
         f'style="max-height:60px;border:0;outline:none;text-decoration:none">'
@@ -239,6 +252,7 @@ async def send_campaign_messages(
             try:
                 await client.send_message(msg, sender=from_email)
                 results["success"] += 1
+                results["sent_tokens"].append(token)
             except Exception as e:  # noqa: BLE001
                 results["failed"] += 1
                 logger.error("Zustellung an %s fehlgeschlagen: %s", recipient["email"], e)

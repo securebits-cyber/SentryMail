@@ -3,6 +3,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import Card from '../components/Card'
 import PageScaffold from '../components/PageScaffold'
 import SendingProfileForm, { SendingProfileFormValues } from '../components/SendingProfileForm'
@@ -14,6 +15,7 @@ type Mode = { kind: 'list' } | { kind: 'create' } | { kind: 'edit'; profile: Sen
 
 export default function SendingProfilesPage() {
   const { t } = useI18n()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [profiles, setProfiles] = useState<SendingProfile[]>([])
   const [loading, setLoading] = useState(true)
   const [mode, setMode] = useState<Mode>({ kind: 'list' })
@@ -29,6 +31,14 @@ export default function SendingProfilesPage() {
   }
 
   useEffect(load, [])
+
+  // Sidebar-Untermenue "Neues Sending Profile erstellen" oeffnet die Seite mit ?new=1.
+  useEffect(() => {
+    if (searchParams.get('new') === '1') {
+      setMode({ kind: 'create' })
+      setSearchParams({}, { replace: true })
+    }
+  }, [searchParams, setSearchParams])
 
   async function handleSubmit(values: SendingProfileFormValues) {
     setSubmitting(true)

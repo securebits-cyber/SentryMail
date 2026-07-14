@@ -4,7 +4,7 @@
 
 import { BookOpen, Globe, Lock } from 'lucide-react'
 import { useEffect, useRef, useState, type ChangeEvent } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import Card from '../components/Card'
 import PageScaffold from '../components/PageScaffold'
 import TemplateForm, { TemplateFormValues } from '../components/TemplateForm'
@@ -33,6 +33,7 @@ type Mode =
 export default function TemplatesPage() {
   const { t } = useI18n()
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
   // E-Mail-Upload und Vorlagen-Bibliothek sind Business-Features (im Add-on).
   const features = useFeatures()
   const businessLicensed = Boolean(features?.features?.business)
@@ -53,6 +54,15 @@ export default function TemplatesPage() {
   }
 
   useEffect(load, [])
+
+  // Sidebar-Untermenue "Neue Vorlage erstellen" oeffnet die Seite mit ?new=1.
+  // Create-Modus setzen und den Param wieder entfernen, damit er nicht kleben bleibt.
+  useEffect(() => {
+    if (searchParams.get('new') === '1') {
+      setMode({ kind: 'create' })
+      setSearchParams({}, { replace: true })
+    }
+  }, [searchParams, setSearchParams])
 
   async function handleSubmit(values: TemplateFormValues) {
     setSubmitting(true)

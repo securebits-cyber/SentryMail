@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-import { ArrowUpCircle, Blocks, BookOpen, ChevronDown, CircleUser, ExternalLink, FileBarChart, FileText, Globe, Layers, LayoutDashboard, LogOut, Mail, Moon, Radar, Repeat, Server, Settings, Sun, UserCog, Users, type LucideIcon } from 'lucide-react'
+import { ArrowUpCircle, Blocks, BookOpen, ChevronDown, CircleUser, ExternalLink, FileBarChart, FileText, Globe, Layers, LayoutDashboard, LifeBuoy, LogOut, Mail, Moon, Plus, Radar, Repeat, Server, Settings, Sun, UserCog, Users, type LucideIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import LanguageSwitcher from './LanguageSwitcher'
@@ -27,9 +27,21 @@ interface NavItem {
 
 const mainNav: NavItem[] = [
   { to: '/', labelKey: 'nav.controlCenter', icon: LayoutDashboard, end: true },
-  { to: '/templates', labelKey: 'nav.templates', icon: FileText, end: false },
+  {
+    to: '/templates',
+    labelKey: 'nav.templates',
+    icon: FileText,
+    end: false,
+    children: [{ to: '/templates?new=1', labelKey: 'nav.newTemplate', icon: Plus, end: false }],
+  },
   { to: '/groups', labelKey: 'nav.groups', icon: Users, end: false },
-  { to: '/sending-profiles', labelKey: 'nav.sendingProfiles', icon: Server, end: false },
+  {
+    to: '/sending-profiles',
+    labelKey: 'nav.sendingProfiles',
+    icon: Server,
+    end: false,
+    children: [{ to: '/sending-profiles?new=1', labelKey: 'nav.newSendingProfile', icon: Plus, end: false }],
+  },
   { to: '/landing-pages', labelKey: 'nav.landingPages', icon: Globe, end: false },
   {
     to: '/campaigns',
@@ -37,6 +49,7 @@ const mainNav: NavItem[] = [
     icon: Mail,
     end: false,
     children: [
+      { to: '/campaigns?new=1', labelKey: 'nav.newCampaign', icon: Plus, end: false },
       { to: '/recurring', labelKey: 'nav.recurring', icon: Repeat, end: false, tier: 'business' },
       { to: '/multistage', labelKey: 'nav.multistage', icon: Layers, end: false, tier: 'business' },
       { to: '/auto-campaigns', labelKey: 'nav.autocampaigns', icon: Radar, end: false, tier: 'enterprise' },
@@ -129,10 +142,15 @@ export default function Layout() {
   const { theme, toggleTheme } = useTheme()
   const { t } = useI18n()
   const me = useMe()
+  const features = useFeatures()
   const branding = useBranding()
   const headerLogo = brandingLogoFor(branding, theme)
   const version = useVersion()
   const isAdmin = me?.role === 'admin'
+  // Enterprise impliziert Business. Upgrade-CTA nur zeigen, solange NICHT Enterprise
+  // lizenziert ist (waehrend des Ladens bewusst sichtbar). Support-Button ist ein
+  // Enterprise-Vorteil.
+  const isEnterprise = features?.features?.enterprise === true
   // Wiki-Ziel konfigurierbar (vendor-neutral); Default: Projekt-Wiki auf GitHub.
   const wikiUrl = import.meta.env.VITE_WIKI_URL || 'https://github.com/HumanShield-Awareness/HumanShield.APP/wiki'
 
@@ -155,14 +173,16 @@ export default function Layout() {
         <span className="mx-auto hidden select-none font-mono text-xs uppercase tracking-[0.14em] text-text-secondary sm:block">
           {t('header.slogan')}
         </span>
-        <a
-          href="https://humanshield-awareness.de/de/preise/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="ml-auto rounded-full border border-green-600 px-4 py-1.5 text-sm font-medium text-green-600 transition-colors hover:bg-green-600/10 sm:ml-0"
-        >
-          {t('header.upgradeLicense')}
-        </a>
+        {!isEnterprise && (
+          <a
+            href="https://humanshield-awareness.de/de/preise/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ml-auto rounded-full border border-green-600 px-4 py-1.5 text-sm font-medium text-green-600 transition-colors hover:bg-green-600/10 sm:ml-0"
+          >
+            {t('header.upgradeLicense')}
+          </a>
+        )}
       </header>
 
       <div className="flex flex-1">
@@ -238,6 +258,18 @@ export default function Layout() {
               </a>
             )}
           </div>
+
+          {/* Support-Button (Enterprise-Vorteil): direkte Ticket-Adresse per mailto.
+              Adresse konfigurierbar (vendor-neutral), Default: HumanShield-Support. */}
+          {isEnterprise && (
+            <a
+              href={`mailto:${import.meta.env.VITE_SUPPORT_EMAIL || 'ticket@humanshield.app'}`}
+              className="mx-3 mb-3 flex items-center justify-center gap-2 rounded-md border border-border px-3 py-2 text-sm text-text-primary hover:bg-bg"
+            >
+              <LifeBuoy size={16} />
+              {t('nav.support')}
+            </a>
+          )}
 
           {/* Wiki-Button, volle Breite des Sidebar-Bereichs. */}
           <a

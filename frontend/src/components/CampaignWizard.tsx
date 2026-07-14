@@ -23,10 +23,27 @@ interface CampaignWizardProps {
   onSubmit: (values: CampaignWizardValues) => void
   onCancel: () => void
   submitting?: boolean
+  // Vorbelegung zum Bearbeiten einer bestehenden Kampagne. Im Edit-Modus sind die
+  // Empfaengergruppen nicht mehr aenderbar (Empfaenger werden beim Anlegen als
+  // Schnappschuss uebernommen); der PATCH-Endpunkt akzeptiert group_ids nicht.
+  initialValues?: CampaignWizardValues
+  mode?: 'create' | 'edit'
 }
 
 const fieldClass = 'rounded-md border border-border bg-surface px-3 py-2 text-text-primary'
 const labelClass = 'flex flex-col gap-1 text-sm'
+
+// ISO-Zeitstempel in die separaten date-/time-Inputs zerlegen (lokale Zeit).
+function splitSchedule(iso: string | null): { date: string; time: string } {
+  if (!iso) return { date: '', time: '' }
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return { date: '', time: '' }
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return {
+    date: `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`,
+    time: `${pad(d.getHours())}:${pad(d.getMinutes())}`,
+  }
+}
 
 export default function CampaignWizard({
   templates,
@@ -36,15 +53,19 @@ export default function CampaignWizard({
   onSubmit,
   onCancel,
   submitting,
+  initialValues,
+  mode = 'create',
 }: CampaignWizardProps) {
   const { t } = useI18n()
-  const [name, setName] = useState('')
-  const [templateId, setTemplateId] = useState(templates[0]?.id ?? '')
-  const [profileId, setProfileId] = useState('')
-  const [pageId, setPageId] = useState('')
-  const [groupIds, setGroupIds] = useState<string[]>([])
-  const [scheduleDate, setScheduleDate] = useState('')
-  const [scheduleTime, setScheduleTime] = useState('')
+  const isEdit = mode === 'edit'
+  const initialSchedule = splitSchedule(initialValues?.scheduled_at ?? null)
+  const [name, setName] = useState(initialValues?.name ?? '')
+  const [templateId, setTemplateId] = useState(initialValues?.template_id ?? templates[0]?.id ?? '')
+  const [profileId, setProfileId] = useState(initialValues?.sending_profile_id ?? '')
+  const [pageId, setPageId] = useState(initialValues?.landing_page_id ?? '')
+  const [groupIds, setGroupIds] = useState<string[]>(initialValues?.group_ids ?? [])
+  const [scheduleDate, setScheduleDate] = useState(initialSchedule.date)
+  const [scheduleTime, setScheduleTime] = useState(initialSchedule.time)
 
   function toggleGroup(id: string) {
     setGroupIds((prev) => (prev.includes(id) ? prev.filter((g) => g !== id) : [...prev, id]))
@@ -108,22 +129,26 @@ export default function CampaignWizard({
         </select>
       </label>
 
-      <div className="flex flex-col gap-1 text-sm">
-        <span>{t('nav.groups')}</span>
-        {groups.length === 0 ? (
-          <span className="text-text-secondary">{t('cw.noGroups')}</span>
-        ) : (
-          <div className="flex flex-col gap-1 rounded-md border border-border p-3">
-            {groups.map((g) => (
-              <label key={g.id} className="flex items-center gap-2">
-                <input type="checkbox" checked={groupIds.includes(g.id)} onChange={() => toggleGroup(g.id)} />
-                {g.name}
-                <span className="font-mono text-xs text-text-secondary">({g.member_count})</span>
-              </label>
-            ))}
-          </div>
-        )}
-      </div>
+      {isEdit ? (
+        <p className="text-sm text-text-secondary">{t('cw.groupsLocked')}</p>
+      ) : (
+        <div className="flex flex-col gap-1 text-sm">
+          <span>{t('nav.groups')}</span>
+          {groups.length === 0 ? (
+            <span className="text-text-secondary">{t('cw.noGroups')}</span>
+          ) : (
+            <div className="flex flex-col gap-1 rounded-md border border-border p-3">
+              {groups.map((g) => (
+                <label key={g.id} className="flex items-center gap-2">
+                  <input type="checkbox" checked={groupIds.includes(g.id)} onChange={() => toggleGroup(g.id)} />
+                  {g.name}
+                  <span className="font-mono text-xs text-text-secondary">({g.member_count})</span>
+                </label>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="flex flex-col gap-1 text-sm">
         <span>{t('cw.schedule')}</span>
@@ -147,10 +172,16 @@ export default function CampaignWizard({
       <div className="flex gap-2">
         <button
           type="submit"
-          disabled={submitting || groupIds.length === 0}
+          disabled={submitting || (!isEdit && groupIds.length === 0)}
           className="rounded-md bg-accent px-5 py-2 font-medium text-white disabled:opacity-60"
         >
-          {submitting ? t('cw.creating') : t('cw.create')}
+          {isEdit
+            ? submitting
+              ? t('cw.saving')
+              : t('cw.save')
+            : submitting
+              ? t('cw.creating')
+              : t('cw.create')}
         </button>
         <button
           type="button"

@@ -84,7 +84,9 @@ def overall_summary(db: Session) -> DashboardSummary:
     return DashboardSummary(
         campaigns=db.query(func.count(Campaign.id)).scalar() or 0,
         recipients=db.query(func.count(Recipient.id)).scalar() or 0,
-        sent=distinct_recipients(TrackingEventType.SENT),
+        # "Abgeschickt" = Empfaenger mit gesetztem sent_at (Single Source of Truth,
+        # deckt sich mit der Kampagnen-Ergebnisseite und dem Management-Report).
+        sent=db.query(func.count(Recipient.id)).filter(Recipient.sent_at.isnot(None)).scalar() or 0,
         opened=distinct_recipients(TrackingEventType.OPENED),
         clicked=distinct_recipients(TrackingEventType.CLICKED),
         submitted=distinct_recipients(TrackingEventType.SUBMITTED),
@@ -391,7 +393,8 @@ def management_report(db: Session) -> ManagementReport:
         opened = TrackingEventType.OPENED in types
         clicked = TrackingEventType.CLICKED in types
         submitted = TrackingEventType.SUBMITTED in types
-        sent = sent_at is not None or TrackingEventType.SENT in types
+        # Einheitliche "Abgeschickt"-Definition: allein sent_at (nicht das SENT-Event).
+        sent = sent_at is not None
         pts = risk_points(types)
         dist[_band(pts)] += 1
 

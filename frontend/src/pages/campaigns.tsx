@@ -3,7 +3,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import Badge, { BadgeTone } from '../components/Badge'
 import CampaignWizard, { CampaignWizardValues } from '../components/CampaignWizard'
 import Card from '../components/Card'
@@ -30,6 +30,7 @@ const statusTone: Record<Campaign['status'], BadgeTone> = {
 
 export default function CampaignsPage() {
   const { t } = useI18n()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [campaigns, setCampaigns] = useState<Campaign[]>([])
   const [templates, setTemplates] = useState<Template[]>([])
   const [profiles, setProfiles] = useState<SendingProfile[]>([])
@@ -37,6 +38,7 @@ export default function CampaignsPage() {
   const [groups, setGroups] = useState<GroupSummary[]>([])
   const [loading, setLoading] = useState(true)
   const [creating, setCreating] = useState(false)
+  const [editing, setEditing] = useState<Campaign | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [message, setMessage] = useState<{ kind: 'error' | 'info'; text: string } | null>(null)
 
@@ -54,6 +56,14 @@ export default function CampaignsPage() {
     ]).finally(() => setLoading(false))
   }, [])
 
+  // Sidebar-Untermenue "Neue Kampagne erstellen" oeffnet die Seite mit ?new=1.
+  useEffect(() => {
+    if (searchParams.get('new') === '1') {
+      setCreating(true)
+      setSearchParams({}, { replace: true })
+    }
+  }, [searchParams, setSearchParams])
+
   async function handleCreate(values: CampaignWizardValues) {
     setSubmitting(true)
     setMessage(null)
@@ -64,6 +74,29 @@ export default function CampaignsPage() {
       setMessage({ kind: 'info', text: t('camp.created') })
     } catch {
       setMessage({ kind: 'error', text: t('camp.err.create') })
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  async function handleUpdate(values: CampaignWizardValues) {
+    if (!editing) return
+    setSubmitting(true)
+    setMessage(null)
+    try {
+      // Empfaengergruppen sind nach dem Anlegen fix (Schnappschuss); PATCH nimmt sie nicht.
+      await api.patch(`/campaigns/${editing.id}`, {
+        name: values.name,
+        template_id: values.template_id,
+        sending_profile_id: values.sending_profile_id,
+        landing_page_id: values.landing_page_id,
+        scheduled_at: values.scheduled_at,
+      })
+      setEditing(null)
+      await loadCampaigns()
+      setMessage({ kind: 'info', text: t('camp.updated') })
+    } catch {
+      setMessage({ kind: 'error', text: t('camp.err.update') })
     } finally {
       setSubmitting(false)
     }
@@ -103,6 +136,31 @@ export default function CampaignsPage() {
           groups={groups}
           onSubmit={handleCreate}
           onCancel={() => setCreating(false)}
+          submitting={submitting}
+        />
+      </PageScaffold>
+    )
+  }
+
+  if (editing) {
+    return (
+      <PageScaffold title={t('camp.editTitle')} guidanceKey="campaign-editor">
+        <CampaignWizard
+          mode="edit"
+          initialValues={{
+            name: editing.name,
+            template_id: editing.template_id,
+            sending_profile_id: editing.sending_profile_id,
+            landing_page_id: editing.landing_page_id,
+            group_ids: [],
+            scheduled_at: editing.scheduled_at,
+          }}
+          templates={templates}
+          profiles={profiles}
+          pages={pages}
+          groups={groups}
+          onSubmit={handleUpdate}
+          onCancel={() => setEditing(null)}
           submitting={submitting}
         />
       </PageScaffold>
@@ -154,6 +212,14 @@ export default function CampaignsPage() {
                     <button onClick={() => handleSend(campaign)} className="mr-3 text-status-success hover:underline">
                       {t('camp.send')}
                     </button>
+                    {(campaign.status === 'draft' || campaign.status === 'scheduled') && (
+                      <button
+                        onClick={() => setEditing(campaign)}
+                        className="mr-3 text-text-secondary hover:text-accent hover:underline"
+                      >
+                        {t('common.edit')}
+                      </button>
+                    )}
                     <Link to={`/results/${campaign.id}`} className="mr-3 text-text-secondary hover:text-accent hover:underline">
                       {t('camp.results')}
                     </Link>

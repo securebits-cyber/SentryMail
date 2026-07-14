@@ -108,6 +108,7 @@ export default function LandingPageForm({ initial, onSubmit, onCancel, submittin
     <form onSubmit={handleSubmit} className="flex max-w-3xl flex-col gap-4">
       <AiGenerateBar<{ html: string }>
         endpoint="/ai/generate-landing"
+        tier="enterprise"
         placeholder={t('ai.gen.landing.placeholder')}
         onResult={(d) => {
           setEditorMode('html')

@@ -4,7 +4,7 @@
 
 import { Lock, Sparkles } from 'lucide-react'
 import { useState } from 'react'
-import TierBadge from './TierBadge'
+import TierBadge, { type Tier } from './TierBadge'
 import { useFeatures } from '../hooks/useFeatures'
 import { useI18n } from '../i18n'
 import { api } from '../services/api'
@@ -13,26 +13,28 @@ interface AiGenerateBarProps<T> {
   endpoint: string
   onResult: (data: T) => void
   placeholder?: string
+  // Benoetigtes Add-on. E-Mail-Vorlagen sind Business, Landing-Pages Enterprise.
+  tier?: Tier
 }
 
 /** Kompakte Leiste „Mit KI erstellen": Kurzbeschreibung + Button, ruft einen
- *  Business-Generierungs-Endpunkt und reicht das Ergebnis nach oben. Nur mit
- *  Business-Lizenz sichtbar; ist die KI nicht konfiguriert, kommt eine Meldung. */
-export default function AiGenerateBar<T>({ endpoint, onResult, placeholder }: AiGenerateBarProps<T>) {
+ *  Generierungs-Endpunkt (Add-on) und reicht das Ergebnis nach oben. Nur mit
+ *  passender Lizenz nutzbar; ist die KI nicht konfiguriert, kommt eine Meldung. */
+export default function AiGenerateBar<T>({ endpoint, onResult, placeholder, tier = 'business' }: AiGenerateBarProps<T>) {
   const { t, lang } = useI18n()
   const features = useFeatures()
   const [brief, setBrief] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // KI-Erstellung ist ein Business-Feature: ohne Lizenz sichtbar, aber gesperrt.
-  if (!features?.features?.business) {
+  // KI-Erstellung ist ein kostenpflichtiges Feature: ohne Lizenz sichtbar, aber gesperrt.
+  if (!features?.features?.[tier]) {
     return (
       <div className="rounded-lg border border-border bg-bg/40 p-3">
         <div className="mb-1 flex flex-wrap items-center gap-2 text-sm font-medium text-text-secondary">
           <Sparkles size={15} />
           {t('ai.gen.heading')}
-          <TierBadge tier="business" />
+          <TierBadge tier={tier} />
           <Lock size={12} />
         </div>
         <p className="text-xs text-text-secondary">{t('ai.gen.locked')}</p>
