@@ -14,7 +14,7 @@ import enum
 import uuid
 from datetime import datetime
 
-from sqlalchemy import CheckConstraint, DateTime, Enum, ForeignKey, String, Text
+from sqlalchemy import CheckConstraint, DateTime, Enum, ForeignKey, Index, String, Text, text
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
@@ -113,6 +113,8 @@ class SecurityConfig(Base):
     """Sicherheits-Policy (Singleton). Steuert die 2FA-Pflicht."""
 
     __tablename__ = "security_config"
+    # Hoechstens eine Zeile (Singleton) - siehe app/utils/singleton.py.
+    __table_args__ = (Index("uq_security_config_singleton", text("(true)"), unique=True),)
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     # require_2fa: "off" (freiwillig) | "admins" (nur Admin-Konten) | "all" (alle)
@@ -129,6 +131,8 @@ class LicenseState(Base):
     """
 
     __tablename__ = "license_state"
+    # Hoechstens eine Zeile (Singleton) - siehe app/utils/singleton.py.
+    __table_args__ = (Index("uq_license_state_singleton", text("(true)"), unique=True),)
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     instance_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), default=uuid.uuid4, nullable=False)
@@ -291,6 +295,8 @@ class SmtpConfig(Base):
     """
 
     __tablename__ = "smtp_config"
+    # Hoechstens eine Zeile (Singleton) - siehe app/utils/singleton.py.
+    __table_args__ = (Index("uq_smtp_config_singleton", text("(true)"), unique=True),)
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     host: Mapped[str] = mapped_column(String(255), default="", nullable=False)
@@ -315,6 +321,8 @@ class OidcConfig(Base):
     """
 
     __tablename__ = "oidc_config"
+    # Hoechstens eine Zeile (Singleton) - siehe app/utils/singleton.py.
+    __table_args__ = (Index("uq_oidc_config_singleton", text("(true)"), unique=True),)
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     enabled: Mapped[bool] = mapped_column(default=False, nullable=False)
