@@ -151,8 +151,8 @@ export default function Layout() {
   // lizenziert ist (waehrend des Ladens bewusst sichtbar). Support-Button ist ein
   // Enterprise-Vorteil.
   const isEnterprise = features?.features?.enterprise === true
-  // Wiki-Ziel konfigurierbar (vendor-neutral); Default: Projekt-Wiki auf GitHub.
-  const wikiUrl = import.meta.env.VITE_WIKI_URL || 'https://github.com/HumanShield-Awareness/HumanShield.APP/wiki'
+  // Wiki-Ziel konfigurierbar (vendor-neutral); Default: offizielle Doku.
+  const wikiUrl = import.meta.env.VITE_WIKI_URL || 'https://docs.humanshield.app'
 
   return (
     <div className="flex min-h-screen flex-col bg-bg text-text-primary">
