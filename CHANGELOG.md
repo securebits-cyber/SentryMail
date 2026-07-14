@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.18.1](https://github.com/HumanShield-Awareness/HumanShield.APP/compare/v0.18.0...v0.18.1) (2026-07-14)
+
+
+### Bug Fixes
+
+* **core:** Singleton-Configs race-sicher anlegen und Duplikate verhindern ([#77](https://github.com/HumanShield-Awareness/HumanShield.APP/issues/77)) ([6be439e](https://github.com/HumanShield-Awareness/HumanShield.APP/commit/6be439efa1ba462ff2e5d008e706ba8444158dc8))
+
 ## [0.18.0](https://github.com/HumanShield-Awareness/HumanShield.APP/compare/v0.17.2...v0.18.0) (2026-07-13)
 
 
