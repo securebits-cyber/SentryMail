@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.18.2](https://github.com/HumanShield-Awareness/HumanShield.APP/compare/v0.18.1...v0.18.2) (2026-07-14)
+
+
+### Bug Fixes
+
+* [BUG] [#79](https://github.com/HumanShield-Awareness/HumanShield.APP/issues/79) – CSRF, Kampagnen-Edit, SVG-Logos, Analyse-Zahlen & UX ([#80](https://github.com/HumanShield-Awareness/HumanShield.APP/issues/80)) ([6cfc5ec](https://github.com/HumanShield-Awareness/HumanShield.APP/commit/6cfc5ece0d75fc6b61ad75b12d8802ab069827a5))
+
 ## [0.18.1](https://github.com/HumanShield-Awareness/HumanShield.APP/compare/v0.18.0...v0.18.1) (2026-07-14)
 
 

@@ -5,4 +5,4 @@
 // Aktuelle Release-Version. Wird von release-please bei jedem Release
 // automatisch aktualisiert (siehe release-please-config.json -> extra-files).
 // Nicht manuell ändern.
-export const APP_VERSION = '0.18.1' // x-release-please-version
+export const APP_VERSION = '0.18.2' // x-release-please-version
