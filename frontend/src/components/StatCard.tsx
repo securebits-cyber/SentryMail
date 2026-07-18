@@ -33,7 +33,7 @@ interface StatCardProps {
 }
 
 /**
- * KPI-Kachel im HumanShield-Stil: Label + Icon-Chip oben, grosse Kennzahl
+ * KPI-Kachel im SentryMail-Stil: Label + Icon-Chip oben, grosse Kennzahl
  * (Display, tabellarische Ziffern), optionaler Hinweis darunter.
  */
 export default function StatCard({ label, value, icon: Icon, tone = 'neutral', hint }: StatCardProps) {

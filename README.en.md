@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🛡️ HumanShield.APP
+# 🛡️ SentryMail
 
 **Self-hosted phishing-awareness platform** — plan, send and evaluate simulated phishing campaigns per recipient to make your workforce measurably more resilient against social engineering.
 
@@ -18,7 +18,7 @@
 
 ---
 
-HumanShield.APP helps organizations shrink their human attack surface: run realistic phishing simulations, track opens/clicks/submissions, and turn the results into targeted awareness training. The platform runs **entirely on your own infrastructure** — all environment-specific values (domain, IdP, SMTP) come from configuration; nothing is hard-coded.
+SentryMail helps organizations shrink their human attack surface: run realistic phishing simulations, track opens/clicks/submissions, and turn the results into targeted awareness training. The platform runs **entirely on your own infrastructure** — all environment-specific values (domain, IdP, SMTP) come from configuration; nothing is hard-coded.
 
 ## ✨ Features
 
@@ -80,7 +80,7 @@ Self-hosted as a Docker Compose stack (PostgreSQL, Redis, FastAPI backend, front
 
 ```bash
 git clone https://github.com/HumanShield-Awareness/HumanShield.APP.git
-cd HumanShield.APP
+cd SentryMail
 ./install.sh
 ```
 
@@ -88,7 +88,7 @@ cd HumanShield.APP
 
 ```bash
 git clone https://github.com/HumanShield-Awareness/HumanShield.APP.git
-cd HumanShield.APP
+cd SentryMail
 cp .env.example .env
 # fill in .env: SECRET_KEY, database, SMTP, INITIAL_ADMIN_*
 docker compose up -d
@@ -125,7 +125,7 @@ See the [security wiki](https://github.com/HumanShield-Awareness/HumanShield.APP
 
 ## 🧩 Editions (open core)
 
-The **core** of HumanShield.APP (all features above) is open source under the **Mozilla Public License 2.0 (MPL-2.0)** and fully usable. In addition there are **two paid add-ons**, unlocked by license and shipped as separate, private packages.
+The **core** of SentryMail (all features above) is open source under the **Mozilla Public License 2.0 (MPL-2.0)** and fully usable. In addition there are **two paid add-ons**, unlocked by license and shipped as separate, private packages.
 
 **Business add-on**
 - **LDAP** directory import of recipients (incl. LDAPS with a custom CA certificate)
@@ -176,6 +176,6 @@ The core is licensed under the **[Mozilla Public License 2.0](LICENSE)** — an 
 
 <div align="center">
 
-A project by **HumanShield-Awareness UG** · use responsibly for authorized awareness training only.
+A project by **SentryMail UG** · use responsibly for authorized awareness training only.
 
 </div>

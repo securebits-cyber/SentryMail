@@ -3,7 +3,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #
-# HumanShield.APP - Interaktive Installationsroutine / Interactive install routine
+# SentryMail - Interaktive Installationsroutine / Interactive install routine
 #
 # DE: Fuehrt Endkunden durch alle wichtigen Einstellungen fuer eine fehlerfreie
 #     Installation des Stacks, erzeugt eine gueltige .env aus .env.example,
@@ -156,7 +156,7 @@ if [ -z "$UILANG" ] && [ "$ASSUME_DEFAULTS" != "1" ]; then
 fi
 UILANG="${UILANG:-de}"
 
-printf '\n%s%s%s\n' "$CYAN$BOLD" "HumanShield.APP $(msg 'Installationsroutine' 'install routine')" "$RESET"
+printf '\n%s%s%s\n' "$CYAN$BOLD" "SentryMail $(msg 'Installationsroutine' 'install routine')" "$RESET"
 printf '%s\n\n' "$(msg 'Fuehrt dich durch alle wichtigen Einstellungen.' 'Guides you through all important settings.')"
 
 # --- 1. Voraussetzungen / prerequisites -------------------------------------
@@ -222,7 +222,7 @@ printf '\n'
 # --- 3. App / Domain ---------------------------------------------------------
 printf '%s%s%s\n' "$BOLD" "$(msg '2) App & Domain' '2) App & domain')" "$RESET"
 printf '   %s\n' "$(msg 'Echte Domain -> automatisches TLS (Lets Encrypt). Hinter externem Reverse Proxy: ":80".' 'Real domain -> automatic TLS (Lets Encrypt). Behind an external reverse proxy: ":80".')"
-DOMAIN="$(ask APP_DOMAIN 'Domain der Anwendung' 'Application domain' 'humanshield.example.com')"
+DOMAIN="$(ask APP_DOMAIN 'Domain der Anwendung' 'Application domain' 'sentrymail.example.com')"
 # Caddy hoert standardmaessig auf dieselbe Adresse.
 CADDY="$(ask CADDY_SITE_ADDRESS 'Caddy-Adresse (Enter = Domain uebernehmen, oder ":80")' 'Caddy address (Enter = use domain, or ":80")' "$DOMAIN")"
 printf '\n'
@@ -283,7 +283,7 @@ if yesno 'SMTP jetzt konfigurieren?' 'Configure SMTP now?' y; then
   ask SMTP_USERNAME 'SMTP-Benutzer' 'SMTP username' 'noreply@example.com' >/dev/null
   ask_secret SMTP_PASSWORD 'SMTP-Passwort' 'SMTP password'
   ask SMTP_FROM_EMAIL 'Absenderadresse' 'From address' 'noreply@example.com' >/dev/null
-  ask SMTP_FROM_NAME 'Absendername' 'From name' 'HumanShield-Awareness' >/dev/null
+  ask SMTP_FROM_NAME 'Absendername' 'From name' 'SentryMail' >/dev/null
   ask SMTP_TLS_MODE 'TLS-Modus (starttls/ssl/none)' 'TLS mode (starttls/ssl/none)' 'starttls' >/dev/null
 else
   printf '   %s\n' "$(msg 'Uebersprungen - spaeter im Dashboard unter Sending Profiles moeglich.' 'Skipped - can be set later in the dashboard under Sending Profiles.')"

@@ -260,7 +260,7 @@ export default function Layout() {
           </div>
 
           {/* Support-Button (Enterprise-Vorteil): direkte Ticket-Adresse per mailto.
-              Adresse konfigurierbar (vendor-neutral), Default: HumanShield-Support. */}
+              Adresse konfigurierbar (vendor-neutral), Default: SentryMail-Support. */}
           {isEnterprise && (
             <a
               href={`mailto:${import.meta.env.VITE_SUPPORT_EMAIL || 'ticket@humanshield.app'}`}
@@ -284,8 +284,11 @@ export default function Layout() {
         </div>
       </aside>
 
-      <main className="flex-1 p-6">
+      <main className="flex flex-1 flex-col p-6">
         <Outlet />
+        <footer className="mt-auto pt-6 text-center text-xs text-text-muted">
+          {t('footer.trademark')}
+        </footer>
       </main>
       </div>
     </div>

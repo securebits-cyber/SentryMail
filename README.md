@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🛡️ HumanShield.APP
+# 🛡️ SentryMail
 
 **Selbstgehostete Plattform für Phishing-Awareness** — simulierte Phishing-Kampagnen planen, versenden und pro Empfänger auswerten, um Mitarbeitende messbar gegen Social Engineering zu wappnen.
 
@@ -18,7 +18,7 @@
 
 ---
 
-HumanShield.APP hilft Organisationen, ihre menschliche Angriffsfläche zu verkleinern: realistische Phishing-Simulationen durchführen, Öffnungen/Klicks/Eingaben nachvollziehen und daraus gezielte Sensibilisierung ableiten. Die Plattform läuft **vollständig bei dir** — alle umgebungsspezifischen Werte (Domain, IdP, SMTP) kommen aus der Konfiguration, nichts ist im Code fest verdrahtet.
+SentryMail hilft Organisationen, ihre menschliche Angriffsfläche zu verkleinern: realistische Phishing-Simulationen durchführen, Öffnungen/Klicks/Eingaben nachvollziehen und daraus gezielte Sensibilisierung ableiten. Die Plattform läuft **vollständig bei dir** — alle umgebungsspezifischen Werte (Domain, IdP, SMTP) kommen aus der Konfiguration, nichts ist im Code fest verdrahtet.
 
 ## ✨ Funktionen
 
@@ -80,7 +80,7 @@ Selbstgehostet als Docker-Compose-Stack (PostgreSQL, Redis, FastAPI-Backend, Fro
 
 ```bash
 git clone https://github.com/HumanShield-Awareness/HumanShield.APP.git
-cd HumanShield.APP
+cd SentryMail
 ./install.sh
 ```
 
@@ -88,7 +88,7 @@ cd HumanShield.APP
 
 ```bash
 git clone https://github.com/HumanShield-Awareness/HumanShield.APP.git
-cd HumanShield.APP
+cd SentryMail
 cp .env.example .env
 # .env ausfüllen: SECRET_KEY, Datenbank, SMTP, INITIAL_ADMIN_*
 docker compose up -d
@@ -125,7 +125,7 @@ Details im [Sicherheits-Wiki](https://github.com/HumanShield-Awareness/HumanShie
 
 ## 🧩 Editionen (Open Core)
 
-Der **Kern** von HumanShield.APP (alle oben genannten Funktionen) ist unter der **Mozilla Public License 2.0 (MPL-2.0)** quelloffen und vollständig nutzbar. Zusätzlich gibt es **zwei kostenpflichtige Add-ons**, die per Lizenz freigeschaltet und als separate, private Pakete ausgeliefert werden.
+Der **Kern** von SentryMail (alle oben genannten Funktionen) ist unter der **Mozilla Public License 2.0 (MPL-2.0)** quelloffen und vollständig nutzbar. Zusätzlich gibt es **zwei kostenpflichtige Add-ons**, die per Lizenz freigeschaltet und als separate, private Pakete ausgeliefert werden.
 
 **Business-Add-on**
 - **LDAP**-Verzeichnisimport von Empfängern (inkl. LDAPS mit eigenem CA-Zertifikat)
@@ -176,6 +176,6 @@ Der Kern steht unter der **[Mozilla Public License 2.0](LICENSE)** — einer OSI
 
 <div align="center">
 
-Ein Projekt von **HumanShield-Awareness UG** · verantwortungsvoll für autorisierte Awareness-Schulungen einsetzen.
+Ein Projekt von **SentryMail UG** · verantwortungsvoll für autorisierte Awareness-Schulungen einsetzen.
 
 </div>

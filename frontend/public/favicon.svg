@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
   
   <rect width="48" height="48" rx="10" fill="#0C0A09"></rect>
-  <text x="9" y="33" font-family="Roboto, sans-serif" font-size="24" font-weight="700" letter-spacing="-1" fill="#FFFFFF">hs<tspan fill="#F0591F">.</tspan></text>
+  <text x="9" y="33" font-family="Roboto, sans-serif" font-size="24" font-weight="700" letter-spacing="-1" fill="#FFFFFF"><tspan fill="#F0591F">s</tspan>m<tspan fill="#F0591F">.</tspan></text>
 </svg>

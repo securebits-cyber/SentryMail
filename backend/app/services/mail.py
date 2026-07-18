@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-"""SMTP Mail Service fuer HumanShield.APP.
+"""SMTP Mail Service fuer SentryMail.
 
 Provider-agnostisch: kennt keinen bestimmten SMTP-Anbieter; alle Verbindungs-
 werte kommen als Parameter (Sending Profile oder globales Fallback-SMTP aus
@@ -294,13 +294,13 @@ async def send_test_email(
         )
 
         msg = MIMEMultipart("alternative")
-        msg["Subject"] = Header("HumanShield.APP Test-Mail", "utf-8")
+        msg["Subject"] = Header("SentryMail Test-Mail", "utf-8")
         msg["From"] = f"{from_name} <{from_email}>"
         msg["To"] = to_email
-        msg["X-Mailer"] = "HumanShield.APP"
+        msg["X-Mailer"] = "SentryMail"
         msg.attach(
             MIMEText(
-                "Dies ist eine Test-Mail von HumanShield.APP. Das Sending Profile funktioniert.",
+                "Dies ist eine Test-Mail von SentryMail. Das Sending Profile funktioniert.",
                 "plain",
                 "utf-8",
             )

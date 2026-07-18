@@ -6,8 +6,8 @@
 
 Private Add-on-Pakete (z. B. White-Label) werden nur bei lizenzierten Kunden
 installiert. Ein Add-on exponiert einen Entry Point in der Gruppe
-``humanshield.addons``, der auf ein Modul mit ``FEATURE_ID`` und
-``register(app)`` zeigt. ``register`` mountet die eigenen Router — jeweils
+``sentrymail.addons`` (Alt-Pakete: ``humanshield.addons``, wird weiterhin
+geladen), der auf ein Modul mit ``FEATURE_ID`` und ``register(app)`` zeigt. ``register`` mountet die eigenen Router — jeweils
 hinter ``Depends(require_feature(FEATURE_ID))`` (siehe app.services.license).
 
 Ist kein Add-on installiert (unlizenzierter Kunde / reiner Open-Core), passiert
@@ -21,17 +21,25 @@ from importlib.metadata import entry_points
 
 logger = logging.getLogger(__name__)
 
-ADDON_GROUP = "humanshield.addons"
+# Neue Gruppe zuerst; die alte HumanShield-Gruppe bleibt geladen, damit bereits
+# ausgelieferte Add-on-Pakete nach dem Rebranding weiter funktionieren.
+ADDON_GROUPS = ("sentrymail.addons", "humanshield.addons")
 
 
 def load_addons(app) -> list[str]:
     """Entdeckt und registriert installierte Add-on-Pakete. Gibt geladene FEATURE_IDs zurueck."""
     loaded: list[str] = []
-    try:
-        discovered = entry_points(group=ADDON_GROUP)
-    except Exception:  # noqa: BLE001 - Discovery darf den Start nie verhindern
-        logger.exception("Add-on-Discovery fehlgeschlagen")
-        return loaded
+    discovered = []
+    seen_names: set[str] = set()
+    for group in ADDON_GROUPS:
+        try:
+            for ep in entry_points(group=group):
+                if ep.name in seen_names:
+                    continue  # gleiches Add-on in beiden Gruppen -> nur einmal laden
+                seen_names.add(ep.name)
+                discovered.append(ep)
+        except Exception:  # noqa: BLE001 - Discovery darf den Start nie verhindern
+            logger.exception("Add-on-Discovery fehlgeschlagen (Gruppe %s)", group)
 
     for ep in discovered:
         try:

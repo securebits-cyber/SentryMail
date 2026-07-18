@@ -14,9 +14,9 @@ export interface Branding {
 }
 
 const DEFAULT: Branding = {
-  app_name: 'HumanShield.APP',
-  accent_color: '#ff570a',
-  accent_color_2: '#ff8a3d',
+  app_name: 'SentryMail',
+  accent_color: '#F0591F',
+  accent_color_2: '#FF9D4D',
   logo_b64: null,
   logo_b64_dark: null,
 }

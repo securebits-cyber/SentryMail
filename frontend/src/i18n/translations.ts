@@ -111,6 +111,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     // Kopfzeile / allgemein
     'header.upgradeLicense': 'Upgrade Lizenz',
     'header.slogan': 'Awareness-Training - Made in Germany',
+    'footer.trademark': 'SentryMail ist eine eingetragene Marke der SecureBits Cyber Security UG',
     'update.available': 'Update verfügbar',
     'update.changelog': 'Changelog',
     'common.logout': 'Logout',
@@ -974,6 +975,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     // Header / common
     'header.upgradeLicense': 'Upgrade License',
     'header.slogan': 'Awareness Training - Made in Germany',
+    'footer.trademark': 'SentryMail is a registered trademark of SecureBits Cyber Security UG',
     'update.available': 'Update available',
     'update.changelog': 'Changelog',
     'common.logout': 'Log out',

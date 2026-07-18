@@ -27,7 +27,7 @@ from app.utils.crypto import decrypt, encrypt
 
 logger = logging.getLogger(__name__)
 
-ISSUER = "HumanShield.APP"
+ISSUER = "SentryMail"
 BACKUP_CODE_COUNT = 8
 EMAIL_CODE_TTL_MINUTES = 10
 

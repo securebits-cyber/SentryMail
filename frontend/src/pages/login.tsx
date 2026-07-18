@@ -230,6 +230,10 @@ export default function LoginPage() {
           />
         </div>
       )}
+
+      <footer className="absolute inset-x-0 bottom-4 text-center text-xs text-text-muted">
+        {t('footer.trademark')}
+      </footer>
     </div>
   )
 }

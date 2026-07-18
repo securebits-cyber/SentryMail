@@ -155,7 +155,7 @@ export default function SmtpSettingsPage() {
           </label>
           <label className={`${labelClass} flex-1`}>
             {t('smtp.fromName')}
-            <input value={form.from_name} onChange={(e) => set('from_name', e.target.value)} placeholder="HumanShield-Awareness" className={fieldClass} />
+            <input value={form.from_name} onChange={(e) => set('from_name', e.target.value)} placeholder="SentryMail" className={fieldClass} />
           </label>
         </div>
 

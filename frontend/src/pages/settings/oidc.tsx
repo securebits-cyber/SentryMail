@@ -89,7 +89,7 @@ export default function OidcSettingsPage() {
           <input
             value={oidc.issuer}
             onChange={(e) => set('issuer', e.target.value)}
-            placeholder="https://idp.example.com/application/o/humanshield/"
+            placeholder="https://idp.example.com/application/o/sentrymail/"
             className={`${fieldClass} font-mono`}
           />
         </label>

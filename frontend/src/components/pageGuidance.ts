@@ -130,7 +130,7 @@ const de: Record<string, Guidance> = {
   },
   users: {
     intro:
-      'Hier verwaltest du die lokalen Konten für den Zugang zu HumanShield.APP. Der lokale Login ist die primäre Anmeldemethode.',
+      'Hier verwaltest du die lokalen Konten für den Zugang zu SentryMail. Der lokale Login ist die primäre Anmeldemethode.',
     steps: [
       '„Neuer Benutzer“ öffnen und E-Mail, Name, Startpasswort und Rolle festlegen.',
       'Rolle wählen: „Admin“ darf Einstellungen und Benutzer verwalten, „Benutzer“ nur Kampagnen-Funktionen.',
@@ -460,7 +460,7 @@ const en: Record<string, Guidance> = {
   },
   users: {
     intro:
-      'Here you manage the local accounts for accessing HumanShield.APP. The local login is the primary sign-in method.',
+      'Here you manage the local accounts for accessing SentryMail. The local login is the primary sign-in method.',
     steps: [
       'Open “New user” and set email, name, initial password and role.',
       'Choose the role: “Admin” may manage settings and users, “User” only campaign features.',

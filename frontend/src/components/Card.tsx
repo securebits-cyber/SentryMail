@@ -21,7 +21,7 @@ interface CardProps {
 }
 
 /**
- * Einheitliche Karte im HumanShield-Stil (Design/ui_kits/console): warme
+ * Einheitliche Karte im SentryMail-Stil (homeshield-design-system/project/ui_kits/console): warme
  * Flaeche, Haarlinien-Rahmen, weiche Radien + Elevation. Optionaler Kopf mit
  * Eyebrow/Titel/Untertitel und rechtsbuendiger Aktion.
  */

@@ -107,7 +107,7 @@ def track_landing(t: str, request: Request, db: Session = Depends(get_db)):
         # zu einem 32-bit-Hex-Hash verdichtet (kein externes Skript, kein Cookie).
         "var c=document.createElement('canvas');var x=c.getContext('2d');"
         "x.textBaseline='top';x.font=\"14px 'Arial'\";x.fillStyle='#f60';x.fillRect(0,0,62,20);"
-        "x.fillStyle='#069';x.fillText('HumanShield',2,2);"
+        "x.fillStyle='#069';x.fillText('SentryMail',2,2);"
         "var s=[navigator.userAgent,navigator.language,screen.width+'x'+screen.height,"
         "screen.colorDepth,new Date().getTimezoneOffset(),navigator.hardwareConcurrency||0,"
         "navigator.platform,c.toDataURL()].join('|');"

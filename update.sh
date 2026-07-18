@@ -3,7 +3,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #
-# HumanShield.APP - Update-Routine / update routine
+# SentryMail - Update-Routine / update routine
 #
 # DE: Aktualisiert eine bestehende Installation sicher: optionales DB-Backup,
 #     Code per git aktualisieren, Stack neu bauen/starten (Migrationen laufen
@@ -80,7 +80,7 @@ if [ -z "$UILANG" ] && [ "$ASSUME_DEFAULTS" != "1" ]; then
 fi
 UILANG="${UILANG:-de}"
 
-printf '\n%s%s%s\n' "$CYAN$BOLD" "HumanShield.APP $(msg 'Update-Routine' 'update routine')" "$RESET"
+printf '\n%s%s%s\n' "$CYAN$BOLD" "SentryMail $(msg 'Update-Routine' 'update routine')" "$RESET"
 printf '%s\n\n' "$(msg 'Aktualisiert deine bestehende Installation.' 'Updates your existing installation.')"
 
 # --- 1. Voraussetzungen / prerequisites -------------------------------------

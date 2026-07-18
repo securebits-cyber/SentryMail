@@ -71,7 +71,7 @@ async def lifespan(_: FastAPI):
             refresh_task.cancel()
 
 
-app = FastAPI(title="HumanShield.APP API", version=APP_VERSION, lifespan=lifespan)
+app = FastAPI(title="SentryMail API", version=APP_VERSION, lifespan=lifespan)
 
 # Session-Cookie fuer den OIDC-Authorization-Code-Flow (State/Nonce).
 app.add_middleware(SessionMiddleware, secret_key=settings.SECRET_KEY)
