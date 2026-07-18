@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.19.0](https://github.com/securebits-cyber/SentryMail/compare/v0.18.2...v0.19.0) (2026-07-18)
+
+
+### Features
+
+* SentryMail-Rebranding ([8077966](https://github.com/securebits-cyber/SentryMail/commit/807796639116aa82cf3841bbfc9f4f516e2b0bc2))
+
 ## [0.18.2](https://github.com/HumanShield-Awareness/HumanShield.APP/compare/v0.18.1...v0.18.2) (2026-07-14)
 
 

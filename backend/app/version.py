@@ -11,4 +11,4 @@ Single Source of Truth), damit sie sich nach jedem Deploy automatisch
 aktualisiert statt an einer einkompilierten Konstante zu haengen.
 """
 
-APP_VERSION = "0.18.2"  # x-release-please-version
+APP_VERSION = "0.19.0"  # x-release-please-version
