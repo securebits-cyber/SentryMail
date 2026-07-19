@@ -38,6 +38,9 @@ docker-compose.override.yml
 # === Backups (DB-Dumps aus update.sh) ===
 backups/
 
+# === LMS-Mediendaten (hochgeladene Schulungsvideos, LMS_MEDIA_DIR) ===
+backend/data/
+
 # === IDE / Editor ===
 .vscode/
 .idea/

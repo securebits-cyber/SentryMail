@@ -37,6 +37,12 @@ import WebhooksSettingsPage from './pages/settings/webhooks'
 import PdfReportSettingsPage from './pages/settings/pdf-report'
 import WhitelabelSettingsPage from './pages/settings/whitelabel'
 import TemplatesPage from './pages/templates'
+import TrainingsPage from './pages/trainings'
+import TrainingPlayerPage from './pages/trainings-player'
+import LmsAssignmentsPage from './pages/lms/assignments'
+import LmsCoursesPage from './pages/lms/courses'
+import LmsReportsPage from './pages/lms/reports'
+import LmsSettingsPage from './pages/settings/lms'
 import UsersPage from './pages/users'
 import { isAuthenticated } from './services/auth'
 
@@ -67,6 +73,11 @@ export default function App() {
           <Route path="/multistage" element={<MultiStagePage />} />
           <Route path="/auto-campaigns" element={<AutoCampaignsPage />} />
           <Route path="/reports" element={<ReportsPage />} />
+          <Route path="/trainings" element={<TrainingsPage />} />
+          <Route path="/trainings/:assignmentId" element={<TrainingPlayerPage />} />
+          <Route path="/lms/courses" element={<LmsCoursesPage />} />
+          <Route path="/lms/assignments" element={<LmsAssignmentsPage />} />
+          <Route path="/lms/reports" element={<LmsReportsPage />} />
           <Route path="/users" element={<UsersPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/settings" element={<SettingsLayout />}>
@@ -79,6 +90,7 @@ export default function App() {
             <Route path="whitelabel" element={<WhitelabelSettingsPage />} />
             <Route path="siem" element={<SiemSettingsPage />} />
             <Route path="saml" element={<SamlSettingsPage />} />
+            <Route path="lms" element={<LmsSettingsPage />} />
             <Route path="oidc" element={<OidcSettingsPage />} />
             <Route path="smtp" element={<SmtpSettingsPage />} />
             <Route path="security" element={<SecuritySettingsPage />} />
