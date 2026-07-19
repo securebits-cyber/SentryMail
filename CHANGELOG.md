@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.20.0](https://github.com/securebits-cyber/SentryMail/compare/v0.19.0...v0.20.0) (2026-07-19)
+
+
+### Features
+
+* **lms:** LMS-Frontend (Player, Schulungen, Kursverwaltung, Reports) ([#94](https://github.com/securebits-cyber/SentryMail/issues/94)) ([f944f08](https://github.com/securebits-cyber/SentryMail/commit/f944f086ee5a723f410b291ddad912e29ccc1f41))
+
 ## [0.19.0](https://github.com/securebits-cyber/SentryMail/compare/v0.18.2...v0.19.0) (2026-07-18)
 
 
