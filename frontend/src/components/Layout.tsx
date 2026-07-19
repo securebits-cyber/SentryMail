@@ -157,7 +157,7 @@ export default function Layout() {
   // Enterprise-Vorteil.
   const isEnterprise = features?.features?.enterprise === true
   // Wiki-Ziel konfigurierbar (vendor-neutral); Default: offizielle Doku.
-  const wikiUrl = import.meta.env.VITE_WIKI_URL || 'https://docs.humanshield.app'
+  const wikiUrl = import.meta.env.VITE_WIKI_URL || 'https://docu.sentrymail.de'
 
   return (
     <div className="flex min-h-screen flex-col bg-bg text-text-primary">
@@ -268,7 +268,7 @@ export default function Layout() {
               Adresse konfigurierbar (vendor-neutral), Default: SentryMail-Support. */}
           {isEnterprise && (
             <a
-              href={`mailto:${import.meta.env.VITE_SUPPORT_EMAIL || 'ticket@humanshield.app'}`}
+              href={`mailto:${import.meta.env.VITE_SUPPORT_EMAIL || 'support@sentrymail.de'}`}
               className="mx-3 mb-3 flex items-center justify-center gap-2 rounded-md border border-border px-3 py-2 text-sm text-text-primary hover:bg-bg"
             >
               <LifeBuoy size={16} />
