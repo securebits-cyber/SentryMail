@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.20.1](https://github.com/securebits-cyber/SentryMail/compare/v0.20.0...v0.20.1) (2026-07-19)
+
+
+### Bug Fixes
+
+* **ui:** SentryMail-Defaults fuer Doku-Link und Support-Kontakt ([#96](https://github.com/securebits-cyber/SentryMail/issues/96)) ([c0de993](https://github.com/securebits-cyber/SentryMail/commit/c0de9936134f1c47978798ddd4454d3ef2cc8db9))
+
 ## [0.20.0](https://github.com/securebits-cyber/SentryMail/compare/v0.19.0...v0.20.0) (2026-07-19)
 
 
