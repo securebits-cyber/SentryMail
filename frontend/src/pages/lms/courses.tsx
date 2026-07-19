@@ -335,13 +335,13 @@ export default function LmsCoursesPage() {
   if (features === null) return <p className="text-text-secondary">{t('dash.loading')}</p>
   if (!licensed)
     return (
-      <PageScaffold title={t('nav.lmsCourses')} subtitle={t('lms.courses.subtitle')}>
+      <PageScaffold title={t('nav.lmsCourses')} subtitle={t('lms.courses.subtitle')} guidanceKey="lms-courses">
         <LockedFeatureNotice tier="enterprise" />
       </PageScaffold>
     )
 
   return (
-    <PageScaffold title={t('nav.lmsCourses')} subtitle={t('lms.courses.subtitle')}>
+    <PageScaffold title={t('nav.lmsCourses')} subtitle={t('lms.courses.subtitle')} guidanceKey="lms-courses">
       <Card className="mb-6 max-w-xl">
         <form onSubmit={createCourse} className="flex flex-col gap-3">
           <input

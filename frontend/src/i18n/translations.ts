@@ -968,6 +968,13 @@ export const translations: Record<Lang, Record<string, string>> = {
     'lms.quiz.questionPlaceholder': 'Fragetext…',
     'lms.quiz.optionPlaceholder': 'Antwortoption…',
     'lms.quiz.saved': 'Quiz gespeichert.',
+    'dash.assignTraining': 'LMS zuweisen',
+    'addon.ent.cat.lms': 'Schulungen (LMS)',
+    'addon.ent.f.lmsCourses': 'Kursverwaltung mit selbstgehosteten Schulungsvideos (kein Dritt-CDN)',
+    'addon.ent.f.lmsAuto': 'Automatische Pflichtkurs-Zuweisung bei Unterschreiten des Awareness-Schwellwerts',
+    'addon.ent.f.lmsTracking': 'Manipulationssicheres Fortschritts-Tracking mit Verständnis-Quiz',
+    'addon.ent.f.lmsEvidence': 'Revisionssichere Abschluss-Nachweise (PDF-Bescheinigung, CSV-Report)',
+    'addon.ent.f.lmsReminders': 'Fristen, Erinnerungen und Overdue-Eskalation an Admins',
   },
   en: {
     // Navigation
@@ -1925,5 +1932,12 @@ export const translations: Record<Lang, Record<string, string>> = {
     'lms.quiz.questionPlaceholder': 'Question text…',
     'lms.quiz.optionPlaceholder': 'Answer option…',
     'lms.quiz.saved': 'Quiz saved.',
+    'dash.assignTraining': 'Assign LMS',
+    'addon.ent.cat.lms': 'Trainings (LMS)',
+    'addon.ent.f.lmsCourses': 'Course management with self-hosted training videos (no third-party CDN)',
+    'addon.ent.f.lmsAuto': 'Automatic mandatory course assignment below the awareness threshold',
+    'addon.ent.f.lmsTracking': 'Tamper-resistant progress tracking with comprehension quiz',
+    'addon.ent.f.lmsEvidence': 'Audit-proof completion evidence (PDF certificate, CSV report)',
+    'addon.ent.f.lmsReminders': 'Deadlines, reminders and overdue escalation to admins',
   },
 }

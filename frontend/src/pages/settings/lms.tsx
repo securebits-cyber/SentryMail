@@ -93,14 +93,14 @@ export default function LmsSettingsPage() {
   if (features === null) return <p className="text-text-secondary">{t('dash.loading')}</p>
   if (!licensed)
     return (
-      <PageScaffold title={t('lms.settings.title')} subtitle={t('lms.settings.subtitle')}>
+      <PageScaffold title={t('lms.settings.title')} subtitle={t('lms.settings.subtitle')} guidanceKey="lms-settings">
         <LockedFeatureNotice tier="enterprise" />
       </PageScaffold>
     )
   if (!form) return <p className="text-text-secondary">{t('dash.loading')}</p>
 
   return (
-    <PageScaffold title={t('lms.settings.title')} subtitle={t('lms.settings.subtitle')}>
+    <PageScaffold title={t('lms.settings.title')} subtitle={t('lms.settings.subtitle')} guidanceKey="lms-settings">
       <Card className="max-w-2xl">
         <form onSubmit={handleSave} className="flex flex-col gap-4">
           <div className="grid gap-4 sm:grid-cols-2">

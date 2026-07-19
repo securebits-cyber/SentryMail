@@ -11,10 +11,14 @@
 ![PostgreSQL](https://img.shields.io/badge/DB-PostgreSQL-4169E1?logo=postgresql&logoColor=white)
 ![Editions](https://img.shields.io/badge/Modell-Open%20Core-blue)
 ![License](https://img.shields.io/badge/License-MPL%202.0-brightgreen)
+[![Docs](https://img.shields.io/badge/Doku-docs.sentrymail.de-F0591F)](https://docs.sentrymail.de)
 
 📖 [English README](README.en.md)
 
 </div>
+
+> [!TIP]
+> 📚 **Die vollständige Dokumentation (Installation, Konfiguration, alle Funktionen) findest du unter [docs.sentrymail.de](https://docs.sentrymail.de).**
 
 ---
 
@@ -79,7 +83,7 @@ Selbstgehostet als Docker-Compose-Stack (PostgreSQL, Redis, FastAPI-Backend, Fro
 **Geführt (empfohlen):** Die interaktive Installationsroutine führt durch alle wichtigen Einstellungen, generiert Secrets und schreibt eine gültige `.env`:
 
 ```bash
-git clone https://github.com/HumanShield-Awareness/HumanShield.APP.git
+git clone https://github.com/securebits-cyber/SentryMail.git
 cd SentryMail
 ./install.sh
 ```
@@ -87,7 +91,7 @@ cd SentryMail
 **Manuell:**
 
 ```bash
-git clone https://github.com/HumanShield-Awareness/HumanShield.APP.git
+git clone https://github.com/securebits-cyber/SentryMail.git
 cd SentryMail
 cp .env.example .env
 # .env ausfüllen: SECRET_KEY, Datenbank, SMTP, INITIAL_ADMIN_*
@@ -113,7 +117,9 @@ Caddy leitet `/api/*` und die öffentlichen Tracking-Endpunkte `/track/*` an das
 
 ## ⚙️ Konfiguration
 
-Sämtliche Einstellungen kommen aus der `.env` — siehe [`.env.example`](.env.example) für alle Optionen (App, Datenbank, SMTP, OIDC, LDAP, Lizenzierung). Login-, OIDC-, LDAP-, SMTP- und Sicherheits­einstellungen lassen sich zusätzlich im Dashboard verwalten.
+Sämtliche Einstellungen kommen aus der `.env` — siehe [`.env.example`](.env.example) für alle Optionen (App, Datenbank, SMTP, OIDC, LDAP, Lizenzierung, LMS-Video-Storage). Login-, OIDC-, LDAP-, SMTP- und Sicherheits­einstellungen lassen sich zusätzlich im Dashboard verwalten.
+
+Für das Schulungsmodul (Enterprise) wird der Video-Speicher über `LMS_STORAGE_BACKEND` (`filesystem` oder `s3`), `LMS_MEDIA_DIR` bzw. die `LMS_S3_*`-Variablen konfiguriert — S3-kompatibel heißt: auch selbstgehostetes MinIO, kein Anbieter fest verdrahtet.
 
 ## 🔒 Sicherheit
 
@@ -121,7 +127,7 @@ Sämtliche Einstellungen kommen aus der `.env` — siehe [`.env.example`](.env.e
 - Zweistufiger Login bei aktivem 2FA, Audit-Log über Anmeldungen und Systemänderungen
 - Betreiber-Secrets ausschließlich über `.env`, nie im Code
 
-Details im [Sicherheits-Wiki](https://github.com/HumanShield-Awareness/HumanShield.APP/wiki/Sicherheit). Awareness-Kontext zu **NIS2 & BSI** im [entsprechenden Wiki-Artikel](https://github.com/HumanShield-Awareness/HumanShield.APP/wiki/NIS2-und-BSI).
+Details im [Sicherheits-Wiki](https://github.com/securebits-cyber/SentryMail/wiki/Sicherheit). Awareness-Kontext zu **NIS2 & BSI** im [entsprechenden Wiki-Artikel](https://github.com/securebits-cyber/SentryMail/wiki/NIS2-und-BSI).
 
 ## 🧩 Editionen (Open Core)
 
@@ -151,18 +157,23 @@ Der **Kern** von SentryMail (alle oben genannten Funktionen) ist unter der **Moz
 - **Automatische/Risiko-Kampagnen** — Empfänger werden automatisch nach Risiko gewählt und in festem Intervall versendet
 - **Enterprise-Reporting** — Schulungsfortschritt, Zertifikatsstatus und individuelle Berichte je Person (PDF)
 - **KI-Risikoanalyse** — KI-gestützte Auswertung der Human-Risk-Kennzahlen
-- **SIEM-Export** — Tracking-Events an Splunk HEC, Elasticsearch, Microsoft Sentinel oder generisches JSON
+- **SIEM-Export** — Tracking- und LMS-Events an Splunk HEC, Elasticsearch, Microsoft Sentinel oder generisches JSON
+- **Schulungsmodul (LMS)** — selbstgehostete Pflichtschulungen mit Videos (kein Dritt-CDN): automatische Kurszuweisung bei Unterschreiten eines Awareness-Schwellwerts, manipulationssicheres Fortschritts-Tracking (nur gesehene Wiedergabezeit zählt), Verständnis-Quiz, Fristen mit Erinnerungen und Overdue-Eskalation
+- **Revisionssichere Schulungs-Nachweise** — PDF-Bescheinigung mit Integritäts-Hash und Abschluss-Report inkl. CSV-Export (NIS2 Art. 21, BSI ORP.3); Nachweise bleiben auch nach Lizenzablauf lesbar
 
 Ohne Lizenz läuft die Plattform als reiner Open-Core-Betrieb — ohne Fehler, ohne Sperren.
 
 ## 📖 Dokumentation
 
-Ausführliche Anleitungen im **[Wiki](https://github.com/HumanShield-Awareness/HumanShield.APP/wiki)**:
-[Installation](https://github.com/HumanShield-Awareness/HumanShield.APP/wiki/Installation) ·
-[Konfiguration](https://github.com/HumanShield-Awareness/HumanShield.APP/wiki/Konfiguration) ·
-[Funktionen](https://github.com/HumanShield-Awareness/HumanShield.APP/wiki/Funktionen) ·
-[Architektur](https://github.com/HumanShield-Awareness/HumanShield.APP/wiki/Architektur) ·
-[FAQ](https://github.com/HumanShield-Awareness/HumanShield.APP/wiki/FAQ)
+Die vollständige Dokumentation liegt unter **[docs.sentrymail.de](https://docs.sentrymail.de)**.
+
+Ergänzend im **[GitHub-Wiki](https://github.com/securebits-cyber/SentryMail/wiki)**:
+[Installation](https://github.com/securebits-cyber/SentryMail/wiki/Installation) ·
+[Konfiguration](https://github.com/securebits-cyber/SentryMail/wiki/Konfiguration) ·
+[Funktionen](https://github.com/securebits-cyber/SentryMail/wiki/Funktionen) ·
+[Schulungsmodul (LMS)](https://github.com/securebits-cyber/SentryMail/wiki/Schulungsmodul-LMS) ·
+[Architektur](https://github.com/securebits-cyber/SentryMail/wiki/Architektur) ·
+[FAQ](https://github.com/securebits-cyber/SentryMail/wiki/FAQ)
 
 ## 🤝 Mitwirken
 
@@ -170,7 +181,7 @@ Beiträge sind willkommen. Bitte für Änderungen einen Branch anlegen, aussagek
 
 ## 📄 Lizenz
 
-Der Kern steht unter der **[Mozilla Public License 2.0](LICENSE)** — einer OSI-anerkannten Open-Source-Lizenz mit dateibasiertem Copyleft: frei nutzbar, veränderbar und weiterverteilbar (auch kommerziell und als gehosteter Dienst); Änderungen an MPL-lizenzierten Dateien müssen unter der MPL offengelegt werden. Die kommerziellen **Enterprise-Add-ons** sind davon getrennt und proprietär. Kontakt für Add-on-Lizenzen: `kontakt@humanshield.app`.
+Der Kern steht unter der **[Mozilla Public License 2.0](LICENSE)** — einer OSI-anerkannten Open-Source-Lizenz mit dateibasiertem Copyleft: frei nutzbar, veränderbar und weiterverteilbar (auch kommerziell und als gehosteter Dienst); Änderungen an MPL-lizenzierten Dateien müssen unter der MPL offengelegt werden. Die kommerziellen **Enterprise-Add-ons** sind davon getrennt und proprietär. Kontakt für Add-on-Lizenzen: `support@sentrymail.de`.
 
 ---
 

@@ -157,7 +157,7 @@ export default function Layout() {
   // Enterprise-Vorteil.
   const isEnterprise = features?.features?.enterprise === true
   // Wiki-Ziel konfigurierbar (vendor-neutral); Default: offizielle Doku.
-  const wikiUrl = import.meta.env.VITE_WIKI_URL || 'https://docu.sentrymail.de'
+  const wikiUrl = import.meta.env.VITE_WIKI_URL || 'https://docs.sentrymail.de'
 
   return (
     <div className="flex min-h-screen flex-col bg-bg text-text-primary">

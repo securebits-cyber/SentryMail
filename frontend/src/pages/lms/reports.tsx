@@ -52,6 +52,7 @@ export default function LmsReportsPage() {
     <PageScaffold
       title={t('nav.lmsReports')}
       subtitle={t('lms.reports.subtitle')}
+      guidanceKey="lms-reports"
       actions={
         <button
           onClick={() => void downloadCsv()}

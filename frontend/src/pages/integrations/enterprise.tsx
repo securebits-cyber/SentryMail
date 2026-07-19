@@ -33,6 +33,16 @@ export default function EnterpriseAddonPage() {
           items: [t('addon.ent.f.aiScoring'), t('addon.ent.f.riskBased'), t('addon.ent.f.automatic')],
         },
         {
+          title: t('addon.ent.cat.lms'),
+          items: [
+            t('addon.ent.f.lmsCourses'),
+            t('addon.ent.f.lmsAuto'),
+            t('addon.ent.f.lmsTracking'),
+            t('addon.ent.f.lmsEvidence'),
+            t('addon.ent.f.lmsReminders'),
+          ],
+        },
+        {
           title: t('addon.ent.cat.reporting'),
           items: [t('addon.ent.f.trainingProgress'), t('addon.ent.f.certStatus'), t('addon.ent.f.customReports')],
         },

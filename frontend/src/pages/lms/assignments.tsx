@@ -4,6 +4,7 @@
 
 import { Plus } from 'lucide-react'
 import { FormEvent, useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import Card from '../../components/Card'
 import LockedFeatureNotice from '../../components/LockedFeatureNotice'
 import PageScaffold from '../../components/PageScaffold'
@@ -45,6 +46,7 @@ export default function LmsAssignmentsPage() {
   const { t, lang } = useI18n()
   const features = useFeatures()
   const licensed = Boolean(features?.features?.enterprise)
+  const [searchParams] = useSearchParams()
   const [items, setItems] = useState<LmsAssignment[]>([])
   const [users, setUsers] = useState<User[]>([])
   const [courses, setCourses] = useState<LmsCourse[]>([])
@@ -77,9 +79,20 @@ export default function LmsAssignmentsPage() {
 
   useEffect(() => {
     if (!licensed) return
-    api.get<User[]>('/users').then((r) => setUsers(r.data.filter((u) => u.is_active)))
+    api.get<User[]>('/users').then((r) => {
+      const active = r.data.filter((u) => u.is_active)
+      setUsers(active)
+      // Vorbelegung aus dem Control-Center („LMS zuweisen“ bei Nicht bestanden):
+      // ?email=… auf das passende Benutzerkonto mappen, falls vorhanden.
+      const email = searchParams.get('email')?.toLowerCase()
+      if (email) {
+        const match = active.find((u) => u.email.toLowerCase() === email)
+        if (match) setUserId((cur) => cur || match.id)
+      }
+    })
     api.get<LmsCourse[]>('/lms/courses').then((r) => setCourses(r.data.filter((c) => c.is_active)))
     api.get<CampaignOpt[]>('/campaigns').then((r) => setCampaigns(r.data))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [licensed])
 
   useEffect(() => {
@@ -140,7 +153,7 @@ export default function LmsAssignmentsPage() {
   if (features === null) return <p className="text-text-secondary">{t('dash.loading')}</p>
   if (!licensed)
     return (
-      <PageScaffold title={t('nav.lmsAssignments')} subtitle={t('lms.assign.subtitle')}>
+      <PageScaffold title={t('nav.lmsAssignments')} subtitle={t('lms.assign.subtitle')} guidanceKey="lms-assignments">
         <LockedFeatureNotice tier="enterprise" />
       </PageScaffold>
     )
@@ -148,7 +161,7 @@ export default function LmsAssignmentsPage() {
   const fmtDate = (iso: string) => new Date(iso).toLocaleDateString(lang === 'de' ? 'de-DE' : 'en-GB')
 
   return (
-    <PageScaffold title={t('nav.lmsAssignments')} subtitle={t('lms.assign.subtitle')}>
+    <PageScaffold title={t('nav.lmsAssignments')} subtitle={t('lms.assign.subtitle')} guidanceKey="lms-assignments">
       {error && <p className="mb-3 text-sm text-status-danger">{error}</p>}
 
       <div className="mb-6 flex flex-wrap gap-6">

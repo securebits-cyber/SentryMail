@@ -68,7 +68,7 @@ export default function TrainingsPage() {
   if (features === null) return <p className="text-text-secondary">{t('dash.loading')}</p>
   if (!licensed)
     return (
-      <PageScaffold title={t('lms.myTitle')} subtitle={t('lms.mySubtitle')}>
+      <PageScaffold title={t('lms.myTitle')} subtitle={t('lms.mySubtitle')} guidanceKey="trainings">
         <LockedFeatureNotice tier="enterprise" />
       </PageScaffold>
     )
@@ -77,7 +77,7 @@ export default function TrainingsPage() {
     iso ? new Date(iso).toLocaleDateString(lang === 'de' ? 'de-DE' : 'en-GB') : '—'
 
   return (
-    <PageScaffold title={t('lms.myTitle')} subtitle={t('lms.mySubtitle')}>
+    <PageScaffold title={t('lms.myTitle')} subtitle={t('lms.mySubtitle')} guidanceKey="trainings">
       {items.length === 0 ? (
         <p className="text-text-secondary">{t('lms.empty')}</p>
       ) : (

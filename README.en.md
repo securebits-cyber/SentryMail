@@ -11,10 +11,14 @@
 ![PostgreSQL](https://img.shields.io/badge/DB-PostgreSQL-4169E1?logo=postgresql&logoColor=white)
 ![Editions](https://img.shields.io/badge/Model-Open%20Core-blue)
 ![License](https://img.shields.io/badge/License-MPL%202.0-brightgreen)
+[![Docs](https://img.shields.io/badge/Docs-docs.sentrymail.de-F0591F)](https://docs.sentrymail.de)
 
 📖 [Deutsche README](README.md)
 
 </div>
+
+> [!TIP]
+> 📚 **Find the full documentation (installation, configuration, all features) at [docs.sentrymail.de](https://docs.sentrymail.de).**
 
 ---
 
@@ -79,7 +83,7 @@ Self-hosted as a Docker Compose stack (PostgreSQL, Redis, FastAPI backend, front
 **Guided (recommended):** The interactive install routine walks you through all important settings, generates secrets and writes a valid `.env`:
 
 ```bash
-git clone https://github.com/HumanShield-Awareness/HumanShield.APP.git
+git clone https://github.com/securebits-cyber/SentryMail.git
 cd SentryMail
 ./install.sh
 ```
@@ -87,7 +91,7 @@ cd SentryMail
 **Manual:**
 
 ```bash
-git clone https://github.com/HumanShield-Awareness/HumanShield.APP.git
+git clone https://github.com/securebits-cyber/SentryMail.git
 cd SentryMail
 cp .env.example .env
 # fill in .env: SECRET_KEY, database, SMTP, INITIAL_ADMIN_*
@@ -113,7 +117,9 @@ Caddy routes `/api/*` and the public tracking endpoints `/track/*` to the backen
 
 ## ⚙️ Configuration
 
-All settings come from `.env` — see [`.env.example`](.env.example) for every option (app, database, SMTP, OIDC, LDAP, licensing). Login, OIDC, LDAP, SMTP and security settings can additionally be managed from the dashboard.
+All settings come from `.env` — see [`.env.example`](.env.example) for every option (app, database, SMTP, OIDC, LDAP, licensing, LMS video storage). Login, OIDC, LDAP, SMTP and security settings can additionally be managed from the dashboard.
+
+For the training module (Enterprise) the video storage is configured via `LMS_STORAGE_BACKEND` (`filesystem` or `s3`), `LMS_MEDIA_DIR` or the `LMS_S3_*` variables — S3-compatible includes self-hosted MinIO; no provider is hard-wired.
 
 ## 🔒 Security
 
@@ -121,7 +127,7 @@ All settings come from `.env` — see [`.env.example`](.env.example) for every o
 - Two-step login when 2FA is enabled, audit log of sign-ins and system changes
 - Operator secrets only via `.env`, never in code
 
-See the [security wiki](https://github.com/HumanShield-Awareness/HumanShield.APP/wiki/Sicherheit). Awareness context for **NIS2 & BSI** is in the [corresponding wiki article](https://github.com/HumanShield-Awareness/HumanShield.APP/wiki/NIS2-und-BSI).
+See the [security wiki](https://github.com/securebits-cyber/SentryMail/wiki/Sicherheit). Awareness context for **NIS2 & BSI** is in the [corresponding wiki article](https://github.com/securebits-cyber/SentryMail/wiki/NIS2-und-BSI).
 
 ## 🧩 Editions (open core)
 
@@ -151,18 +157,23 @@ The **core** of SentryMail (all features above) is open source under the **Mozil
 - **Automatic/risk campaigns** — recipients are chosen automatically by risk and sent at a fixed interval
 - **Enterprise reporting** — training progress, certificate status and individual per-person reports (PDF)
 - **AI risk analysis** — AI-assisted evaluation of the human-risk metrics
-- **SIEM export** — tracking events to Splunk HEC, Elasticsearch, Microsoft Sentinel or generic JSON
+- **SIEM export** — tracking and LMS events to Splunk HEC, Elasticsearch, Microsoft Sentinel or generic JSON
+- **Training module (LMS)** — self-hosted mandatory video trainings (no third-party CDN): automatic course assignment below an awareness threshold, tamper-resistant progress tracking (only watched playback time counts), comprehension quiz, deadlines with reminders and overdue escalation
+- **Audit-proof training evidence** — PDF certificate with integrity hash and completion report incl. CSV export (NIS2 Art. 21, BSI ORP.3); evidence stays readable even after the license expires
 
 Without a license the platform runs as pure open core — no errors, no lockouts.
 
 ## 📖 Documentation
 
-Detailed guides in the **[wiki](https://github.com/HumanShield-Awareness/HumanShield.APP/wiki)**:
-[Installation](https://github.com/HumanShield-Awareness/HumanShield.APP/wiki/Installation) ·
-[Configuration](https://github.com/HumanShield-Awareness/HumanShield.APP/wiki/Konfiguration) ·
-[Features](https://github.com/HumanShield-Awareness/HumanShield.APP/wiki/Funktionen) ·
-[Architecture](https://github.com/HumanShield-Awareness/HumanShield.APP/wiki/Architektur) ·
-[FAQ](https://github.com/HumanShield-Awareness/HumanShield.APP/wiki/FAQ)
+The full documentation lives at **[docs.sentrymail.de](https://docs.sentrymail.de)**.
+
+Additionally in the **[GitHub wiki](https://github.com/securebits-cyber/SentryMail/wiki)**:
+[Installation](https://github.com/securebits-cyber/SentryMail/wiki/Installation) ·
+[Configuration](https://github.com/securebits-cyber/SentryMail/wiki/Konfiguration) ·
+[Features](https://github.com/securebits-cyber/SentryMail/wiki/Funktionen) ·
+[Training module (LMS)](https://github.com/securebits-cyber/SentryMail/wiki/Schulungsmodul-LMS) ·
+[Architecture](https://github.com/securebits-cyber/SentryMail/wiki/Architektur) ·
+[FAQ](https://github.com/securebits-cyber/SentryMail/wiki/FAQ)
 
 ## 🤝 Contributing
 
@@ -170,7 +181,7 @@ Contributions are welcome. Please create a branch for your changes, write meanin
 
 ## 📄 License
 
-The core is licensed under the **[Mozilla Public License 2.0](LICENSE)** — an OSI-approved open-source license with file-level copyleft: free to use, modify and redistribute (including commercially and as a hosted service); modifications to MPL-licensed files must be released under the MPL. The commercial **enterprise add-ons** are separate and proprietary. Add-on licensing contact: `kontakt@humanshield.app`.
+The core is licensed under the **[Mozilla Public License 2.0](LICENSE)** — an OSI-approved open-source license with file-level copyleft: free to use, modify and redistribute (including commercially and as a hosted service); modifications to MPL-licensed files must be released under the MPL. The commercial **enterprise add-ons** are separate and proprietary. Add-on licensing contact: `support@sentrymail.de`.
 
 ---
 

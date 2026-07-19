@@ -4,7 +4,7 @@
 
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { KeyRound, Mail, MailOpen, MousePointerClick, Send, Users, type LucideIcon } from 'lucide-react'
+import { GraduationCap, KeyRound, Mail, MailOpen, MousePointerClick, Send, Users, type LucideIcon } from 'lucide-react'
 import Badge from '../components/Badge'
 import Card from '../components/Card'
 import StatCard, { type StatTone } from '../components/StatCard'
@@ -119,7 +119,8 @@ export default function DashboardPage() {
                 <th className="py-2 pr-4 font-medium">{t('common.name')}</th>
                 <th className="py-2 pr-4 font-medium">{t('dash.col.campaign')}</th>
                 <th className="py-2 pr-4 font-medium">{t('dash.col.event')}</th>
-                <th className="py-2 font-medium">{t('dash.col.time')}</th>
+                <th className="py-2 pr-4 font-medium">{t('dash.col.time')}</th>
+                <th className="py-2 font-medium" />
               </tr>
             </thead>
             <tbody>
@@ -137,8 +138,18 @@ export default function DashboardPage() {
                       {f.status === 'submitted' ? t('dash.event.submitted') : t('dash.event.clicked')}
                     </Badge>
                   </td>
-                  <td className="py-2 font-mono text-sm text-text-secondary">
+                  <td className="py-2 pr-4 font-mono text-sm text-text-secondary">
                     {new Date(f.occurred_at).toLocaleString()}
+                  </td>
+                  <td className="py-2 text-right">
+                    {/* LMS ist Enterprise: ohne Lizenz zeigt die Zielseite den Sperrhinweis. */}
+                    <Link
+                      to={`/lms/assignments?email=${encodeURIComponent(f.email)}`}
+                      className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-border px-3 py-1 text-xs text-text-primary hover:bg-bg"
+                    >
+                      <GraduationCap size={14} />
+                      {t('dash.assignTraining')}
+                    </Link>
                   </td>
                 </tr>
               ))}

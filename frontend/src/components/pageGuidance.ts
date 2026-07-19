@@ -212,6 +212,65 @@ const de: Record<string, Guidance> = {
     tier: 'business',
     note: 'Die Stufen werden automatisch fällig — kein manuelles Nachfassen nötig.',
   },
+  'lms-courses': {
+    intro:
+      'Kurse bündeln Schulungsvideos in Modulen. Videos bleiben vollständig in der eigenen Installation (kein Dritt-CDN) — konsistent zum Self-Hosting-Prinzip.',
+    steps: [
+      'Kurs mit Titel und Beschreibung anlegen; nur aktive Kurse sind zuweisbar.',
+      'Module anlegen und je ein Video hochladen (MP4, H.264 + AAC empfohlen; Limit in den LMS-Einstellungen).',
+      'Optional „Quiz erforderlich“ setzen und über „Quiz bearbeiten“ 2–6 Antwortoptionen je Frage pflegen — die Radio-Auswahl markiert die richtige Antwort.',
+      'Mit „Vorschau“ das Video vor der Zuweisung prüfen.',
+    ],
+    tier: 'enterprise',
+    note: 'Inhaltliche Änderungen erhöhen die Kurs-Version; beim Abschluss wird sie im Nachweis eingefroren (Audit).',
+  },
+  'lms-assignments': {
+    intro:
+      'Pflichtschulungen werden manuell oder automatisch nach Kampagnenende zugewiesen. Benutzer unter dem Awareness-Schwellwert erhalten den gewählten Kurs.',
+    steps: [
+      'Manuell: Benutzer und Kurs wählen, optional eine abweichende Frist (Standard aus den LMS-Einstellungen).',
+      'Automatisch: Kampagne wählen, Awareness-Schwellwert (0–100) und Zielkurs setzen — ausgewertet wird einmalig nach Kampagnenende.',
+      'Zuweisungen erhalten nur Empfänger mit aktivem Benutzerkonto unter derselben E-Mail-Adresse.',
+      'Status überwachen: Erinnerungen laufen automatisch (Frist −7/−1 Tag), Überfällige werden an Admins gemeldet.',
+    ],
+    tier: 'enterprise',
+    note: 'Automatische Zuweisung nach Score ist mitbestimmungspflichtig (§ 87 Abs. 1 Nr. 6 BetrVG); das System verhängt keine automatischen Sanktionen.',
+  },
+  'lms-reports': {
+    intro:
+      'Der Abschluss-Report listet alle revisionssicheren Schulungs-Nachweise — die Datengrundlage für NIS2- und ISO-27001-Audits.',
+    steps: [
+      'Je Abschluss: Kurs-Version, Quiz-Ergebnis und Integritäts-Hash (Tooltip auf der Zeile).',
+      'Über „Nachweis (PDF)“ die Bescheinigung einzelner Personen herunterladen.',
+      'Über „Als CSV exportieren“ den kompletten Report für Audits sichern.',
+    ],
+    tier: 'enterprise',
+    note: 'Nachweise, Report und PDF bleiben auch nach Ablauf des Enterprise Add-ons lesbar (Nachweispflicht).',
+  },
+  trainings: {
+    intro:
+      'Hier sehen Sie Ihre zugewiesenen Pflichtschulungen mit Frist und Fortschritt. Es zählt nur tatsächlich gesehene Wiedergabezeit.',
+    steps: [
+      'Schulung über „Öffnen“ starten und das Video vollständig ansehen — Vorspulen erzeugt keinen Fortschritt.',
+      'Bei inaktivem Browser-Tab pausiert das Video automatisch; die Wiedergabegeschwindigkeit ist begrenzt.',
+      'Nach Erreichen der Abdeckung ggf. das Verständnis-Quiz beantworten (Wiederholung möglich).',
+      'Nach dem Abschluss die Bescheinigung über „Nachweis (PDF)“ herunterladen.',
+    ],
+    tier: 'enterprise',
+  },
+  'lms-settings': {
+    intro:
+      'Globale Standards des Schulungsmoduls: Schwellwerte, Fristen, Wiedergabe-Regeln und Datenaufbewahrung.',
+    steps: [
+      'Standard-Awareness-Schwellwert und Standard-Frist für Zuweisungen festlegen (pro Kampagne überschreibbar).',
+      'Abschluss-Abdeckung (Standard 90 %) und Quiz-Bestehensgrenze (Standard 80 %) definieren.',
+      'Maximale Wiedergabegeschwindigkeit und Gültigkeit der Streaming-URLs setzen.',
+      'Aufbewahrung der Roh-Fortschrittsdaten festlegen — nach Ablauf werden sie automatisch gelöscht (Datenminimierung).',
+      'Optional den wöchentlichen Overdue-Bericht an Admins aktivieren.',
+    ],
+    tier: 'enterprise',
+    note: 'Der Abschluss-Nachweis selbst bleibt unabhängig von der Aufbewahrungsfrist erhalten.',
+  },
   'auto-campaigns': {
     intro:
       'Automatische, risikoabhängige Kampagnen wählen Empfänger dynamisch nach Risiko aus und versenden in festem Intervall — gezielt an die, die es am nötigsten haben.',
@@ -541,6 +600,65 @@ const en: Record<string, Guidance> = {
     ],
     tier: 'business',
     note: 'Stages become due automatically — no manual follow-up needed.',
+  },
+  'lms-courses': {
+    intro:
+      'Courses bundle training videos into modules. Videos stay entirely within your own installation (no third-party CDN) — consistent with the self-hosting principle.',
+    steps: [
+      'Create a course with title and description; only active courses can be assigned.',
+      'Create modules and upload one video each (MP4, H.264 + AAC recommended; limit in the LMS settings).',
+      'Optionally enable “Quiz required” and maintain 2–6 answer options per question via “Edit quiz” — the radio selection marks the correct answer.',
+      'Use “Preview” to check the video before assigning.',
+    ],
+    tier: 'enterprise',
+    note: 'Content changes increase the course version; on completion it is frozen into the evidence record (audit).',
+  },
+  'lms-assignments': {
+    intro:
+      'Mandatory trainings are assigned manually or automatically after a campaign ends. Users below the awareness threshold receive the selected course.',
+    steps: [
+      'Manual: pick user and course, optionally a different deadline (default from the LMS settings).',
+      'Automatic: pick a campaign, set the awareness threshold (0–100) and the target course — evaluated once after the campaign ends.',
+      'Only recipients with an active user account under the same e-mail address receive assignments.',
+      'Monitor status: reminders run automatically (deadline −7/−1 day), overdue trainings are reported to admins.',
+    ],
+    tier: 'enterprise',
+    note: 'Automatic assignment based on scores is subject to co-determination (§ 87 (1) no. 6 BetrVG); the system applies no automatic sanctions.',
+  },
+  'lms-reports': {
+    intro:
+      'The completion report lists all audit-proof training evidence — the data basis for NIS2 and ISO 27001 audits.',
+    steps: [
+      'Per completion: course version, quiz result and integrity hash (tooltip on the row).',
+      'Download individual certificates via “Certificate (PDF)”.',
+      'Use “Export as CSV” to archive the full report for audits.',
+    ],
+    tier: 'enterprise',
+    note: 'Evidence, report and PDFs stay readable even after the Enterprise add-on expires (evidence obligation).',
+  },
+  trainings: {
+    intro:
+      'Here you see your assigned mandatory trainings with deadline and progress. Only playback time actually watched counts.',
+    steps: [
+      'Start a training via “Open” and watch the video completely — skipping ahead creates no progress.',
+      'The video pauses automatically while the browser tab is inactive; playback speed is limited.',
+      'After reaching the coverage threshold, answer the comprehension quiz if configured (retries possible).',
+      'After completion, download your certificate via “Certificate (PDF)”.',
+    ],
+    tier: 'enterprise',
+  },
+  'lms-settings': {
+    intro:
+      'Global defaults of the training module: thresholds, deadlines, playback rules and data retention.',
+    steps: [
+      'Set the default awareness threshold and default deadline for assignments (overridable per campaign).',
+      'Define completion coverage (default 90 %) and the quiz pass mark (default 80 %).',
+      'Set the maximum playback speed and the validity of streaming URLs.',
+      'Configure retention of raw progress data — it is deleted automatically after expiry (data minimization).',
+      'Optionally enable the weekly overdue report to admins.',
+    ],
+    tier: 'enterprise',
+    note: 'The completion evidence itself is kept regardless of the retention period.',
   },
   'auto-campaigns': {
     intro:
