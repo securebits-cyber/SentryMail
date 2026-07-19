@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.20.2](https://github.com/securebits-cyber/SentryMail/compare/v0.20.1...v0.20.2) (2026-07-19)
+
+
+### Bug Fixes
+
+* **ui:** SentryMail-Branding, LMS-Anleitungen und Schnell-Zuweisung ([#98](https://github.com/securebits-cyber/SentryMail/issues/98)) ([9b8b14b](https://github.com/securebits-cyber/SentryMail/commit/9b8b14bbbd11c1ed4ecdba0e80c8ec2e26f3e962))
+
 ## [0.20.1](https://github.com/securebits-cyber/SentryMail/compare/v0.20.0...v0.20.1) (2026-07-19)
 
 
