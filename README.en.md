@@ -187,6 +187,6 @@ The core is licensed under the **[Mozilla Public License 2.0](LICENSE)** — an 
 
 <div align="center">
 
-A project by **SentryMail UG** · use responsibly for authorized awareness training only.
+A project by **SecureBits Cyber Security UG** · use responsibly for authorized awareness training only.
 
 </div>
