@@ -187,6 +187,6 @@ Der Kern steht unter der **[Mozilla Public License 2.0](LICENSE)** — einer OSI
 
 <div align="center">
 
-Ein Projekt von **SentryMail UG** · verantwortungsvoll für autorisierte Awareness-Schulungen einsetzen.
+Ein Projekt von **SecureBits Cyber Security UG** · verantwortungsvoll für autorisierte Awareness-Schulungen einsetzen.
 
 </div>
