@@ -3,6 +3,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
 import { useEffect, useState } from 'react'
+import Badge from '../components/Badge'
 import Card from '../components/Card'
 import GroupForm, { GroupFormValues } from '../components/GroupForm'
 import PageScaffold from '../components/PageScaffold'
@@ -144,26 +145,44 @@ export default function GroupsPage() {
               </tr>
             </thead>
             <tbody>
-              {groups.map((group) => (
-                <tr key={group.id} className="border-b border-border">
-                  <td className="py-2 pr-4">{group.name}</td>
-                  <td className="py-2 pr-4 font-mono text-sm text-text-secondary">{group.member_count}</td>
-                  <td className="py-2 text-right whitespace-nowrap">
-                    <button onClick={() => handleLdapImport(group)} className="mr-3 text-text-secondary hover:text-accent hover:underline">
-                      {t('grp.ldapImport')}
-                    </button>
-                    <button onClick={() => handleEntraImport(group)} className="mr-3 text-text-secondary hover:text-accent hover:underline">
-                      {t('grp.entraImport')}
-                    </button>
-                    <button onClick={() => openEdit(group)} className="mr-3 text-text-secondary hover:text-accent hover:underline">
-                      {t('common.edit')}
-                    </button>
-                    <button onClick={() => handleDelete(group)} className="text-status-danger hover:underline">
-                      {t('common.delete')}
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {groups.map((group) => {
+                // Vom Identity Provider verwaltete Gruppen sind hier nur lesbar:
+                // der naechste Sync wuerde jede Aenderung ohnehin ueberschreiben.
+                const external = group.source === 'scim'
+                return (
+                  <tr key={group.id} className="border-b border-border">
+                    <td className="py-2 pr-4">
+                      {group.name}
+                      {external && (
+                        <span className="ml-2 align-middle">
+                          <Badge tone="neutral">{t('grp.managedBy', { source: 'SCIM' })}</Badge>
+                        </span>
+                      )}
+                    </td>
+                    <td className="py-2 pr-4 font-mono text-sm text-text-secondary">{group.member_count}</td>
+                    <td className="py-2 text-right whitespace-nowrap">
+                      {external ? (
+                        <span className="text-sm text-text-secondary">{t('grp.externallyManaged')}</span>
+                      ) : (
+                        <>
+                          <button onClick={() => handleLdapImport(group)} className="mr-3 text-text-secondary hover:text-accent hover:underline">
+                            {t('grp.ldapImport')}
+                          </button>
+                          <button onClick={() => handleEntraImport(group)} className="mr-3 text-text-secondary hover:text-accent hover:underline">
+                            {t('grp.entraImport')}
+                          </button>
+                          <button onClick={() => openEdit(group)} className="mr-3 text-text-secondary hover:text-accent hover:underline">
+                            {t('common.edit')}
+                          </button>
+                          <button onClick={() => handleDelete(group)} className="text-status-danger hover:underline">
+                            {t('common.delete')}
+                          </button>
+                        </>
+                      )}
+                    </td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         </Card>

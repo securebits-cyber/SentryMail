@@ -467,6 +467,14 @@ class Group(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
+    #: Wer die Gruppe pflegt. ``manual`` = im Dashboard verwaltet (Default, auch
+    #: fuer per LDAP/Entra befuellte Gruppen: das sind einmalige Importe, keine
+    #: dauerhaften Eigentuemer). ``scim`` = vom Identity Provider verwaltet und
+    #: deshalb im Dashboard schreibgeschuetzt - zwei Quellen, die dieselbe Gruppe
+    #: schreiben, ueberschreiben sich sonst gegenseitig.
+    source: Mapped[str] = mapped_column(String(16), default="manual", nullable=False)
+    #: Externe Kennung des IdP (SCIM ``externalId``), nur bei source="scim".
+    external_id: Mapped[str | None] = mapped_column(String(255), nullable=True, index=True)
     created_by_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())

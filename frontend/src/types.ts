@@ -171,9 +171,14 @@ export interface GroupMember {
   criticality?: Criticality | null
 }
 
+// "manual" = im Dashboard verwaltet, "scim" = vom Identity Provider verwaltet
+// und deshalb hier schreibgeschuetzt.
+export type GroupSource = 'manual' | 'scim'
+
 export interface Group {
   id: string
   name: string
+  source?: GroupSource
   created_at: string
   updated_at: string
   members: GroupMember[]
@@ -182,6 +187,7 @@ export interface Group {
 export interface GroupSummary {
   id: string
   name: string
+  source?: GroupSource
   member_count: number
   created_at: string
   updated_at: string
