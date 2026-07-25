@@ -394,6 +394,16 @@ const de: Record<string, Guidance> = {
     ],
     note: 'Die Originaldatei bleibt gespeichert — für die Vorfallsbehandlung nach NIS2 ist sie der eigentliche Beleg, und eine spätere Analyse mit besseren Regeln braucht sie. Die automatische Auswertung (Header, SPF/DKIM/DMARC, URLs, Anhang-Hashes) ist ein Enterprise-Feature.',
   },
+  'settings-misp': {
+    intro:
+      'Gleicht Indikatoren gemeldeter Mails gegen eine eigene MISP-Instanz ab: Anhang-Hashes, enthaltene Adressen und die Absenderdomain. Vollständig optional.',
+    steps: [
+      'URL der eigenen MISP-Instanz und einen API-Schlüssel mit Leserechten eintragen.',
+      'Anreicherung aktivieren und speichern, danach die Verbindung prüfen.',
+      'Treffer erscheinen in der Auswertung einer Meldung und erhöhen deren Bewertung deutlich.',
+    ],
+    note: 'Abgefragt wird nur die hier eingetragene, selbst betriebene Instanz — ob sie externe Feeds einbindet, entscheidet deren Betreiber. Ist sie nicht erreichbar, wird das als „Abgleich nicht möglich“ ausgewiesen und niemals als „nichts bekannt“.',
+  },
   'settings-threat-scan': {
     intro:
       'Anhänge gemeldeter Mails gegen ein ClamAV im eigenen Netz prüfen. Optional — ohne Prüfung läuft die übrige Analyse unverändert.',
@@ -825,6 +835,16 @@ const en: Record<string, Guidance> = {
       'Delete reports once they have been evaluated and documented.',
     ],
     note: 'The original file is kept — for incident handling under NIS2 it is the actual evidence, and a later analysis with better rules needs it. The automatic evaluation (headers, SPF/DKIM/DMARC, URLs, attachment hashes) is an enterprise feature.',
+  },
+  'settings-misp': {
+    intro:
+      'Matches indicators from reported mails against your own MISP instance: attachment hashes, contained addresses and the sender domain. Entirely optional.',
+    steps: [
+      'Enter the URL of your own MISP instance and an API key with read access.',
+      'Enable enrichment and save, then test the connection.',
+      'Hits appear in the analysis of a report and raise its score considerably.',
+    ],
+    note: 'Only the self-hosted instance entered here is queried — whether it pulls external feeds is its operator\u2019s decision. If it is unreachable this is reported as "check not possible" and never as "nothing known".',
   },
   'settings-threat-scan': {
     intro:

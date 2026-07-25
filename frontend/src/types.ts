@@ -360,8 +360,20 @@ export interface MailAnalysisFinding {
   detail: string
 }
 
+export interface MispHit {
+  indicator: string
+  type: string
+  category: string
+  event_id: string
+  event_info: string
+}
+
 export interface MailAnalysis {
   reported_mail_id: string
+  // disabled | unavailable | checked - nur bei "checked" heisst eine leere
+  // Trefferliste wirklich "nichts bekannt".
+  intel_status?: string
+  intel_hits?: MispHit[]
   spf_result: string
   dkim_result: string
   dmarc_result: string
@@ -392,4 +404,12 @@ export interface ThreatScanConfig {
   host: string
   port: number
   timeout_seconds: number
+}
+
+export interface MispConfig {
+  enabled: boolean
+  url: string
+  verify_ssl: boolean
+  timeout_seconds: number
+  has_api_key: boolean
 }
