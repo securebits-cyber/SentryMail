@@ -383,6 +383,16 @@ const de: Record<string, Guidance> = {
     ],
     note: 'Änderungen an Sicherheitsrichtlinien werden im Audit-Log protokolliert.',
   },
+  'settings-scim': {
+    intro:
+      'SCIM befüllt Empfängergruppen automatisch aus dem Identity Provider (Entra ID, Okta …). Anmeldekonten entstehen dabei nicht — nur Empfänger und Gruppen.',
+    steps: [
+      'SCIM aktivieren und ein Bearer-Token erzeugen. Es wird genau einmal angezeigt.',
+      'Endpunkt-URL und Token im Identity Provider als SCIM-Anbindung eintragen.',
+      'Erste Synchronisation auslösen und hier prüfen, ob „Zuletzt gesehen“ gefüllt ist — das ist die verlässlichste Rückmeldung, dass URL und Token stimmen.',
+    ],
+    note: 'So entstandene Gruppen sind in der Gruppenverwaltung schreibgeschützt, damit der nächste Abgleich keine Handarbeit überschreibt. Deaktivierte Personen verlassen die Gruppen automatisch; ein Löschen im Identity Provider deaktiviert die Person, statt die Kampagnenhistorie zu entfernen.',
+  },
   'settings-privacy': {
     intro:
       'Datenschutz- und Mitbestimmungs-Einstellungen der Instanz. Beide Schalter sind bewusst standardmäßig deaktiviert — ein Update ändert das Verhalten bestehender Installationen also nicht.',
@@ -783,6 +793,16 @@ const en: Record<string, Guidance> = {
       'You set up your own 2FA method under “My profile”.',
     ],
     note: 'Changes to security policies are recorded in the audit log.',
+  },
+  'settings-scim': {
+    intro:
+      'SCIM fills recipient groups automatically from your identity provider (Entra ID, Okta …). No login accounts are created — recipients and groups only.',
+    steps: [
+      'Enable SCIM and create a bearer token. It is shown exactly once.',
+      'Enter the endpoint URL and the token in your identity provider as the SCIM connection.',
+      'Trigger a first sync and check here whether "Last seen" is filled in — that is the most reliable confirmation that URL and token are correct.',
+    ],
+    note: 'Groups created this way are read-only in group management so the next sync cannot overwrite manual work. Deactivated people leave the groups automatically; deleting somebody in the identity provider deactivates them instead of removing campaign history.',
   },
   'settings-privacy': {
     intro:

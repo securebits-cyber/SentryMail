@@ -222,6 +222,17 @@ export type PrivacyUnlockStatus = 'pending' | 'approved' | 'rejected' | 'revoked
 
 // Wer Freigaben erteilen darf. Leere Liste = das Vier-Augen-Verfahren laeuft
 // ins Leere, die Oberflaeche warnt dann.
+// SCIM-Anbindung (Business). Das Token wird nie zurueckgegeben - nur, ob eines
+// gesetzt ist; last_seen_at ist beim Einrichten die einzige Rueckmeldung, dass
+// der Identity Provider tatsaechlich ankommt.
+export interface ScimConfig {
+  enabled: boolean
+  has_token: boolean
+  last_seen_at: string | null
+  users: number
+  groups: number
+}
+
 export interface PrivacyOfficer {
   email: string
   full_name: string
