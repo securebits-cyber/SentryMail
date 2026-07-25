@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.35.0](https://github.com/securebits-cyber/SentryMail/compare/v0.34.0...v0.35.0) (2026-07-25)
+
+
+### Features
+
+* **ui:** Einstellungsseite fuer den Mail-Report-Button / Settings page for the mail report button ([#142](https://github.com/securebits-cyber/SentryMail/issues/142)) ([8f573fd](https://github.com/securebits-cyber/SentryMail/commit/8f573fdbd30dc1578fdf4140b937af9dba0a3b09))
+
 ## [0.34.0](https://github.com/securebits-cyber/SentryMail/compare/v0.33.0...v0.34.0) (2026-07-25)
 
 
