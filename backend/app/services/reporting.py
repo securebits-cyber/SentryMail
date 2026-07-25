@@ -11,10 +11,11 @@ Ereignis.
 """
 from datetime import datetime, timezone
 
-from sqlalchemy import Date, cast, func
+from sqlalchemy import Date, cast, distinct, func
 from sqlalchemy.orm import Session
 
 from app.models import Campaign, Recipient, TrackingEvent, TrackingEventType
+from app.services import privacy
 from app.schemas import (
     ActivityHeatmap,
     BreakdownSlice,
@@ -146,7 +147,7 @@ def _is_fail(types) -> bool:
     return TrackingEventType.CLICKED in types or TrackingEventType.SUBMITTED in types
 
 
-def human_risk(db: Session, top: int = 20) -> HumanRiskSummary:
+def human_risk(db: Session, top: int = 20, *, for_automation: bool = False) -> HumanRiskSummary:
     """Personenbezogener Risiko-Score ueber alle Kampagnen (Human Risk Management).
 
     Aggregiert je Person (identifiziert per E-Mail) ihre Teilnahmen und bewertet
@@ -157,6 +158,15 @@ def human_risk(db: Session, top: int = 20) -> HumanRiskSummary:
     - Kritikalitaet: gewichtet den Score (``_CRITICALITY_FACTOR``).
     - Abteilung / Funktion: als Attribute gefuehrt (Gruppierung/Anzeige).
     Trainingsfortschritt ist im Open Core nicht erfasst und geht nicht ein.
+
+    Im Datenschutzmodus bleiben Gesamtscore und Verteilung erhalten, die
+    namentliche Rangliste (``top_people``) entfaellt - sie ist der Prototyp
+    einer Einzelpersonen-Auswertung.
+
+    ``for_automation`` ist der einzige, bewusst benannte Ausweg: interne
+    Automatik (z. B. die LMS-Zuweisung nach Risiko) braucht die Personenliste,
+    zeigt sie aber niemandem an. Fuer alles, was ein Mensch zu sehen bekommt,
+    bleibt der Default stehen.
     """
     types_by_recipient = _events_by_recipient(db)
     rows = db.query(
@@ -229,13 +239,15 @@ def human_risk(db: Session, top: int = 20) -> HumanRiskSummary:
     persons.sort(key=lambda x: x.score, reverse=True)
     count = len(persons)
     overall = round(total_score / count) if count else 0
+    locked = not for_automation and not privacy.individual_view_allowed(db)
     return HumanRiskSummary(
         score=overall,
         level=risk_level(overall),
         people=count,
         repeat_offenders=repeat_offenders,
         distribution=RiskDistribution(**dist),
-        top_people=persons[:top],
+        top_people=[] if locked else persons[:top],
+        individuals_locked=locked,
     )
 
 
@@ -293,20 +305,37 @@ def activity_heatmap(db: Session) -> ActivityHeatmap:
     return ActivityHeatmap(total_events=total, max_count=max_count, cells=cells)
 
 
-def _breakdown(db: Session, column, *, drop_null: bool = False) -> list[BreakdownSlice]:
+def _breakdown(
+    db: Session, column, *, drop_null: bool = False, pol: privacy.PrivacyPolicy | None = None
+) -> list[BreakdownSlice]:
     """Zaehlt Interaktions-Events (Klick/Absenden) gruppiert nach ``column``.
 
     NULL-Werte werden als "Unbekannt" gebuendelt; mit ``drop_null`` (z. B. fuer
     UTM-Quellen) ganz ausgelassen. Absteigend nach Haeufigkeit sortiert.
+
+    Im Datenschutzmodus wird jede Auspraegung unterdrueckt, hinter der weniger
+    als k **Personen** stehen - eine seltene Sprache oder ein exotisches Land
+    identifiziert sonst genau eine Person. Gezaehlt wird deshalb zusaetzlich
+    ``distinct(recipient_id)``; die Ereigniszahl allein waere durch mehrfaches
+    Klicken manipulierbar.
     """
-    query = db.query(column, func.count().label("count")).filter(
-        TrackingEvent.event_type.in_(_ENGAGED)
-    )
+    pol = pol or privacy.policy(db)
+    query = db.query(
+        column,
+        func.count().label("count"),
+        func.count(distinct(TrackingEvent.recipient_id)).label("persons"),
+    ).filter(TrackingEvent.event_type.in_(_ENGAGED))
     if drop_null:
         query = query.filter(column.isnot(None))
     rows = query.group_by(column).all()
-    slices = [BreakdownSlice(label=value or "Unbekannt", count=count) for value, count in rows]
-    return sorted(slices, key=lambda s: s.count, reverse=True)
+    slices = [
+        BreakdownSlice(label=value or "Unbekannt", count=0, suppressed=True)
+        if privacy.below_threshold(persons, pol)
+        else BreakdownSlice(label=value or "Unbekannt", count=count)
+        for value, count, persons in rows
+    ]
+    # Unterdrueckte Gruppen ans Ende, sonst stuenden sie mit count 0 vorn.
+    return sorted(slices, key=lambda s: (not s.suppressed, s.count), reverse=True)
 
 
 def engagement_analytics(db: Session) -> EngagementAnalytics:
@@ -318,15 +347,17 @@ def engagement_analytics(db: Session) -> EngagementAnalytics:
         .scalar()
         or 0
     )
+    # Policy einmal lesen und durchreichen - sonst je Aufschluesselung ein Query.
+    pol = privacy.policy(db)
     return EngagementAnalytics(
         total_events=total,
-        browsers=_breakdown(db, TrackingEvent.browser),
-        operating_systems=_breakdown(db, TrackingEvent.os),
-        devices=_breakdown(db, TrackingEvent.device_type),
-        countries=_breakdown(db, TrackingEvent.country, drop_null=True),
-        languages=_breakdown(db, TrackingEvent.client_language, drop_null=True),
-        resolutions=_breakdown(db, TrackingEvent.screen_resolution, drop_null=True),
-        utm_sources=_breakdown(db, TrackingEvent.utm_source, drop_null=True),
+        browsers=_breakdown(db, TrackingEvent.browser, pol=pol),
+        operating_systems=_breakdown(db, TrackingEvent.os, pol=pol),
+        devices=_breakdown(db, TrackingEvent.device_type, pol=pol),
+        countries=_breakdown(db, TrackingEvent.country, drop_null=True, pol=pol),
+        languages=_breakdown(db, TrackingEvent.client_language, drop_null=True, pol=pol),
+        resolutions=_breakdown(db, TrackingEvent.screen_resolution, drop_null=True, pol=pol),
+        utm_sources=_breakdown(db, TrackingEvent.utm_source, drop_null=True, pol=pol),
     )
 
 
@@ -411,9 +442,29 @@ def management_report(db: Session) -> ManagementReport:
         acc["points"] += pts
         tot["points"] += pts
 
+    pol = privacy.policy(db)
+    individuals_locked = not privacy.individual_view_allowed(db)
     rows = []
     for campaign_id, a in per_campaign.items():
         cscore = round(a["points"] / a["recipients"]) if a["recipients"] else 0
+        # Eine Kampagne mit weniger als k Empfaengern ist faktisch eine
+        # Einzelpersonen-Auswertung: bei drei Adressaten verraet eine Klickrate
+        # von 33 %, wer geklickt hat. Name und Empfaengerzahl bleiben stehen,
+        # damit die Luecke im Report erkennbar ist.
+        if privacy.below_threshold(a["recipients"], pol):
+            rows.append(
+                ReportCampaignRow(
+                    campaign_id=campaign_id,
+                    name=campaign_names.get(campaign_id, "—"),
+                    recipients=a["recipients"],
+                    sent=0, opened=0, clicked=0, submitted=0,
+                    open_rate=0, click_rate=0, submit_rate=0,
+                    risk_score=0,
+                    risk_level=risk_level(0),
+                    suppressed=True,
+                )
+            )
+            continue
         rows.append(
             ReportCampaignRow(
                 campaign_id=campaign_id,
@@ -430,7 +481,7 @@ def management_report(db: Session) -> ManagementReport:
                 risk_level=risk_level(cscore),
             )
         )
-    rows.sort(key=lambda r: r.risk_score, reverse=True)
+    rows.sort(key=lambda r: (not r.suppressed, r.risk_score), reverse=True)
 
     n = tot["recipients"]
     score = round(tot["points"] / n) if n else 0
@@ -450,5 +501,8 @@ def management_report(db: Session) -> ManagementReport:
         risk_level=risk_level(score),
         risk_distribution=RiskDistribution(**dist),
         campaign_rows=rows,
-        top_failed=failed_recipients(db, limit=10),
+        # Ueber ``individual_view_allowed``, nicht ueber das blosse Modus-Flag:
+        # eine erteilte Vier-Augen-Freigabe (A3) muss hier greifen.
+        top_failed=[] if individuals_locked else failed_recipients(db, limit=10),
+        individuals_locked=individuals_locked,
     )

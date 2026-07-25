@@ -60,16 +60,28 @@ def management_export(db: Session = Depends(get_db), _: User = Depends(get_curre
          "Oeffnungsrate %", "Klickrate %", "Submitrate %", "Risiko-Score", "Risiko-Stufe"]
     )
     for row in report.campaign_rows:
+        if row.suppressed:
+            # Nicht stillschweigend Nullen exportieren - sonst liest sich eine
+            # unterdrueckte Kampagne wie eine mit null Klicks.
+            writer.writerow([row.name, row.recipients, "unter Schwellenwert (k-Anonymitaet)"])
+            continue
         writer.writerow(
             [row.name, row.recipients, row.sent, row.opened, row.clicked, row.submitted,
              row.open_rate, row.click_rate, row.submit_rate, row.risk_score, row.risk_level]
         )
     writer.writerow([])
 
-    writer.writerow(["Top Durchgefallene - E-Mail", "Name", "Kampagne", "Status", "Zeit"])
-    for f in report.top_failed:
-        name = " ".join(x for x in [f.first_name, f.last_name] if x)
-        writer.writerow([f.email, name, f.campaign_name, f.status, f.occurred_at.isoformat()])
+    # Anders als der Empfaenger-Export ist dieser Report ueberwiegend
+    # aggregiert: statt ihn zu sperren, entfaellt nur der Personenabschnitt -
+    # mit einer Zeile, die die Luecke benennt.
+    if report.individuals_locked:
+        writer.writerow(["Top Durchgefallene"])
+        writer.writerow(["Im Datenschutzmodus gesperrt (Einzelpersonen-Auswertung)"])
+    else:
+        writer.writerow(["Top Durchgefallene - E-Mail", "Name", "Kampagne", "Status", "Zeit"])
+        for f in report.top_failed:
+            name = " ".join(x for x in [f.first_name, f.last_name] if x)
+            writer.writerow([f.email, name, f.campaign_name, f.status, f.occurred_at.isoformat()])
 
     buffer.seek(0)
     return StreamingResponse(

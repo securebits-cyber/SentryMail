@@ -78,6 +78,36 @@ export default function PrivacySettingsPage() {
           <label className="flex cursor-pointer gap-3 rounded-lg border border-border bg-surface p-4">
             <input
               type="checkbox"
+              checked={modeEnabled}
+              disabled={readOnly}
+              onChange={(e) => setModeEnabled(e.target.checked)}
+              className="mt-0.5 accent-accent"
+            />
+            <span>
+              <span className="block text-sm font-medium">{t('priv.mode.label')}</span>
+              <span className="block text-sm text-text-secondary">{t('priv.mode.desc')}</span>
+            </span>
+          </label>
+
+          <div className="rounded-lg border border-border bg-surface p-4">
+            <label className="flex flex-col gap-1 text-sm">
+              <span className="font-medium">{t('priv.k.label')}</span>
+              <input
+                type="number"
+                min={2}
+                max={1000}
+                value={kThreshold}
+                disabled={readOnly || !modeEnabled}
+                onChange={(e) => setKThreshold(Number(e.target.value))}
+                className="w-28 rounded-md border border-border bg-bg px-3 py-2 text-text-primary disabled:opacity-60"
+              />
+            </label>
+            <p className="mt-1.5 text-sm text-text-secondary">{t('priv.k.desc')}</p>
+          </div>
+
+          <label className="flex cursor-pointer gap-3 rounded-lg border border-border bg-surface p-4">
+            <input
+              type="checkbox"
               checked={enabled}
               disabled={readOnly}
               onChange={(e) => setEnabled(e.target.checked)}

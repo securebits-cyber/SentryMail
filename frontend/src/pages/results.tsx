@@ -121,9 +121,13 @@ export default function ResultsPage() {
 
       {error && <p className="mt-4 text-sm text-status-danger">{error}</p>}
       <div className="mt-4 flex items-center gap-4">
-        <button onClick={exportCsv} disabled={exporting} className="text-accent underline disabled:opacity-60">
-          {t('res.exportCsv')}
-        </button>
+        {/* Der CSV-Export besteht nur aus personenbezogenen Zeilen - im
+            Datenschutzmodus wuerde er zwangslaeufig mit 403 scheitern. */}
+        {!result.individuals_locked && (
+          <button onClick={exportCsv} disabled={exporting} className="text-accent underline disabled:opacity-60">
+            {t('res.exportCsv')}
+          </button>
+        )}
         <button
           onClick={exportPdf}
           disabled={exporting}

@@ -22,7 +22,7 @@ from app.schemas import (
     RiskSummary,
     TimelinePoint,
 )
-from app.services import reporting
+from app.services import privacy, reporting
 
 router = APIRouter(prefix="/dashboard", tags=["dashboard"])
 
@@ -33,7 +33,9 @@ def summary(db: Session = Depends(get_db), _: User = Depends(get_current_user)):
 
 
 @router.get("/failed", response_model=list[FailedRecipient])
-def failed_recipients(db: Session = Depends(get_db), _: User = Depends(get_current_user)):
+def failed_recipients(db: Session = Depends(get_db), current: User = Depends(get_current_user)):
+    """Namentliche Liste der Durchgefallenen - im Datenschutzmodus gesperrt."""
+    privacy.assert_individual_allowed(db, current)
     return reporting.failed_recipients(db)
 
 

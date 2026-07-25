@@ -23,8 +23,10 @@ import {
   type TimelinePoint,
 } from '../components/DashboardCharts'
 import PageHeader from '../components/PageHeader'
+import PrivacyLockNotice from '../components/PrivacyLockNotice'
 import { useI18n } from '../i18n'
 import { api } from '../services/api'
+import { isPrivacyLocked } from '../services/privacy'
 
 interface Failed {
   email: string
@@ -54,6 +56,7 @@ export default function DashboardPage() {
   const [heatmap, setHeatmap] = useState<ActivityHeatmap | null>(null)
   const [humanRisk, setHumanRisk] = useState<HumanRiskSummary | null>(null)
   const [failed, setFailed] = useState<Failed[]>([])
+  const [failedLocked, setFailedLocked] = useState(false)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -64,7 +67,13 @@ export default function DashboardPage() {
       api.get<EngagementAnalytics>('/dashboard/analytics').then((r) => setAnalytics(r.data)),
       api.get<ActivityHeatmap>('/dashboard/heatmap').then((r) => setHeatmap(r.data)),
       api.get<HumanRiskSummary>('/dashboard/human-risk').then((r) => setHumanRisk(r.data)),
-      api.get<Failed[]>('/dashboard/failed').then((r) => setFailed(r.data)),
+      // Im Datenschutzmodus antwortet der Endpunkt mit 403 - das ist kein
+      // Fehler, sondern die erzwungene Sperre, und darf die uebrigen Kacheln
+      // des Dashboards nicht mitreissen.
+      api
+        .get<Failed[]>('/dashboard/failed')
+        .then((r) => setFailed(r.data))
+        .catch((e) => setFailedLocked(isPrivacyLocked(e))),
     ]).finally(() => setLoading(false))
   }, [])
 
@@ -108,7 +117,9 @@ export default function DashboardPage() {
       )}
 
       <Card title={t('dash.failed.heading')}>
-      {failed.length === 0 ? (
+      {failedLocked ? (
+        <PrivacyLockNotice compact />
+      ) : failed.length === 0 ? (
         <p className="text-sm text-text-secondary">{t('dash.failed.empty')}</p>
       ) : (
         <div className="overflow-x-auto">
