@@ -414,6 +414,16 @@ export interface MispConfig {
   has_api_key: boolean
 }
 
+export interface PdfSigningConfig {
+  enabled: boolean
+  has_certificate: boolean
+  subject: string
+  valid_until: string | null
+  fingerprint: string
+  reason: string
+  location: string
+}
+
 export type ChannelKind = 'sms' | 'matrix' | 'talk' | 'usb'
 /** Kanäle mit Zustellung — usb hat keine, dort ist der Weg der Fundort. */
 export type DeliverableChannel = 'sms' | 'matrix' | 'talk'

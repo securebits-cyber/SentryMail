@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom'
 import { GraduationCap, KeyRound, Mail, MailOpen, MousePointerClick, Send, Users, type LucideIcon } from 'lucide-react'
 import Badge from '../components/Badge'
 import Card from '../components/Card'
+import GettingStarted from '../components/GettingStarted'
 import StatCard, { type StatTone } from '../components/StatCard'
 import {
   ActivityHeatmapCard,
@@ -82,6 +83,8 @@ export default function DashboardPage() {
   return (
     <>
       <PageHeader title={t('nav.controlCenter')} subtitle={t('dash.subtitle')} />
+
+      <GettingStarted campaigns={summary?.campaigns ?? 0} />
 
       <div className="mb-6 grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(170px, 1fr))' }}>
         {tiles.map(({ key, labelKey, tone, icon }) => (

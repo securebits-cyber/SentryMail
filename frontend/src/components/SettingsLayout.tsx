@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-import { BadgeCheck, Cloud, FileText, Fingerprint, GraduationCap, KeyRound, KeySquare, Lock, MailCheck, MousePointerClick, Network, Palette, Radar, ScanSearch, ScrollText, Share2, ShieldAlert, Smartphone, ShieldCheck, Sparkles, Users, Webhook, type LucideIcon } from 'lucide-react'
+import { BadgeCheck, Cloud, FileText, FileSignature, Fingerprint, GraduationCap, KeyRound, KeySquare, Lock, MailCheck, MousePointerClick, Network, Palette, Radar, ScanSearch, ScrollText, Share2, ShieldAlert, Smartphone, ShieldCheck, Sparkles, Users, Webhook, type LucideIcon } from 'lucide-react'
 import { NavLink, Outlet } from 'react-router-dom'
 import TierBadge from './TierBadge'
 import { useFeatures } from '../hooks/useFeatures'
@@ -33,6 +33,7 @@ const groups: { labelKey: string | null; items: NavItem[] }[] = [
       { to: '/settings/ai', labelKey: 'settings.ai', icon: Sparkles, feature: 'business' },
       { to: '/settings/report-button', labelKey: 'settings.reportButton', icon: MousePointerClick, feature: 'business' },
       { to: '/settings/pdf-report', labelKey: 'settings.pdfReport', icon: FileText, feature: 'business' },
+      { to: '/settings/pdf-signing', labelKey: 'settings.pdfSigning', icon: FileSignature, feature: 'business' },
       { to: '/settings/whitelabel', labelKey: 'settings.whitelabel', icon: Palette, feature: 'enterprise' },
       { to: '/settings/siem', labelKey: 'settings.siem', icon: Share2, feature: 'enterprise' },
       { to: '/settings/threat-scan', labelKey: 'settings.threatScan', icon: ScanSearch, feature: 'enterprise' },
