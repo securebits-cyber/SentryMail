@@ -65,8 +65,15 @@ def _get_or_404(db: Session, user_id: uuid.UUID) -> User:
     return user
 
 
+_ROLE_LABELS = {
+    UserRole.ADMIN: "Admin",
+    UserRole.PRIVACY_OFFICER: "Datenschutzbeauftragter",
+    UserRole.USER: "Benutzer",
+}
+
+
 def _role_label(role: UserRole) -> str:
-    return "Admin" if role == UserRole.ADMIN else "Benutzer"
+    return _ROLE_LABELS.get(role, "Benutzer")
 
 
 def _describe_user_changes(data: dict, password_changed: bool) -> str:

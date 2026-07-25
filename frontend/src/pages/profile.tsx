@@ -164,7 +164,13 @@ export default function ProfilePage() {
           <div className="flex items-center gap-3 text-sm">
             <span className="text-text-secondary">{t('prof.role')}</span>
             <Badge tone={me.role === 'admin' ? 'accent' : 'neutral'}>
-              {me.role === 'admin' ? t('prof.roleAdmin') : t('prof.roleUser')}
+              {t(
+                me.role === 'admin'
+                  ? 'prof.roleAdmin'
+                  : me.role === 'privacy_officer'
+                    ? 'prof.rolePrivacyOfficer'
+                    : 'prof.roleUser',
+              )}
             </Badge>
           </div>
           <label className={labelClass}>

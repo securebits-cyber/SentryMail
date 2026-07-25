@@ -75,3 +75,28 @@ def require_admin(current_user: User = Depends(get_current_user)) -> User:
     if current_user.role != UserRole.ADMIN:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin-Rechte erforderlich")
     return current_user
+
+
+def require_privacy_officer(current_user: User = Depends(get_current_user)) -> User:
+    """Nur der Datenschutzbeauftragte/Personalrat (Welle 2, Rollentrennung).
+
+    Bewusst **ohne** Admin-Fallback: die Vier-Augen-Freigabe fuer
+    Einzelpersonen-Auswertungen taugt nur etwas, wenn der auswertende Admin
+    sie sich nicht selbst erteilen kann.
+    """
+    if current_user.role != UserRole.PRIVACY_OFFICER:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Rechte des Datenschutzbeauftragten erforderlich",
+        )
+    return current_user
+
+
+def require_admin_or_privacy_officer(current_user: User = Depends(get_current_user)) -> User:
+    """Lesende Kontrollsicht (z. B. Audit-Log) fuer Betrieb und Kontrolle."""
+    if current_user.role not in (UserRole.ADMIN, UserRole.PRIVACY_OFFICER):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin- oder Datenschutzbeauftragten-Rechte erforderlich",
+        )
+    return current_user

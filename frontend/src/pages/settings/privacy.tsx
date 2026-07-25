@@ -6,12 +6,18 @@ import { Fingerprint, Settings } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import PageScaffold from '../../components/PageScaffold'
 import { useI18n } from '../../i18n'
+import { useMe } from '../../hooks/useMe'
 import { api } from '../../services/api'
 import type { PrivacyConfig } from '../../types'
 
 export default function PrivacySettingsPage() {
   const { t } = useI18n()
+  const me = useMe()
+  // Der Datenschutzbeauftragte sieht die geltende Policy, aendert sie aber nicht.
+  const readOnly = me?.role !== 'admin'
   const [enabled, setEnabled] = useState(false)
+  const [modeEnabled, setModeEnabled] = useState(false)
+  const [kThreshold, setKThreshold] = useState(5)
   const [loaded, setLoaded] = useState(false)
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState<{ kind: 'error' | 'info'; text: string } | null>(null)
@@ -19,7 +25,11 @@ export default function PrivacySettingsPage() {
   useEffect(() => {
     api
       .get<PrivacyConfig>('/settings/privacy')
-      .then((res) => setEnabled(res.data.fingerprinting_enabled))
+      .then((res) => {
+        setEnabled(res.data.fingerprinting_enabled)
+        setModeEnabled(res.data.privacy_mode_enabled)
+        setKThreshold(res.data.k_anonymity_threshold)
+      })
       .finally(() => setLoaded(true))
   }, [])
 
@@ -27,7 +37,11 @@ export default function PrivacySettingsPage() {
     setSaving(true)
     setMessage(null)
     try {
-      await api.put('/settings/privacy', { fingerprinting_enabled: enabled })
+      await api.put('/settings/privacy', {
+        fingerprinting_enabled: enabled,
+        privacy_mode_enabled: modeEnabled,
+        k_anonymity_threshold: kThreshold,
+      })
       setMessage({ kind: 'info', text: t('priv.saved') })
     } catch {
       setMessage({ kind: 'error', text: t('priv.err.save') })
@@ -56,10 +70,16 @@ export default function PrivacySettingsPage() {
         <p className="text-text-secondary">{t('common.loadingSettings')}</p>
       ) : (
         <div className="flex max-w-2xl flex-col gap-4">
+          {readOnly && (
+            <p className="rounded-lg border border-border bg-surface p-3 text-xs text-text-secondary">
+              {t('priv.readOnly')}
+            </p>
+          )}
           <label className="flex cursor-pointer gap-3 rounded-lg border border-border bg-surface p-4">
             <input
               type="checkbox"
               checked={enabled}
+              disabled={readOnly}
               onChange={(e) => setEnabled(e.target.checked)}
               className="mt-0.5 accent-accent"
             />
@@ -71,11 +91,13 @@ export default function PrivacySettingsPage() {
           <p className="rounded-lg border border-status-warning/30 bg-status-warning/8 p-3 text-xs text-text-secondary">
             {t('priv.fp.legal')}
           </p>
-          <div>
-            <button onClick={save} disabled={saving} className="rounded-full bg-accent px-5 py-2.5 font-medium text-white disabled:opacity-60">
-              {saving ? t('common.saving') : t('common.save')}
-            </button>
-          </div>
+          {!readOnly && (
+            <div>
+              <button onClick={save} disabled={saving} className="rounded-full bg-accent px-5 py-2.5 font-medium text-white disabled:opacity-60">
+                {saving ? t('common.saving') : t('common.save')}
+              </button>
+            </div>
+          )}
         </div>
       )}
     </PageScaffold>

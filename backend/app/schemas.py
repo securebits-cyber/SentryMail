@@ -7,7 +7,7 @@ import uuid
 from datetime import datetime
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, EmailStr, field_validator
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
 from app.models import CampaignStatus, TrackingEventType, UserRole
 
@@ -88,10 +88,16 @@ class PrivacyConfigOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     fingerprinting_enabled: bool
+    privacy_mode_enabled: bool
+    k_anonymity_threshold: int
 
 
 class PrivacyConfigUpdate(BaseModel):
     fingerprinting_enabled: bool
+    privacy_mode_enabled: bool
+    # k = 1 waere keine Anonymisierung; die Obergrenze verhindert, dass der Modus
+    # durch eine absurd hohe Schwelle faktisch alle Auswertungen abschaltet.
+    k_anonymity_threshold: int = Field(default=5, ge=2, le=1000)
 
 
 # --- User ---

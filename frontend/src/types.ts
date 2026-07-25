@@ -128,11 +128,15 @@ export interface SendingProfile {
   updated_at: string
 }
 
+// privacy_officer: Datenschutzbeauftragter/Personalrat - Kontrollrolle der
+// Welle 2 (Freigaben, Audit-Einsicht), kein Betriebs- oder Auswerterzugriff.
+export type UserRole = 'admin' | 'privacy_officer' | 'user'
+
 export interface User {
   id: string
   email: string
   full_name: string
-  role: 'admin' | 'user'
+  role: UserRole
   is_active: boolean
   is_primary: boolean
   twofa_enabled: boolean
@@ -205,6 +209,8 @@ export interface SecurityConfig {
 
 export interface PrivacyConfig {
   fingerprinting_enabled: boolean
+  privacy_mode_enabled: boolean
+  k_anonymity_threshold: number
 }
 
 // Audit-Log: Anmelde- und System-Aenderungsereignisse.

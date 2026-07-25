@@ -10,7 +10,7 @@ koennen hier als zusaetzliche Unter-Router andocken. (LDAP liegt im Business-Add
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
-from app.auth.permissions import require_admin
+from app.auth.permissions import require_admin, require_admin_or_privacy_officer
 from app.services.audit import client_ip, record_audit
 from app.database import get_db
 from app.models import OidcConfig, PrivacyConfig, SecurityConfig, User
@@ -142,8 +142,29 @@ def get_or_create_privacy_config(db: Session) -> PrivacyConfig:
 
 
 @router.get("/privacy", response_model=PrivacyConfigOut)
-def get_privacy(db: Session = Depends(get_db), _: User = Depends(require_admin)):
+def get_privacy(db: Session = Depends(get_db), _: User = Depends(require_admin_or_privacy_officer)):
+    """Lesbar auch fuer den Datenschutzbeauftragten - er muss die geltende
+    Policy einsehen koennen, ohne sie aendern zu duerfen."""
     return get_or_create_privacy_config(db)
+
+
+def _describe_privacy_changes(config: PrivacyConfig, payload: PrivacyConfigUpdate) -> str:
+    """Nur tatsaechliche Aenderungen protokollieren - ein Audit-Log voller
+    'nichts geaendert'-Eintraege waere im Streitfall wertlos."""
+    parts: list[str] = []
+    if payload.fingerprinting_enabled != config.fingerprinting_enabled:
+        parts.append(
+            "Client-Fingerprinting " + ("aktiviert" if payload.fingerprinting_enabled else "deaktiviert")
+        )
+    if payload.privacy_mode_enabled != config.privacy_mode_enabled:
+        parts.append(
+            "Datenschutzmodus " + ("aktiviert" if payload.privacy_mode_enabled else "deaktiviert")
+        )
+    if payload.k_anonymity_threshold != config.k_anonymity_threshold:
+        parts.append(
+            f"k-Anonymitaet {config.k_anonymity_threshold} → {payload.k_anonymity_threshold}"
+        )
+    return " · ".join(parts) or "keine Änderung"
 
 
 @router.put("/privacy", response_model=PrivacyConfigOut)
@@ -154,14 +175,16 @@ def update_privacy(
     current: User = Depends(require_admin),
 ):
     config = get_or_create_privacy_config(db)
+    description = _describe_privacy_changes(config, payload)
     config.fingerprinting_enabled = payload.fingerprinting_enabled
+    config.privacy_mode_enabled = payload.privacy_mode_enabled
+    config.k_anonymity_threshold = payload.k_anonymity_threshold
     db.commit()
     db.refresh(config)
-    state = "aktiviert" if config.fingerprinting_enabled else "deaktiviert"
     record_audit(
         db,
         action="settings.privacy.updated",
-        description=f"Client-Fingerprinting {state}",
+        description=description,
         actor=current,
         ip=client_ip(request),
     )

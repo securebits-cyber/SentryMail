@@ -6,6 +6,7 @@ import { BadgeCheck, Cloud, FileText, Fingerprint, GraduationCap, KeyRound, KeyS
 import { NavLink, Outlet } from 'react-router-dom'
 import TierBadge from './TierBadge'
 import { useFeatures } from '../hooks/useFeatures'
+import { useMe } from '../hooks/useMe'
 import { useI18n } from '../i18n'
 
 interface NavItem {
@@ -14,6 +15,10 @@ interface NavItem {
   icon: LucideIcon
   feature?: 'business' | 'enterprise'
 }
+
+// Der Datenschutzbeauftragte sieht nur seine Kontrollbereiche - die uebrigen
+// Einstellungen sind Betrieb und gehen ihn nichts an (Rollentrennung, Welle 2).
+const privacyOfficerRoutes = ['/settings/privacy', '/settings/audit-events']
 
 // Einstellungs-Nav in Gruppen (Netbird-Stil). Neue Bereiche hier ergaenzen.
 // `feature` verweist auf ein Lizenz-Entitlement; ohne gültige Lizenz gesperrt.
@@ -53,11 +58,18 @@ const linkClass = ({ isActive }: { isActive: boolean }) =>
 export default function SettingsLayout() {
   const { t } = useI18n()
   const features = useFeatures()
+  const me = useMe()
+  const visibleGroups =
+    me?.role === 'privacy_officer'
+      ? groups
+          .map((group) => ({ ...group, items: group.items.filter((i) => privacyOfficerRoutes.includes(i.to)) }))
+          .filter((group) => group.items.length > 0)
+      : groups
   return (
     <div className="-m-6 flex min-h-full">
       <aside className="w-52 shrink-0 border-r border-border bg-surface px-3 py-5">
         <nav className="flex flex-col gap-1">
-          {groups.map((group, i) => (
+          {visibleGroups.map((group, i) => (
             <div key={group.labelKey ?? i} className={group.labelKey ? 'mt-4' : ''}>
               {group.labelKey && (
                 <div className="px-3 pb-1 text-xs font-medium uppercase tracking-wider text-text-secondary">

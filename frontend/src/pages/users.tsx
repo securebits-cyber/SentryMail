@@ -8,10 +8,16 @@ import Card from '../components/Card'
 import PageScaffold from '../components/PageScaffold'
 import { useI18n } from '../i18n'
 import { api } from '../services/api'
-import type { User } from '../types'
+import type { User, UserRole } from '../types'
 
 const fieldClass = 'rounded-md border border-border bg-surface px-3 py-2 text-text-primary'
 const labelClass = 'flex flex-col gap-1 text-sm'
+
+const roleLabelKeys: Record<UserRole, string> = {
+  admin: 'prof.roleAdmin',
+  privacy_officer: 'prof.rolePrivacyOfficer',
+  user: 'prof.roleUser',
+}
 
 /** Fehlermeldung des Backends (detail) herausziehen, sonst Fallback. */
 function errText(e: unknown, fallback: string): string {
@@ -30,7 +36,7 @@ export default function UsersPage() {
   const [email, setEmail] = useState('')
   const [fullName, setFullName] = useState('')
   const [password, setPassword] = useState('')
-  const [role, setRole] = useState<'user' | 'admin'>('user')
+  const [role, setRole] = useState<UserRole>('user')
   const [submitting, setSubmitting] = useState(false)
 
   function load() {
@@ -135,8 +141,9 @@ export default function UsersPage() {
             </label>
             <label className={`${labelClass} w-40`}>
               {t('usr.role')}
-              <select value={role} onChange={(e) => setRole(e.target.value as 'user' | 'admin')} className={fieldClass}>
+              <select value={role} onChange={(e) => setRole(e.target.value as UserRole)} className={fieldClass}>
                 <option value="user">{t('prof.roleUser')}</option>
+                <option value="privacy_officer">{t('prof.rolePrivacyOfficer')}</option>
                 <option value="admin">{t('prof.roleAdmin')}</option>
               </select>
             </label>
@@ -174,7 +181,7 @@ export default function UsersPage() {
                   <td className="py-2 pr-4">{user.full_name}</td>
                   <td className="py-2 pr-4">
                     <Badge tone={user.role === 'admin' ? 'accent' : 'neutral'}>
-                      {user.role === 'admin' ? t('prof.roleAdmin') : t('prof.roleUser')}
+                      {t(roleLabelKeys[user.role] ?? 'prof.roleUser')}
                     </Badge>
                   </td>
                   <td className="py-2 pr-4">
