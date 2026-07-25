@@ -9,6 +9,7 @@ import Card from '../components/Card'
 import LockedFeatureNotice from '../components/LockedFeatureNotice'
 import MailAnalysisPanel from '../components/MailAnalysisPanel'
 import PageScaffold from '../components/PageScaffold'
+import QuarantinePanel from '../components/QuarantinePanel'
 import { useFeatures } from '../hooks/useFeatures'
 import { useI18n } from '../i18n'
 import { api } from '../services/api'
@@ -200,7 +201,10 @@ export default function ReportedMailsPage() {
                 {openRow === mail.id && (
                   <tr className="border-b border-border">
                     <td colSpan={7} className="py-3">
-                      <MailAnalysisPanel mailId={mail.id} licensed={analysisLicensed} />
+                      <div className="flex flex-col gap-3">
+                        <MailAnalysisPanel mailId={mail.id} licensed={analysisLicensed} />
+                        <QuarantinePanel mailId={mail.id} licensed={analysisLicensed} />
+                      </div>
                     </td>
                   </tr>
                 )}

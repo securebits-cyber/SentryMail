@@ -176,13 +176,34 @@ sichtbar, die auslösenden Einzelwerte nicht.
 (3) Eine Fristüberschreitung führt ausschließlich zu einer organisatorischen Erinnerung,
 nicht zu einer technischen Sperre.
 
-## § 11 Rechte der Beschäftigten
+## § 11 Massen-Quarantäne *(nur bei Einsatz der Quarantäne-Funktion)*
+
+(1) Wird eine gemeldete Phishing-Mail als Angriff bestätigt, kann die Software sie in allen
+Postfächern des Mailsystems suchen und in einen Quarantäne-Ordner verschieben. Gesucht wird
+ausschließlich anhand der Message-ID der gemeldeten Nachricht; eine Suche nach Betreff,
+Inhalt oder Absender findet nicht statt.
+
+(2) Nachrichten werden ausschließlich **verschoben, niemals gelöscht**. Sie verbleiben im
+Postfach der betroffenen Person und können von dort zurückgeholt werden.
+
+(3) Auslösen dürfen ausschließlich [Rolle/Personenkreis]. Jeder Ausführung geht zwingend ein
+Probelauf voraus, der nichts verändert und dessen Ergebnis gespeichert wird; ohne diesen
+Probelauf ist eine Ausführung technisch ausgeschlossen.
+
+(4) Probelauf und Ausführung werden mit Zeitpunkt, auslösender Person, Betreff und Anzahl der
+betroffenen Nachrichten protokolliert. Die Interessenvertretung erhält [monatlich /
+quartalsweise] eine Übersicht der durchgeführten Läufe.
+
+(5) Der Zugriff dient ausschließlich der Abwehr eines konkreten Angriffs. Eine Durchsicht von
+Postfächern zu anderen Zwecken ist ausgeschlossen; die Software bietet dafür keine Funktion.
+
+## § 12 Rechte der Beschäftigten
 
 Die Rechte nach Art. 15 bis 21 DSGVO bleiben unberührt. Anfragen richten Beschäftigte an
 [Datenschutzbeauftragter, Kontakt]. Nach der Anonymisierung gemäß § 8 ist eine Zuordnung zu
 einer Person nicht mehr möglich; ein Auskunftsanspruch geht insoweit ins Leere.
 
-## § 12 Schlussbestimmungen
+## § 13 Schlussbestimmungen
 
 (1) Diese Vereinbarung tritt am [Datum] in Kraft.
 

@@ -404,6 +404,16 @@ const de: Record<string, Guidance> = {
     ],
     note: 'Abgefragt wird nur die hier eingetragene, selbst betriebene Instanz — ob sie externe Feeds einbindet, entscheidet deren Betreiber. Ist sie nicht erreichbar, wird das als „Abgleich nicht möglich“ ausgewiesen und niemals als „nichts bekannt“.',
   },
+  'settings-quarantine': {
+    intro:
+      'Verschiebt eine gemeldete Phishing-Mail aus allen Postfächern in einen Quarantäne-Ordner — über Microsoft 365 (Graph) oder Postfix/Dovecot.',
+    steps: [
+      'Mailsystem wählen und die Zugangsdaten hinterlegen; ohne Auswahl greift SentryMail auf kein Postfach zu.',
+      'Zielordner festlegen — dorthin werden gefundene Nachrichten verschoben.',
+      'Ausgelöst wird je Meldung unter „Gemeldete Mails“: erst Probelauf, dann Ausführung.',
+    ],
+    note: 'Gesucht wird ausschließlich nach der Message-ID: Der Betreff einer Welle taucht auch in legitimen Antworten darauf auf, eine Suche danach würde fremde Post mit einsammeln. Es wird nur verschoben, nie gelöscht, und ohne gespeicherten Probelauf lässt sich nichts ausführen. Der Eingriff in fremde Postfächer gehört vorab mit der Interessenvertretung abgestimmt.',
+  },
   'settings-threat-scan': {
     intro:
       'Anhänge gemeldeter Mails gegen ein ClamAV im eigenen Netz prüfen. Optional — ohne Prüfung läuft die übrige Analyse unverändert.',
@@ -845,6 +855,16 @@ const en: Record<string, Guidance> = {
       'Hits appear in the analysis of a report and raise its score considerably.',
     ],
     note: 'Only the self-hosted instance entered here is queried — whether it pulls external feeds is its operator\u2019s decision. If it is unreachable this is reported as "check not possible" and never as "nothing known".',
+  },
+  'settings-quarantine': {
+    intro:
+      'Moves a reported phishing mail out of every mailbox into a quarantine folder — via Microsoft 365 (Graph) or Postfix/Dovecot.',
+    steps: [
+      'Pick the mail system and store the credentials; without a selection SentryMail touches no mailbox at all.',
+      'Set the target folder — found messages are moved there.',
+      'You trigger it per report under "Reported mails": dry run first, then execution.',
+    ],
+    note: 'The search is by Message-ID only: a wave\u2019s subject also appears in legitimate replies to it, so searching by subject would sweep up other people\u2019s mail. Messages are only moved, never deleted, and nothing can be executed without a stored dry run. Agree this intervention with the employee representation before using it.',
   },
   'settings-threat-scan': {
     intro:

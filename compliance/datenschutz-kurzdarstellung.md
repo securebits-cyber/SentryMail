@@ -98,6 +98,20 @@ zugewiesen werden. Diese Zuweisung erfolgt maschinell; die auslösenden Einzelwe
 dabei niemandem angezeigt. Eine Fristüberschreitung führt nur zu einer organisatorischen
 Erinnerung.
 
+## Wird meine Mailbox durchsucht?
+
+Nur im Ausnahmefall und nur gezielt. Meldet jemand eine Phishing-Mail und wird diese als
+Angriff bestätigt, kann [Verantwortliche Stelle / Rolle] die Software anweisen, **genau diese
+eine Nachricht** in allen Postfächern zu suchen und in einen Quarantäne-Ordner zu verschieben.
+
+- Gesucht wird ausschließlich über die technische Kennung dieser Nachricht (Message-ID) —
+  nicht nach Betreff, Inhalt oder Absender, und niemals nach anderen Nachrichten.
+- Es wird **nur verschoben, nie gelöscht**. Die Nachricht bleibt in Ihrem Postfach und lässt
+  sich zurückholen.
+- Niemand liest dabei Ihre Post. Zurückgemeldet wird nur, in wie vielen Postfächern die
+  Nachricht lag.
+- Jeder Vorgang wird protokolliert und der Interessenvertretung berichtet.
+
 ## Ihre Rechte
 
 Sie haben das Recht auf Auskunft (Art. 15), Berichtigung (Art. 16), Löschung (Art. 17),
