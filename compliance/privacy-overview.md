@@ -97,6 +97,20 @@ Where the training module is used, a course can be assigned automatically if a r
 elevated. That assignment is made by the machine; the triggering individual scores are not
 displayed to anyone. Missing a deadline results only in an organisational reminder.
 
+## Is my mailbox searched?
+
+Only in exceptional cases and only for one specific message. If someone reports a phishing mail
+and it is confirmed as an attack, [responsible body / role] can instruct the software to search
+all mailboxes for **that one message** and move it into a quarantine folder.
+
+- The search uses that message's technical identifier (Message-ID) only — not its subject,
+  content or sender, and never any other message.
+- Messages are **only moved, never deleted**. The message stays in your mailbox and can be
+  restored.
+- Nobody reads your mail in the process. All that is reported back is how many mailboxes
+  contained the message.
+- Every run is logged and reported to the employee representation.
+
 ## Your rights
 
 You have the right of access (Art. 15), rectification (Art. 16), erasure (Art. 17),

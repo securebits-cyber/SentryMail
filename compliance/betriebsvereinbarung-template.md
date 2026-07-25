@@ -170,13 +170,33 @@ administration, the triggering individual scores are not.
 (3) Missing a deadline results solely in an organisational reminder, never in a technical
 lockout.
 
-## § 11 Employee rights
+## § 11 Mass quarantine *(only where the quarantine function is used)*
+
+(1) Once a reported phishing mail is confirmed as an attack, the software may search for it in
+all mailboxes of the mail system and move it into a quarantine folder. The search uses the
+Message-ID of the reported message only; no search by subject, content or sender takes place.
+
+(2) Messages are only **moved, never deleted**. They remain in the affected person's mailbox
+and can be restored from there.
+
+(3) Only [role/group of persons] may trigger a run. Every execution is necessarily preceded by
+a dry run which changes nothing and whose result is stored; without that dry run an execution
+is technically impossible.
+
+(4) Dry run and execution are logged with timestamp, triggering person, subject and the number
+of messages affected. The employee representation receives an overview of the runs carried out
+[monthly / quarterly].
+
+(5) The access serves solely to counter a specific attack. Reviewing mailboxes for any other
+purpose is excluded; the software offers no function for it.
+
+## § 12 Employee rights
 
 Rights under Art. 15 to 21 GDPR remain unaffected. Employees address requests to
 [data protection officer, contact details]. After anonymisation under § 8 no attribution to a
 person is possible; a right of access is void to that extent.
 
-## § 12 Final provisions
+## § 13 Final provisions
 
 (1) This agreement enters into force on [date].
 

@@ -413,3 +413,40 @@ export interface MispConfig {
   timeout_seconds: number
   has_api_key: boolean
 }
+
+export interface QuarantineConfig {
+  /** '' = aus, 'graph' = Microsoft 365, 'dovecot' = Postfix/Dovecot */
+  backend: '' | 'graph' | 'dovecot'
+  tenant_id: string
+  client_id: string
+  doveadm_url: string
+  quarantine_folder: string
+  verify_ssl: boolean
+  timeout_seconds: number
+  has_secret: boolean
+}
+
+export interface QuarantineDetail {
+  mailbox: string
+  found: number
+  moved: number
+  error?: string
+}
+
+export interface QuarantineRun {
+  id: string
+  reported_mail_id: string
+  message_id: string
+  subject: string
+  backend: string
+  dry_run: boolean
+  status: string
+  mailboxes_checked: number
+  messages_found: number
+  messages_moved: number
+  details: QuarantineDetail[]
+  initiated_by_email: string
+  executed_by_email: string | null
+  started_at: string
+  executed_at: string | null
+}
