@@ -404,6 +404,16 @@ const de: Record<string, Guidance> = {
     ],
     note: 'Abgefragt wird nur die hier eingetragene, selbst betriebene Instanz — ob sie externe Feeds einbindet, entscheidet deren Betreiber. Ist sie nicht erreichbar, wird das als „Abgleich nicht möglich“ ausgewiesen und niemals als „nichts bekannt“.',
   },
+  'settings-report-button': {
+    intro:
+      'Meldeweg für den Button in Outlook und Thunderbird. Beschäftigte melden damit direkt aus dem Mailprogramm, ohne sich in SentryMail anzumelden.',
+    steps: [
+      'Meldeweg aktivieren und ein Melde-Token erzeugen — es wird nur einmal angezeigt.',
+      'Absenderdomains eintragen, damit nur Adressen der eigenen Organisation melden können.',
+      'Für Outlook das fertige Manifest herunterladen und über die Exchange-Verwaltung verteilen; für Thunderbird das Add-in ausrollen und dort Adresse und Token eintragen.',
+    ],
+    note: 'Die meldenden Personen haben kein SentryMail-Konto — deshalb authentifiziert sich die Instanz über ein Token, nicht der Mensch über ein Passwort. Das Token liegt damit auf jedem Client; Meldelimit und erlaubte Domains begrenzen, was ein abhandengekommenes Token anrichten kann, und ein neues Token macht das alte sofort wertlos. Ein Codesigning-Zertifikat braucht nur das VSTO-Add-in für Outlook ohne Exchange.',
+  },
   'settings-quarantine': {
     intro:
       'Verschiebt eine gemeldete Phishing-Mail aus allen Postfächern in einen Quarantäne-Ordner — über Microsoft 365 (Graph) oder Postfix/Dovecot.',
@@ -855,6 +865,16 @@ const en: Record<string, Guidance> = {
       'Hits appear in the analysis of a report and raise its score considerably.',
     ],
     note: 'Only the self-hosted instance entered here is queried — whether it pulls external feeds is its operator\u2019s decision. If it is unreachable this is reported as "check not possible" and never as "nothing known".',
+  },
+  'settings-report-button': {
+    intro:
+      'The reporting path for the button in Outlook and Thunderbird. Employees report straight from their mail client without signing in to SentryMail.',
+    steps: [
+      'Enable the path and create a report token — it is shown only once.',
+      'Enter sender domains so only addresses of your own organisation can report.',
+      'For Outlook download the ready-made manifest and distribute it via Exchange administration; for Thunderbird roll out the add-on and enter address and token there.',
+    ],
+    note: 'The people reporting have no SentryMail account — so the instance authenticates with a token rather than a person with a password. That token therefore sits on every client; the rate limit and the allowed domains bound what a leaked token can do, and a new token makes the old one worthless immediately. Only the VSTO add-in for Outlook without Exchange needs a codesigning certificate.',
   },
   'settings-quarantine': {
     intro:
