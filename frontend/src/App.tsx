@@ -14,6 +14,7 @@ import IntegrationsOverviewPage from './pages/integrations/overview'
 import AiSettingsPage from './pages/settings/ai'
 import AuditEventsPage from './pages/settings/audit-events'
 import EntraSettingsPage from './pages/settings/entra'
+import ReportedMailsPage from './pages/reported-mails'
 import ScimSettingsPage from './pages/settings/scim'
 import LicenseSettingsPage from './pages/settings/license'
 import PrivacySettingsPage from './pages/settings/privacy'
@@ -75,6 +76,7 @@ export default function App() {
           <Route path="/multistage" element={<MultiStagePage />} />
           <Route path="/auto-campaigns" element={<AutoCampaignsPage />} />
           <Route path="/reports" element={<ReportsPage />} />
+          <Route path="/reported-mails" element={<ReportedMailsPage />} />
           <Route path="/trainings" element={<TrainingsPage />} />
           <Route path="/trainings/:assignmentId" element={<TrainingPlayerPage />} />
           <Route path="/lms/courses" element={<LmsCoursesPage />} />

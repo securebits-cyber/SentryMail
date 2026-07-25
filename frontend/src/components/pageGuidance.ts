@@ -383,6 +383,16 @@ const de: Record<string, Guidance> = {
     ],
     note: 'Änderungen an Sicherheitsrichtlinien werden im Audit-Log protokolliert.',
   },
+  'reported-mails': {
+    intro:
+      'Von Beschäftigten gemeldete verdächtige E-Mails. Aktuell werden sie als .eml hochgeladen; sobald der Mail-Report-Button verfügbar ist, landen Meldungen automatisch hier.',
+    steps: [
+      'Die gemeldete Mail als .eml-Datei hochladen — Betreff, Absender und Anhänge werden ausgelesen.',
+      'Wiederholte Meldungen derselben Mail erhöhen den Zähler, statt Duplikate anzulegen: die Zahl zeigt, wie breit eine Welle gestreut wurde.',
+      'Meldungen löschen, sobald sie ausgewertet und dokumentiert sind.',
+    ],
+    note: 'Die Originaldatei bleibt gespeichert — für die Vorfallsbehandlung nach NIS2 ist sie der eigentliche Beleg, und eine spätere Analyse mit besseren Regeln braucht sie. Die automatische Auswertung (Header, SPF/DKIM/DMARC, URLs, Anhang-Hashes) ist ein Enterprise-Feature.',
+  },
   'settings-scim': {
     intro:
       'SCIM befüllt Empfängergruppen automatisch aus dem Identity Provider (Entra ID, Okta …). Anmeldekonten entstehen dabei nicht — nur Empfänger und Gruppen.',
@@ -793,6 +803,16 @@ const en: Record<string, Guidance> = {
       'You set up your own 2FA method under “My profile”.',
     ],
     note: 'Changes to security policies are recorded in the audit log.',
+  },
+  'reported-mails': {
+    intro:
+      'Suspicious emails reported by employees. For now they are uploaded as .eml files; once the mail report button is available, reports arrive here automatically.',
+    steps: [
+      'Upload the reported mail as an .eml file — subject, sender and attachments are extracted.',
+      'Repeated reports of the same mail increase the counter instead of creating duplicates: the number shows how widely a wave was spread.',
+      'Delete reports once they have been evaluated and documented.',
+    ],
+    note: 'The original file is kept — for incident handling under NIS2 it is the actual evidence, and a later analysis with better rules needs it. The automatic evaluation (headers, SPF/DKIM/DMARC, URLs, attachment hashes) is an enterprise feature.',
   },
   'settings-scim': {
     intro:

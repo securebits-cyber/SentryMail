@@ -325,3 +325,16 @@ export interface LdapConfig {
   attr_first_name: string
   attr_last_name: string
 }
+
+// Gemeldete verdaechtige Mail (Business, Welle 7). report_count zaehlt, wie oft
+// dieselbe Mail gemeldet wurde - das erste grobe Signal fuer den Umfang.
+export interface ReportedMail {
+  id: string
+  reported_by_email: string
+  reported_at: string
+  report_count: number
+  subject: string
+  from_address: string
+  attachment_count: number
+  size_bytes: number
+}
