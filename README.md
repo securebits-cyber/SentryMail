@@ -175,6 +175,10 @@ Ergänzend im **[GitHub-Wiki](https://github.com/securebits-cyber/SentryMail/wik
 [Architektur](https://github.com/securebits-cyber/SentryMail/wiki/Architektur) ·
 [FAQ](https://github.com/securebits-cyber/SentryMail/wiki/FAQ)
 
+**Mitbestimmung und Datenschutz:** Muster-Betriebsvereinbarung und Datenschutz-Kurzdarstellung
+(jeweils DE und EN) liegen im Ordner **[`compliance/`](compliance/)** — Bestandteil des Open
+Core, kein kostenpflichtiges Zusatzpaket.
+
 ## 🤝 Mitwirken
 
 Beiträge sind willkommen. Bitte für Änderungen einen Branch anlegen, aussagekräftige Commits schreiben und einen Pull Request öffnen (siehe [PR-Template](.github/pull_request_template.md)).

@@ -175,6 +175,10 @@ Additionally in the **[GitHub wiki](https://github.com/securebits-cyber/SentryMa
 [Architecture](https://github.com/securebits-cyber/SentryMail/wiki/Architektur) ·
 [FAQ](https://github.com/securebits-cyber/SentryMail/wiki/FAQ)
 
+**Co-determination and data protection:** a model works agreement and a privacy overview (each
+in German and English) live in the **[`compliance/`](compliance/)** folder — part of the open
+core, not a paid add-on.
+
 ## 🤝 Contributing
 
 Contributions are welcome. Please create a branch for your changes, write meaningful commits and open a pull request (see the [PR template](.github/pull_request_template.md)).
