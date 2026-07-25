@@ -16,6 +16,7 @@ import AuditEventsPage from './pages/settings/audit-events'
 import EntraSettingsPage from './pages/settings/entra'
 import ReportedMailsPage from './pages/reported-mails'
 import ScimSettingsPage from './pages/settings/scim'
+import ThreatScanSettingsPage from './pages/settings/threat-scan'
 import LicenseSettingsPage from './pages/settings/license'
 import PrivacySettingsPage from './pages/settings/privacy'
 import SecuritySettingsPage from './pages/settings/security'
@@ -90,6 +91,7 @@ export default function App() {
             <Route path="webhooks" element={<WebhooksSettingsPage />} />
             <Route path="entra" element={<EntraSettingsPage />} />
             <Route path="scim" element={<ScimSettingsPage />} />
+            <Route path="threat-scan" element={<ThreatScanSettingsPage />} />
             <Route path="ai" element={<AiSettingsPage />} />
             <Route path="pdf-report" element={<PdfReportSettingsPage />} />
             <Route path="whitelabel" element={<WhitelabelSettingsPage />} />
