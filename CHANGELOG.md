@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.33.0](https://github.com/securebits-cyber/SentryMail/compare/v0.32.0...v0.33.0) (2026-07-25)
+
+
+### Features
+
+* **threat:** Oberflaeche fuer MISP-Anreicherung / User interface for MISP enrichment ([#130](https://github.com/securebits-cyber/SentryMail/issues/130)) ([a5694cf](https://github.com/securebits-cyber/SentryMail/commit/a5694cf5dbe3a748dda6110bc1258810be88ed98))
+
 ## [0.32.0](https://github.com/securebits-cyber/SentryMail/compare/v0.31.0...v0.32.0) (2026-07-25)
 
 
