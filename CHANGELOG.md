@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.25.0](https://github.com/securebits-cyber/SentryMail/compare/v0.24.0...v0.25.0) (2026-07-25)
+
+
+### Features
+
+* **privacy:** Vier-Augen-Freigabe fuer Einzelpersonen-Auswertungen / Four-eyes unlock for individual-person evaluations ([#110](https://github.com/securebits-cyber/SentryMail/issues/110)) ([221fbeb](https://github.com/securebits-cyber/SentryMail/commit/221fbeb29ebbf46b75b94667d0ac8494137c18ff))
+
 ## [0.24.0](https://github.com/securebits-cyber/SentryMail/compare/v0.23.0...v0.24.0) (2026-07-25)
 
 
