@@ -186,16 +186,29 @@ export default function Layout() {
         <span className="mx-auto hidden select-none font-mono text-xs uppercase tracking-[0.14em] text-text-secondary sm:block">
           {t('header.slogan')}
         </span>
-        {!isEnterprise && (
+        <div className="ml-auto flex items-center gap-2 sm:ml-0">
+          {/* Neutrale Umrandung statt Akzentfarbe: Der Akzent bleibt den
+              Hauptaktionen vorbehalten, und ein Doku-Link soll dem
+              Upgrade-Button nicht die Aufmerksamkeit streitig machen. */}
           <a
-            href="https://humanshield-awareness.de/de/preise/"
+            href={wikiUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="ml-auto rounded-full border border-green-600 px-4 py-1.5 text-sm font-medium text-green-600 transition-colors hover:bg-green-600/10 sm:ml-0"
+            className="rounded-full border border-border px-4 py-1.5 text-sm font-medium text-text-primary transition-colors hover:bg-bg"
           >
-            {t('header.upgradeLicense')}
+            {t('header.documentation')}
           </a>
-        )}
+          {!isEnterprise && (
+            <a
+              href="https://sentrymail.de/preise/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-full border border-green-600 px-4 py-1.5 text-sm font-medium text-green-600 transition-colors hover:bg-green-600/10"
+            >
+              {t('header.upgradeLicense')}
+            </a>
+          )}
+        </div>
       </header>
 
       <div className="flex flex-1">

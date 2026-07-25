@@ -152,12 +152,13 @@ export const translations: Record<Lang, Record<string, string>> = {
     'nav.profile': 'Mein Profil',
     'nav.users': 'Benutzer',
     'nav.settings': 'Einstellungen',
-    'nav.integrations': 'Integrationen',
+    'nav.integrations': 'Add-Ons',
     'nav.administration': 'Verwaltung',
     'nav.wiki': 'Wiki / Doku',
 
     // Kopfzeile / allgemein
     'header.upgradeLicense': 'Upgrade Lizenz',
+    'header.documentation': 'Dokumentation',
     'header.slogan': 'Awareness-Training - Made in Germany',
     'footer.trademark': 'SentryMail ist eine eingetragene Marke der SecureBits Cyber Security UG',
     'update.available': 'Update verfügbar',
@@ -1492,12 +1493,13 @@ export const translations: Record<Lang, Record<string, string>> = {
     'nav.profile': 'My Profile',
     'nav.users': 'Users',
     'nav.settings': 'Settings',
-    'nav.integrations': 'Integrations',
+    'nav.integrations': 'Add-ons',
     'nav.administration': 'Administration',
     'nav.wiki': 'Wiki / Docs',
 
     // Header / common
     'header.upgradeLicense': 'Upgrade License',
+    'header.documentation': 'Documentation',
     'header.slogan': 'Awareness Training - Made in Germany',
     'footer.trademark': 'SentryMail is a registered trademark of SecureBits Cyber Security UG',
     'update.available': 'Update available',
