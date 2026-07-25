@@ -408,6 +408,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     'prof.err.save': 'Speichern fehlgeschlagen.',
     'prof.role': 'Rolle:',
     'prof.roleAdmin': 'Admin',
+    'prof.rolePrivacyOfficer': 'Datenschutzbeauftragter',
     'prof.roleUser': 'Benutzer',
     'prof.pw.title': 'Passwort ändern',
     'prof.pw.current': 'Aktuelles Passwort',
@@ -547,6 +548,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     'priv.fp.label': 'Client-Fingerprinting aktivieren',
     'priv.fp.desc': 'Erfasst auf der Landing Page einen technischen Browser-Fingerabdruck (Canvas + stabile Merkmale) zur besseren Erkennung von Mehrfachbesuchen. Standardmäßig deaktiviert.',
     'priv.fp.legal': 'Hinweis: Client-Fingerprinting ist im mitbestimmten Betrieb und nach § 25 TDDDG rechtlich heikel und nur nach ausdrücklicher Entscheidung des Betreibers zu aktivieren. Der Fingerabdruck ist auch bei aktivierter Erfassung nie Bestandteil von Einzelpersonen-Reports.',
+    'priv.readOnly': 'Sie sehen die geltende Datenschutz-Policy als Datenschutzbeauftragter. Geändert wird sie durch einen Admin.',
     'priv.saved': 'Datenschutz-Einstellungen gespeichert.',
     'priv.err.save': 'Speichern fehlgeschlagen (Admin-Rechte nötig?).',
 
@@ -1380,6 +1382,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     'prof.err.save': 'Could not save.',
     'prof.role': 'Role:',
     'prof.roleAdmin': 'Admin',
+    'prof.rolePrivacyOfficer': 'Data protection officer',
     'prof.roleUser': 'User',
     'prof.pw.title': 'Change password',
     'prof.pw.current': 'Current password',
@@ -1519,6 +1522,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     'priv.fp.label': 'Enable client fingerprinting',
     'priv.fp.desc': 'Records a technical browser fingerprint (canvas + stable attributes) on the landing page to better detect repeat visits. Disabled by default.',
     'priv.fp.legal': 'Note: Client fingerprinting is legally sensitive in co-determined workplaces and under § 25 TDDDG, and should only be enabled after an explicit operator decision. Even when enabled, the fingerprint is never part of individual-person reports.',
+    'priv.readOnly': 'You are viewing the effective privacy policy as data protection officer. Only an admin can change it.',
     'priv.saved': 'Privacy settings saved.',
     'priv.err.save': 'Could not save (admin rights required?).',
 

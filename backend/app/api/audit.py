@@ -2,11 +2,16 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-"""Audit-Log-Endpunkt (admin-only): Anmelde- und System-Aenderungsereignisse."""
+"""Audit-Log-Endpunkt: Anmelde- und System-Aenderungsereignisse.
+
+Lesbar fuer Admins **und** den Datenschutzbeauftragten: dessen Kontrollrolle
+(Welle 2) ist ohne Einsicht in die protokollierten Freigaben und
+Konfigurationsaenderungen wertlos.
+"""
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
-from app.auth.permissions import require_admin
+from app.auth.permissions import require_admin_or_privacy_officer
 from app.database import get_db
 from app.models import AuditEvent, User
 from app.schemas import AuditEventList
@@ -19,7 +24,7 @@ def list_audit_events(
     limit: int = Query(50, ge=1, le=200),
     offset: int = Query(0, ge=0),
     db: Session = Depends(get_db),
-    _: User = Depends(require_admin),
+    _: User = Depends(require_admin_or_privacy_officer),
 ):
     query = db.query(AuditEvent).order_by(AuditEvent.created_at.desc())
     total = query.count()

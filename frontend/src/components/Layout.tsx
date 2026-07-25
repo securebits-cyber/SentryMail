@@ -74,6 +74,10 @@ const adminNav: NavItem[] = [
   { to: '/integrations', labelKey: 'nav.integrations', icon: Blocks, end: false },
 ]
 
+// Der Datenschutzbeauftragte ist Kontroll-, keine Betriebsrolle: er erreicht nur
+// die Einstellungen (dort Datenschutz + Audit-Log), nicht die Nutzerverwaltung.
+const privacyOfficerNav: NavItem[] = adminNav.filter((item) => item.to === '/settings')
+
 const linkClass = ({ isActive }: { isActive: boolean }) =>
   `flex items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-colors ${
     isActive
@@ -152,6 +156,7 @@ export default function Layout() {
   const headerLogo = brandingLogoFor(branding, theme)
   const version = useVersion()
   const isAdmin = me?.role === 'admin'
+  const isPrivacyOfficer = me?.role === 'privacy_officer'
   // Enterprise impliziert Business. Upgrade-CTA nur zeigen, solange NICHT Enterprise
   // lizenziert ist (waehrend des Ladens bewusst sichtbar). Support-Button ist ein
   // Enterprise-Vorteil.
@@ -204,13 +209,13 @@ export default function Layout() {
           <nav className="flex flex-col gap-1 px-3">
             <NavItems items={profileNav} />
           </nav>
-          {isAdmin && (
+          {(isAdmin || isPrivacyOfficer) && (
             <>
               <div className="mt-2 px-3 pb-1 text-xs font-medium uppercase tracking-wider text-text-secondary">
                 {t('nav.administration')}
               </div>
               <nav className="flex flex-col gap-1 px-3 pb-2">
-                <NavItems items={adminNav} />
+                <NavItems items={isAdmin ? adminNav : privacyOfficerNav} />
               </nav>
             </>
           )}

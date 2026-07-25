@@ -14,7 +14,7 @@ import enum
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Boolean, CheckConstraint, DateTime, Enum, ForeignKey, Index, String, Text, text
+from sqlalchemy import Boolean, CheckConstraint, DateTime, Enum, ForeignKey, Index, Integer, String, Text, text
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
@@ -24,6 +24,10 @@ from app.database import Base
 
 class UserRole(str, enum.Enum):
     ADMIN = "admin"
+    #: Datenschutzbeauftragter/Personalrat (Welle 2, Rollentrennung). Kontroll-,
+    #: keine Auswerterrolle: gibt Einzelpersonen-Auswertungen im Vier-Augen-
+    #: Verfahren frei und liest das Audit-Log, konfiguriert aber die Instanz nicht.
+    PRIVACY_OFFICER = "privacy_officer"
     USER = "user"
 
 
@@ -126,19 +130,33 @@ class PrivacyConfig(Base):
     """Datenschutz-/Mitbestimmungs-Policy (Singleton).
 
     Sammelt die Betreiber-Entscheidungen aus dem Datenschutz-Modus (Welle 2).
+
     ``fingerprinting_enabled`` steuert das Client-Fingerprinting: bewusst
     per Default AUS - Canvas-Fingerprinting ist im mitbestimmten Betrieb und
     unter Paragraf 25 TDDDG heikel und darf nur nach ausdruecklicher
     Admin-Bestaetigung erfasst werden. Der Fingerprint ist auch bei aktivem
     Flag nie Teil von Einzelpersonen-Reports.
+
+    ``privacy_mode_enabled`` schaltet den Datenschutz-/Mitbestimmungs-Modus:
+    Einzelpersonen-Auswertungen sind dann technisch gesperrt (Aufhebung nur per
+    Vier-Augen-Freigabe) und Gruppenauswertungen werden erst ab
+    ``k_anonymity_threshold`` Personen ausgegeben. Ebenfalls Default AUS -
+    bestehende Instanzen aendern ihr Verhalten also nicht durch ein Update,
+    der Betreiber schaltet den Modus bewusst ein.
     """
 
     __tablename__ = "privacy_config"
     # Hoechstens eine Zeile (Singleton) - siehe app/utils/singleton.py.
-    __table_args__ = (Index("uq_privacy_config_singleton", text("(true)"), unique=True),)
+    __table_args__ = (
+        Index("uq_privacy_config_singleton", text("(true)"), unique=True),
+        # k = 1 waere keine Anonymisierung, sondern eine Einzelpersonen-Auswertung.
+        CheckConstraint("k_anonymity_threshold >= 2", name="ck_privacy_config_k_min"),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     fingerprinting_enabled: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    privacy_mode_enabled: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    k_anonymity_threshold: Mapped[int] = mapped_column(Integer, default=5, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
 
