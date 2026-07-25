@@ -190,13 +190,32 @@ of messages affected. The employee representation receives an overview of the ru
 (5) The access serves solely to counter a specific attack. Reviewing mailboxes for any other
 purpose is excluded; the software offers no function for it.
 
-## § 12 Employee rights
+## § 12 Simulations over other channels *(only where used)*
+
+(1) Besides email, simulations may be delivered by **SMS**, via **Matrix** or
+**Nextcloud Talk**. The same rules apply as for email simulations, in particular
+the exclusion of performance and conduct monitoring under § 3.
+
+(2) Only **company devices and accounts** are used. The software ships
+configured accordingly; releasing private devices is technically possible but is
+**excluded** without a separate agreement. Any such release is logged.
+
+(3) The phone numbers and user identifiers required for delivery are stored for
+that purpose only and are deleted when this agreement ends.
+
+(4) A **USB simulation** (planted media) produces no personal data: each medium
+carries an identifier for the location where it was placed, not for a person, and
+who picked it up cannot be determined. The files placed contain no program and no
+script. The locations are agreed with [body] in advance; break rooms and personal
+workstations are excluded.
+
+## § 13 Employee rights
 
 Rights under Art. 15 to 21 GDPR remain unaffected. Employees address requests to
 [data protection officer, contact details]. After anonymisation under § 8 no attribution to a
 person is possible; a right of access is void to that extent.
 
-## § 13 Final provisions
+## § 14 Final provisions
 
 (1) This agreement enters into force on [date].
 

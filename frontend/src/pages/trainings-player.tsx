@@ -5,8 +5,10 @@
 import { ArrowLeft, CheckCircle2, FileDown } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import BetaBadge from '../components/BetaBadge'
 import Card from '../components/Card'
 import LmsQuiz from '../components/LmsQuiz'
+import LmsScormPlayer from '../components/LmsScormPlayer'
 import LmsVideoPlayer from '../components/LmsVideoPlayer'
 import LockedFeatureNotice from '../components/LockedFeatureNotice'
 import PageScaffold from '../components/PageScaffold'
@@ -24,6 +26,8 @@ interface MyModule {
   quiz_required: boolean
   coverage_percent: number
   last_position_seconds: number
+  has_scorm: boolean
+  scorm_lesson_status: string
 }
 
 interface MyAssignmentDetail {
@@ -50,8 +54,10 @@ export default function TrainingPlayerPage() {
   const load = useCallback(async () => {
     const res = await api.get<MyAssignmentDetail>(`/lms/my/assignments/${assignmentId}`)
     setDetail(res.data)
-    // Erstes Modul mit Video vorauswählen (falls noch keins gewählt).
-    setActiveModuleId((cur) => cur ?? res.data.modules.find((m) => m.has_video)?.id ?? null)
+    // Erstes bearbeitbares Modul vorauswählen (Video oder SCORM).
+    setActiveModuleId(
+      (cur) => cur ?? res.data.modules.find((m) => m.has_video || m.has_scorm)?.id ?? null,
+    )
   }, [assignmentId])
 
   useEffect(() => {
@@ -106,7 +112,28 @@ export default function TrainingPlayerPage() {
 
       <div className="flex flex-col gap-6 lg:flex-row">
         <div className="min-w-0 flex-1">
-          {active && playable ? (
+          {active && playable && active.has_scorm ? (
+            <LmsScormPlayer
+              key={active.id}
+              assignmentId={detail.id}
+              moduleId={active.id}
+              onProgress={(update) => {
+                // Der Kurs meldet den Status; ein Statuswechsel der Zuweisung
+                // (completed/quiz_pending) macht einen frischen Stand nötig.
+                setDetail((cur) => {
+                  if (!cur) return cur
+                  if (update.assignment_status !== cur.status) void load()
+                  return {
+                    ...cur,
+                    status: update.assignment_status,
+                    modules: cur.modules.map((m) =>
+                      m.id === active.id ? { ...m, scorm_lesson_status: update.lesson_status } : m,
+                    ),
+                  }
+                })
+              }}
+            />
+          ) : active && playable ? (
             <LmsVideoPlayer
               key={active.id}
               assignmentId={detail.id}
@@ -141,14 +168,21 @@ export default function TrainingPlayerPage() {
             <button
               key={m.id}
               onClick={() => setActiveModuleId(m.id)}
-              disabled={!m.has_video}
+              disabled={!m.has_video && !m.has_scorm}
               className={`flex items-center justify-between gap-2 rounded-md border px-3 py-2 text-left text-sm transition-colors disabled:opacity-50 ${
                 m.id === activeModuleId ? 'border-accent bg-accent/10' : 'border-border hover:bg-bg'
               }`}
             >
-              <span className="truncate">{m.title}</span>
+              <span className="flex min-w-0 items-center gap-1.5">
+                <span className="truncate">{m.title}</span>
+                {m.has_scorm && <BetaBadge />}
+              </span>
               <span className="shrink-0 font-mono text-xs tabular-nums text-text-secondary">
-                {m.has_video ? `${Math.floor(m.coverage_percent)} %` : '—'}
+                {m.has_video
+                  ? `${Math.floor(m.coverage_percent)} %`
+                  : m.has_scorm
+                    ? t(`lms.scorm.status.${m.scorm_lesson_status}`)
+                    : '—'}
               </span>
             </button>
           ))}

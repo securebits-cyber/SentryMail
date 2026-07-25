@@ -18,6 +18,9 @@ import ReportedMailsPage from './pages/reported-mails'
 import ScimSettingsPage from './pages/settings/scim'
 import MispSettingsPage from './pages/settings/misp'
 import QuarantineSettingsPage from './pages/settings/quarantine'
+import ChannelCampaignsPage from './pages/channel-campaigns'
+import ChannelSettingsPage from './pages/settings/channels'
+import LmsXapiSettingsPage from './pages/settings/lms-xapi'
 import ReportButtonSettingsPage from './pages/settings/report-button'
 import ThreatScanSettingsPage from './pages/settings/threat-scan'
 import LicenseSettingsPage from './pages/settings/license'
@@ -79,6 +82,7 @@ export default function App() {
           <Route path="/recurring" element={<RecurringPage />} />
           <Route path="/multistage" element={<MultiStagePage />} />
           <Route path="/auto-campaigns" element={<AutoCampaignsPage />} />
+          <Route path="/channel-campaigns" element={<ChannelCampaignsPage />} />
           <Route path="/reports" element={<ReportsPage />} />
           <Route path="/reported-mails" element={<ReportedMailsPage />} />
           <Route path="/trainings" element={<TrainingsPage />} />
@@ -98,6 +102,8 @@ export default function App() {
             <Route path="misp" element={<MispSettingsPage />} />
             <Route path="quarantine" element={<QuarantineSettingsPage />} />
             <Route path="report-button" element={<ReportButtonSettingsPage />} />
+            <Route path="lms-xapi" element={<LmsXapiSettingsPage />} />
+            <Route path="channels" element={<ChannelSettingsPage />} />
             <Route path="ai" element={<AiSettingsPage />} />
             <Route path="pdf-report" element={<PdfReportSettingsPage />} />
             <Route path="whitelabel" element={<WhitelabelSettingsPage />} />

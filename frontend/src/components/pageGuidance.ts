@@ -220,9 +220,10 @@ const de: Record<string, Guidance> = {
       'Module anlegen und je ein Video hochladen (MP4, H.264 + AAC empfohlen; Limit in den LMS-Einstellungen).',
       'Optional „Quiz erforderlich“ setzen und über „Quiz bearbeiten“ 2–6 Antwortoptionen je Frage pflegen — die Radio-Auswahl markiert die richtige Antwort.',
       'Mit „Vorschau“ das Video vor der Zuweisung prüfen.',
+      'Alternativ ein SCORM-1.2-Paket importieren (Beta) — ein Modul ist entweder ein Video oder ein SCORM-Paket.',
     ],
     tier: 'enterprise',
-    note: 'Inhaltliche Änderungen erhöhen die Kurs-Version; beim Abschluss wird sie im Nachweis eingefroren (Audit).',
+    note: 'Inhaltliche Änderungen erhöhen die Kurs-Version; beim Abschluss wird sie im Nachweis eingefroren (Audit). SCORM ist als Beta gekennzeichnet: Den Bearbeitungsstand meldet dort der Kurs selbst, statt dass der Server die gesehenen Abschnitte zusammenführt — die gemeldete Bearbeitungszeit steht deshalb im Nachweis daneben. Vor dem Einsatz in einer Pflichtschulung mit dem eigenen Paket prüfen.',
   },
   'lms-assignments': {
     intro:
@@ -403,6 +404,39 @@ const de: Record<string, Guidance> = {
       'Treffer erscheinen in der Auswertung einer Meldung und erhöhen deren Bewertung deutlich.',
     ],
     note: 'Abgefragt wird nur die hier eingetragene, selbst betriebene Instanz — ob sie externe Feeds einbindet, entscheidet deren Betreiber. Ist sie nicht erreichbar, wird das als „Abgleich nicht möglich“ ausgewiesen und niemals als „nichts bekannt“.',
+  },
+  'channel-campaigns': {
+    intro:
+      'Führt eine bestehende Kampagne über SMS, Matrix, Nextcloud Talk oder als USB-Drop durch. Empfänger, Landing Page und Auswertung kommen aus der Kampagne.',
+    steps: [
+      'Kampagne wählen und den Kanal setzen; bei SMS und Chat den Nachrichtentext mit {{ link }} hinterlegen.',
+      'Versenden — das Ergebnis nennt je übersprungener Person den Grund.',
+      'Bei USB stattdessen Fundorte anlegen und das Paket herunterladen.',
+    ],
+    tier: 'enterprise',
+    note: 'Ohne {{ link }} misst die Simulation nichts; der Text wird deshalb ohne diesen Platzhalter nicht gespeichert. Personen ohne hinterlegte Adresse und private Endgeräte ohne Freigabe werden übersprungen und im Ergebnis benannt, nicht stillschweigend ausgelassen. Das USB-Paket enthält ausschließlich HTML — kein Makro, kein Skript; wer einen Datenträger gefunden hat, lässt sich nicht feststellen.',
+  },
+  'settings-channels': {
+    intro:
+      'Zustellwege außerhalb der E-Mail: SMS über ein eigenes Gateway, Matrix und Nextcloud Talk. Tracking und Auswertung bleiben dieselben wie bei der Mail.',
+    steps: [
+      'Kanal wählen, Adresse und Anmeldung eintragen; bei SMS zusätzlich die Rumpf-Vorlage des Anbieters mit {to} und {text}.',
+      'Mit einer Testnachricht an die eigene Nummer prüfen — ob das Gateway sie annimmt, zeigt sich erst an der Nachricht.',
+      'Im Adressverzeichnis je Person Rufnummer bzw. Kennung hinterlegen und angeben, ob es ein dienstliches Gerät ist.',
+    ],
+    tier: 'enterprise',
+    note: 'Kein Anbieter ist fest verdrahtet — die Rumpf-Vorlage macht jedes Gateway passend, auch eines im eigenen Haus. Bespielt werden nur dienstliche Endgeräte, solange die Freigabe privater Geräte nicht ausdrücklich gesetzt ist; diese Freigabe wird protokolliert und gehört mit der Interessenvertretung abgestimmt.',
+  },
+  'settings-lms-xapi': {
+    intro:
+      'Meldet Schulungsereignisse an einen vorhandenen Learning Record Store (xAPI 1.0.3) — Zuweisung, Bearbeitung, Abschluss.',
+    steps: [
+      'Adresse der xAPI-Schnittstelle und Zugangsdaten eintragen, dann „Verbindung prüfen“ — das schickt ein echtes Statement über eine erfundene Person.',
+      'Kennung wählen: pseudonym (Voreinstellung) oder E-Mail-Adresse.',
+      'Export aktivieren. Was vor dem Einschalten passiert ist, wird nicht nachträglich verschickt.',
+    ],
+    tier: 'enterprise',
+    note: 'Exportiert werden ausschließlich Schulungsereignisse — Ereignisse der Phishing-Simulation bleiben außen vor, weil ein „hat geklickt“ in einem fremden Speicher genau die Einzelpersonen-Auswertung wäre, die der Datenschutzmodus verhindern soll. Mit der Kennung „E-Mail-Adresse“ wird der LRS zu einem weiteren Empfänger personenbezogener Daten; die Umstellung wird protokolliert und gehört mit der Interessenvertretung abgestimmt. Statements werden erst gespeichert und dann zugestellt, damit bei einer Störung nichts verlorengeht.',
   },
   'settings-report-button': {
     intro:
@@ -682,9 +716,10 @@ const en: Record<string, Guidance> = {
       'Create modules and upload one video each (MP4, H.264 + AAC recommended; limit in the LMS settings).',
       'Optionally enable “Quiz required” and maintain 2–6 answer options per question via “Edit quiz” — the radio selection marks the correct answer.',
       'Use “Preview” to check the video before assigning.',
+      'Alternatively import a SCORM 1.2 package (beta) — a module is either a video or a SCORM package.',
     ],
     tier: 'enterprise',
-    note: 'Content changes increase the course version; on completion it is frozen into the evidence record (audit).',
+    note: 'Content changes increase the course version; on completion it is frozen into the evidence record (audit). SCORM is marked beta: there the course reports its own progress instead of the server merging the segments actually watched — the reported working time is therefore shown alongside it in the evidence. Test it with your own package before using it for mandatory training.',
   },
   'lms-assignments': {
     intro:
@@ -865,6 +900,39 @@ const en: Record<string, Guidance> = {
       'Hits appear in the analysis of a report and raise its score considerably.',
     ],
     note: 'Only the self-hosted instance entered here is queried — whether it pulls external feeds is its operator\u2019s decision. If it is unreachable this is reported as "check not possible" and never as "nothing known".',
+  },
+  'channel-campaigns': {
+    intro:
+      'Runs an existing campaign by SMS, Matrix, Nextcloud Talk or as a USB drop. Recipients, landing page and reporting come from the campaign.',
+    steps: [
+      'Choose the campaign and set the channel; for SMS and chat provide the message text containing {{ link }}.',
+      'Send — the result names the reason for every person skipped.',
+      'For USB, create locations instead and download the package.',
+    ],
+    tier: 'enterprise',
+    note: 'Without {{ link }} the simulation measures nothing, so the text is not saved without that placeholder. People without a stored address, and private devices without a release, are skipped and named in the result rather than silently left out. The USB package contains only HTML — no macro, no script; who picked up a medium cannot be determined.',
+  },
+  'settings-channels': {
+    intro:
+      'Delivery channels beyond email: SMS through your own gateway, Matrix and Nextcloud Talk. Tracking and reporting stay the same as for email.',
+    steps: [
+      'Pick the channel, enter address and authentication; for SMS also your provider\u2019s body template with {to} and {text}.',
+      'Check with a test message to your own number — whether the gateway accepts it only shows on the message.',
+      'In the address directory store each person\u2019s number or identifier and whether it is a company device.',
+    ],
+    tier: 'enterprise',
+    note: 'No provider is hardwired — the body template makes any gateway fit, including one in your own building. Only company devices are used unless the release for private devices is explicitly set; that release is logged and belongs in an agreement with the employee representation.',
+  },
+  'settings-lms-xapi': {
+    intro:
+      'Reports training events to an existing Learning Record Store (xAPI 1.0.3) — assignment, progress, completion.',
+    steps: [
+      'Enter the xAPI endpoint address and credentials, then use “Test connection” — that sends a real statement about a fictitious person.',
+      'Choose the identifier: pseudonym (default) or email address.',
+      'Enable the export. Anything that happened before you switched it on is not sent retrospectively.',
+    ],
+    tier: 'enterprise',
+    note: 'Only training events are exported — phishing simulation events stay out of it, because a "clicked" in a foreign store would be exactly the individual-person evaluation privacy mode exists to prevent. With the "email address" identifier the LRS becomes a further recipient of personal data; the change is logged and belongs in an agreement with the employee representation. Statements are stored first and delivered afterwards so nothing is lost to a fault.',
   },
   'settings-report-button': {
     intro:

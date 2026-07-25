@@ -97,6 +97,21 @@ Where the training module is used, a course can be assigned automatically if a r
 elevated. That assignment is made by the machine; the triggering individual scores are not
 displayed to anyone. Missing a deadline results only in an organisational reminder.
 
+## Do simulations also arrive by SMS or chat?
+
+Possibly — depending on what [responsible body] uses. Besides email, simulations
+may arrive by SMS, via Matrix or Nextcloud Talk.
+
+- Only **company** numbers and accounts are used. Your private number is not.
+- The same rules apply as for email simulations: no performance assessment, no
+  individual personnel measures.
+- Your phone number is stored for delivery only.
+
+If **media are planted** (USB simulation), who picked one up cannot be
+determined: each medium carries an identifier for the location where it was
+placed, not for a person. The file it contains is a simple web page with no
+program and no script.
+
 ## Is my mailbox searched?
 
 Only in exceptional cases and only for one specific message. If someone reports a phishing mail
