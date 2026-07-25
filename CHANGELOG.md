@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.22.0](https://github.com/securebits-cyber/SentryMail/compare/v0.21.0...v0.22.0) (2026-07-25)
+
+
+### Features
+
+* **privacy:** Rolle Datenschutzbeauftragter und Modus-Schalter / Data protection officer role and mode switch ([#104](https://github.com/securebits-cyber/SentryMail/issues/104)) ([bc8ac05](https://github.com/securebits-cyber/SentryMail/commit/bc8ac05f22536829e2d234598374cfa7f48791d0))
+
 ## [0.21.0](https://github.com/securebits-cyber/SentryMail/compare/v0.20.2...v0.21.0) (2026-07-25)
 
 
