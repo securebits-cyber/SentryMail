@@ -556,7 +556,7 @@ export default function ReportsPage() {
         title={<>{t('rep.evidence.heading')}<TierBadge tier="business" locked={!businessLicensed} className="ml-2 align-middle" /></>}
       >
         <div className="flex flex-wrap gap-2">
-          {(['dsgvo', 'nis2', 'iso27001', 'awareness', 'audit', 'certificate', 'training'] as const).map((kind) => (
+          {(['dsgvo', 'nis2', 'iso27001', 'bsi_orp3', 'bsig38', 'awareness', 'audit', 'certificate', 'training'] as const).map((kind) => (
             <button
               key={kind}
               onClick={() => exportBusinessPdf(`/reports/evidence/${kind}/pdf`, `${kind}.pdf`)}

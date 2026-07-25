@@ -66,6 +66,8 @@ export const translations: Record<Lang, Record<string, string>> = {
     'rep.evidence.dsgvo': 'DSGVO',
     'rep.evidence.nis2': 'NIS2',
     'rep.evidence.iso27001': 'ISO 27001',
+    'rep.evidence.bsi_orp3': 'BSI ORP.3',
+    'rep.evidence.bsig38': '§ 38 BSIG (Leitungsorgane)',
     'rep.evidence.awareness': 'Awareness-Nachweis',
     'rep.evidence.audit': 'Audit-Bericht',
     'rep.evidence.certificate': 'Zertifikat',
@@ -404,6 +406,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     // Gemeinsam (weitere)
     'common.save': 'Speichern',
     'common.active': 'Aktiv',
+    'common.yes': 'Ja',
 
     // Mein Profil
     'prof.loading': 'Lade Profil...',
@@ -769,6 +772,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     'grf.position': 'Position',
     'grf.department': 'Abteilung',
     'grf.criticality': 'Kritikalität',
+    'grf.management': 'Leitungsorgan',
     'crit.low': 'Niedrig',
     'crit.normal': 'Normal',
     'crit.high': 'Hoch',
@@ -1122,6 +1126,8 @@ export const translations: Record<Lang, Record<string, string>> = {
     'rep.evidence.dsgvo': 'GDPR',
     'rep.evidence.nis2': 'NIS2',
     'rep.evidence.iso27001': 'ISO 27001',
+    'rep.evidence.bsi_orp3': 'BSI ORP.3',
+    'rep.evidence.bsig38': '§ 38 BSIG (executive bodies)',
     'rep.evidence.awareness': 'Awareness record',
     'rep.evidence.audit': 'Audit report',
     'rep.evidence.certificate': 'Certificate',
@@ -1459,6 +1465,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     // Common (more)
     'common.save': 'Save',
     'common.active': 'Active',
+    'common.yes': 'Yes',
 
     // My profile
     'prof.loading': 'Loading profile...',
@@ -1822,6 +1829,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     'grf.position': 'Position',
     'grf.department': 'Department',
     'grf.criticality': 'Criticality',
+    'grf.management': 'Executive body',
     'crit.low': 'Low',
     'crit.normal': 'Normal',
     'crit.high': 'High',

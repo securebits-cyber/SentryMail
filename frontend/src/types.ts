@@ -169,6 +169,9 @@ export interface GroupMember {
   position?: string | null
   department?: string | null
   criticality?: Criticality | null
+  // Leitungsorgan (Geschaeftsfuehrung/Vorstand) - Grundlage des gesonderten
+  // Nachweises nach § 38 BSIG.
+  is_management?: boolean
 }
 
 // "manual" = im Dashboard verwaltet, "scim" = vom Identity Provider verwaltet

@@ -325,6 +325,9 @@ class Recipient(Base):
     position: Mapped[str | None] = mapped_column(String(255), nullable=True)
     department: Mapped[str | None] = mapped_column(String(255), nullable=True)
     criticality: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    #: Mitglied eines Leitungsorgans (Geschaeftsfuehrung, Vorstand). Grundlage
+    #: des gesonderten Nachweises der Schulungspflicht nach Paragraf 38 BSIG.
+    is_management: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     #: Zeitpunkt der Anonymisierung durch die Retention (Welle 2). Gesetzt heisst:
     #: E-Mail und Name sind unwiederbringlich ersetzt. Dient zugleich als Marker,
@@ -524,6 +527,8 @@ class GroupMember(Base):
     department: Mapped[str | None] = mapped_column(String(255), nullable=True)
     # Kritikalitaet der Person fuers Human Risk Management: "low" | "normal" | "high".
     criticality: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    #: Mitglied eines Leitungsorgans - siehe Recipient.is_management.
+    is_management: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     group: Mapped["Group"] = relationship(back_populates="members")

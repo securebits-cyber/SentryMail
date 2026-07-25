@@ -14,6 +14,14 @@ export interface GroupMemberInput {
   position?: string
   department?: string
   criticality?: Criticality
+  /** Leitungsorgan (Geschaeftsfuehrung/Vorstand) — Grundlage des gesonderten
+   *  Nachweises nach § 38 BSIG. */
+  is_management?: boolean
+}
+
+/** Wahrheitswerte aus CSV-Exporten: deutsche wie englische Schreibweisen. */
+function parseFlag(value?: string): boolean {
+  return ['1', 'ja', 'j', 'yes', 'y', 'true', 'wahr', 'x'].includes((value || '').trim().toLowerCase())
 }
 
 const CRITICALITIES: Criticality[] = ['low', 'normal', 'high']
@@ -40,7 +48,8 @@ const labelClass = 'flex flex-col gap-1 text-sm'
 
 /**
  * Erwartet CSV mit Spalten: email,first_name,last_name,position,department,
- * criticality (Header optional). Trennzeichen wird pro Zeile erkannt: Semikolon
+ * criticality,leitungsorgan (Header optional; die letzte Spalte ist optional
+ * und akzeptiert ja/1/x/true). Trennzeichen wird pro Zeile erkannt: Semikolon
  * (deutsche Excel-Exporte), Tab oder Komma. Nur Zeilen mit einer erkennbaren
  * E-Mail werden uebernommen.
  */
@@ -53,7 +62,7 @@ function parseCsv(csv: string): GroupMemberInput[] {
     .filter((line) => line.includes('@') || !/mail/i.test(line))
     .map((line) => {
       const delim = line.includes(';') ? ';' : line.includes('\t') ? '\t' : ','
-      const [email, first_name, last_name, position, department, criticality] = line
+      const [email, first_name, last_name, position, department, criticality, management] = line
         .split(delim)
         .map((v) => v?.trim())
       return {
@@ -63,6 +72,7 @@ function parseCsv(csv: string): GroupMemberInput[] {
         position: position || undefined,
         department: department || undefined,
         criticality: normalizeCriticality(criticality),
+        is_management: parseFlag(management),
       }
     })
     .filter((m) => m.email && m.email.includes('@'))
@@ -87,6 +97,7 @@ export default function GroupForm({ initial, onSubmit, onCancel, submitting }: G
         position: m.position ?? undefined,
         department: m.department ?? undefined,
         criticality: m.criticality ?? undefined,
+        is_management: m.is_management ?? false,
       })),
     )
     setCsv('')
@@ -134,6 +145,7 @@ export default function GroupForm({ initial, onSubmit, onCancel, submitting }: G
         position: manual.position?.trim() || undefined,
         department: manual.department?.trim() || undefined,
         criticality: manual.criticality || undefined,
+        is_management: manual.is_management ?? false,
       },
     ])
     setManual(emptyManual)
@@ -222,6 +234,15 @@ export default function GroupForm({ initial, onSubmit, onCancel, submitting }: G
               </option>
             ))}
           </select>
+          <label className="flex items-center gap-2 text-sm text-text-secondary">
+            <input
+              type="checkbox"
+              checked={manual.is_management ?? false}
+              onChange={(e) => setManual({ ...manual, is_management: e.target.checked })}
+              className="accent-accent"
+            />
+            {t('grf.management')}
+          </label>
           <button
             type="button"
             onClick={addManual}
@@ -272,6 +293,7 @@ export default function GroupForm({ initial, onSubmit, onCancel, submitting }: G
                   <th className="px-3 py-2 font-medium">{t('grf.position')}</th>
                   <th className="px-3 py-2 font-medium">{t('grf.department')}</th>
                   <th className="px-3 py-2 font-medium">{t('grf.criticality')}</th>
+                  <th className="px-3 py-2 font-medium">{t('grf.management')}</th>
                   <th className="px-3 py-2" />
                 </tr>
               </thead>
@@ -284,6 +306,7 @@ export default function GroupForm({ initial, onSubmit, onCancel, submitting }: G
                     <td className="px-3 py-1.5">{m.position ?? ''}</td>
                     <td className="px-3 py-1.5">{m.department ?? ''}</td>
                     <td className="px-3 py-1.5">{m.criticality ? t(`crit.${m.criticality}`) : ''}</td>
+                    <td className="px-3 py-1.5">{m.is_management ? t('common.yes') : ''}</td>
                     <td className="px-3 py-1.5 text-right">
                       <button
                         type="button"

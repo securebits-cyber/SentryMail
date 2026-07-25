@@ -83,3 +83,40 @@ def test_external_group_stays_readable(client, make_user, auth_headers, db):
 
     listed = client.get("/groups", headers=headers).json()
     assert [g["source"] for g in listed] == ["scim"]
+
+
+def test_management_flag_is_carried_into_campaigns(client, make_user, auth_headers, db):
+    """Das Kennzeichen muss als Schnappschuss in die Kampagne wandern - sonst
+    steht es beim Nachweis nach Paragraf 38 BSIG nicht zur Verfuegung."""
+    from app.models import Recipient, Template
+
+    admin = make_user(role=UserRole.ADMIN)
+    headers = auth_headers(admin)
+    template = Template(name="T", subject="S", html_content="<p>x</p>", created_by_id=admin.id)
+    db.add(template)
+    db.commit()
+
+    group = client.post(
+        "/groups",
+        json={
+            "name": "Leitung",
+            "members": [
+                {"email": "chef@example.com", "is_management": True},
+                {"email": "mitarbeit@example.com"},
+            ],
+        },
+        headers=headers,
+    ).json()
+    assert [m["is_management"] for m in group["members"]] == [True, False]
+
+    campaign = client.post(
+        "/campaigns",
+        json={"name": "K", "template_id": str(template.id), "group_ids": [group["id"]]},
+        headers=headers,
+    ).json()
+
+    flags = {
+        r.email: r.is_management
+        for r in db.query(Recipient).filter(Recipient.campaign_id == campaign["id"]).all()
+    }
+    assert flags == {"chef@example.com": True, "mitarbeit@example.com": False}
