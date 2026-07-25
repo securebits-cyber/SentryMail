@@ -414,6 +414,14 @@ export interface MispConfig {
   has_api_key: boolean
 }
 
+export interface ReportButtonConfig {
+  enabled: boolean
+  allowed_domains: string
+  max_reports_per_hour: number
+  has_token: boolean
+  last_seen_at: string | null
+}
+
 export interface QuarantineConfig {
   /** '' = aus, 'graph' = Microsoft 365, 'dovecot' = Postfix/Dovecot */
   backend: '' | 'graph' | 'dovecot'
