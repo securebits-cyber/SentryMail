@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.37.0](https://github.com/securebits-cyber/SentryMail/compare/v0.36.0...v0.37.0) (2026-07-25)
+
+
+### Features
+
+* **compose:** ClamAV als Profil, Doku-Button, Add-Ons statt Integrationen / ClamAV as a profile, docs button, add-ons instead of integrations ([#146](https://github.com/securebits-cyber/SentryMail/issues/146)) ([49cb9e0](https://github.com/securebits-cyber/SentryMail/commit/49cb9e0c74e80967f0d4ac8a1e6e5e1f04dd397a))
+
 ## [0.36.0](https://github.com/securebits-cyber/SentryMail/compare/v0.35.0...v0.36.0) (2026-07-25)
 
 
