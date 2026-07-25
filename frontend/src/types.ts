@@ -232,6 +232,17 @@ export interface PrivacyConfig {
   fingerprinting_enabled: boolean
   privacy_mode_enabled: boolean
   k_anonymity_threshold: number
+  // null = keine automatische Loeschung (Auslieferungszustand).
+  retention_days: number | null
+  retention_last_run_at: string | null
+}
+
+// Vorschau des naechsten Retention-Laufs - veraendert nichts.
+export interface RetentionPreview {
+  retention_days: number | null
+  campaigns: number
+  recipients: number
+  events: number
 }
 
 // Audit-Log: Anmelde- und System-Aenderungsereignisse.

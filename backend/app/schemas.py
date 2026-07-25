@@ -90,6 +90,18 @@ class PrivacyConfigOut(BaseModel):
     fingerprinting_enabled: bool
     privacy_mode_enabled: bool
     k_anonymity_threshold: int
+    # None = keine automatische Loeschung (Auslieferungszustand).
+    retention_days: int | None
+    retention_last_run_at: datetime | None
+
+
+class RetentionPreviewOut(BaseModel):
+    """Was der naechste Retention-Lauf anfassen wuerde."""
+
+    retention_days: int | None
+    campaigns: int
+    recipients: int
+    events: int
 
 
 class PrivacyUnlockCreate(BaseModel):
@@ -130,6 +142,9 @@ class PrivacyConfigUpdate(BaseModel):
     # k = 1 waere keine Anonymisierung; die Obergrenze verhindert, dass der Modus
     # durch eine absurd hohe Schwelle faktisch alle Auswertungen abschaltet.
     k_anonymity_threshold: int = Field(default=5, ge=2, le=1000)
+    # None = automatische Loeschung aus. Obergrenze 10 Jahre - laenger ist keine
+    # Aufbewahrungsfrist mehr, sondern ein Archiv.
+    retention_days: int | None = Field(default=None, ge=1, le=3650)
 
 
 # --- User ---

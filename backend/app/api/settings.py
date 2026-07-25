@@ -19,12 +19,14 @@ from app.schemas import (
     OidcConfigUpdate,
     PrivacyConfigOut,
     PrivacyConfigUpdate,
+    RetentionPreviewOut,
     SecurityConfigOut,
     SecurityConfigUpdate,
     SmtpConfigOut,
     SmtpConfigUpdate,
     SmtpTestResult,
 )
+from app.services import retention
 from app.services.mail import test_smtp_params
 from app.services.smtp_config import get_or_create_smtp_config
 from app.utils.crypto import decrypt, encrypt
@@ -164,6 +166,10 @@ def _describe_privacy_changes(config: PrivacyConfig, payload: PrivacyConfigUpdat
         parts.append(
             f"k-Anonymitaet {config.k_anonymity_threshold} → {payload.k_anonymity_threshold}"
         )
+    if payload.retention_days != config.retention_days:
+        old = f"{config.retention_days} Tage" if config.retention_days else "aus"
+        new = f"{payload.retention_days} Tage" if payload.retention_days else "aus"
+        parts.append(f"Aufbewahrungsfrist {old} → {new}")
     return " · ".join(parts) or "keine Änderung"
 
 
@@ -179,6 +185,7 @@ def update_privacy(
     config.fingerprinting_enabled = payload.fingerprinting_enabled
     config.privacy_mode_enabled = payload.privacy_mode_enabled
     config.k_anonymity_threshold = payload.k_anonymity_threshold
+    config.retention_days = payload.retention_days
     db.commit()
     db.refresh(config)
     record_audit(
@@ -189,3 +196,44 @@ def update_privacy(
         ip=client_ip(request),
     )
     return config
+
+
+@router.get("/privacy/retention/preview", response_model=RetentionPreviewOut)
+def preview_retention(
+    db: Session = Depends(get_db), _: User = Depends(require_admin_or_privacy_officer)
+):
+    """Was der naechste Lauf anfassen wuerde - veraendert nichts.
+
+    Eine Loeschregel, deren Wirkung man erst hinterher sieht, taugt nicht als
+    Grundlage fuer eine Betriebsvereinbarung.
+    """
+    config = get_or_create_privacy_config(db)
+    stats = retention.preview(db)
+    return RetentionPreviewOut(
+        retention_days=config.retention_days,
+        campaigns=stats.campaigns,
+        recipients=stats.recipients,
+        events=stats.events,
+    )
+
+
+@router.post("/privacy/retention/run", response_model=RetentionPreviewOut)
+def run_retention(
+    request: Request,
+    db: Session = Depends(get_db),
+    current: User = Depends(require_admin),
+):
+    """Faelligen Lauf sofort ausloesen, statt auf den stuendlichen Tick zu warten."""
+    config = get_or_create_privacy_config(db)
+    if config.retention_days is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Es ist keine Aufbewahrungsfrist gesetzt - es wird nichts gelöscht.",
+        )
+    stats = retention.purge_expired(db, actor=current)
+    return RetentionPreviewOut(
+        retention_days=config.retention_days,
+        campaigns=stats.campaigns,
+        recipients=stats.recipients,
+        events=stats.events,
+    )
