@@ -15,6 +15,7 @@ import TierBadge from '../components/TierBadge'
 import { useFeatures } from '../hooks/useFeatures'
 import { useI18n } from '../i18n'
 import { api } from '../services/api'
+import { isPrivacyLocked } from '../services/privacy'
 
 async function downloadBlob(url: string, filename: string) {
   const res = await api.get(url, { responseType: 'blob' })
@@ -81,6 +82,7 @@ interface TrendRow {
   submit_rate: number
   risk_score: number
   risk_level: 'high' | 'medium' | 'low'
+  suppressed?: boolean
 }
 
 interface UserRow {
@@ -103,6 +105,7 @@ interface DepartmentRow {
   high_criticality: number
   risk_score: number
   risk_level: 'high' | 'medium' | 'low'
+  suppressed?: boolean
 }
 
 interface Progress {
@@ -133,6 +136,10 @@ export default function ReportsPage() {
   const [users, setUsers] = useState<UserRow[]>([])
   const [departments, setDepartments] = useState<DepartmentRow[]>([])
   const [progress, setProgress] = useState<Progress[]>([])
+  // 403 aus dem Datenschutzmodus ist kein Ladefehler, sondern eine Aussage:
+  // die Auswertung existiert, wird aber personenbezogen nicht ausgegeben.
+  const [usersLocked, setUsersLocked] = useState(false)
+  const [progressLocked, setProgressLocked] = useState(false)
   const [loading, setLoading] = useState(true)
   const [exporting, setExporting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -148,14 +155,26 @@ export default function ReportsPage() {
     // Business-Reporting (Trend, Benutzerentwicklung) — nur mit Business-Lizenz.
     if (!businessLicensed) return
     api.get<TrendRow[]>('/reports/trend').then((r) => setTrend(r.data)).catch(() => setTrend([]))
-    api.get<UserRow[]>('/reports/users').then((r) => setUsers(r.data)).catch(() => setUsers([]))
+    api
+      .get<UserRow[]>('/reports/users')
+      .then((r) => setUsers(r.data))
+      .catch((e) => {
+        setUsers([])
+        setUsersLocked(isPrivacyLocked(e))
+      })
     api.get<DepartmentRow[]>('/reports/departments').then((r) => setDepartments(r.data)).catch(() => setDepartments([]))
   }, [businessLicensed])
 
   useEffect(() => {
     // Enterprise-Reporting (Schulungsfortschritt, Zertifikatsstatus) — nur mit Enterprise-Lizenz.
     if (!enterpriseLicensed) return
-    api.get<Progress[]>('/enterprise-reports/users').then((r) => setProgress(r.data)).catch(() => setProgress([]))
+    api
+      .get<Progress[]>('/enterprise-reports/users')
+      .then((r) => setProgress(r.data))
+      .catch((e) => {
+        setProgress([])
+        setProgressLocked(isPrivacyLocked(e))
+      })
   }, [enterpriseLicensed])
 
   async function runAiScoring() {
@@ -434,10 +453,18 @@ export default function ReportsPage() {
                   <tr key={row.campaign_id} className="border-b border-border">
                     <td className="py-2 pr-4">{row.name}</td>
                     <td className="py-2 pr-4 font-mono tabular-nums text-text-secondary">{row.date}</td>
-                    <td className="py-2 pr-4 font-mono tabular-nums">{row.click_rate}%</td>
-                    <td className="py-2">
-                      <RiskBadge level={row.risk_level} size="sm" label={`${row.risk_score} · ${t(`risk.level.${row.risk_level}`)}`} />
-                    </td>
+                    {row.suppressed ? (
+                      <td colSpan={2} className="py-2 pr-4 text-xs text-text-secondary">
+                        {t('priv.belowThreshold')}
+                      </td>
+                    ) : (
+                      <>
+                        <td className="py-2 pr-4 font-mono tabular-nums">{row.click_rate}%</td>
+                        <td className="py-2">
+                          <RiskBadge level={row.risk_level} size="sm" label={`${row.risk_score} · ${t(`risk.level.${row.risk_level}`)}`} />
+                        </td>
+                      </>
+                    )}
                   </tr>
                 ))}
               </tbody>
@@ -446,12 +473,13 @@ export default function ReportsPage() {
       )}
 
       {/* Business: Benutzerentwicklung */}
-      {users.length > 0 && (
+      {(users.length > 0 || usersLocked) && (
         <Card
           className="mt-8"
           title={<>{t('rep.users.heading')}<TierBadge tier="business" locked={!businessLicensed} className="ml-2 align-middle" /></>}
-          bodyClassName="overflow-x-auto"
+          bodyClassName={usersLocked ? '' : 'overflow-x-auto'}
         >
+            {usersLocked ? <PrivacyLockNotice compact /> : (
             <table className="w-full border-collapse text-sm">
               <thead>
                 <tr className="border-b border-border text-left text-text-secondary">
@@ -476,6 +504,7 @@ export default function ReportsPage() {
                 ))}
               </tbody>
             </table>
+            )}
         </Card>
       )}
       {/* Business: Abteilungsvergleich */}
@@ -501,12 +530,20 @@ export default function ReportsPage() {
                   <tr key={d.department} className="border-b border-border">
                     <td className="py-2 pr-4">{d.department}</td>
                     <td className="py-2 pr-4 font-mono tabular-nums">{d.recipients}</td>
-                    <td className="py-2 pr-4 font-mono tabular-nums">{d.click_rate}%</td>
-                    <td className="py-2 pr-4 font-mono tabular-nums">{d.submit_rate}%</td>
-                    <td className="py-2 pr-4 font-mono tabular-nums">{d.high_criticality}</td>
-                    <td className="py-2">
-                      <RiskBadge level={d.risk_level} size="sm" label={`${d.risk_score} · ${t(`risk.level.${d.risk_level}`)}`} />
-                    </td>
+                    {d.suppressed ? (
+                      <td colSpan={4} className="py-2 pr-4 text-xs text-text-secondary">
+                        {t('priv.belowThreshold')}
+                      </td>
+                    ) : (
+                      <>
+                        <td className="py-2 pr-4 font-mono tabular-nums">{d.click_rate}%</td>
+                        <td className="py-2 pr-4 font-mono tabular-nums">{d.submit_rate}%</td>
+                        <td className="py-2 pr-4 font-mono tabular-nums">{d.high_criticality}</td>
+                        <td className="py-2">
+                          <RiskBadge level={d.risk_level} size="sm" label={`${d.risk_score} · ${t(`risk.level.${d.risk_level}`)}`} />
+                        </td>
+                      </>
+                    )}
                   </tr>
                 ))}
               </tbody>
@@ -541,7 +578,9 @@ export default function ReportsPage() {
           title={<>{t('rep.progress.heading')}<TierBadge tier="enterprise" locked={!enterpriseLicensed} className="ml-2 align-middle" /></>}
           bodyClassName={progress.length ? 'overflow-x-auto' : ''}
         >
-          {progress.length === 0 ? (
+          {progressLocked ? (
+            <PrivacyLockNotice compact />
+          ) : progress.length === 0 ? (
             <p className="text-text-secondary">{t('rep.progress.empty')}</p>
           ) : (
               <table className="w-full border-collapse text-sm">
