@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.29.0](https://github.com/securebits-cyber/SentryMail/compare/v0.28.0...v0.29.0) (2026-07-25)
+
+
+### Features
+
+* **compliance:** Leitungsorgane kennzeichnen und Nachweise ergaenzen / Flag executive bodies and extend the evidence list ([#122](https://github.com/securebits-cyber/SentryMail/issues/122)) ([f68536d](https://github.com/securebits-cyber/SentryMail/commit/f68536d73cdae4563325ec073b41cc3887f86c86))
+
 ## [0.28.0](https://github.com/securebits-cyber/SentryMail/compare/v0.27.0...v0.28.0) (2026-07-25)
 
 
