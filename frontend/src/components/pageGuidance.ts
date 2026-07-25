@@ -297,13 +297,13 @@ const de: Record<string, Guidance> = {
   },
   integrations: {
     intro:
-      'Der Integrationsbereich bündelt Verbindungen zu externen Systemen (SIEM, Verzeichnisdienste, SSO) sowie die lizenzabhängigen Zusatzfunktionen.',
+      'Der Add-On-Bereich bündelt die lizenzabhängigen Zusatzfunktionen sowie die Verbindungen zu externen Systemen (SIEM, Verzeichnisdienste, SSO).',
     steps: [
       'In der linken Spalte den gewünschten Bereich wählen (analog zum Einstellungen-Menü).',
-      'Business-/Enterprise-Integrationen sind mit einem Lizenz-Badge markiert und ohne gültige Lizenz gesperrt.',
+      'Business-/Enterprise-Funktionen sind mit einem Lizenz-Badge markiert und ohne gültige Lizenz gesperrt.',
       'Die eigentliche Konfiguration (z. B. LDAP, SIEM, SAML) erfolgt in den jeweiligen Einstellungsseiten.',
     ],
-    note: 'Neue Integrationen erscheinen hier automatisch, sobald sie per Lizenz freigeschaltet sind.',
+    note: 'Neue Add-Ons erscheinen hier automatisch, sobald sie per Lizenz freigeschaltet sind.',
   },
   'settings-entra': {
     intro:
@@ -793,13 +793,13 @@ const en: Record<string, Guidance> = {
   },
   integrations: {
     intro:
-      'The integrations area bundles connections to external systems (SIEM, directories, SSO) and the license-dependent add-on features.',
+      'The add-ons area bundles the license-dependent add-on features and the connections to external systems (SIEM, directories, SSO).',
     steps: [
       'Pick the desired area in the left column (like the settings menu).',
-      'Business/Enterprise integrations are marked with a license badge and locked without a valid license.',
+      'Business/Enterprise features are marked with a license badge and locked without a valid license.',
       'The actual configuration (e.g. LDAP, SIEM, SAML) happens on the respective settings pages.',
     ],
-    note: 'New integrations appear here automatically once unlocked by a license.',
+    note: 'New add-ons appear here automatically once unlocked by a license.',
   },
   'settings-entra': {
     intro:

@@ -27,6 +27,38 @@ services:
     networks:
       - humanshield
 
+  # Anhang-Pruefung fuer gemeldete Mails (Enterprise). Bewusst hinter einem
+  # Profil und damit standardmaessig AUS: clamd haelt die Signaturdatenbank
+  # vollstaendig im Speicher (real 1,5-2 GB) und wuerde die Mindestanforderung
+  # jeder Installation anheben - auch der vielen, die nie eine Mail melden.
+  #
+  #   docker compose --profile scanning up -d
+  #
+  # Danach unter Einstellungen -> Anhang-Pruefung Host "clamav", Port 3310.
+  #
+  # Fuer Installationen ohne Internet: freshclam kommt nicht an die Signaturen
+  # und die Datenbank veraltet still. Dort entweder die Signaturen per Spiegel
+  # einbinden oder die Pruefung ausgeschaltet lassen - eine veraltete
+  # Signaturdatenbank ist schlimmer als keine, weil sie Sicherheit vortaeuscht.
+  clamav:
+    image: clamav/clamav:stable
+    container_name: humanshield-clamav
+    profiles:
+      - scanning
+    restart: unless-stopped
+    healthcheck:
+      # clamd braucht nach dem Start mehrere Minuten, um die Signaturen zu
+      # laden. Bis dahin ist der Container absichtlich "starting".
+      test: ["CMD", "clamdcheck.sh"]
+      interval: 60s
+      timeout: 10s
+      start_period: 300s
+      retries: 3
+    volumes:
+      - clamav_data:/var/lib/clamav
+    networks:
+      - humanshield
+
   backend:
     build:
       context: ./backend
@@ -92,6 +124,9 @@ volumes:
   postgres_data:
   caddy_data:
   caddy_config:
+  # Signaturdatenbank von ClamAV - ohne eigenes Volume laedt sie der
+  # Container nach jedem Neustart erneut (mehrere hundert MB).
+  clamav_data:
 
 networks:
   humanshield:
