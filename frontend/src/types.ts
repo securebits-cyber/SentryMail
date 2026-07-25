@@ -210,6 +210,24 @@ export interface SecurityConfig {
   require_2fa: string // "off" | "admins" | "all"
 }
 
+// Vier-Augen-Freigabe: Ein Admin beantragt, der Datenschutzbeauftragte
+// entscheidet. "expired" ist kein gespeicherter Status, sondern abgeleitet.
+export type PrivacyUnlockStatus = 'pending' | 'approved' | 'rejected' | 'revoked' | 'expired'
+
+export interface PrivacyUnlockRequest {
+  id: string
+  requested_by_email: string
+  campaign_id: string | null
+  reason: string
+  duration_hours: number
+  status: PrivacyUnlockStatus
+  decided_by_email: string | null
+  decided_at: string | null
+  expires_at: string | null
+  created_at: string
+  active: boolean
+}
+
 export interface PrivacyConfig {
   fingerprinting_enabled: boolean
   privacy_mode_enabled: boolean

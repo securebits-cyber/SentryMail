@@ -14,7 +14,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from starlette.middleware.sessions import SessionMiddleware
 
-from app.api import audit, campaigns, dashboard, groups, health, landing_pages, license as license_api, me as me_api, reports, results, sending_profiles, settings as settings_api, templates, tracking
+from app.api import audit, campaigns, dashboard, groups, health, landing_pages, license as license_api, me as me_api, privacy as privacy_api, reports, results, sending_profiles, settings as settings_api, templates, tracking
 from app.api import users as users_api
 from app.api import version as version_api
 from app.addon_loader import load_addons
@@ -138,6 +138,7 @@ app.include_router(me_api.router)
 app.include_router(users_api.router)
 app.include_router(audit.router)
 app.include_router(settings_api.router)
+app.include_router(privacy_api.router)
 app.include_router(sending_profiles.router)
 app.include_router(groups.router)
 app.include_router(landing_pages.router)

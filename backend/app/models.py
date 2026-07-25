@@ -160,6 +160,68 @@ class PrivacyConfig(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
 
+class PrivacyUnlockStatus(str, enum.Enum):
+    PENDING = "pending"
+    APPROVED = "approved"
+    REJECTED = "rejected"
+    REVOKED = "revoked"
+    # "abgelaufen" ist bewusst kein gespeicherter Zustand: er ergibt sich aus
+    # ``expires_at`` und braucht keinen Hintergrundjob, der ihn nachtraegt.
+
+
+class PrivacyUnlockRequest(Base):
+    """Antrag auf befristete Aufhebung der Einzelpersonen-Sperre (Welle 2).
+
+    Vier-Augen-Prinzip: Ein Admin beantragt mit Begruendung, entschieden wird
+    ausschliesslich vom Datenschutzbeauftragten. Dass Antragsteller und
+    Entscheider verschieden sind, sichert zusaetzlich ein CheckConstraint - die
+    Regel darf nicht allein an der Anwendungslogik haengen.
+
+    Freigaben gelten immer nur befristet, nur fuer den Antragsteller und
+    wahlweise nur fuer eine Kampagne (``campaign_id``); ohne Kampagne ist die
+    Freigabe global. Beides zusammen haelt die Aufhebung so eng wie moeglich.
+    """
+
+    __tablename__ = "privacy_unlock_requests"
+    __table_args__ = (
+        CheckConstraint(
+            "decided_by_id IS NULL OR decided_by_id <> requested_by_id",
+            name="ck_privacy_unlock_four_eyes",
+        ),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    requested_by_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    # Snapshot wie im Audit-Log: ein geloeschtes Konto darf die Historie des
+    # Freigabeverfahrens nicht unlesbar machen.
+    requested_by_email: Mapped[str] = mapped_column(String(320), default="", nullable=False)
+    campaign_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("campaigns.id", ondelete="CASCADE"), nullable=True
+    )
+    reason: Mapped[str] = mapped_column(Text, nullable=False)
+    duration_hours: Mapped[int] = mapped_column(Integer, default=24, nullable=False)
+    status: Mapped[PrivacyUnlockStatus] = mapped_column(
+        Enum(
+            PrivacyUnlockStatus,
+            name="privacy_unlock_status",
+            values_callable=lambda enum_cls: [e.value for e in enum_cls],
+        ),
+        default=PrivacyUnlockStatus.PENDING,
+        nullable=False,
+    )
+    decided_by_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+    )
+    decided_by_email: Mapped[str] = mapped_column(String(320), default="", nullable=False)
+    decided_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), index=True, nullable=False
+    )
+
+
 class LicenseState(Base):
     """Lizenzstatus (Singleton). Cached das zuletzt gueltige, signierte Lease.
 

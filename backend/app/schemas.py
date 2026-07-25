@@ -92,6 +92,38 @@ class PrivacyConfigOut(BaseModel):
     k_anonymity_threshold: int
 
 
+class PrivacyUnlockCreate(BaseModel):
+    """Antrag auf befristete Aufhebung der Einzelpersonen-Sperre."""
+
+    # Ohne Begruendung kann der Datenschutzbeauftragte nicht entscheiden und das
+    # Audit-Log nichts belegen - deshalb Pflichtfeld mit Mindestlaenge.
+    reason: str = Field(min_length=10, max_length=2000)
+    # Ohne Kampagne gilt die Freigabe global; mit Kampagne nur fuer diese.
+    campaign_id: uuid.UUID | None = None
+    # Obergrenze 7 Tage: eine Freigabe soll ein Vorgang bleiben, kein Zustand.
+    duration_hours: int = Field(default=24, ge=1, le=168)
+
+
+class PrivacyUnlockDecision(BaseModel):
+    note: str | None = Field(default=None, max_length=2000)
+
+
+class PrivacyUnlockOut(BaseModel):
+    id: uuid.UUID
+    requested_by_email: str
+    campaign_id: uuid.UUID | None
+    reason: str
+    duration_hours: int
+    # pending | approved | rejected | revoked | expired ("expired" ist abgeleitet)
+    status: str
+    decided_by_email: str | None
+    decided_at: datetime | None
+    expires_at: datetime | None
+    created_at: datetime
+    # True = wirkt gerade; erspart der Oberflaeche die Zeitrechnung.
+    active: bool
+
+
 class PrivacyConfigUpdate(BaseModel):
     fingerprinting_enabled: bool
     privacy_mode_enabled: bool
