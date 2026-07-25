@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.26.0](https://github.com/securebits-cyber/SentryMail/compare/v0.25.0...v0.26.0) (2026-07-25)
+
+
+### Features
+
+* **privacy:** Aufbewahrungsfrist mit automatischer Anonymisierung / Retention period with automatic anonymisation ([#112](https://github.com/securebits-cyber/SentryMail/issues/112)) ([bf96158](https://github.com/securebits-cyber/SentryMail/commit/bf96158db5434eb18d3f105cc0fb460a4aba8a83))
+
 ## [0.25.0](https://github.com/securebits-cyber/SentryMail/compare/v0.24.0...v0.25.0) (2026-07-25)
 
 
