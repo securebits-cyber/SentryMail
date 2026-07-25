@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.36.0](https://github.com/securebits-cyber/SentryMail/compare/v0.35.0...v0.36.0) (2026-07-25)
+
+
+### Features
+
+* **ui:** Oberflaeche fuer SCORM, xAPI und weitere Kanaele / UI for SCORM, xAPI and other channels ([#144](https://github.com/securebits-cyber/SentryMail/issues/144)) ([132a93b](https://github.com/securebits-cyber/SentryMail/commit/132a93b64f37b87a2cef06e95daba2353a63c82b))
+
 ## [0.35.0](https://github.com/securebits-cyber/SentryMail/compare/v0.34.0...v0.35.0) (2026-07-25)
 
 
