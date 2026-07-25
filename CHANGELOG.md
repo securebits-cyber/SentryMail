@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.26.2](https://github.com/securebits-cyber/SentryMail/compare/v0.26.1...v0.26.2) (2026-07-25)
+
+
+### Bug Fixes
+
+* **privacy:** Datenschutzbeauftragten benennen und per Mail benachrichtigen / Surface and notify the data protection officer ([#116](https://github.com/securebits-cyber/SentryMail/issues/116)) ([a146fee](https://github.com/securebits-cyber/SentryMail/commit/a146fee59d76a3da758224629afd91c8b1410505))
+
 ## [0.26.1](https://github.com/securebits-cyber/SentryMail/compare/v0.26.0...v0.26.1) (2026-07-25)
 
 
