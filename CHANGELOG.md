@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.28.0](https://github.com/securebits-cyber/SentryMail/compare/v0.27.0...v0.28.0) (2026-07-25)
+
+
+### Features
+
+* **ui:** Einstellungsseite fuer die SCIM-Bereitstellung / Settings page for SCIM provisioning ([#120](https://github.com/securebits-cyber/SentryMail/issues/120)) ([3a3bb9d](https://github.com/securebits-cyber/SentryMail/commit/3a3bb9d62029229d363c9315fedda9991eb09108))
+
 ## [0.27.0](https://github.com/securebits-cyber/SentryMail/compare/v0.26.2...v0.27.0) (2026-07-25)
 
 
