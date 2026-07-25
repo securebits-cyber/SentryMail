@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.27.0](https://github.com/securebits-cyber/SentryMail/compare/v0.26.2...v0.27.0) (2026-07-25)
+
+
+### Features
+
+* **groups:** Herkunft von Empfaengergruppen und Schreibschutz / Recipient group ownership and write protection ([#118](https://github.com/securebits-cyber/SentryMail/issues/118)) ([95b3fa7](https://github.com/securebits-cyber/SentryMail/commit/95b3fa76eaded1a1b63f7c6bf565ae9da6c2861b))
+
 ## [0.26.2](https://github.com/securebits-cyber/SentryMail/compare/v0.26.1...v0.26.2) (2026-07-25)
 
 
