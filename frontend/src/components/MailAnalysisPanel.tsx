@@ -115,6 +115,33 @@ export default function MailAnalysisPanel({ mailId, licensed }: { mailId: string
         )}
       </div>
 
+      {analysis.intel_status && analysis.intel_status !== 'disabled' && (
+        <div>
+          <h4 className="mb-1.5 text-sm font-semibold">{t('ma.intel')}</h4>
+          {analysis.intel_status === 'unavailable' ? (
+            // Ausgefallener Abgleich darf nicht wie ein geprueftes "unbekannt"
+            // aussehen - deshalb ausdruecklich benannt.
+            <p className="text-sm text-status-warning">{t('ma.intel.unavailable')}</p>
+          ) : (analysis.intel_hits ?? []).length === 0 ? (
+            <p className="text-sm text-text-secondary">{t('ma.intel.none')}</p>
+          ) : (
+            <ul className="flex flex-col gap-1 text-sm">
+              {(analysis.intel_hits ?? []).map((hit) => (
+                <li key={hit.indicator + hit.event_id} className="flex gap-2">
+                  <AlertTriangle size={14} className="mt-0.5 shrink-0 text-status-danger" />
+                  <span>
+                    <span className="font-mono text-xs break-all">{hit.indicator}</span>
+                    <span className="ml-1.5 text-text-secondary">
+                      {hit.type} · Event {hit.event_id} {hit.event_info && `— ${hit.event_info}`}
+                    </span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+
       {analysis.attachments.length > 0 && (
         <div>
           <h4 className="mb-1.5 text-sm font-semibold">{t('ma.attachments')}</h4>
