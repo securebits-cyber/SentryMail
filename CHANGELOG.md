@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.26.1](https://github.com/securebits-cyber/SentryMail/compare/v0.26.0...v0.26.1) (2026-07-25)
+
+
+### Dokumentation
+
+* **compliance:** Vorlagen fuer Mitbestimmung und aktualisierte Editionszuordnung / Co-determination templates and updated edition mapping ([#114](https://github.com/securebits-cyber/SentryMail/issues/114)) ([f87cea0](https://github.com/securebits-cyber/SentryMail/commit/f87cea06e2d0b1212b90e6a13ad99d619c6b8be6))
+
 ## [0.26.0](https://github.com/securebits-cyber/SentryMail/compare/v0.25.0...v0.26.0) (2026-07-25)
 
 
