@@ -2,11 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-import { MailWarning, Paperclip, Upload } from 'lucide-react'
-import { ChangeEvent, useEffect, useState } from 'react'
+import { ChevronDown, ChevronRight, MailWarning, Paperclip, Upload } from 'lucide-react'
+import { ChangeEvent, Fragment, useEffect, useState } from 'react'
 import Badge from '../components/Badge'
 import Card from '../components/Card'
 import LockedFeatureNotice from '../components/LockedFeatureNotice'
+import MailAnalysisPanel from '../components/MailAnalysisPanel'
 import PageScaffold from '../components/PageScaffold'
 import { useFeatures } from '../hooks/useFeatures'
 import { useI18n } from '../i18n'
@@ -17,6 +18,9 @@ export default function ReportedMailsPage() {
   const { t } = useI18n()
   const features = useFeatures()
   const licensed = Boolean(features?.features?.business)
+  // Die Auswertung ist Enterprise; der Meldeweg selbst bleibt Business.
+  const analysisLicensed = Boolean(features?.features?.enterprise)
+  const [openRow, setOpenRow] = useState<string | null>(null)
   const [rows, setRows] = useState<ReportedMail[]>([])
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState(false)
@@ -109,6 +113,7 @@ export default function ReportedMailsPage() {
           <table className="w-full border-collapse text-sm">
             <thead>
               <tr className="border-b border-border text-left text-text-secondary">
+                <th className="w-8 py-2" aria-label={t('rm.analysis')} />
                 <th className="py-2 pr-4 font-medium">{t('rm.col.subject')}</th>
                 <th className="py-2 pr-4 font-medium">{t('rm.col.from')}</th>
                 <th className="py-2 pr-4 font-medium">{t('rm.col.reportedBy')}</th>
@@ -119,7 +124,18 @@ export default function ReportedMailsPage() {
             </thead>
             <tbody>
               {rows.map((mail) => (
-                <tr key={mail.id} className="border-b border-border">
+                <Fragment key={mail.id}>
+                <tr className="border-b border-border">
+                  <td className="py-2 pr-1">
+                    <button
+                      onClick={() => setOpenRow(openRow === mail.id ? null : mail.id)}
+                      aria-expanded={openRow === mail.id}
+                      aria-label={t('rm.analysis')}
+                      className="text-text-secondary hover:text-accent"
+                    >
+                      {openRow === mail.id ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                    </button>
+                  </td>
                   <td className="py-2 pr-4">
                     {mail.subject || <span className="text-text-secondary">{t('rm.noSubject')}</span>}
                     {mail.attachment_count > 0 && (
@@ -145,6 +161,14 @@ export default function ReportedMailsPage() {
                     </button>
                   </td>
                 </tr>
+                {openRow === mail.id && (
+                  <tr className="border-b border-border">
+                    <td colSpan={7} className="py-3">
+                      <MailAnalysisPanel mailId={mail.id} licensed={analysisLicensed} />
+                    </td>
+                  </tr>
+                )}
+                </Fragment>
               ))}
             </tbody>
           </table>

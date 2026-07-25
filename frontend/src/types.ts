@@ -338,3 +338,34 @@ export interface ReportedMail {
   attachment_count: number
   size_bytes: number
 }
+
+// Analyse einer gemeldeten Mail (Enterprise, Welle 7).
+// urls sind **defanged** (hxxp://, [.]) — niemals als Link rendern.
+export interface MailAnalysisAttachment {
+  filename: string
+  content_type: string
+  size_bytes: number
+  sha256: string
+  risky: boolean
+  archive: boolean
+}
+
+export interface MailAnalysisFinding {
+  rule: string
+  weight: number
+  detail: string
+}
+
+export interface MailAnalysis {
+  reported_mail_id: string
+  spf_result: string
+  dkim_result: string
+  dmarc_result: string
+  hop_count: number
+  urls: string[]
+  attachments: MailAnalysisAttachment[]
+  findings: MailAnalysisFinding[]
+  score: number
+  level: 'high' | 'medium' | 'low'
+  created_at: string
+}
