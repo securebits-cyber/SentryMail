@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.30.0](https://github.com/securebits-cyber/SentryMail/compare/v0.29.0...v0.30.0) (2026-07-25)
+
+
+### Features
+
+* **threat:** Oberflaeche fuer gemeldete Mails / User interface for reported mails ([#124](https://github.com/securebits-cyber/SentryMail/issues/124)) ([64f30ab](https://github.com/securebits-cyber/SentryMail/commit/64f30abd934b26e6b66e3a87767ee37a31f1d270))
+
 ## [0.29.0](https://github.com/securebits-cyber/SentryMail/compare/v0.28.0...v0.29.0) (2026-07-25)
 
 
