@@ -84,6 +84,16 @@ class SecurityConfigUpdate(BaseModel):
     require_2fa: str
 
 
+class PrivacyConfigOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    fingerprinting_enabled: bool
+
+
+class PrivacyConfigUpdate(BaseModel):
+    fingerprinting_enabled: bool
+
+
 # --- User ---
 
 class UserOut(BaseModel):
@@ -245,7 +255,12 @@ class RecipientResultOut(BaseModel):
 
 
 class RecipientEventOut(BaseModel):
-    """Ein Tracking-Ereignis in der Session-Chronik eines Empfaengers."""
+    """Ein Tracking-Ereignis in der Session-Chronik eines Empfaengers.
+
+    Der Client-Fingerprint wird hier bewusst NICHT ausgegeben: er darf auch bei
+    aktivem Fingerprinting nie Teil von Einzelpersonen-Reports sein (Welle 2,
+    Datenschutz-/Mitbestimmungs-Modus).
+    """
     event_type: str
     occurred_at: datetime
     browser: str | None = None
@@ -254,7 +269,6 @@ class RecipientEventOut(BaseModel):
     country: str | None = None
     ip_address: str | None = None
     referrer: str | None = None
-    fingerprint: str | None = None
 
 
 class CampaignResultOut(BaseModel):

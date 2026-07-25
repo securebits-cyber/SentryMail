@@ -15,9 +15,10 @@ from collections.abc import Callable
 
 from sqlalchemy.orm import Session
 
-from app.models import Recipient, TrackingEvent, TrackingEventType
+from app.models import PrivacyConfig, Recipient, TrackingEvent, TrackingEventType
 from app.schemas import CampaignResultOut, RecipientResultOut
 from app.utils.geoip import lookup_country
+from app.utils.singleton import get_or_create_singleton
 from app.utils.useragent import parse_user_agent
 
 logger = logging.getLogger(__name__)
@@ -100,6 +101,15 @@ def record_event(
     return event
 
 
+def fingerprinting_enabled(db: Session) -> bool:
+    """Ob Client-Fingerprinting vom Betreiber ausdruecklich aktiviert wurde.
+
+    Default AUS (Welle 2, Datenschutz-/Mitbestimmungs-Modus). Autoritative
+    Quelle fuer Beacon-Auslieferung und serverseitige Erfassung.
+    """
+    return get_or_create_singleton(db, PrivacyConfig).fingerprinting_enabled
+
+
 def record_client_meta(
     db: Session,
     tracking_token: str,
@@ -113,7 +123,15 @@ def record_client_meta(
     Fingerprint stehen nur im Browser zur Verfuegung). Aktualisiert nur leere
     Felder und nur, wenn der Token bekannt ist. Gibt zurueck, ob ein Event
     aktualisiert wurde.
+
+    Der Fingerprint wird nur erfasst, wenn der Betreiber das Fingerprinting
+    ausdruecklich aktiviert hat (autoritative Durchsetzung, auch bei manuell
+    manipuliertem Beacon-Aufruf).
     """
+    # Auch bei deaktiviertem Fingerprinting koennen Aufloesung/Sprache erfasst
+    # werden; nur der Fingerprint faellt weg.
+    if fingerprint and not fingerprinting_enabled(db):
+        fingerprint = None
     if not screen_resolution and not client_language and not fingerprint:
         return False
     recipient = db.query(Recipient).filter(Recipient.tracking_token == tracking_token).first()

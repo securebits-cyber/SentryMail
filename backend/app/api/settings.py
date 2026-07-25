@@ -13,10 +13,12 @@ from sqlalchemy.orm import Session
 from app.auth.permissions import require_admin
 from app.services.audit import client_ip, record_audit
 from app.database import get_db
-from app.models import OidcConfig, SecurityConfig, User
+from app.models import OidcConfig, PrivacyConfig, SecurityConfig, User
 from app.schemas import (
     OidcConfigOut,
     OidcConfigUpdate,
+    PrivacyConfigOut,
+    PrivacyConfigUpdate,
     SecurityConfigOut,
     SecurityConfigUpdate,
     SmtpConfigOut,
@@ -129,6 +131,37 @@ def update_security(
         db,
         action="settings.security.updated",
         description=f"2FA-Pflicht: {policy_label.get(config.require_2fa, config.require_2fa)}",
+        actor=current,
+        ip=client_ip(request),
+    )
+    return config
+
+
+def get_or_create_privacy_config(db: Session) -> PrivacyConfig:
+    return get_or_create_singleton(db, PrivacyConfig)
+
+
+@router.get("/privacy", response_model=PrivacyConfigOut)
+def get_privacy(db: Session = Depends(get_db), _: User = Depends(require_admin)):
+    return get_or_create_privacy_config(db)
+
+
+@router.put("/privacy", response_model=PrivacyConfigOut)
+def update_privacy(
+    payload: PrivacyConfigUpdate,
+    request: Request,
+    db: Session = Depends(get_db),
+    current: User = Depends(require_admin),
+):
+    config = get_or_create_privacy_config(db)
+    config.fingerprinting_enabled = payload.fingerprinting_enabled
+    db.commit()
+    db.refresh(config)
+    state = "aktiviert" if config.fingerprinting_enabled else "deaktiviert"
+    record_audit(
+        db,
+        action="settings.privacy.updated",
+        description=f"Client-Fingerprinting {state}",
         actor=current,
         ip=client_ip(request),
     )

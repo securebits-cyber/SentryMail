@@ -15,6 +15,7 @@ import AiSettingsPage from './pages/settings/ai'
 import AuditEventsPage from './pages/settings/audit-events'
 import EntraSettingsPage from './pages/settings/entra'
 import LicenseSettingsPage from './pages/settings/license'
+import PrivacySettingsPage from './pages/settings/privacy'
 import SecuritySettingsPage from './pages/settings/security'
 import CampaignsPage from './pages/campaigns'
 import GroupsPage from './pages/groups'
@@ -94,6 +95,7 @@ export default function App() {
             <Route path="oidc" element={<OidcSettingsPage />} />
             <Route path="smtp" element={<SmtpSettingsPage />} />
             <Route path="security" element={<SecuritySettingsPage />} />
+            <Route path="privacy" element={<PrivacySettingsPage />} />
             <Route path="license" element={<LicenseSettingsPage />} />
             <Route path="audit-events" element={<AuditEventsPage />} />
           </Route>

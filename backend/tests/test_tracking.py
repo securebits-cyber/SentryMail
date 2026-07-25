@@ -8,6 +8,7 @@ import pytest
 
 from app.models import (
     Campaign,
+    PrivacyConfig,
     Recipient,
     Template,
     TrackingEvent,
@@ -16,6 +17,15 @@ from app.models import (
     UserRole,
 )
 from app.services.tracking import get_campaign_results, record_event
+
+
+@pytest.fixture
+def fingerprinting_on(db):
+    """Aktiviert das Client-Fingerprinting (per Default aus, Welle 2)."""
+    config = PrivacyConfig(fingerprinting_enabled=True)
+    db.add(config)
+    db.commit()
+    return config
 
 
 @pytest.fixture
@@ -175,8 +185,8 @@ def test_client_beacon_enriches_latest_click(client, db, campaign_with_recipient
     assert click.client_language == "de-DE"
 
 
-def test_client_beacon_stores_fingerprint(client, db, campaign_with_recipient):
-    """Der Beacon traegt einen gueltigen Hex-Fingerprint am Klick-Event nach."""
+def test_client_beacon_stores_fingerprint(client, db, campaign_with_recipient, fingerprinting_on):
+    """Bei aktiviertem Fingerprinting traegt der Beacon einen gueltigen Hex-Fingerprint nach."""
     client.get("/track/landing", params={"t": "tok-known-123"})
     client.get("/track/client", params={"t": "tok-known-123", "fp": "1a2b3c4d"})
     click = (
@@ -187,7 +197,7 @@ def test_client_beacon_stores_fingerprint(client, db, campaign_with_recipient):
     assert click.fingerprint == "1a2b3c4d"
 
 
-def test_client_beacon_rejects_bogus_fingerprint(client, db, campaign_with_recipient):
+def test_client_beacon_rejects_bogus_fingerprint(client, db, campaign_with_recipient, fingerprinting_on):
     """Nicht-Hex-Fingerprints (Manipulationsversuch) werden verworfen."""
     client.get("/track/landing", params={"t": "tok-known-123"})
     client.get("/track/client", params={"t": "tok-known-123", "fp": "<script>"})
@@ -197,6 +207,36 @@ def test_client_beacon_rejects_bogus_fingerprint(client, db, campaign_with_recip
         .one()
     )
     assert click.fingerprint is None
+
+
+def test_client_beacon_drops_fingerprint_when_disabled(client, db, campaign_with_recipient):
+    """Default (Opt-in aus): ein gueltiger Fingerprint wird serverseitig verworfen."""
+    client.get("/track/landing", params={"t": "tok-known-123"})
+    client.get("/track/client", params={"t": "tok-known-123", "fp": "1a2b3c4d", "res": "1920x1080"})
+    click = (
+        db.query(TrackingEvent)
+        .filter(TrackingEvent.event_type == TrackingEventType.CLICKED)
+        .one()
+    )
+    assert click.fingerprint is None
+    # Aufloesung wird weiterhin erfasst - nur der Fingerprint faellt weg.
+    assert click.screen_resolution == "1920x1080"
+
+
+def test_landing_omits_fingerprint_script_when_disabled(client, db, campaign_with_recipient):
+    """Default (Opt-in aus): die Landing Page spielt keine Canvas-Berechnung ein."""
+    resp = client.get("/track/landing", params={"t": "tok-known-123"})
+    assert "toDataURL" not in resp.text
+    assert "&fp=" not in resp.text
+
+
+def test_landing_includes_fingerprint_script_when_enabled(
+    client, db, campaign_with_recipient, fingerprinting_on
+):
+    """Bei aktiviertem Opt-in wird die Canvas-Berechnung eingespielt."""
+    resp = client.get("/track/landing", params={"t": "tok-known-123"})
+    assert "toDataURL" in resp.text
+    assert "&fp=" in resp.text
 
 
 def test_client_beacon_rejects_bogus_resolution(client, db, campaign_with_recipient):

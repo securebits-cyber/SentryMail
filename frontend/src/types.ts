@@ -66,7 +66,6 @@ export interface RecipientEvent {
   country: string | null
   ip_address: string | null
   referrer: string | null
-  fingerprint: string | null
 }
 
 export interface CampaignResult {
@@ -202,6 +201,10 @@ export interface TwoFAActivated {
 
 export interface SecurityConfig {
   require_2fa: string // "off" | "admins" | "all"
+}
+
+export interface PrivacyConfig {
+  fingerprinting_enabled: boolean
 }
 
 // Audit-Log: Anmelde- und System-Aenderungsereignisse.

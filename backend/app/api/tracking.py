@@ -19,7 +19,12 @@ from sqlalchemy.orm import Session
 from app.config import get_settings
 from app.database import get_db
 from app.models import Recipient, TrackingEventType
-from app.services.tracking import notify_submission, record_client_meta, record_event
+from app.services.tracking import (
+    fingerprinting_enabled,
+    notify_submission,
+    record_client_meta,
+    record_event,
+)
 
 settings = get_settings()
 
@@ -95,6 +100,31 @@ def track_landing(t: str, request: Request, db: Session = Depends(get_db)):
     # clientseitig per getAttribute gelesen. In den URLs sorgt zusaetzlich
     # encodeURIComponent fuer die korrekte Kodierung.
     t_attr = html_escape(t, quote=True)
+
+    # Client-Fingerprinting ist per Default AUS (Welle 2, Datenschutz-/
+    # Mitbestimmungs-Modus, Paragraf 25 TDDDG). Nur wenn der Betreiber es
+    # ausdruecklich aktiviert hat, wird die Canvas-Berechnung ueberhaupt in die
+    # Landing Page eingespielt - andernfalls findet clientseitig kein
+    # Fingerprinting statt. Aufloesung/Sprache werden weiterhin erfasst.
+    fp_enabled = fingerprinting_enabled(db)
+    if fp_enabled:
+        fp_compute = (
+            "var fp='';try{"
+            # Leichtgewichtiger Fingerprint: Canvas-Rendering + stabile Merkmale,
+            # zu einem 32-bit-Hex-Hash verdichtet (kein externes Skript, kein Cookie).
+            "var c=document.createElement('canvas');var x=c.getContext('2d');"
+            "x.textBaseline='top';x.font=\"14px 'Arial'\";x.fillStyle='#f60';x.fillRect(0,0,62,20);"
+            "x.fillStyle='#069';x.fillText('SentryMail',2,2);"
+            "var s=[navigator.userAgent,navigator.language,screen.width+'x'+screen.height,"
+            "screen.colorDepth,new Date().getTimezoneOffset(),navigator.hardwareConcurrency||0,"
+            "navigator.platform,c.toDataURL()].join('|');"
+            "var h=0;for(var i=0;i<s.length;i++){h=((h<<5)-h+s.charCodeAt(i))|0;}"
+            "fp=(h>>>0).toString(16);}catch(e){}"
+        )
+        fp_param = "+'&fp='+encodeURIComponent(fp)"
+    else:
+        fp_compute = ""
+        fp_param = ""
     inject = (
         f'<span id="_hs_t" data-t="{t_attr}" hidden></span>'
         "<script>document.addEventListener('DOMContentLoaded',function(){"
@@ -102,21 +132,10 @@ def track_landing(t: str, request: Request, db: Session = Depends(get_db)):
         "document.querySelectorAll('form').forEach(function(f){"
         "f.setAttribute('action','/track/submit?t='+encodeURIComponent(_t));f.setAttribute('method','POST');"
         "});"
-        "try{var fp='';try{"
-        # Leichtgewichtiger Fingerprint: Canvas-Rendering + stabile Merkmale,
-        # zu einem 32-bit-Hex-Hash verdichtet (kein externes Skript, kein Cookie).
-        "var c=document.createElement('canvas');var x=c.getContext('2d');"
-        "x.textBaseline='top';x.font=\"14px 'Arial'\";x.fillStyle='#f60';x.fillRect(0,0,62,20);"
-        "x.fillStyle='#069';x.fillText('SentryMail',2,2);"
-        "var s=[navigator.userAgent,navigator.language,screen.width+'x'+screen.height,"
-        "screen.colorDepth,new Date().getTimezoneOffset(),navigator.hardwareConcurrency||0,"
-        "navigator.platform,c.toDataURL()].join('|');"
-        "var h=0;for(var i=0;i<s.length;i++){h=((h<<5)-h+s.charCodeAt(i))|0;}"
-        "fp=(h>>>0).toString(16);}catch(e){}"
-        "new Image().src='/track/client?t='+encodeURIComponent(_t)"
+        "try{" + fp_compute + "new Image().src='/track/client?t='+encodeURIComponent(_t)"
         "+'&res='+encodeURIComponent(screen.width+'x'+screen.height)"
         "+'&lang='+encodeURIComponent(navigator.language||'')"
-        "+'&fp='+encodeURIComponent(fp);}catch(e){}"
+        + fp_param + ";}catch(e){}"
         "});</script>"
     )
     if "</body>" in html:
