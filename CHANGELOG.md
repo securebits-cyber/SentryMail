@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.23.0](https://github.com/securebits-cyber/SentryMail/compare/v0.22.0...v0.23.0) (2026-07-25)
+
+
+### Features
+
+* **privacy:** k-Anonymitaet und Sperre fuer Einzelpersonen / k-anonymity and individual-person lock ([#106](https://github.com/securebits-cyber/SentryMail/issues/106)) ([9c8eb6b](https://github.com/securebits-cyber/SentryMail/commit/9c8eb6b74d7ccdf0f5548ba048f2c06607d470cd))
+
 ## [0.22.0](https://github.com/securebits-cyber/SentryMail/compare/v0.21.0...v0.22.0) (2026-07-25)
 
 
