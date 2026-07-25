@@ -23,7 +23,7 @@ from app.auth.oidc import is_oidc_enabled
 from app.auth.oidc import router as oidc_router
 from app.config import get_settings
 from app.database import SessionLocal, get_db, run_core_migrations
-from app.services import license as license_service
+from app.services import license as license_service, retention
 from app.utils.logging import configure_logging
 from app.utils.security import CSRF_COOKIE, CSRF_HEADER, SESSION_COOKIE
 from app.version import APP_VERSION
@@ -51,6 +51,31 @@ async def _license_refresh_loop() -> None:
         await asyncio.sleep(interval)
 
 
+def _run_retention_once() -> None:
+    db = SessionLocal()
+    try:
+        retention.purge_expired(db)
+    finally:
+        db.close()
+
+
+async def _retention_loop() -> None:
+    """Stuendlicher Tick fuer die Aufbewahrungsfrist (Welle 2).
+
+    Bewusst als Lifespan-Task wie der Lizenz-Refresh und nicht als eigener
+    Dienst oder Cron: der Core soll ohne zusaetzliche Betriebskomponente
+    auskommen. Ohne gesetzte Frist ist der Tick ein No-Op.
+    """
+    while True:
+        # Erst warten, dann arbeiten: der Start soll nicht durch eine grosse
+        # Anonymisierungswelle blockiert werden.
+        await asyncio.sleep(3600)
+        try:
+            await asyncio.to_thread(_run_retention_once)
+        except Exception:  # noqa: BLE001 - Loop soll nie sterben
+            logger.exception("Retention-Lauf fehlgeschlagen")
+
+
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     # Core-Schema beim Start automatisch auf head bringen (vor dem ersten DB-Zugriff).
@@ -64,11 +89,13 @@ async def lifespan(_: FastAPI):
         db.close()
 
     refresh_task = asyncio.create_task(_license_refresh_loop()) if settings.LICENSE_SERVER_URL else None
+    retention_task = asyncio.create_task(_retention_loop())
     try:
         yield
     finally:
         if refresh_task is not None:
             refresh_task.cancel()
+        retention_task.cancel()
 
 
 app = FastAPI(title="SentryMail API", version=APP_VERSION, lifespan=lifespan)

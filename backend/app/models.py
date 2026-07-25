@@ -151,12 +151,22 @@ class PrivacyConfig(Base):
         Index("uq_privacy_config_singleton", text("(true)"), unique=True),
         # k = 1 waere keine Anonymisierung, sondern eine Einzelpersonen-Auswertung.
         CheckConstraint("k_anonymity_threshold >= 2", name="ck_privacy_config_k_min"),
+        CheckConstraint(
+            "retention_days IS NULL OR retention_days >= 1", name="ck_privacy_config_retention_min"
+        ),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     fingerprinting_enabled: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     privacy_mode_enabled: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     k_anonymity_threshold: Mapped[int] = mapped_column(Integer, default=5, nullable=False)
+    #: Aufbewahrungsdauer in Tagen. ``None`` = keine automatische Loeschung -
+    #: bewusst der Auslieferungszustand: ungefragt Daten zu loeschen waere
+    #: schlimmer als sie aufzubewahren. Der Betreiber setzt den Wert.
+    retention_days: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    retention_last_run_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
 
@@ -316,6 +326,12 @@ class Recipient(Base):
     department: Mapped[str | None] = mapped_column(String(255), nullable=True)
     criticality: Mapped[str | None] = mapped_column(String(16), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    #: Zeitpunkt der Anonymisierung durch die Retention (Welle 2). Gesetzt heisst:
+    #: E-Mail und Name sind unwiederbringlich ersetzt. Dient zugleich als Marker,
+    #: damit ein erneuter Lauf dieselben Zeilen nicht noch einmal anfasst.
+    anonymized_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True, index=True
+    )
 
     campaign: Mapped["Campaign"] = relationship(back_populates="recipients")
     tracking_events: Mapped[list["TrackingEvent"]] = relationship(
