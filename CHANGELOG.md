@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.24.0](https://github.com/securebits-cyber/SentryMail/compare/v0.23.0...v0.24.0) (2026-07-25)
+
+
+### Features
+
+* **privacy:** Sperrhinweise in den Add-on-Berichten / Lock notices in add-on reports ([#108](https://github.com/securebits-cyber/SentryMail/issues/108)) ([70beba9](https://github.com/securebits-cyber/SentryMail/commit/70beba99f6b96ea4bf377d0f52de1c5375229640))
+
 ## [0.23.0](https://github.com/securebits-cyber/SentryMail/compare/v0.22.0...v0.23.0) (2026-07-25)
 
 
