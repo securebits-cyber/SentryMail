@@ -487,6 +487,8 @@ class GroupOut(BaseModel):
 
     id: uuid.UUID
     name: str
+    # "manual" | "scim" - extern verwaltete Gruppen sind schreibgeschuetzt.
+    source: str = "manual"
     created_at: datetime
     updated_at: datetime
     members: list[GroupMemberOut] = []
@@ -498,6 +500,7 @@ class GroupSummary(BaseModel):
 
     id: uuid.UUID
     name: str
+    source: str = "manual"
     member_count: int
     created_at: datetime
     updated_at: datetime
