@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.21.0](https://github.com/securebits-cyber/SentryMail/compare/v0.20.2...v0.21.0) (2026-07-25)
+
+
+### Features
+
+* **privacy:** Client-Fingerprinting als Admin-Opt-in mit Default AUS ([#102](https://github.com/securebits-cyber/SentryMail/issues/102)) ([5fade81](https://github.com/securebits-cyber/SentryMail/commit/5fade8177be0039c82f3ff3b74744e38368d1cf0))
+
 ## [0.20.2](https://github.com/securebits-cyber/SentryMail/compare/v0.20.1...v0.20.2) (2026-07-19)
 
 
