@@ -54,6 +54,21 @@ export default function OpenCorePage() {
           ],
         },
         {
+          // Bewusst vor "Betrieb" und nicht am Ende: die Vertrauensschicht ist
+          // im DACH-Vertrieb das Argument, das ueber den Deal entscheidet.
+          title: t('addon.oc.cat.privacy'),
+          items: [
+            t('addon.oc.f.privacyMode'),
+            t('addon.oc.f.individualLock'),
+            t('addon.oc.f.kAnonymity'),
+            t('addon.oc.f.fourEyes'),
+            t('addon.oc.f.roleSeparation'),
+            t('addon.oc.f.retention'),
+            t('addon.oc.f.fingerprintOptIn'),
+            t('addon.oc.f.worksAgreement'),
+          ],
+        },
+        {
           title: t('addon.oc.cat.operations'),
           items: [
             t('addon.oc.f.i18n'),

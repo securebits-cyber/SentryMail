@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-import { Check, Lock, type LucideIcon } from 'lucide-react'
+import { Check, Clock, Lock, type LucideIcon } from 'lucide-react'
 import PageScaffold from './PageScaffold'
 import TierBadge from './TierBadge'
 import ComingSoonBadge from './ComingSoonBadge'
@@ -12,9 +12,14 @@ import { useI18n } from '../i18n'
 
 export type Tier = 'opencore' | 'business' | 'enterprise'
 
+/** Ein Listeneintrag. Als reiner String, wenn die Funktion ausgeliefert ist;
+ *  mit ``planned: true``, solange sie nur geplant ist — eine Edition darf nichts
+ *  versprechen, was nach dem Lizenzkauf nicht vorhanden ist. */
+export type FeatureItem = string | { label: string; planned?: boolean }
+
 export interface FeatureGroup {
   title: string
-  items: string[]
+  items: FeatureItem[]
 }
 
 interface Props {
@@ -86,16 +91,28 @@ export default function AddonPage({ tier, title, icon: Icon, tagline, intro, gro
             <div key={group.title}>
               <h3 className="mb-2 text-sm font-semibold text-text-primary">{group.title}</h3>
               <ul className="grid gap-2 sm:grid-cols-2">
-                {group.items.map((item) => (
-                  <li key={item} className="flex gap-2 text-sm text-text-secondary">
-                    {active ? (
-                      <Check size={14} className="mt-0.5 shrink-0 text-green-600" />
-                    ) : (
-                      <Lock size={14} className="mt-0.5 shrink-0 text-text-secondary" />
-                    )}
-                    <span>{item}</span>
-                  </li>
-                ))}
+                {group.items.map((item) => {
+                  const { label, planned } = typeof item === 'string' ? { label: item, planned: false } : item
+                  return (
+                    <li key={label} className="flex gap-2 text-sm text-text-secondary">
+                      {planned ? (
+                        <Clock size={14} className="mt-0.5 shrink-0 text-text-secondary" />
+                      ) : active ? (
+                        <Check size={14} className="mt-0.5 shrink-0 text-green-600" />
+                      ) : (
+                        <Lock size={14} className="mt-0.5 shrink-0 text-text-secondary" />
+                      )}
+                      <span>
+                        {label}
+                        {planned && (
+                          <span className="ml-1.5 inline-flex items-center rounded-full border border-border bg-sunken px-1.5 py-px align-middle text-[9px] font-semibold uppercase leading-normal tracking-tight text-text-secondary">
+                            {t('addon.planned')}
+                          </span>
+                        )}
+                      </span>
+                    </li>
+                  )
+                })}
               </ul>
             </div>
           ))}

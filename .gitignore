@@ -56,6 +56,8 @@ Thumbs.db
 tmp/
 *.tmp
 CLAUDE.MD
+# Arbeitsunterlagen: eigenes lokales Repo (docs/.git), gehoert nicht in den Core.
+# Vorlagen, die mit ausgeliefert werden, liegen deshalb unter compliance/.
 docs
 Screenshots/
 # Claude Code – persönliche lokale Einstellungen
