@@ -42,7 +42,8 @@ def test_manual_groups_stay_editable(client, make_user, auth_headers, db):
 
     headers = auth_headers(admin)
     assert client.patch(f"/groups/{group.id}", json={"name": "Neu"}, headers=headers).status_code == 200
-    assert client.delete(f"/groups/{group.id}", headers=headers).status_code == 204
+    delete_res = client.delete(f"/groups/{group.id}", headers=headers)
+    assert delete_res.status_code == 204
 
 
 def test_external_group_cannot_be_changed(client, make_user, auth_headers, db):
