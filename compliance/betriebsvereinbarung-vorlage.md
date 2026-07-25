@@ -197,13 +197,36 @@ quartalsweise] eine Übersicht der durchgeführten Läufe.
 (5) Der Zugriff dient ausschließlich der Abwehr eines konkreten Angriffs. Eine Durchsicht von
 Postfächern zu anderen Zwecken ist ausgeschlossen; die Software bietet dafür keine Funktion.
 
-## § 12 Rechte der Beschäftigten
+## § 12 Simulationen über andere Kanäle *(nur bei Einsatz)*
+
+(1) Simulationen können außer per E-Mail auch per **SMS**, über **Matrix** oder
+**Nextcloud Talk** zugestellt werden. Es gelten dieselben Regeln wie für
+E-Mail-Simulationen, insbesondere der Ausschluss der Leistungs- und
+Verhaltenskontrolle nach § 3.
+
+(2) Bespielt werden ausschließlich **dienstliche Endgeräte und Zugänge**. Die
+Software ist im Auslieferungszustand entsprechend eingestellt; eine Freigabe
+privater Endgeräte ist technisch möglich, aber ohne gesonderte Vereinbarung
+**ausgeschlossen**. Eine erteilte Freigabe wird protokolliert.
+
+(3) Die für die Zustellung nötigen Rufnummern und Benutzerkennungen werden
+ausschließlich für diesen Zweck gespeichert und mit Ende dieser Vereinbarung
+gelöscht.
+
+(4) Eine **USB-Simulation** (ausgelegte Datenträger) erzeugt keine
+personenbezogenen Daten: Jeder Datenträger trägt eine Kennung für den Fundort,
+nicht für eine Person; wer ihn gefunden hat, lässt sich nicht feststellen. Die
+ausgelegten Dateien enthalten kein Programm und kein Skript. Die Fundorte werden
+vorab mit [Gremium] abgestimmt; Sozialräume und persönliche Arbeitsplätze
+bleiben ausgenommen.
+
+## § 13 Rechte der Beschäftigten
 
 Die Rechte nach Art. 15 bis 21 DSGVO bleiben unberührt. Anfragen richten Beschäftigte an
 [Datenschutzbeauftragter, Kontakt]. Nach der Anonymisierung gemäß § 8 ist eine Zuordnung zu
 einer Person nicht mehr möglich; ein Auskunftsanspruch geht insoweit ins Leere.
 
-## § 13 Schlussbestimmungen
+## § 14 Schlussbestimmungen
 
 (1) Diese Vereinbarung tritt am [Datum] in Kraft.
 

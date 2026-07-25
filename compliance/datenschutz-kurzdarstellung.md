@@ -98,6 +98,22 @@ zugewiesen werden. Diese Zuweisung erfolgt maschinell; die auslösenden Einzelwe
 dabei niemandem angezeigt. Eine Fristüberschreitung führt nur zu einer organisatorischen
 Erinnerung.
 
+## Kommen Simulationen auch per SMS oder Chat?
+
+Möglicherweise — je nachdem, was [Verantwortliche Stelle] einsetzt. Simulationen
+können außer per E-Mail auch per SMS, über Matrix oder Nextcloud Talk kommen.
+
+- Bespielt werden ausschließlich **dienstliche** Nummern und Zugänge. Ihre
+  private Nummer wird nicht verwendet.
+- Es gelten dieselben Regeln wie bei E-Mail-Simulationen: keine
+  Leistungsbewertung, keine personellen Einzelmaßnahmen.
+- Ihre Rufnummer wird nur für die Zustellung gespeichert.
+
+Werden **Datenträger ausgelegt** (USB-Simulation), lässt sich nicht feststellen,
+wer sie gefunden hat: Jeder Datenträger trägt eine Kennung für den Fundort, nicht
+für eine Person. Die enthaltene Datei ist eine einfache Webseite ohne Programm
+und ohne Skript.
+
 ## Wird meine Mailbox durchsucht?
 
 Nur im Ausnahmefall und nur gezielt. Meldet jemand eine Phishing-Mail und wird diese als

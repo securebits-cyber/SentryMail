@@ -414,6 +414,73 @@ export interface MispConfig {
   has_api_key: boolean
 }
 
+export type ChannelKind = 'sms' | 'matrix' | 'talk' | 'usb'
+/** Kanäle mit Zustellung — usb hat keine, dort ist der Weg der Fundort. */
+export type DeliverableChannel = 'sms' | 'matrix' | 'talk'
+
+export interface ChannelGateway {
+  channel: string
+  enabled: boolean
+  label: string
+  url: string
+  method: 'POST' | 'GET'
+  auth_mode: 'none' | 'basic' | 'bearer' | 'header'
+  username: string
+  auth_header: string
+  body_format: 'json' | 'form'
+  body_template: string
+  extra_headers: Record<string, string>
+  verify_ssl: boolean
+  timeout_seconds: number
+  /** Voreingestellt aus: private Endgeräte sind arbeitsrechtlich etwas anderes. */
+  allow_private_devices: boolean
+  has_secret: boolean
+  last_success_at: string | null
+  last_error: string
+}
+
+export interface ChannelAddress {
+  id: string
+  email: string
+  channel: string
+  address: string
+  is_company_device: boolean
+}
+
+export interface CampaignChannel {
+  campaign_id: string
+  channel: ChannelKind
+  message_text: string
+}
+
+export interface ChannelSendResult {
+  sent: number
+  skipped: number
+  details: { email?: string; reason: string; detail?: string }[]
+}
+
+export interface UsbDrop {
+  label: string
+  tracking_token: string
+  opened: boolean
+}
+
+export interface LmsXapiConfig {
+  enabled: boolean
+  endpoint: string
+  auth_mode: 'basic' | 'bearer'
+  username: string
+  /** 'account' = pseudonym (Voreinstellung), 'mbox' = E-Mail-Adresse. */
+  actor_mode: 'account' | 'mbox'
+  verify_ssl: boolean
+  timeout_seconds: number
+  has_secret: boolean
+  last_success_at: string | null
+  last_error: string
+  pending: number
+  failed: number
+}
+
 export interface ReportButtonConfig {
   enabled: boolean
   allowed_domains: string

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-import { ArrowUpCircle, Blocks, BookOpen, ChevronDown, CircleUser, ExternalLink, FileBarChart, FileText, Globe, GraduationCap, Layers, LayoutDashboard, LifeBuoy, ListChecks, LogOut, Mail, MailWarning, Moon, Plus, Radar, Repeat, Server, Settings, Sun, UserCog, Users, type LucideIcon } from 'lucide-react'
+import { ArrowUpCircle, Blocks, BookOpen, ChevronDown, CircleUser, ExternalLink, FileBarChart, FileText, Globe, GraduationCap, Layers, LayoutDashboard, LifeBuoy, ListChecks, LogOut, Mail, MailWarning, Moon, Plus, Radar, Repeat, Server, Settings, Smartphone, Sun, UserCog, Users, type LucideIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import LanguageSwitcher from './LanguageSwitcher'
@@ -53,6 +53,7 @@ const mainNav: NavItem[] = [
       { to: '/recurring', labelKey: 'nav.recurring', icon: Repeat, end: false, tier: 'business' },
       { to: '/multistage', labelKey: 'nav.multistage', icon: Layers, end: false, tier: 'business' },
       { to: '/auto-campaigns', labelKey: 'nav.autocampaigns', icon: Radar, end: false, tier: 'enterprise' },
+      { to: '/channel-campaigns', labelKey: 'nav.channelCampaigns', icon: Smartphone, end: false, tier: 'enterprise' },
     ],
   },
   { to: '/reports', labelKey: 'nav.reports', icon: FileBarChart, end: false },

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-import { BadgeCheck, Cloud, FileText, Fingerprint, GraduationCap, KeyRound, KeySquare, Lock, MailCheck, MousePointerClick, Network, Palette, Radar, ScanSearch, ScrollText, Share2, ShieldAlert, ShieldCheck, Sparkles, Users, Webhook, type LucideIcon } from 'lucide-react'
+import { BadgeCheck, Cloud, FileText, Fingerprint, GraduationCap, KeyRound, KeySquare, Lock, MailCheck, MousePointerClick, Network, Palette, Radar, ScanSearch, ScrollText, Share2, ShieldAlert, Smartphone, ShieldCheck, Sparkles, Users, Webhook, type LucideIcon } from 'lucide-react'
 import { NavLink, Outlet } from 'react-router-dom'
 import TierBadge from './TierBadge'
 import { useFeatures } from '../hooks/useFeatures'
@@ -40,6 +40,8 @@ const groups: { labelKey: string | null; items: NavItem[] }[] = [
       { to: '/settings/quarantine', labelKey: 'settings.quarantine', icon: ShieldAlert, feature: 'enterprise' },
       { to: '/settings/saml', labelKey: 'settings.saml', icon: KeySquare, feature: 'enterprise' },
       { to: '/settings/lms', labelKey: 'settings.lms', icon: GraduationCap, feature: 'enterprise' },
+      { to: '/settings/lms-xapi', labelKey: 'settings.lmsXapi', icon: Share2, feature: 'enterprise' },
+      { to: '/settings/channels', labelKey: 'settings.channels', icon: Smartphone, feature: 'enterprise' },
       { to: '/settings/oidc', labelKey: 'settings.oidc', icon: KeyRound },
       { to: '/settings/smtp', labelKey: 'settings.smtp', icon: MailCheck },
       { to: '/settings/security', labelKey: 'settings.security', icon: ShieldCheck },

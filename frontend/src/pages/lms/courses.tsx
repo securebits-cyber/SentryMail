@@ -2,8 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-import { ExternalLink, ListChecks, Plus, Trash2, Upload } from 'lucide-react'
+import { ExternalLink, ListChecks, Package, Plus, Trash2, Upload } from 'lucide-react'
 import { FormEvent, useCallback, useEffect, useRef, useState } from 'react'
+import BetaBadge from '../../components/BetaBadge'
 import Card from '../../components/Card'
 import LockedFeatureNotice from '../../components/LockedFeatureNotice'
 import PageScaffold from '../../components/PageScaffold'
@@ -27,6 +28,8 @@ interface LmsModule {
   has_video: boolean
   video_duration_seconds: number | null
   quiz_required: boolean
+  has_scorm: boolean
+  scorm_title: string
 }
 
 interface LmsCourseDetail extends LmsCourse {
@@ -166,12 +169,13 @@ function QuizEditor({ moduleId }: { moduleId: string }) {
 function ModuleRow({ courseId, module, onChanged }: { courseId: string; module: LmsModule; onChanged: () => void }) {
   const { t } = useI18n()
   const fileRef = useRef<HTMLInputElement | null>(null)
+  const scormRef = useRef<HTMLInputElement | null>(null)
   const [uploadPercent, setUploadPercent] = useState<number | null>(null)
-  const [uploadError, setUploadError] = useState(false)
+  const [uploadError, setUploadError] = useState<string | null>(null)
   const [quizOpen, setQuizOpen] = useState(false)
 
   async function upload(file: File) {
-    setUploadError(false)
+    setUploadError(null)
     setUploadPercent(0)
     const form = new FormData()
     form.append('file', file)
@@ -181,11 +185,38 @@ function ModuleRow({ courseId, module, onChanged }: { courseId: string; module: 
       })
       onChanged()
     } catch {
-      setUploadError(true)
+      setUploadError(t('lms.modules.uploadError'))
     } finally {
       setUploadPercent(null)
       if (fileRef.current) fileRef.current.value = ''
     }
+  }
+
+  async function uploadScorm(file: File) {
+    setUploadError(null)
+    setUploadPercent(0)
+    const form = new FormData()
+    form.append('file', file)
+    try {
+      await api.post(`/lms/courses/${courseId}/modules/${module.id}/scorm`, form, {
+        onUploadProgress: (e) => setUploadPercent(e.total ? Math.round((e.loaded * 100) / e.total) : 0),
+      })
+      onChanged()
+    } catch (e) {
+      // Der Server benennt, was am Paket nicht stimmt — das gehört angezeigt,
+      // sonst rät der Admin bei einem eingekauften Paket ins Blaue.
+      const detail = (e as { response?: { data?: { detail?: unknown } } })?.response?.data?.detail
+      setUploadError(typeof detail === 'string' ? detail : t('lms.modules.uploadError'))
+    } finally {
+      setUploadPercent(null)
+      if (scormRef.current) scormRef.current.value = ''
+    }
+  }
+
+  async function removeScorm() {
+    if (!window.confirm(t('lms.scorm.confirmRemove'))) return
+    await api.delete(`/lms/courses/${courseId}/modules/${module.id}/scorm`)
+    onChanged()
   }
 
   async function preview() {
@@ -207,31 +238,69 @@ function ModuleRow({ courseId, module, onChanged }: { courseId: string; module: 
       <span className="text-xs text-text-secondary">
         {module.has_video
           ? t('lms.modules.hasVideo', { duration: fmtDuration(module.video_duration_seconds) })
-          : t('lms.modules.noVideo')}
+          : module.has_scorm
+            ? t('lms.scorm.present', { title: module.scorm_title })
+            : t('lms.modules.noVideo')}
       </span>
+      {module.has_scorm && <BetaBadge />}
       {uploadPercent !== null ? (
         <span className="font-mono text-xs tabular-nums text-accent-text">
           {t('lms.modules.uploading', { percent: uploadPercent })}
         </span>
       ) : (
         <>
-          <input
-            ref={fileRef}
-            type="file"
-            accept="video/mp4"
-            className="hidden"
-            onChange={(e) => {
-              const file = e.target.files?.[0]
-              if (file) void upload(file)
-            }}
-          />
-          <button
-            onClick={() => fileRef.current?.click()}
-            className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1 text-xs hover:bg-bg"
-          >
-            <Upload size={13} />
-            {t('lms.modules.upload')}
-          </button>
+          {!module.has_scorm && (
+            <>
+              <input
+                ref={fileRef}
+                type="file"
+                accept="video/mp4"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0]
+                  if (file) void upload(file)
+                }}
+              />
+              <button
+                onClick={() => fileRef.current?.click()}
+                className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1 text-xs hover:bg-bg"
+              >
+                <Upload size={13} />
+                {t('lms.modules.upload')}
+              </button>
+            </>
+          )}
+          {!module.has_video && (
+            <>
+              <input
+                ref={scormRef}
+                type="file"
+                accept=".zip,application/zip"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0]
+                  if (file) void uploadScorm(file)
+                }}
+              />
+              <button
+                onClick={() => scormRef.current?.click()}
+                title={t('lms.scorm.uploadHint')}
+                className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1 text-xs hover:bg-bg"
+              >
+                <Package size={13} />
+                {module.has_scorm ? t('lms.scorm.replace') : t('lms.scorm.upload')}
+                <BetaBadge />
+              </button>
+              {module.has_scorm && (
+                <button
+                  onClick={() => void removeScorm()}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1 text-xs hover:bg-bg"
+                >
+                  {t('lms.scorm.remove')}
+                </button>
+              )}
+            </>
+          )}
           {module.has_video && (
             <button
               onClick={() => void preview()}
@@ -257,7 +326,7 @@ function ModuleRow({ courseId, module, onChanged }: { courseId: string; module: 
           </button>
         </>
       )}
-      {uploadError && <span className="w-full text-xs text-status-danger">{t('lms.modules.uploadError')}</span>}
+      {uploadError && <span className="w-full text-xs text-status-danger">{uploadError}</span>}
       {quizOpen && <QuizEditor moduleId={module.id} />}
     </div>
   )
