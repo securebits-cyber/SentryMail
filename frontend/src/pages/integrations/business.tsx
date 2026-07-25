@@ -43,6 +43,8 @@ export default function BusinessAddonPage() {
             t('addon.biz.f.hr'),
             t('addon.biz.f.pdfLure'),
             t('addon.biz.f.qrTemplates'),
+            t('addon.biz.f.templateLibrary'),
+            t('addon.biz.f.aiGeneration'),
           ],
         },
         {
@@ -52,7 +54,8 @@ export default function BusinessAddonPage() {
             t('addon.biz.f.ldap'),
             t('addon.biz.f.azureEntra'),
             t('addon.biz.f.groupMgmt'),
-            t('addon.biz.f.mailReport'),
+            t('addon.biz.f.passkeys'),
+            { label: t('addon.biz.f.mailReport'), planned: true },
           ],
         },
         {
