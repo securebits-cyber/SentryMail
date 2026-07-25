@@ -22,11 +22,15 @@ router = APIRouter(prefix="/results", tags=["results"])
 
 
 @router.get("/{campaign_id}", response_model=CampaignResultOut)
-def campaign_results(campaign_id: uuid.UUID, db: Session = Depends(get_db), _: User = Depends(get_current_user)):
+def campaign_results(
+    campaign_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    current: User = Depends(get_current_user),
+):
     campaign = db.query(Campaign).filter(Campaign.id == campaign_id).first()
     if campaign is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Kampagne nicht gefunden")
-    return get_campaign_results(db, campaign_id)
+    return get_campaign_results(db, campaign_id, current)
 
 
 @router.get("/{campaign_id}/recipients/{recipient_id}/events", response_model=list[RecipientEventOut])
@@ -40,7 +44,7 @@ def recipient_events(
 
     Reinste Form der Einzelpersonen-Auswertung - im Datenschutzmodus gesperrt.
     """
-    privacy.assert_individual_allowed(db, current)
+    privacy.assert_individual_allowed(db, current, campaign_id)
     recipient = (
         db.query(Recipient)
         .filter(Recipient.id == recipient_id, Recipient.campaign_id == campaign_id)
@@ -78,7 +82,7 @@ def export_campaign_csv(
 ):
     """CSV je Empfaenger - besteht ausschliesslich aus personenbezogenen Zeilen
     und ist im Datenschutzmodus daher komplett gesperrt (kein Teil-Export)."""
-    privacy.assert_individual_allowed(db, current)
+    privacy.assert_individual_allowed(db, current, campaign_id)
     campaign = db.query(Campaign).filter(Campaign.id == campaign_id).first()
     if campaign is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Kampagne nicht gefunden")

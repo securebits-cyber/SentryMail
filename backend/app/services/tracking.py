@@ -162,7 +162,13 @@ def record_client_meta(
     return True
 
 
-def get_campaign_results(db: Session, campaign_id) -> CampaignResultOut:
+def get_campaign_results(db: Session, campaign_id, user=None) -> CampaignResultOut:
+    """Kampagnen-Ergebnis inkl. Empfaengerliste.
+
+    ``user`` entscheidet ueber die Einzelpersonen-Sperre: ohne Nutzer (interne
+    Aufrufe ohne Request-Kontext) bleibt die Liste im Datenschutzmodus leer -
+    der sichere Default.
+    """
     recipients = (
         db.query(Recipient).filter(Recipient.campaign_id == campaign_id).order_by(Recipient.email).all()
     )
@@ -181,7 +187,7 @@ def get_campaign_results(db: Session, campaign_id) -> CampaignResultOut:
 
     # Im Datenschutzmodus bleiben die Kampagnen-Kennzahlen sichtbar, die
     # Empfaengerliste aber leer: sie ist die Einzelpersonen-Auswertung.
-    individuals_locked = not privacy.individual_view_allowed(db)
+    individuals_locked = not privacy.individual_view_allowed(db, user, campaign_id)
     rows = (
         []
         if individuals_locked

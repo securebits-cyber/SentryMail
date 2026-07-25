@@ -5,6 +5,7 @@
 import { Fingerprint, Settings } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import PageScaffold from '../../components/PageScaffold'
+import PrivacyUnlockPanel from '../../components/PrivacyUnlockPanel'
 import { useI18n } from '../../i18n'
 import { useMe } from '../../hooks/useMe'
 import { api } from '../../services/api'
@@ -128,6 +129,10 @@ export default function PrivacySettingsPage() {
               </button>
             </div>
           )}
+
+          <div className="mt-4 border-t border-border pt-6">
+            <PrivacyUnlockPanel />
+          </div>
         </div>
       )}
     </PageScaffold>

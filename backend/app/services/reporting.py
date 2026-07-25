@@ -147,7 +147,9 @@ def _is_fail(types) -> bool:
     return TrackingEventType.CLICKED in types or TrackingEventType.SUBMITTED in types
 
 
-def human_risk(db: Session, top: int = 20, *, for_automation: bool = False) -> HumanRiskSummary:
+def human_risk(
+    db: Session, top: int = 20, *, for_automation: bool = False, user=None
+) -> HumanRiskSummary:
     """Personenbezogener Risiko-Score ueber alle Kampagnen (Human Risk Management).
 
     Aggregiert je Person (identifiziert per E-Mail) ihre Teilnahmen und bewertet
@@ -239,7 +241,7 @@ def human_risk(db: Session, top: int = 20, *, for_automation: bool = False) -> H
     persons.sort(key=lambda x: x.score, reverse=True)
     count = len(persons)
     overall = round(total_score / count) if count else 0
-    locked = not for_automation and not privacy.individual_view_allowed(db)
+    locked = not for_automation and not privacy.individual_view_allowed(db, user)
     return HumanRiskSummary(
         score=overall,
         level=risk_level(overall),
@@ -407,7 +409,7 @@ def failed_recipients(db: Session, limit: int | None = None) -> list[FailedRecip
     return [FailedRecipient(**{k: v for k, v in r.items() if k != "sev"}) for r in result]
 
 
-def management_report(db: Session) -> ManagementReport:
+def management_report(db: Session, user=None) -> ManagementReport:
     """Konsolidierter Report: Gesamtkennzahlen, Raten, Risiko, Kampagnenvergleich,
     Top-Durchgefallene. Basis fuer Bildschirm-Ansicht und CSV-Export."""
     recipients = db.query(Recipient.id, Recipient.campaign_id, Recipient.sent_at).all()
@@ -443,7 +445,7 @@ def management_report(db: Session) -> ManagementReport:
         tot["points"] += pts
 
     pol = privacy.policy(db)
-    individuals_locked = not privacy.individual_view_allowed(db)
+    individuals_locked = not privacy.individual_view_allowed(db, user)
     rows = []
     for campaign_id, a in per_campaign.items():
         cscore = round(a["points"] / a["recipients"]) if a["recipients"] else 0

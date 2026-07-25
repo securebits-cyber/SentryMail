@@ -385,12 +385,14 @@ const de: Record<string, Guidance> = {
   },
   'settings-privacy': {
     intro:
-      'Datenschutz- und Mitbestimmungs-Einstellungen der Instanz. Client-Fingerprinting ist bewusst standardmäßig deaktiviert.',
+      'Datenschutz- und Mitbestimmungs-Einstellungen der Instanz. Beide Schalter sind bewusst standardmäßig deaktiviert — ein Update ändert das Verhalten bestehender Installationen also nicht.',
     steps: [
+      'Datenschutzmodus aktivieren: sperrt Auswertungen einzelner Personen technisch und gibt Gruppenauswertungen erst ab k Beteiligten aus.',
+      'Schwellenwert k festlegen — empfohlen sind 5. Kleinere Gruppen werden als „unter Schwellenwert“ ausgewiesen, nicht weggelassen.',
       'Fingerprinting nur nach ausdrücklicher Entscheidung aktivieren — im mitbestimmten Betrieb und nach § 25 TDDDG rechtlich heikel.',
-      'Änderung speichern — sie wirkt sofort auf neu ausgelieferte Landing Pages.',
+      'Braucht ein Admin ausnahmsweise eine personenbezogene Auswertung, beantragt er unten eine befristete Freigabe; entscheiden darf sie nur der Datenschutzbeauftragte.',
     ],
-    note: 'Der Fingerabdruck ist auch bei aktivierter Erfassung nie Bestandteil von Einzelpersonen-Reports. Änderungen werden im Audit-Log protokolliert.',
+    note: 'Der Fingerabdruck ist auch bei aktivierter Erfassung nie Bestandteil von Einzelpersonen-Reports. Anträge, Freigaben, Ablehnungen und Widerrufe stehen samt Begründung im Audit-Log.',
   },
   'settings-license': {
     intro:
@@ -783,12 +785,14 @@ const en: Record<string, Guidance> = {
   },
   'settings-privacy': {
     intro:
-      'Data-protection and co-determination settings for this instance. Client fingerprinting is deliberately disabled by default.',
+      'Data-protection and co-determination settings for this instance. Both switches are deliberately off by default, so an update never changes the behaviour of an existing installation.',
     steps: [
+      'Enable privacy mode: it technically blocks evaluations of individual people and releases group evaluations only from k people upward.',
+      'Set the k threshold — 5 is recommended. Smaller groups are marked as "below threshold" rather than dropped.',
       'Enable fingerprinting only after an explicit decision — it is legally sensitive in co-determined workplaces and under § 25 TDDDG.',
-      'Save the change — it takes effect immediately for newly served landing pages.',
+      'If an admin exceptionally needs a person-identifiable evaluation, they request a time-limited unlock below; only the data protection officer can approve it.',
     ],
-    note: 'Even when enabled, the fingerprint is never part of individual-person reports. Changes are recorded in the audit log.',
+    note: 'Even when enabled, the fingerprint is never part of individual-person reports. Requests, approvals, rejections and revocations are recorded in the audit log together with their reason.',
   },
   'settings-license': {
     intro:

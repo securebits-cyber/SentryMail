@@ -60,5 +60,5 @@ def heatmap(db: Session = Depends(get_db), _: User = Depends(get_current_user)):
 
 
 @router.get("/human-risk", response_model=HumanRiskSummary)
-def human_risk(db: Session = Depends(get_db), _: User = Depends(get_current_user)):
-    return reporting.human_risk(db)
+def human_risk(db: Session = Depends(get_db), current: User = Depends(get_current_user)):
+    return reporting.human_risk(db, user=current)

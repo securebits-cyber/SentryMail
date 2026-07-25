@@ -20,12 +20,15 @@ Gezaehlt werden immer **Personen**, nie Ereignisse. Drei Klicks derselben
 Person sind eine Person - ein ereignisbasierter Schwellenwert liesse sich durch
 mehrfaches Klicken aushebeln.
 """
+import uuid
 from dataclasses import dataclass
+from datetime import datetime, timezone
 
 from fastapi import HTTPException, status
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
-from app.models import PrivacyConfig, User
+from app.models import PrivacyConfig, PrivacyUnlockRequest, PrivacyUnlockStatus, User
 from app.utils.singleton import get_or_create_singleton
 
 #: Stabiler Fehlercode, an dem das Frontend die Sperre von einer fehlenden
@@ -51,20 +54,55 @@ def policy(db: Session) -> PrivacyPolicy:
     )
 
 
-def individual_view_allowed(db: Session, user: User | None = None) -> bool:
+def active_unlock(
+    db: Session, user: User | None, campaign_id: uuid.UUID | None = None
+) -> PrivacyUnlockRequest | None:
+    """Gueltige Vier-Augen-Freigabe fuer ``user``, sonst ``None``.
+
+    Eine Freigabe wirkt nur fuer ihren Antragsteller und nur bis ``expires_at``.
+    Eine kampagnenbezogene Freigabe oeffnet ausschliesslich diese Kampagne; eine
+    globale Freigabe (ohne ``campaign_id``) oeffnet alles. Wird hier keine
+    Kampagne uebergeben, zaehlt daher nur eine globale Freigabe - eine Ansicht
+    ueber alle Kampagnen darf sich nicht aus einer Einzelfreigabe ergeben.
+    """
+    if user is None:
+        return None
+    query = db.query(PrivacyUnlockRequest).filter(
+        PrivacyUnlockRequest.requested_by_id == user.id,
+        PrivacyUnlockRequest.status == PrivacyUnlockStatus.APPROVED,
+        PrivacyUnlockRequest.expires_at > datetime.now(timezone.utc),
+    )
+    if campaign_id is None:
+        query = query.filter(PrivacyUnlockRequest.campaign_id.is_(None))
+    else:
+        query = query.filter(
+            or_(
+                PrivacyUnlockRequest.campaign_id.is_(None),
+                PrivacyUnlockRequest.campaign_id == campaign_id,
+            )
+        )
+    return query.order_by(PrivacyUnlockRequest.expires_at.desc()).first()
+
+
+def individual_view_allowed(
+    db: Session, user: User | None = None, campaign_id: uuid.UUID | None = None
+) -> bool:
     """Darf ``user`` gerade Einzelpersonen-Auswertungen sehen?
 
-    Bei ausgeschaltetem Modus immer. Bei aktivem Modus nur mit gueltiger
-    Vier-Augen-Freigabe - die kommt in Schritt A3 hinzu; bis dahin sperrt der
-    Modus ausnahmslos. ``user`` steht hier bereits in der Signatur, damit die
-    Aufrufstellen sich dann nicht noch einmal aendern muessen.
+    Bei ausgeschaltetem Modus immer, sonst nur mit gueltiger, unverfallener
+    Vier-Augen-Freigabe. Ohne ``user`` (interne Aufrufe ohne Request-Kontext)
+    gilt die Sperre - der sichere Default.
     """
-    return not policy(db).mode_enabled
+    if not policy(db).mode_enabled:
+        return True
+    return active_unlock(db, user, campaign_id) is not None
 
 
-def assert_individual_allowed(db: Session, user: User | None = None) -> None:
+def assert_individual_allowed(
+    db: Session, user: User | None = None, campaign_id: uuid.UUID | None = None
+) -> None:
     """Bricht mit 403 ab, wenn Einzelpersonen-Auswertungen gesperrt sind."""
-    if individual_view_allowed(db, user):
+    if individual_view_allowed(db, user, campaign_id):
         return
     raise HTTPException(
         status_code=status.HTTP_403_FORBIDDEN,

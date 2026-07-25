@@ -23,14 +23,14 @@ router = APIRouter(prefix="/reports", tags=["reports"])
 
 
 @router.get("/management", response_model=ManagementReport)
-def management(db: Session = Depends(get_db), _: User = Depends(get_current_user)):
-    return reporting.management_report(db)
+def management(db: Session = Depends(get_db), current: User = Depends(get_current_user)):
+    return reporting.management_report(db, user=current)
 
 
 @router.get("/management/export")
-def management_export(db: Session = Depends(get_db), _: User = Depends(get_current_user)):
+def management_export(db: Session = Depends(get_db), current: User = Depends(get_current_user)):
     """Denselben Report als CSV (Kennzahlen, Kampagnenvergleich, Top-Durchgefallene)."""
-    report = reporting.management_report(db)
+    report = reporting.management_report(db, user=current)
     buffer = io.StringIO()
     writer = csv.writer(buffer)
 
