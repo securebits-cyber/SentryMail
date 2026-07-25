@@ -244,6 +244,7 @@ class RecipientCreate(BaseModel):
     position: str | None = None
     department: str | None = None
     criticality: Criticality | None = None
+    is_management: bool = False
 
 
 class RecipientOut(BaseModel):
@@ -463,6 +464,9 @@ class GroupMemberIn(BaseModel):
     position: str | None = None          # Funktion im Unternehmen
     department: str | None = None
     criticality: Criticality | None = None
+    # Leitungsorgan (Geschaeftsfuehrung/Vorstand): Grundlage des gesonderten
+    # Nachweises nach Paragraf 38 BSIG.
+    is_management: bool = False
 
 
 class GroupMemberOut(GroupMemberIn):

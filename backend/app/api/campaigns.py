@@ -38,7 +38,7 @@ def create_campaign(payload: CampaignCreate, db: Session = Depends(get_db), curr
     db.flush()
 
     # Empfaenger aus den gewaehlten Gruppen + direkt uebergebene, dedupliziert per E-Mail.
-    # Person-Attribute (Funktion/Abteilung/Kritikalitaet) werden als Schnappschuss
+    # Person-Attribute (Funktion/Abteilung/Kritikalitaet/Leitungsorgan) werden als Schnappschuss
     # uebernommen, damit Abteilungsvergleich und Human Risk Management je Kampagne greifen.
     seen: set[str] = set()
     sources: list[GroupMember | RecipientCreate] = []
@@ -61,6 +61,7 @@ def create_campaign(payload: CampaignCreate, db: Session = Depends(get_db), curr
                 position=src.position,
                 department=src.department,
                 criticality=src.criticality,
+                is_management=getattr(src, "is_management", False),
                 tracking_token=generate_tracking_token(),
             )
         )
