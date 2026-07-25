@@ -14,6 +14,7 @@ import IntegrationsOverviewPage from './pages/integrations/overview'
 import AiSettingsPage from './pages/settings/ai'
 import AuditEventsPage from './pages/settings/audit-events'
 import EntraSettingsPage from './pages/settings/entra'
+import ScimSettingsPage from './pages/settings/scim'
 import LicenseSettingsPage from './pages/settings/license'
 import PrivacySettingsPage from './pages/settings/privacy'
 import SecuritySettingsPage from './pages/settings/security'
@@ -86,6 +87,7 @@ export default function App() {
             <Route path="ldap" element={<LdapSettingsPage />} />
             <Route path="webhooks" element={<WebhooksSettingsPage />} />
             <Route path="entra" element={<EntraSettingsPage />} />
+            <Route path="scim" element={<ScimSettingsPage />} />
             <Route path="ai" element={<AiSettingsPage />} />
             <Route path="pdf-report" element={<PdfReportSettingsPage />} />
             <Route path="whitelabel" element={<WhitelabelSettingsPage />} />

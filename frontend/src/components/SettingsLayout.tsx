@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-import { BadgeCheck, Cloud, FileText, Fingerprint, GraduationCap, KeyRound, KeySquare, Lock, MailCheck, Network, Palette, ScrollText, Share2, ShieldCheck, Sparkles, Webhook, type LucideIcon } from 'lucide-react'
+import { BadgeCheck, Cloud, FileText, Fingerprint, GraduationCap, KeyRound, KeySquare, Lock, MailCheck, Network, Palette, ScrollText, Share2, ShieldCheck, Sparkles, Users, Webhook, type LucideIcon } from 'lucide-react'
 import { NavLink, Outlet } from 'react-router-dom'
 import TierBadge from './TierBadge'
 import { useFeatures } from '../hooks/useFeatures'
@@ -29,6 +29,7 @@ const groups: { labelKey: string | null; items: NavItem[] }[] = [
       { to: '/settings/ldap', labelKey: 'settings.ldap', icon: Network, feature: 'business' },
       { to: '/settings/webhooks', labelKey: 'settings.webhooks', icon: Webhook, feature: 'business' },
       { to: '/settings/entra', labelKey: 'settings.entra', icon: Cloud, feature: 'business' },
+      { to: '/settings/scim', labelKey: 'settings.scim', icon: Users, feature: 'business' },
       { to: '/settings/ai', labelKey: 'settings.ai', icon: Sparkles, feature: 'business' },
       { to: '/settings/pdf-report', labelKey: 'settings.pdfReport', icon: FileText, feature: 'business' },
       { to: '/settings/whitelabel', labelKey: 'settings.whitelabel', icon: Palette, feature: 'enterprise' },
