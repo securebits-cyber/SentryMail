@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.32.0](https://github.com/securebits-cyber/SentryMail/compare/v0.31.0...v0.32.0) (2026-07-25)
+
+
+### Features
+
+* **threat:** Oberflaeche fuer Analyse, Wellen und Anhang-Pruefung / UI for analysis, waves and attachment scanning ([#128](https://github.com/securebits-cyber/SentryMail/issues/128)) ([87b039f](https://github.com/securebits-cyber/SentryMail/commit/87b039fb6d5dffbe531df4c70a5429fa8919d205))
+
 ## [0.31.0](https://github.com/securebits-cyber/SentryMail/compare/v0.30.0...v0.31.0) (2026-07-25)
 
 
