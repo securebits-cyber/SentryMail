@@ -15,10 +15,10 @@ from collections.abc import Callable
 
 from sqlalchemy.orm import Session
 
-from app.models import PrivacyConfig, Recipient, TrackingEvent, TrackingEventType
+from app.models import Recipient, TrackingEvent, TrackingEventType
 from app.schemas import CampaignResultOut, RecipientResultOut
+from app.services import privacy
 from app.utils.geoip import lookup_country
-from app.utils.singleton import get_or_create_singleton
 from app.utils.useragent import parse_user_agent
 
 logger = logging.getLogger(__name__)
@@ -105,9 +105,10 @@ def fingerprinting_enabled(db: Session) -> bool:
     """Ob Client-Fingerprinting vom Betreiber ausdruecklich aktiviert wurde.
 
     Default AUS (Welle 2, Datenschutz-/Mitbestimmungs-Modus). Autoritative
-    Quelle fuer Beacon-Auslieferung und serverseitige Erfassung.
+    Quelle fuer Beacon-Auslieferung und serverseitige Erfassung; liest die
+    Policy ueber ``services.privacy``, damit es nur eine Quelle gibt.
     """
-    return get_or_create_singleton(db, PrivacyConfig).fingerprinting_enabled
+    return privacy.policy(db).fingerprinting_enabled
 
 
 def record_client_meta(
@@ -178,23 +179,30 @@ def get_campaign_results(db: Session, campaign_id) -> CampaignResultOut:
         if event_type == TrackingEventType.CLICKED:
             clicks_by_recipient[recipient_id] = clicks_by_recipient.get(recipient_id, 0) + 1
 
-    rows = [
-        RecipientResultOut(
-            id=r.id,
-            email=r.email,
-            first_name=r.first_name,
-            last_name=r.last_name,
-            position=r.position,
-            department=r.department,
-            criticality=r.criticality,
-            sent_at=r.sent_at,
-            opened=TrackingEventType.OPENED in types_by_recipient.get(r.id, ()),
-            clicked=TrackingEventType.CLICKED in types_by_recipient.get(r.id, ()),
-            submitted=TrackingEventType.SUBMITTED in types_by_recipient.get(r.id, ()),
-            visits=clicks_by_recipient.get(r.id, 0),
-        )
-        for r in recipients
-    ]
+    # Im Datenschutzmodus bleiben die Kampagnen-Kennzahlen sichtbar, die
+    # Empfaengerliste aber leer: sie ist die Einzelpersonen-Auswertung.
+    individuals_locked = not privacy.individual_view_allowed(db)
+    rows = (
+        []
+        if individuals_locked
+        else [
+            RecipientResultOut(
+                id=r.id,
+                email=r.email,
+                first_name=r.first_name,
+                last_name=r.last_name,
+                position=r.position,
+                department=r.department,
+                criticality=r.criticality,
+                sent_at=r.sent_at,
+                opened=TrackingEventType.OPENED in types_by_recipient.get(r.id, ()),
+                clicked=TrackingEventType.CLICKED in types_by_recipient.get(r.id, ()),
+                submitted=TrackingEventType.SUBMITTED in types_by_recipient.get(r.id, ()),
+                visits=clicks_by_recipient.get(r.id, 0),
+            )
+            for r in recipients
+        ]
+    )
 
     def agg(event_type: TrackingEventType) -> int:
         return sum(1 for types in types_by_recipient.values() if event_type in types)
@@ -207,4 +215,5 @@ def get_campaign_results(db: Session, campaign_id) -> CampaignResultOut:
         clicked=agg(TrackingEventType.CLICKED),
         submitted=agg(TrackingEventType.SUBMITTED),
         recipients=rows,
+        individuals_locked=individuals_locked,
     )

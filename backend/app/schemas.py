@@ -285,6 +285,10 @@ class CampaignResultOut(BaseModel):
     clicked: int
     submitted: int
     recipients: list[RecipientResultOut] = []
+    # True = Datenschutzmodus aktiv, ``recipients`` ist deshalb leer (nicht:
+    # die Kampagne hat keine Empfaenger). Die Oberflaeche zeigt daraufhin den
+    # Sperrhinweis statt einer leeren Tabelle.
+    individuals_locked: bool = False
 
 
 # --- Sending Profile (SMTP) ---
@@ -551,7 +555,10 @@ class HumanRiskSummary(BaseModel):
     people: int
     repeat_offenders: int
     distribution: RiskDistribution
+    # Im Datenschutzmodus leer: die Verteilung bleibt, die namentliche
+    # Rangliste ist eine Einzelpersonen-Auswertung.
     top_people: list[HumanRiskPerson]
+    individuals_locked: bool = False
 
 
 class TimelinePoint(BaseModel):
@@ -564,6 +571,10 @@ class TimelinePoint(BaseModel):
 class BreakdownSlice(BaseModel):
     label: str
     count: int
+    # True = weniger als k beteiligte Personen; ``count`` ist dann 0. Die Gruppe
+    # wird bewusst ausgewiesen statt weggelassen, damit im Audit erkennbar
+    # bleibt, dass hier Zahlen fehlen.
+    suppressed: bool = False
 
 
 class HeatmapCell(BaseModel):
@@ -608,6 +619,9 @@ class ReportCampaignRow(BaseModel):
     submit_rate: int
     risk_score: int
     risk_level: str
+    # True = Kampagne mit weniger als k Empfaengern; Zahlen und Raten sind dann
+    # genullt, der Kampagnenname bleibt sichtbar.
+    suppressed: bool = False
 
 
 class ManagementReport(BaseModel):
@@ -625,4 +639,6 @@ class ManagementReport(BaseModel):
     risk_level: str
     risk_distribution: RiskDistribution
     campaign_rows: list[ReportCampaignRow]
+    # Im Datenschutzmodus leer - die Kennzahlen des Reports bleiben nutzbar.
     top_failed: list[FailedRecipient]
+    individuals_locked: bool = False

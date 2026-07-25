@@ -53,10 +53,12 @@ def test_analytics_breaks_down_engaged_events(client, db, make_user, auth_header
 
     body = client.get("/dashboard/analytics", headers=auth_headers(admin)).json()
     assert body["total_events"] == 1  # nur der Klick
-    assert body["browsers"] == [{"label": "Chrome", "count": 1}]
-    assert body["operating_systems"] == [{"label": "Windows 10/11", "count": 1}]
-    assert body["devices"] == [{"label": "desktop", "count": 1}]
-    assert body["utm_sources"] == [{"label": "newsletter", "count": 1}]
+    # ``suppressed`` gehoert seit der k-Anonymitaet zu jeder Auspraegung; ohne
+    # aktiven Datenschutzmodus ist es immer False.
+    assert body["browsers"] == [{"label": "Chrome", "count": 1, "suppressed": False}]
+    assert body["operating_systems"] == [{"label": "Windows 10/11", "count": 1, "suppressed": False}]
+    assert body["devices"] == [{"label": "desktop", "count": 1, "suppressed": False}]
+    assert body["utm_sources"] == [{"label": "newsletter", "count": 1, "suppressed": False}]
 
 
 def test_risk_empty_is_zero(client, make_user, auth_headers):

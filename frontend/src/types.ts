@@ -76,6 +76,9 @@ export interface CampaignResult {
   clicked: number
   submitted: number
   recipients: RecipientResult[]
+  // Datenschutzmodus: recipients ist leer, weil gesperrt - nicht, weil die
+  // Kampagne keine Empfaenger hat.
+  individuals_locked?: boolean
 }
 
 export interface SeatStatus {

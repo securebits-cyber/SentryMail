@@ -5,6 +5,7 @@
 import { ChevronDown, ChevronRight } from 'lucide-react'
 import { Fragment, useEffect, useState } from 'react'
 import Badge from './Badge'
+import PrivacyLockNotice from './PrivacyLockNotice'
 import { useI18n } from '../i18n'
 import { api } from '../services/api'
 import type { CampaignResult, RecipientEvent, RecipientResult } from '../types'
@@ -94,7 +95,9 @@ export default function ResultsTable({ result }: ResultsTableProps) {
 
       <div>
         <h2 className="mb-3 text-lg font-semibold">{t('res.perRecipient')}</h2>
-        {result.recipients.length === 0 ? (
+        {result.individuals_locked ? (
+          <PrivacyLockNotice />
+        ) : result.recipients.length === 0 ? (
           <p className="text-text-secondary">{t('res.noRecipients')}</p>
         ) : (
           <div className="overflow-x-auto">

@@ -8,6 +8,7 @@ import { Link } from 'react-router-dom'
 import Card from '../components/Card'
 import { RiskMeter, type RiskSummary } from '../components/DashboardCharts'
 import PageScaffold from '../components/PageScaffold'
+import PrivacyLockNotice from '../components/PrivacyLockNotice'
 import RiskBadge from '../components/RiskBadge'
 import StatCard, { type StatTone } from '../components/StatCard'
 import TierBadge from '../components/TierBadge'
@@ -38,6 +39,8 @@ interface CampaignRow {
   submit_rate: number
   risk_score: number
   risk_level: 'high' | 'medium' | 'low'
+  // Kampagne unter der k-Schwelle: Zahlen sind genullt, nicht null.
+  suppressed?: boolean
 }
 
 interface Failed {
@@ -66,6 +69,7 @@ interface Report {
   risk_distribution: { high: number; medium: number; low: number; none: number }
   campaign_rows: CampaignRow[]
   top_failed: Failed[]
+  individuals_locked?: boolean
 }
 
 interface TrendRow {
@@ -352,18 +356,26 @@ export default function ReportsPage() {
                     </Link>
                   </td>
                   <td className="py-2 pr-4 font-mono tabular-nums">{c.recipients}</td>
-                  <td className="py-2 pr-4 font-mono tabular-nums">
-                    {c.opened} <span className="text-xs text-text-secondary">({c.open_rate}%)</span>
-                  </td>
-                  <td className="py-2 pr-4 font-mono tabular-nums">
-                    {c.clicked} <span className="text-xs text-text-secondary">({c.click_rate}%)</span>
-                  </td>
-                  <td className="py-2 pr-4 font-mono tabular-nums">
-                    {c.submitted} <span className="text-xs text-text-secondary">({c.submit_rate}%)</span>
-                  </td>
-                  <td className="py-2 pr-4">
-                    <RiskBadge level={c.risk_level} size="sm" label={`${c.risk_score} · ${t(`risk.level.${c.risk_level}`)}`} />
-                  </td>
+                  {c.suppressed ? (
+                    <td colSpan={4} className="py-2 pr-4 text-xs text-text-secondary">
+                      {t('priv.belowThreshold')}
+                    </td>
+                  ) : (
+                    <>
+                      <td className="py-2 pr-4 font-mono tabular-nums">
+                        {c.opened} <span className="text-xs text-text-secondary">({c.open_rate}%)</span>
+                      </td>
+                      <td className="py-2 pr-4 font-mono tabular-nums">
+                        {c.clicked} <span className="text-xs text-text-secondary">({c.click_rate}%)</span>
+                      </td>
+                      <td className="py-2 pr-4 font-mono tabular-nums">
+                        {c.submitted} <span className="text-xs text-text-secondary">({c.submit_rate}%)</span>
+                      </td>
+                      <td className="py-2 pr-4">
+                        <RiskBadge level={c.risk_level} size="sm" label={`${c.risk_score} · ${t(`risk.level.${c.risk_level}`)}`} />
+                      </td>
+                    </>
+                  )}
                 </tr>
               ))}
             </tbody>
@@ -373,7 +385,9 @@ export default function ReportsPage() {
 
       {/* Top Durchgefallene */}
       <Card className="mb-8" title={t('rep.topFailed.heading')} bodyClassName={report.top_failed.length ? 'overflow-x-auto' : ''}>
-        {report.top_failed.length === 0 ? (
+        {report.individuals_locked ? (
+        <PrivacyLockNotice compact />
+      ) : report.top_failed.length === 0 ? (
         <p className="text-text-secondary">{t('dash.failed.empty')}</p>
       ) : (
           <table className="w-full border-collapse text-sm">

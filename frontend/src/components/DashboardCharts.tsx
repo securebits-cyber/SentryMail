@@ -5,6 +5,7 @@
 import { ShieldAlert, ShieldCheck, ShieldX, type LucideIcon } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import Badge from './Badge'
+import PrivacyLockNotice from './PrivacyLockNotice'
 import RiskBadge from './RiskBadge'
 import { useI18n } from '../i18n'
 
@@ -129,6 +130,9 @@ export function Funnel({ summary }: { summary: Summary }) {
 export interface BreakdownSlice {
   label: string
   count: number
+  /** Weniger als k beteiligte Personen: count ist 0, die Gruppe wird als
+   *  unterdrueckt ausgewiesen statt weggelassen. */
+  suppressed?: boolean
 }
 
 export interface EngagementAnalytics {
@@ -154,6 +158,14 @@ function BarList({ title, slices, total }: { title: string; slices: BreakdownSli
         <div className="flex flex-col gap-2">
           {slices.slice(0, 6).map((s) => {
             const pct = total > 0 ? Math.round((s.count / total) * 100) : 0
+            if (s.suppressed) {
+              return (
+                <div key={s.label} className="flex items-center justify-between text-sm">
+                  <span className="truncate pr-2 text-text-secondary">{s.label}</span>
+                  <span className="shrink-0 text-xs text-text-secondary">{t('priv.belowThreshold')}</span>
+                </div>
+              )
+            }
             return (
               <div key={s.label}>
                 <div className="mb-1 flex items-center justify-between text-sm">
@@ -226,6 +238,8 @@ export interface HumanRiskSummary {
   repeat_offenders: number
   distribution: { high: number; medium: number; low: number; none: number }
   top_people: HumanRiskPerson[]
+  /** Datenschutzmodus: Verteilung bleibt, die namentliche Rangliste entfaellt. */
+  individuals_locked?: boolean
 }
 
 const LEVEL_TEXT: Record<'high' | 'medium' | 'low', string> = {
@@ -250,7 +264,9 @@ export function HumanRiskCard({ summary }: { summary: HumanRiskSummary }) {
           </span>
         </div>
       </div>
-      {summary.top_people.length === 0 ? (
+      {summary.individuals_locked ? (
+        <PrivacyLockNotice compact />
+      ) : summary.top_people.length === 0 ? (
         <p className="text-sm text-text-secondary">{t('hrm.empty')}</p>
       ) : (
         <div className="overflow-x-auto">

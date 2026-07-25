@@ -15,6 +15,7 @@ from app.auth.permissions import get_current_user
 from app.database import get_db
 from app.models import Campaign, Recipient, TrackingEvent, User
 from app.schemas import CampaignResultOut, RecipientEventOut
+from app.services import privacy
 from app.services.tracking import get_campaign_results
 
 router = APIRouter(prefix="/results", tags=["results"])
@@ -33,9 +34,13 @@ def recipient_events(
     campaign_id: uuid.UUID,
     recipient_id: uuid.UUID,
     db: Session = Depends(get_db),
-    _: User = Depends(get_current_user),
+    current: User = Depends(get_current_user),
 ):
-    """Session-Verlauf: chronologische Ereignis-Chronik eines Empfaengers."""
+    """Session-Verlauf: chronologische Ereignis-Chronik eines Empfaengers.
+
+    Reinste Form der Einzelpersonen-Auswertung - im Datenschutzmodus gesperrt.
+    """
+    privacy.assert_individual_allowed(db, current)
     recipient = (
         db.query(Recipient)
         .filter(Recipient.id == recipient_id, Recipient.campaign_id == campaign_id)
@@ -66,7 +71,14 @@ def recipient_events(
 
 
 @router.get("/{campaign_id}/export")
-def export_campaign_csv(campaign_id: uuid.UUID, db: Session = Depends(get_db), _: User = Depends(get_current_user)):
+def export_campaign_csv(
+    campaign_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    current: User = Depends(get_current_user),
+):
+    """CSV je Empfaenger - besteht ausschliesslich aus personenbezogenen Zeilen
+    und ist im Datenschutzmodus daher komplett gesperrt (kein Teil-Export)."""
+    privacy.assert_individual_allowed(db, current)
     campaign = db.query(Campaign).filter(Campaign.id == campaign_id).first()
     if campaign is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Kampagne nicht gefunden")
