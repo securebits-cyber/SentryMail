@@ -20,6 +20,7 @@ import MispSettingsPage from './pages/settings/misp'
 import QuarantineSettingsPage from './pages/settings/quarantine'
 import ChannelCampaignsPage from './pages/channel-campaigns'
 import ChannelSettingsPage from './pages/settings/channels'
+import PdfSigningSettingsPage from './pages/settings/pdf-signing'
 import LmsXapiSettingsPage from './pages/settings/lms-xapi'
 import ReportButtonSettingsPage from './pages/settings/report-button'
 import ThreatScanSettingsPage from './pages/settings/threat-scan'
@@ -104,6 +105,7 @@ export default function App() {
             <Route path="report-button" element={<ReportButtonSettingsPage />} />
             <Route path="lms-xapi" element={<LmsXapiSettingsPage />} />
             <Route path="channels" element={<ChannelSettingsPage />} />
+            <Route path="pdf-signing" element={<PdfSigningSettingsPage />} />
             <Route path="ai" element={<AiSettingsPage />} />
             <Route path="pdf-report" element={<PdfReportSettingsPage />} />
             <Route path="whitelabel" element={<WhitelabelSettingsPage />} />
