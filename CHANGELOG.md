@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.34.0](https://github.com/securebits-cyber/SentryMail/compare/v0.33.0...v0.34.0) (2026-07-25)
+
+
+### Features
+
+* **ui:** Oberflaeche und Vorlagen fuer die Massen-Quarantaene / UI and templates for mass quarantine ([#140](https://github.com/securebits-cyber/SentryMail/issues/140)) ([0675dc5](https://github.com/securebits-cyber/SentryMail/commit/0675dc5438fe69b79743b236a5df220cd3eeb2db))
+
 ## [0.33.0](https://github.com/securebits-cyber/SentryMail/compare/v0.32.0...v0.33.0) (2026-07-25)
 
 
