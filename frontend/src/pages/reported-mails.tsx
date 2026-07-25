@@ -12,7 +12,8 @@ import PageScaffold from '../components/PageScaffold'
 import { useFeatures } from '../hooks/useFeatures'
 import { useI18n } from '../i18n'
 import { api } from '../services/api'
-import type { ReportedMail } from '../types'
+import RiskBadge from '../components/RiskBadge'
+import type { MailCluster, ReportedMail } from '../types'
 
 export default function ReportedMailsPage() {
   const { t } = useI18n()
@@ -22,6 +23,7 @@ export default function ReportedMailsPage() {
   const analysisLicensed = Boolean(features?.features?.enterprise)
   const [openRow, setOpenRow] = useState<string | null>(null)
   const [rows, setRows] = useState<ReportedMail[]>([])
+  const [clusters, setClusters] = useState<MailCluster[]>([])
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState<{ kind: 'error' | 'info'; text: string } | null>(null)
@@ -33,6 +35,11 @@ export default function ReportedMailsPage() {
       .then((res) => setRows(res.data))
       .catch(() => setRows([]))
       .finally(() => setLoading(false))
+    // Wellen gibt es nur mit Enterprise; ohne Lizenz bleibt der Abschnitt leer.
+    api
+      .get<MailCluster[]>('/reported-mails/clusters')
+      .then((res) => setClusters(res.data))
+      .catch(() => setClusters([]))
   }
 
   useEffect(() => {
@@ -103,6 +110,35 @@ export default function ReportedMailsPage() {
         </label>
         <p className="mt-1.5 text-sm text-text-secondary">{t('rm.uploadHint')}</p>
       </div>
+
+      {clusters.length > 0 && (
+        <Card className="mb-6" title={t('rm.clusters')} subtitle={t('rm.clustersHint')} bodyClassName="overflow-x-auto">
+          <table className="w-full border-collapse text-sm">
+            <thead>
+              <tr className="border-b border-border text-left text-text-secondary">
+                <th className="py-2 pr-4 font-medium">{t('rm.col.subject')}</th>
+                <th className="py-2 pr-4 font-medium">{t('rm.cluster.domain')}</th>
+                <th className="py-2 pr-4 font-medium">{t('rm.cluster.mails')}</th>
+                <th className="py-2 pr-4 font-medium">{t('rm.col.reports')}</th>
+                <th className="py-2 font-medium">{t('rm.cluster.score')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {clusters.map((cluster) => (
+                <tr key={cluster.cluster_key} className="border-b border-border">
+                  <td className="py-2 pr-4">{cluster.subject || t('rm.noSubject')}</td>
+                  <td className="py-2 pr-4 font-mono text-xs">{cluster.sender_domain || '—'}</td>
+                  <td className="py-2 pr-4 font-mono tabular-nums">{cluster.mails}</td>
+                  <td className="py-2 pr-4 font-mono tabular-nums">{cluster.reports}</td>
+                  <td className="py-2">
+                    <RiskBadge level={cluster.level} size="sm" label={`${cluster.max_score}/100`} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </Card>
+      )}
 
       {loading ? (
         <p className="text-text-secondary">{t('common.loadingSettings')}</p>

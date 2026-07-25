@@ -125,6 +125,7 @@ export default function MailAnalysisPanel({ mailId, licensed }: { mailId: string
                   <th className="py-1.5 pr-4 font-medium">{t('ma.att.name')}</th>
                   <th className="py-1.5 pr-4 font-medium">{t('ma.att.type')}</th>
                   <th className="py-1.5 pr-4 font-medium">{t('ma.att.size')}</th>
+                  <th className="py-1.5 pr-4 font-medium">{t('ma.att.scan')}</th>
                   <th className="py-1.5 font-medium">SHA-256</th>
                 </tr>
               </thead>
@@ -145,6 +146,23 @@ export default function MailAnalysisPanel({ mailId, licensed }: { mailId: string
                     <td className="py-1.5 pr-4 font-mono text-text-secondary">{attachment.content_type}</td>
                     <td className="py-1.5 pr-4 font-mono tabular-nums text-text-secondary">
                       {Math.max(1, Math.round(attachment.size_bytes / 1024))} KB
+                    </td>
+                    <td className="py-1.5 pr-4 whitespace-nowrap">
+                      {attachment.scan_result === 'infected' ? (
+                        <RiskBadge
+                          level="high"
+                          size="sm"
+                          showDot={false}
+                          label={attachment.scan_signature || t('ma.scan.infected')}
+                        />
+                      ) : attachment.scan_result === 'clean' ? (
+                        <span className="text-status-success">{t('ma.scan.clean')}</span>
+                      ) : (
+                        // Nicht geprueft ist nicht sauber - deshalb neutral statt gruen.
+                        <span className="text-text-secondary">
+                          {attachment.scan_result === 'disabled' ? t('ma.scan.disabled') : t('ma.scan.unavailable')}
+                        </span>
+                      )}
                     </td>
                     <td className="py-1.5 font-mono break-all text-text-secondary">{attachment.sha256}</td>
                   </tr>

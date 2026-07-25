@@ -394,6 +394,16 @@ const de: Record<string, Guidance> = {
     ],
     note: 'Die Originaldatei bleibt gespeichert — für die Vorfallsbehandlung nach NIS2 ist sie der eigentliche Beleg, und eine spätere Analyse mit besseren Regeln braucht sie. Die automatische Auswertung (Header, SPF/DKIM/DMARC, URLs, Anhang-Hashes) ist ein Enterprise-Feature.',
   },
+  'settings-threat-scan': {
+    intro:
+      'Anhänge gemeldeter Mails gegen ein ClamAV im eigenen Netz prüfen. Optional — ohne Prüfung läuft die übrige Analyse unverändert.',
+    steps: [
+      'ClamAV im eigenen Netz bereitstellen (z. B. als weiterer Dienst im Compose-Stack, Port 3310).',
+      'Host und Port eintragen, Prüfung aktivieren und speichern.',
+      '„Verbindung prüfen“ nutzt das EICAR-Testmuster: erst wenn der Scanner den Testfund meldet, ist die Kette nachweislich in Ordnung.',
+    ],
+    note: 'Ist der Scanner nicht erreichbar, gelten Anhänge als „nicht geprüft“ und niemals als sauber — ein ausgefallener Scanner darf keine falsche Entwarnung erzeugen. Anhänge verlassen die Instanz nicht; es gibt keine Cloud-Abfrage.',
+  },
   'settings-scim': {
     intro:
       'SCIM befüllt Empfängergruppen automatisch aus dem Identity Provider (Entra ID, Okta …). Anmeldekonten entstehen dabei nicht — nur Empfänger und Gruppen.',
@@ -815,6 +825,16 @@ const en: Record<string, Guidance> = {
       'Delete reports once they have been evaluated and documented.',
     ],
     note: 'The original file is kept — for incident handling under NIS2 it is the actual evidence, and a later analysis with better rules needs it. The automatic evaluation (headers, SPF/DKIM/DMARC, URLs, attachment hashes) is an enterprise feature.',
+  },
+  'settings-threat-scan': {
+    intro:
+      'Scan attachments of reported mails against a ClamAV on your own network. Optional — without it the rest of the analysis is unchanged.',
+    steps: [
+      'Provide ClamAV on your own network (for example as another service in the compose stack, port 3310).',
+      'Enter host and port, enable scanning and save.',
+      '"Test connection" uses the EICAR pattern: only when the scanner reports the test detection is the chain demonstrably working.',
+    ],
+    note: 'If the scanner is unreachable, attachments count as "not scanned" and never as clean — a failed scanner must not produce a false all-clear. Attachments never leave the instance; there is no cloud lookup.',
   },
   'settings-scim': {
     intro:

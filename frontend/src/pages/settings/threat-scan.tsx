@@ -1,0 +1,147 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+
+import { ScanSearch, Settings } from 'lucide-react'
+import { FormEvent, useEffect, useState } from 'react'
+import Card from '../../components/Card'
+import LockedFeatureNotice from '../../components/LockedFeatureNotice'
+import PageScaffold from '../../components/PageScaffold'
+import Toggle from '../../components/Toggle'
+import { useFeatures } from '../../hooks/useFeatures'
+import { useI18n } from '../../i18n'
+import { api } from '../../services/api'
+import type { ThreatScanConfig } from '../../types'
+
+const fieldClass = 'rounded-md border border-border bg-surface px-3 py-2 text-text-primary'
+const labelClass = 'flex flex-col gap-1 text-sm'
+
+export default function ThreatScanSettingsPage() {
+  const { t } = useI18n()
+  const features = useFeatures()
+  const licensed = Boolean(features?.features?.enterprise)
+  const [form, setForm] = useState<ThreatScanConfig | null>(null)
+  const [busy, setBusy] = useState(false)
+  const [message, setMessage] = useState<{ kind: 'error' | 'info'; text: string } | null>(null)
+
+  useEffect(() => {
+    if (!licensed) return
+    api.get<ThreatScanConfig>('/settings/threat-scan').then((res) => setForm(res.data))
+  }, [licensed])
+
+  function set<K extends keyof ThreatScanConfig>(key: K, value: ThreatScanConfig[K]) {
+    setForm((prev) => (prev ? { ...prev, [key]: value } : prev))
+  }
+
+  async function save(event: FormEvent) {
+    event.preventDefault()
+    if (!form) return
+    setBusy(true)
+    setMessage(null)
+    try {
+      const res = await api.put<ThreatScanConfig>('/settings/threat-scan', form)
+      setForm(res.data)
+      setMessage({ kind: 'info', text: t('form.saved') })
+    } catch {
+      setMessage({ kind: 'error', text: t('form.err.save') })
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function test() {
+    setBusy(true)
+    setMessage({ kind: 'info', text: t('form.saveTest') })
+    try {
+      if (form) await api.put('/settings/threat-scan', form)
+      const res = await api.post<{ success: boolean; detail: string }>('/settings/threat-scan/test')
+      setMessage({ kind: res.data.success ? 'info' : 'error', text: res.data.detail })
+    } catch {
+      setMessage({ kind: 'error', text: t('form.err.test') })
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const breadcrumb = [
+    { label: t('nav.settings'), icon: Settings },
+    { label: t('settings.threatScan'), icon: ScanSearch },
+  ]
+
+  if (features === null) return <p className="text-text-secondary">{t('common.loadingSettings')}</p>
+  if (!licensed)
+    return (
+      <PageScaffold title={t('ts.title')} subtitle={t('ts.subtitle')} breadcrumb={breadcrumb} guidanceKey="settings-threat-scan">
+        <LockedFeatureNotice tier="enterprise" />
+      </PageScaffold>
+    )
+  if (!form) return <p className="text-text-secondary">{t('common.loadingSettings')}</p>
+
+  return (
+    <PageScaffold title={t('ts.title')} subtitle={t('ts.subtitle')} breadcrumb={breadcrumb} guidanceKey="settings-threat-scan">
+      {message && (
+        <p className={`mb-4 text-sm ${message.kind === 'error' ? 'text-status-danger' : 'text-text-secondary'}`}>
+          {message.text}
+        </p>
+      )}
+
+      <Card className="max-w-2xl">
+        <form onSubmit={save} className="flex flex-col gap-4">
+          <div className="flex items-center justify-between gap-4 rounded-lg border border-border bg-sunken p-4">
+            <div>
+              <div className="text-sm font-medium">{t('ts.enable')}</div>
+              <div className="text-sm text-text-secondary">{t('ts.enableDesc')}</div>
+            </div>
+            <Toggle checked={form.enabled} onChange={(v) => set('enabled', v)} aria-label={t('ts.enable')} />
+          </div>
+
+          <div className="flex flex-wrap gap-3">
+            <label className={`${labelClass} flex-1`}>
+              {t('ts.host')}
+              <input
+                value={form.host}
+                onChange={(e) => set('host', e.target.value)}
+                placeholder="clamav"
+                className={`${fieldClass} font-mono`}
+              />
+            </label>
+            <label className={labelClass}>
+              {t('ts.port')}
+              <input
+                type="number"
+                value={form.port}
+                onChange={(e) => set('port', Number(e.target.value))}
+                className={`${fieldClass} w-28 font-mono`}
+              />
+            </label>
+            <label className={labelClass}>
+              {t('ts.timeout')}
+              <input
+                type="number"
+                min={1}
+                max={120}
+                value={form.timeout_seconds}
+                onChange={(e) => set('timeout_seconds', Number(e.target.value))}
+                className={`${fieldClass} w-28 font-mono`}
+              />
+            </label>
+          </div>
+
+          <p className="rounded-lg border border-border bg-bg p-3 text-sm text-text-secondary">{t('ts.selfHostedHint')}</p>
+          <p className="rounded-lg border border-status-warning/30 bg-status-warning/8 p-3 text-sm text-text-secondary">
+            {t('ts.unavailableHint')}
+          </p>
+
+          <div className="flex gap-3">
+            <button type="submit" disabled={busy} className="rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-white disabled:opacity-60">
+              {t('common.save')}
+            </button>
+            <button type="button" onClick={test} disabled={busy} className="rounded-full border border-border px-5 py-2.5 text-sm disabled:opacity-60">
+              {t('ts.test')}
+            </button>
+          </div>
+        </form>
+      </Card>
+    </PageScaffold>
+  )
+}

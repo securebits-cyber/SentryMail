@@ -348,6 +348,10 @@ export interface MailAnalysisAttachment {
   sha256: string
   risky: boolean
   archive: boolean
+  // clean | infected | unavailable | error | disabled — "unavailable" heisst
+  // ausdruecklich NICHT sauber, sondern ungeprueft.
+  scan_result?: string
+  scan_signature?: string | null
 }
 
 export interface MailAnalysisFinding {
@@ -368,4 +372,24 @@ export interface MailAnalysis {
   score: number
   level: 'high' | 'medium' | 'low'
   created_at: string
+}
+
+// Eine Welle: Meldungen mit gleichem Cluster-Schluessel (Enterprise).
+export interface MailCluster {
+  cluster_key: string
+  subject: string
+  sender_domain: string
+  mails: number
+  reports: number
+  max_score: number
+  level: 'high' | 'medium' | 'low'
+  first_seen: string
+  last_seen: string
+}
+
+export interface ThreatScanConfig {
+  enabled: boolean
+  host: string
+  port: number
+  timeout_seconds: number
 }
