@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.31.0](https://github.com/securebits-cyber/SentryMail/compare/v0.30.0...v0.31.0) (2026-07-25)
+
+
+### Features
+
+* **threat:** Auswertung gemeldeter Mails anzeigen / Show the analysis of reported mails ([#126](https://github.com/securebits-cyber/SentryMail/issues/126)) ([38f8a7a](https://github.com/securebits-cyber/SentryMail/commit/38f8a7a294a46c66ad37f5663b96ff52ac2d0072))
+
 ## [0.30.0](https://github.com/securebits-cyber/SentryMail/compare/v0.29.0...v0.30.0) (2026-07-25)
 
 
