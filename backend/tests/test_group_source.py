@@ -65,7 +65,8 @@ def test_external_group_cannot_be_deleted(client, make_user, auth_headers, db):
     admin = make_user(role=UserRole.ADMIN)
     group = _scim_group(db, admin)
 
-    assert client.delete(f"/groups/{group.id}", headers=auth_headers(admin)).status_code == 409
+    res = client.delete(f"/groups/{group.id}", headers=auth_headers(admin))
+    assert res.status_code == 409
     assert db.get(Group, group.id) is not None
 
 
