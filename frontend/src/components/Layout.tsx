@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-import { ArrowUpCircle, Blocks, BookOpen, ChevronDown, CircleUser, ExternalLink, FileBarChart, FileText, Globe, GraduationCap, Layers, LayoutDashboard, LifeBuoy, ListChecks, LogOut, Mail, Moon, Plus, Radar, Repeat, Server, Settings, Sun, UserCog, Users, type LucideIcon } from 'lucide-react'
+import { ArrowUpCircle, Blocks, BookOpen, ChevronDown, CircleUser, ExternalLink, FileBarChart, FileText, Globe, GraduationCap, Layers, LayoutDashboard, LifeBuoy, ListChecks, LogOut, Mail, MailWarning, Moon, Plus, Radar, Repeat, Server, Settings, Sun, UserCog, Users, type LucideIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import LanguageSwitcher from './LanguageSwitcher'
@@ -56,6 +56,8 @@ const mainNav: NavItem[] = [
     ],
   },
   { to: '/reports', labelKey: 'nav.reports', icon: FileBarChart, end: false },
+  // Meldeweg fuer verdaechtige Mails (Business): sichtbar fuer alle, gesperrt ohne Lizenz.
+  { to: '/reported-mails', labelKey: 'nav.reportedMails', icon: MailWarning, end: false, tier: 'business' },
   // LMS-Schulungen (Enterprise): sichtbar fuer alle Nutzer (visible-but-locked).
   { to: '/trainings', labelKey: 'nav.trainings', icon: GraduationCap, end: false, tier: 'enterprise' },
 ]
