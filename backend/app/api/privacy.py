@@ -16,7 +16,7 @@ fuer eine Kampagne. Alle Schritte landen im Audit-Log.
 import uuid
 from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
 from app.auth.permissions import (
@@ -26,7 +26,13 @@ from app.auth.permissions import (
 )
 from app.database import get_db
 from app.models import Campaign, PrivacyUnlockRequest, PrivacyUnlockStatus, User, UserRole
-from app.schemas import PrivacyUnlockCreate, PrivacyUnlockDecision, PrivacyUnlockOut
+from app.schemas import (
+    PrivacyOfficerOut,
+    PrivacyUnlockCreate,
+    PrivacyUnlockDecision,
+    PrivacyUnlockOut,
+)
+from app.services import privacy_notify
 from app.services.audit import client_ip, record_audit
 
 router = APIRouter(prefix="/privacy", tags=["privacy"])
@@ -71,6 +77,25 @@ def _scope_label(row: PrivacyUnlockRequest, db: Session) -> str:
     return f"Kampagne „{campaign.name}“" if campaign else "eine Kampagne"
 
 
+@router.get("/officers", response_model=list[PrivacyOfficerOut])
+def list_officers(
+    db: Session = Depends(get_db),
+    _: User = Depends(require_admin_or_privacy_officer),
+):
+    """Aktive Datenschutzbeauftragte.
+
+    Das Vier-Augen-Verfahren braucht mindestens einen - ohne ihn bleibt jeder
+    Antrag fuer immer offen. Die Oberflaeche warnt deshalb, wenn die Liste leer
+    ist, und nennt sonst die Ansprechpartner samt E-Mail.
+    """
+    return (
+        db.query(User)
+        .filter(User.role == UserRole.PRIVACY_OFFICER, User.is_active.is_(True))
+        .order_by(User.email)
+        .all()
+    )
+
+
 @router.get("/unlock-requests", response_model=list[PrivacyUnlockOut])
 def list_requests(
     db: Session = Depends(get_db),
@@ -87,6 +112,7 @@ def list_requests(
 def create_request(
     payload: PrivacyUnlockCreate,
     request: Request,
+    background: BackgroundTasks,
     db: Session = Depends(get_db),
     current: User = Depends(require_admin),
 ):
@@ -115,12 +141,16 @@ def create_request(
         actor=current,
         ip=client_ip(request),
     )
+    # Erst nach der Antwort versenden: haengt der Mailserver, darf der Antrag
+    # nicht daran haengen.
+    background.add_task(privacy_notify.notify_officers_of_request, row.id)
     return _to_out(row)
 
 
 def _decide(
     db: Session,
     request: Request,
+    background: BackgroundTasks,
     row: PrivacyUnlockRequest,
     officer: User,
     *,
@@ -161,6 +191,7 @@ def _decide(
         actor=officer,
         ip=client_ip(request),
     )
+    background.add_task(privacy_notify.notify_requester_of_decision, row.id, approve)
     return _to_out(row)
 
 
@@ -168,24 +199,26 @@ def _decide(
 def approve_request(
     request_id: uuid.UUID,
     request: Request,
+    background: BackgroundTasks,
     payload: PrivacyUnlockDecision | None = None,
     db: Session = Depends(get_db),
     officer: User = Depends(require_privacy_officer),
 ):
     row = _get_or_404(db, request_id)
-    return _decide(db, request, row, officer, approve=True, note=payload.note if payload else None)
+    return _decide(db, request, background, row, officer, approve=True, note=payload.note if payload else None)
 
 
 @router.post("/unlock-requests/{request_id}/reject", response_model=PrivacyUnlockOut)
 def reject_request(
     request_id: uuid.UUID,
     request: Request,
+    background: BackgroundTasks,
     payload: PrivacyUnlockDecision | None = None,
     db: Session = Depends(get_db),
     officer: User = Depends(require_privacy_officer),
 ):
     row = _get_or_404(db, request_id)
-    return _decide(db, request, row, officer, approve=False, note=payload.note if payload else None)
+    return _decide(db, request, background, row, officer, approve=False, note=payload.note if payload else None)
 
 
 @router.post("/unlock-requests/{request_id}/revoke", response_model=PrivacyUnlockOut)
