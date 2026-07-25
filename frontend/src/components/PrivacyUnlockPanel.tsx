@@ -2,12 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
+import { AlertTriangle } from 'lucide-react'
 import { FormEvent, useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import Badge from './Badge'
 import { useMe } from '../hooks/useMe'
 import { useI18n } from '../i18n'
 import { api } from '../services/api'
-import type { Campaign, PrivacyUnlockRequest, PrivacyUnlockStatus } from '../types'
+import type { Campaign, PrivacyOfficer, PrivacyUnlockRequest, PrivacyUnlockStatus } from '../types'
 
 const statusTone: Record<PrivacyUnlockStatus, 'accent' | 'success' | 'danger' | 'neutral'> = {
   pending: 'accent',
@@ -28,6 +30,7 @@ export default function PrivacyUnlockPanel() {
   const isOfficer = me?.role === 'privacy_officer'
 
   const [rows, setRows] = useState<PrivacyUnlockRequest[]>([])
+  const [officers, setOfficers] = useState<PrivacyOfficer[] | null>(null)
   const [campaigns, setCampaigns] = useState<Campaign[]>([])
   const [reason, setReason] = useState('')
   const [scope, setScope] = useState('')
@@ -41,6 +44,12 @@ export default function PrivacyUnlockPanel() {
 
   useEffect(() => {
     load()
+    // Ohne Freigabeberechtigten bleibt jeder Antrag fuer immer offen - das muss
+    // sichtbar sein, bevor jemand einen stellt.
+    api
+      .get<PrivacyOfficer[]>('/privacy/officers')
+      .then((r) => setOfficers(r.data))
+      .catch(() => setOfficers([]))
     if (isAdmin) api.get<Campaign[]>('/campaigns').then((r) => setCampaigns(r.data)).catch(() => setCampaigns([]))
   }, [isAdmin])
 
@@ -88,6 +97,32 @@ export default function PrivacyUnlockPanel() {
       </div>
 
       {error && <p className="text-sm text-status-danger">{error}</p>}
+
+      {officers !== null &&
+        (officers.length === 0 ? (
+          <div className="flex gap-3 rounded-lg border border-status-warning/40 bg-status-warning/8 p-4">
+            <AlertTriangle size={18} className="mt-0.5 shrink-0 text-status-warning" />
+            <div className="text-sm">
+              <p className="font-medium text-text-primary">{t('priv.unlock.noOfficer')}</p>
+              <p className="mt-0.5 text-text-secondary">{t('priv.unlock.noOfficerHint')}</p>
+              {isAdmin && (
+                <Link to="/users" className="mt-1.5 inline-block text-accent hover:underline">
+                  {t('priv.unlock.toUsers')}
+                </Link>
+              )}
+            </div>
+          </div>
+        ) : (
+          <p className="text-sm text-text-secondary">
+            {t('priv.unlock.officers')}{' '}
+            {officers.map((o, i) => (
+              <span key={o.email}>
+                {i > 0 && ', '}
+                {o.full_name} <span className="font-mono text-xs">&lt;{o.email}&gt;</span>
+              </span>
+            ))}
+          </p>
+        ))}
 
       {isAdmin && (
         <form onSubmit={submit} className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-4">

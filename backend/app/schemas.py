@@ -120,6 +120,16 @@ class PrivacyUnlockDecision(BaseModel):
     note: str | None = Field(default=None, max_length=2000)
 
 
+class PrivacyOfficerOut(BaseModel):
+    """Wer Freigaben erteilen darf. Ohne mindestens einen Eintrag laeuft das
+    Vier-Augen-Verfahren ins Leere - die Oberflaeche warnt dann."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    email: EmailStr
+    full_name: str
+
+
 class PrivacyUnlockOut(BaseModel):
     id: uuid.UUID
     requested_by_email: str

@@ -214,6 +214,13 @@ export interface SecurityConfig {
 // entscheidet. "expired" ist kein gespeicherter Status, sondern abgeleitet.
 export type PrivacyUnlockStatus = 'pending' | 'approved' | 'rejected' | 'revoked' | 'expired'
 
+// Wer Freigaben erteilen darf. Leere Liste = das Vier-Augen-Verfahren laeuft
+// ins Leere, die Oberflaeche warnt dann.
+export interface PrivacyOfficer {
+  email: string
+  full_name: string
+}
+
 export interface PrivacyUnlockRequest {
   id: string
   requested_by_email: string

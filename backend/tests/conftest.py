@@ -121,3 +121,15 @@ def auth_headers():
         return {"Authorization": f"Bearer {token}"}
 
     return _headers
+
+
+@pytest.fixture(autouse=True)
+def _no_outgoing_mail(monkeypatch):
+    """Kein Test darf einen echten SMTP-Verbindungsversuch ausloesen.
+
+    Ohne das haengt jeder Test, der eine Benachrichtigung ausloest, am
+    Verbindungs-Timeout des in .env konfigurierten Mailservers.
+    """
+    from app.services import privacy_notify
+
+    monkeypatch.setattr(privacy_notify, "_send", lambda *args, **kwargs: None)

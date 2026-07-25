@@ -321,3 +321,92 @@ def test_helper_reports_the_active_unlock(db, actors, campaign, enable_mode):
 
     assert privacy.individual_view_allowed(db, admin) is True
     assert privacy.active_unlock(db, admin).id == row.id
+
+
+# --- Ansprechpartner ------------------------------------------------------------
+
+
+def test_officers_endpoint_lists_active_officers(client, actors, auth_headers, make_user):
+    """Ohne Freigabeberechtigten laeuft das Verfahren ins Leere - die Oberflaeche
+    braucht die Liste, um davor zu warnen."""
+    admin, officer = actors
+    make_user(email="alt@example.com", role=UserRole.PRIVACY_OFFICER, is_active=False)
+
+    rows = client.get("/privacy/officers", headers=auth_headers(admin)).json()
+
+    assert [r["email"] for r in rows] == [officer.email]
+    assert rows[0]["full_name"] == officer.full_name
+
+
+def test_officers_endpoint_is_empty_without_an_officer(client, make_user, auth_headers):
+    admin = make_user(role=UserRole.ADMIN)
+    assert client.get("/privacy/officers", headers=auth_headers(admin)).json() == []
+
+
+def test_officers_endpoint_is_closed_to_plain_users(client, make_user, auth_headers):
+    user = make_user(email="u@example.com", role=UserRole.USER)
+    assert client.get("/privacy/officers", headers=auth_headers(user)).status_code == 403
+
+
+# --- Benachrichtigungen ---------------------------------------------------------
+
+
+def test_request_notifies_every_active_officer(client, actors, auth_headers, make_user, monkeypatch):
+    """Der Entscheider soll nicht erst beim naechsten Login davon erfahren."""
+    from app.services import privacy_notify
+
+    admin, officer = actors
+    second = make_user(email="dsb2@example.com", role=UserRole.PRIVACY_OFFICER)
+    make_user(email="alt@example.com", role=UserRole.PRIVACY_OFFICER, is_active=False)
+
+    sent: list[tuple[str, str, str]] = []
+    monkeypatch.setattr(
+        privacy_notify, "_send", lambda db, to, subject, body: sent.append((to, subject, body))
+    )
+
+    _request_unlock(client, auth_headers(admin))
+
+    assert sorted(to for to, _, _ in sent) == sorted([officer.email, second.email])
+    _, subject, body = sent[0]
+    assert "Freigabe beantragt" in subject and "Unlock requested" in subject
+    # Die Begruendung gehoert in die Mail - ohne sie kann niemand entscheiden.
+    assert REASON in body
+    assert admin.email in body
+
+
+def test_decision_notifies_the_requester(client, actors, auth_headers, monkeypatch):
+    from app.services import privacy_notify
+
+    admin, officer = actors
+    sent: list[tuple[str, str, str]] = []
+    created = _request_unlock(client, auth_headers(admin))
+    monkeypatch.setattr(
+        privacy_notify, "_send", lambda db, to, subject, body: sent.append((to, subject, body))
+    )
+
+    client.post(f"/privacy/unlock-requests/{created['id']}/approve", headers=auth_headers(officer))
+
+    assert len(sent) == 1
+    to, subject, body = sent[0]
+    assert to == admin.email
+    assert "Freigabe erteilt" in subject
+    assert officer.email in body
+
+
+def test_failing_mail_does_not_break_the_request(client, actors, auth_headers, monkeypatch):
+    """Ein nicht erreichbarer Mailserver darf keinen Antrag verhindern."""
+    from app.services import privacy_notify
+
+    admin, _ = actors
+
+    def _boom(*args, **kwargs):
+        raise RuntimeError("SMTP down")
+
+    # Die echte Schutzschicht pruefen: _send bleibt aktiv, der Versand darunter
+    # schlaegt fehl.
+    monkeypatch.undo()
+    monkeypatch.setattr(privacy_notify, "send_simple_email", _boom)
+    monkeypatch.setattr(privacy_notify.asyncio, "run", lambda coro: _boom())
+
+    res = client.post("/privacy/unlock-requests", json={"reason": REASON}, headers=auth_headers(admin))
+    assert res.status_code == 201
