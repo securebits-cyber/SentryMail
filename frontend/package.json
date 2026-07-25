@@ -15,7 +15,7 @@
     "react-router-dom": "^7.18.1",
     "axios": "^1.18.1",
     "lucide-react": "^1.26.0",
-    "marked": "^18.0.6",
+    "marked": "^18.0.7",
     "@simplewebauthn/browser": "^13.3.0"
   },
   "devDependencies": {
