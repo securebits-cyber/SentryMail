@@ -383,6 +383,15 @@ const de: Record<string, Guidance> = {
     ],
     note: 'Änderungen an Sicherheitsrichtlinien werden im Audit-Log protokolliert.',
   },
+  'settings-privacy': {
+    intro:
+      'Datenschutz- und Mitbestimmungs-Einstellungen der Instanz. Client-Fingerprinting ist bewusst standardmäßig deaktiviert.',
+    steps: [
+      'Fingerprinting nur nach ausdrücklicher Entscheidung aktivieren — im mitbestimmten Betrieb und nach § 25 TDDDG rechtlich heikel.',
+      'Änderung speichern — sie wirkt sofort auf neu ausgelieferte Landing Pages.',
+    ],
+    note: 'Der Fingerabdruck ist auch bei aktivierter Erfassung nie Bestandteil von Einzelpersonen-Reports. Änderungen werden im Audit-Log protokolliert.',
+  },
   'settings-license': {
     intro:
       'Über die Lizenz schaltest du die Business- und Enterprise-Funktionen frei. Ohne Lizenz läuft die Open-Core-Version vollständig.',
@@ -771,6 +780,15 @@ const en: Record<string, Guidance> = {
       'You set up your own 2FA method under “My profile”.',
     ],
     note: 'Changes to security policies are recorded in the audit log.',
+  },
+  'settings-privacy': {
+    intro:
+      'Data-protection and co-determination settings for this instance. Client fingerprinting is deliberately disabled by default.',
+    steps: [
+      'Enable fingerprinting only after an explicit decision — it is legally sensitive in co-determined workplaces and under § 25 TDDDG.',
+      'Save the change — it takes effect immediately for newly served landing pages.',
+    ],
+    note: 'Even when enabled, the fingerprint is never part of individual-person reports. Changes are recorded in the audit log.',
   },
   'settings-license': {
     intro:

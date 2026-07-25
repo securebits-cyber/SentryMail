@@ -60,7 +60,6 @@ function SessionHistory({ campaignId, recipient }: { campaignId: string; recipie
     <ol className="flex flex-col gap-1.5 py-2">
       {events.map((e, i) => {
         const meta = [e.browser, e.os, e.device_type, e.country, e.ip_address].filter(Boolean).join(' · ')
-        const fp = e.fingerprint ? `${t('res.session.fingerprint')}: ${e.fingerprint}` : ''
         return (
           <li key={i} className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
             <span className="w-40 shrink-0 font-mono text-xs tabular-nums text-text-secondary">
@@ -68,7 +67,6 @@ function SessionHistory({ campaignId, recipient }: { campaignId: string; recipie
             </span>
             <Badge tone={EVENT_TONE[e.event_type] ?? 'success'}>{t(`res.event.${e.event_type}`)}</Badge>
             {meta && <span className="text-xs text-text-secondary">{meta}</span>}
-            {fp && <span className="font-mono text-xs text-text-secondary">{fp}</span>}
             {e.referrer && <span className="truncate text-xs text-text-secondary">← {e.referrer}</span>}
           </li>
         )

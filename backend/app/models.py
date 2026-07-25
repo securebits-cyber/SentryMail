@@ -14,7 +14,7 @@ import enum
 import uuid
 from datetime import datetime
 
-from sqlalchemy import CheckConstraint, DateTime, Enum, ForeignKey, Index, String, Text, text
+from sqlalchemy import Boolean, CheckConstraint, DateTime, Enum, ForeignKey, Index, String, Text, text
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
@@ -119,6 +119,26 @@ class SecurityConfig(Base):
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     # require_2fa: "off" (freiwillig) | "admins" (nur Admin-Konten) | "all" (alle)
     require_2fa: Mapped[str] = mapped_column(String(16), default="off", nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+
+class PrivacyConfig(Base):
+    """Datenschutz-/Mitbestimmungs-Policy (Singleton).
+
+    Sammelt die Betreiber-Entscheidungen aus dem Datenschutz-Modus (Welle 2).
+    ``fingerprinting_enabled`` steuert das Client-Fingerprinting: bewusst
+    per Default AUS - Canvas-Fingerprinting ist im mitbestimmten Betrieb und
+    unter Paragraf 25 TDDDG heikel und darf nur nach ausdruecklicher
+    Admin-Bestaetigung erfasst werden. Der Fingerprint ist auch bei aktivem
+    Flag nie Teil von Einzelpersonen-Reports.
+    """
+
+    __tablename__ = "privacy_config"
+    # Hoechstens eine Zeile (Singleton) - siehe app/utils/singleton.py.
+    __table_args__ = (Index("uq_privacy_config_singleton", text("(true)"), unique=True),)
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    fingerprinting_enabled: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
 
