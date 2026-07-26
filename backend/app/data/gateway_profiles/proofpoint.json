@@ -1,0 +1,34 @@
+{
+  "id": "proofpoint",
+  "order": 30,
+  "label": { "de": "Proofpoint", "en": "Proofpoint" },
+  "vendor_docs": "https://help.proofpoint.com/",
+  "inputs": ["sender_domain", "sender_ips", "tracking_domain"],
+  "snippets": [
+    {
+      "id": "safe-list",
+      "title": { "de": "Simulationsabsender freistellen", "en": "Exempt the simulation sender" },
+      "kind": "steps",
+      "steps": {
+        "de": [
+          "Als Administrator anmelden und den Bereich fuer Filterregeln bzw. Safe-Lists oeffnen.",
+          "Eine Regel anlegen, die auf die Absenderdomain {{sender_domain}} und die Absender-IP {{sender_ips}} zugleich passt.",
+          "Als Aktion die Zustellung erlauben und Spam-/Phish-Bewertung sowie Quarantaene fuer diese Regel aussetzen.",
+          "URL-Defense fuer die Tracking-Domain {{tracking_domain}} ausnehmen, damit die Linkpruefung die Links nicht selbst aufruft.",
+          "Anhangspruefung nur ausnehmen, wenn die Kampagne dateibasierte Koeder nutzt — sonst unveraendert lassen."
+        ],
+        "en": [
+          "Sign in as an administrator and open the filter rule or safe list area.",
+          "Create a rule matching both the sender domain {{sender_domain}} and the sender IP {{sender_ips}}.",
+          "As the action, allow delivery and suspend spam/phish scoring and quarantine for this rule.",
+          "Exempt the tracking domain {{tracking_domain}} from URL Defense so link scanning does not follow the links itself.",
+          "Only exempt attachment scanning if the campaign uses file-based lures — otherwise leave it untouched."
+        ]
+      },
+      "note": {
+        "de": "Die Menuebezeichnungen unterscheiden sich je nach Produktvariante und Version. Massgeblich ist die Herstellerdoku; diese Schritte beschreiben, was einzurichten ist, nicht wo genau es in deiner Oberflaeche steht.",
+        "en": "Menu labels differ between product variants and versions. The vendor documentation is authoritative; these steps describe what to configure, not exactly where it sits in your console."
+      }
+    }
+  ]
+}

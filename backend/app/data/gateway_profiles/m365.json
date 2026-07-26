@@ -1,0 +1,34 @@
+{
+  "id": "m365",
+  "order": 10,
+  "label": { "de": "Exchange Online / Microsoft 365", "en": "Exchange Online / Microsoft 365" },
+  "vendor_docs": "https://learn.microsoft.com/defender-office-365/advanced-delivery-policy-configure",
+  "inputs": ["sender_domain", "sender_ips", "tracking_domain"],
+  "snippets": [
+    {
+      "id": "advanced-delivery",
+      "title": {
+        "de": "Empfohlen: Erweiterte Zustellung (Phishing-Simulation)",
+        "en": "Recommended: advanced delivery (phishing simulation)"
+      },
+      "kind": "code",
+      "language": "powershell",
+      "code": "# Exchange Online PowerShell, als Exchange-Administrator ausfuehren.\nConnect-ExchangeOnline\n\n# Einmalig: Richtlinie fuer Simulationen anlegen (existiert sie schon, entfaellt der Schritt).\nNew-PhishSimOverridePolicy -Name PhishSimOverridePolicy -Enabled $true\n\n# Absender der Simulation eintragen.\nNew-ExoPhishSimOverrideRule -Policy PhishSimOverridePolicy -SenderDomainIs {{sender_domain}} -SenderIpRanges {{sender_ips}}",
+      "note": {
+        "de": "Der vorgesehene Weg bei Microsoft: Die Mail durchlaeuft weiterhin die Filter, wird aber nicht blockiert und nicht als Bedrohung gemeldet. Dadurch bleiben die Klickzahlen aussagekraeftig. Absenderdomain und IP muessen beide passen — eine Regel nur mit Domain greift nicht.",
+        "en": "Microsoft's intended path: the mail still passes the filters but is neither blocked nor reported as a threat, so click rates stay meaningful. Sender domain and IP must both match — a rule with only the domain does not take effect."
+      }
+    },
+    {
+      "id": "safe-links",
+      "title": { "de": "Tracking-Domain von Safe Links ausnehmen", "en": "Exclude the tracking domain from Safe Links" },
+      "kind": "code",
+      "language": "powershell",
+      "code": "# Ohne diese Ausnahme ruft Microsoft Defender die Links selbst auf.\n# Ergebnis: Klicks, die nie eine Person ausgeloest hat.\nSet-SafeLinksPolicy -Identity \"<Name der Richtlinie>\" -DoNotRewriteUrls @{Add=\"{{tracking_domain}}/*\"}",
+      "note": {
+        "de": "Wichtiger als es aussieht: Automatische URL-Pruefungen erzeugen sonst Klicks ohne Nutzer und verfaelschen jede Auswertung nach oben. Den Namen der bestehenden Richtlinie mit Get-SafeLinksPolicy ermitteln.",
+        "en": "More important than it looks: automatic URL scanning otherwise produces clicks without a user and inflates every evaluation. Find the existing policy name with Get-SafeLinksPolicy."
+      }
+    }
+  ]
+}

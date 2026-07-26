@@ -706,3 +706,18 @@ class ManagementReport(BaseModel):
     # Im Datenschutzmodus leer - die Kennzahlen des Reports bleiben nutzbar.
     top_failed: list[FailedRecipient]
     individuals_locked: bool = False
+
+
+# --- Zustellungs-Assistent (Welle 9.1) --------------------------------------
+
+
+class AllowlistRequest(BaseModel):
+    """Anfrage an den Allowlisting-Generator.
+
+    ``inputs`` ist bewusst ein freies Mapping: Welche Schluessel ein Gateway
+    braucht, steht im Profil und nicht im Code. Der Service verwirft alles,
+    was nicht zu den bekannten Eingaben gehoert.
+    """
+
+    gateway: str = Field(min_length=1, max_length=64)
+    inputs: dict[str, str] = Field(default_factory=dict)

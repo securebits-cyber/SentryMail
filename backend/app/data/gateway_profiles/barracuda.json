@@ -1,0 +1,34 @@
+{
+  "id": "barracuda",
+  "order": 50,
+  "label": { "de": "Barracuda Email Gateway", "en": "Barracuda Email Gateway" },
+  "vendor_docs": "https://campus.barracuda.com/",
+  "inputs": ["sender_domain", "sender_ips", "tracking_domain"],
+  "snippets": [
+    {
+      "id": "allow-list",
+      "title": { "de": "Simulationsabsender freistellen", "en": "Exempt the simulation sender" },
+      "kind": "steps",
+      "steps": {
+        "de": [
+          "In der Verwaltungsoberflaeche die Richtlinien fuer eingehende E-Mail oeffnen.",
+          "Die Absender-IP {{sender_ips}} als zulaessig eintragen (IP-Reputation und Rate Control umgehen).",
+          "Die Absenderdomain {{sender_domain}} als zulaessigen Absender eintragen und die Spam-Bewertung fuer sie aussetzen.",
+          "Link-Schutz fuer die Tracking-Domain {{tracking_domain}} ausnehmen.",
+          "Rate Control pruefen: Ein Kampagnenversand an viele Empfaenger in kurzer Zeit sieht wie ein Massenversand aus und wird sonst gedrosselt."
+        ],
+        "en": [
+          "Open the inbound mail policies in the management interface.",
+          "Add the sender IP {{sender_ips}} as allowed (bypassing IP reputation and rate control).",
+          "Add the sender domain {{sender_domain}} as an allowed sender and suspend spam scoring for it.",
+          "Exempt the tracking domain {{tracking_domain}} from link protection.",
+          "Review rate control: sending a campaign to many recipients in a short window looks like bulk mail and is otherwise throttled."
+        ]
+      },
+      "note": {
+        "de": "Rate Control ist hier der haeufigste Grund fuer scheinbar verschwundene Mails: Sie werden nicht abgelehnt, sondern verzoegert zugestellt — die Kampagne wirkt dann halb angekommen.",
+        "en": "Rate control is the most common reason for seemingly vanished mail here: messages are not rejected but delayed, which makes a campaign look half-delivered."
+      }
+    }
+  ]
+}

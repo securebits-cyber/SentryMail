@@ -568,3 +568,39 @@ export interface BundleVerifyResult {
   code: BundleErrorCode | null
   info: BundleInfo | null
 }
+
+/** Zustellungs-Assistent: Allowlisting-Generator (Welle 9.1). */
+export interface LocalizedText {
+  de: string
+  en: string
+}
+
+export interface GatewayInfo {
+  id: string
+  label: LocalizedText
+  inputs: string[]
+  vendor_docs: string | null
+}
+
+export interface GatewayList {
+  gateways: GatewayInfo[]
+  defaults: Record<string, string>
+}
+
+export interface AllowlistSnippet {
+  id: string
+  title: LocalizedText
+  kind: 'code' | 'steps'
+  note: LocalizedText | null
+  language?: string
+  code?: string
+  steps?: { de: string[]; en: string[] }
+}
+
+export interface AllowlistResult {
+  gateway: string
+  label: LocalizedText
+  vendor_docs: string | null
+  missing_inputs: string[]
+  snippets: AllowlistSnippet[]
+}

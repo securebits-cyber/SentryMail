@@ -15,6 +15,7 @@ from sqlalchemy.orm import Session
 from starlette.middleware.sessions import SessionMiddleware
 
 from app.api import audit, campaigns, dashboard, groups, health, landing_pages, license as license_api, me as me_api, privacy as privacy_api, reports, results, sending_profiles, settings as settings_api, templates, tracking
+from app.api import delivery as delivery_api
 from app.api import updates as updates_api
 from app.api import users as users_api
 from app.api import version as version_api
@@ -178,6 +179,7 @@ app.include_router(tracking.router)
 app.include_router(license_api.router)
 app.include_router(version_api.router)
 app.include_router(updates_api.router)
+app.include_router(delivery_api.router)
 
 # Private Add-on-Pakete (falls installiert) registrieren. Ohne Paket ein No-Op.
 load_addons(app)
