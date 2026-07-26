@@ -9,6 +9,7 @@ import CampaignWizard, { CampaignWizardValues } from '../components/CampaignWiza
 import Card from '../components/Card'
 import PageScaffold from '../components/PageScaffold'
 import { useI18n } from '../i18n'
+import PreflightDialog from '../components/PreflightDialog'
 import { api } from '../services/api'
 import type { Campaign, GroupSummary, LandingPage, SendingProfile, Template } from '../types'
 
@@ -40,6 +41,7 @@ export default function CampaignsPage() {
   const [creating, setCreating] = useState(false)
   const [editing, setEditing] = useState<Campaign | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const [preflightFor, setPreflightFor] = useState<Campaign | null>(null)
   const [message, setMessage] = useState<{ kind: 'error' | 'info'; text: string } | null>(null)
 
   function loadCampaigns() {
@@ -102,8 +104,9 @@ export default function CampaignsPage() {
     }
   }
 
+  // Der Start laeuft seit Welle 9.2 ueber den Pflichtdialog: Wer versendet,
+  // soll vorher gesehen haben, wen er trifft und wann.
   async function handleSend(campaign: Campaign) {
-    if (!window.confirm(t('camp.confirmSend', { name: campaign.name }))) return
     setMessage({ kind: 'info', text: t('camp.sendRunning') })
     try {
       const res = await api.post<{ success: number; failed: number }>(`/campaigns/${campaign.id}/send`)
@@ -112,6 +115,13 @@ export default function CampaignsPage() {
     } catch {
       setMessage({ kind: 'error', text: t('camp.err.send') })
     }
+  }
+
+  async function startAfterPreflight() {
+    const campaign = preflightFor
+    if (!campaign) return
+    setPreflightFor(null)
+    await handleSend(campaign)
   }
 
   async function handleDelete(campaign: Campaign) {
@@ -138,7 +148,14 @@ export default function CampaignsPage() {
           onCancel={() => setCreating(false)}
           submitting={submitting}
         />
-      </PageScaffold>
+        {preflightFor && (
+        <PreflightDialog
+          campaign={preflightFor}
+          onCancel={() => setPreflightFor(null)}
+          onConfirmed={startAfterPreflight}
+        />
+      )}
+    </PageScaffold>
     )
   }
 
@@ -209,7 +226,7 @@ export default function CampaignsPage() {
                     <Badge tone={statusTone[campaign.status]}>{t(statusKeys[campaign.status])}</Badge>
                   </td>
                   <td className="py-2 text-right whitespace-nowrap">
-                    <button onClick={() => handleSend(campaign)} className="mr-3 text-status-success hover:underline">
+                    <button onClick={() => setPreflightFor(campaign)} className="mr-3 text-status-success hover:underline">
                       {t('camp.send')}
                     </button>
                     {(campaign.status === 'draft' || campaign.status === 'scheduled') && (

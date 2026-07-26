@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 
 from app.config import get_settings
 from app.models import Campaign, CampaignStatus, Recipient, TrackingEventType
+from app.services import preflight
 from app.services.mail import send_campaign_messages
 from app.services.smtp_config import get_or_create_smtp_config
 from app.services.tracking import record_event
@@ -71,6 +72,13 @@ async def send_campaign(db: Session, campaign: Campaign) -> dict[str, int]:
         )
 
     recipients = db.query(Recipient).filter(Recipient.campaign_id == campaign.id, Recipient.sent_at.is_(None)).all()
+
+    # Ausgeschlossene Gruppen wirken hier, nicht durch Loeschen der Empfaenger
+    # (Welle 9.2): Wer eine Gruppe wieder einschliesst, soll seine
+    # Empfaengerliste nicht neu aufbauen muessen.
+    dropped = preflight.excluded_emails(db, campaign.id)
+    if dropped:
+        recipients = [r for r in recipients if r.email.lower() not in dropped]
 
     recipient_payload = [
         {
