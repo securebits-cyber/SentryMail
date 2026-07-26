@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.38.0](https://github.com/securebits-cyber/SentryMail/compare/v0.37.1...v0.38.0) (2026-07-26)
+
+
+### Features
+
+* **brand:** Marken-Lockup mit Unterzeile in Kopfzeile und Anmeldung / Brand lockup with tagline in the header and on the login page ([#152](https://github.com/securebits-cyber/SentryMail/issues/152)) ([d4d550a](https://github.com/securebits-cyber/SentryMail/commit/d4d550a6f58961fa74ff57a6ae6ed2d3f9cf28d7))
+
 ## [0.37.1](https://github.com/securebits-cyber/SentryMail/compare/v0.37.0...v0.37.1) (2026-07-26)
 
 
