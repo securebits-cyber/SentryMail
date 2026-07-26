@@ -1,0 +1,42 @@
+{
+  "_comment_de": "Risikoklassifizierung der Koeder-Themen (Welle 9.2). Pflegbare Datendatei, kein Code. Die Liste ist ein Vorschlag fuer den Betreiber - massgeblich bleibt die Klasse, die er am Template setzt. Neue Themen hier ergaenzen.",
+  "_comment_en": "Risk classification of bait themes (wave 9.2). A maintainable data file, not code. The list is a suggestion for the operator - the class set on the template is what counts. Add new themes here.",
+  "classes": [
+    {
+      "id": "high",
+      "label": { "de": "Hoch", "en": "High" },
+      "description": {
+        "de": "Themen, die an existenzielle oder sehr persoenliche Sorgen ruehren. Ein solcher Koeder wirkt nicht als Uebung, sondern als echte Nachricht - auch nach der Aufloesung bleibt etwas haengen. Erzwingt vor dem Start eine Zweitfreigabe.",
+        "en": "Themes touching existential or deeply personal worries. Such a lure does not land as an exercise but as real news - something stays even after the debrief. Requires a second approval before the start."
+      },
+      "themes": {
+        "de": ["Gehalt", "Bonus", "Kuendigung", "Abmahnung", "Gesundheit", "Todesfall", "Stellenabbau", "Betriebsrat"],
+        "en": ["Salary", "Bonus", "Termination", "Written warning", "Health", "Bereavement", "Layoffs", "Works council"]
+      }
+    },
+    {
+      "id": "medium",
+      "label": { "de": "Mittel", "en": "Medium" },
+      "description": {
+        "de": "Themen mit dienstlichem Druck oder Autoritaetsbezug. Unproblematisch in der Sache, aber sie erzeugen Eile - das gehoert in den Preflight, nicht in eine Zweitfreigabe.",
+        "en": "Themes carrying work pressure or an appeal to authority. Unproblematic in substance, but they create urgency - that belongs in the preflight, not behind a second approval."
+      },
+      "themes": {
+        "de": ["Vorgesetzte", "Rechnung", "Mahnung", "Vertrag", "Bewerbung", "IT-Sicherheitsvorfall", "Passwortablauf"],
+        "en": ["Management", "Invoice", "Payment reminder", "Contract", "Job application", "IT security incident", "Password expiry"]
+      }
+    },
+    {
+      "id": "low",
+      "label": { "de": "Niedrig", "en": "Low" },
+      "description": {
+        "de": "Alltagsthemen ohne persoenliche Betroffenheit. Der Regelfall fuer Awareness-Simulationen.",
+        "en": "Everyday themes without personal impact. The normal case for awareness simulations."
+      },
+      "themes": {
+        "de": ["Paketzustellung", "Newsletter", "Umfrage", "Software-Update", "Veranstaltung", "Kantine", "Parkplatz"],
+        "en": ["Parcel delivery", "Newsletter", "Survey", "Software update", "Event", "Canteen", "Parking"]
+      }
+    }
+  ]
+}

@@ -27,6 +27,7 @@ import ThreatScanSettingsPage from './pages/settings/threat-scan'
 import LicenseSettingsPage from './pages/settings/license'
 import PrivacySettingsPage from './pages/settings/privacy'
 import DeliverySettingsPage from './pages/settings/delivery'
+import PreflightSettingsPage from './pages/settings/preflight'
 import UpdatesSettingsPage from './pages/settings/updates'
 import SecuritySettingsPage from './pages/settings/security'
 import CampaignsPage from './pages/campaigns'
@@ -119,6 +120,7 @@ export default function App() {
             <Route path="security" element={<SecuritySettingsPage />} />
             <Route path="privacy" element={<PrivacySettingsPage />} />
             <Route path="delivery" element={<DeliverySettingsPage />} />
+            <Route path="preflight" element={<PreflightSettingsPage />} />
             <Route path="updates" element={<UpdatesSettingsPage />} />
             <Route path="license" element={<LicenseSettingsPage />} />
             <Route path="audit-events" element={<AuditEventsPage />} />

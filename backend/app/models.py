@@ -12,9 +12,9 @@ Abgleich mit einer verbindlichen Schema-Doku.
 """
 import enum
 import uuid
-from datetime import datetime
+from datetime import datetime, time
 
-from sqlalchemy import Boolean, CheckConstraint, DateTime, Enum, ForeignKey, Index, Integer, String, Text, text
+from sqlalchemy import Boolean, CheckConstraint, DateTime, Enum, ForeignKey, Index, Integer, String, Text, Time, text
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
@@ -82,7 +82,11 @@ class User(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     templates: Mapped[list["Template"]] = relationship(back_populates="created_by")
-    campaigns: Mapped[list["Campaign"]] = relationship(back_populates="created_by")
+    # Seit dem Preflight (Welle 9.2) gibt es zwei Fremdschluessel von campaigns
+    # nach users (Ersteller und Bestaetiger) - der Pfad muss benannt werden.
+    campaigns: Mapped[list["Campaign"]] = relationship(
+        back_populates="created_by", foreign_keys="Campaign.created_by_id"
+    )
 
     @property
     def twofa_enabled(self) -> bool:
@@ -259,6 +263,9 @@ class LicenseState(Base):
 
 class Template(Base):
     __tablename__ = "templates"
+    __table_args__ = (
+        CheckConstraint("risk_class IN ('low', 'medium', 'high')", name="ck_templates_risk_class"),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
@@ -273,6 +280,13 @@ class Template(Base):
     logo_b64: Mapped[str | None] = mapped_column(Text, nullable=True)
     # Optionale Markdown-Quelle, falls im Markdown-Modus erstellt (html_content wird daraus generiert).
     markdown_source: Mapped[str | None] = mapped_column(Text, nullable=True)
+    #: Risikoklasse des Koeder-Themas (Welle 9.2). Ein Gehalts- oder
+    #: Kuendigungsvorwand trifft Menschen anders als eine Paketbenachrichtigung;
+    #: ``high`` erzwingt deshalb vor dem Start eine Zweitfreigabe. Gepflegt wird
+    #: sie am Template, weil das Thema am Template haengt und nicht an der
+    #: einzelnen Kampagne. Default ``low`` - ein Update aendert das Verhalten
+    #: bestehender Vorlagen also nicht.
+    risk_class: Mapped[str] = mapped_column(String(16), default="low", nullable=False)
     created_by_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
@@ -299,6 +313,14 @@ class Campaign(Base):
         nullable=False,
     )
     scheduled_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    #: Bestaetigter Preflight (Welle 9.2). Ohne Bestaetigung startet die
+    #: Kampagne nicht - wer versendet, soll vorher gesehen haben, wen er trifft.
+    #: Jede inhaltliche Aenderung setzt die Bestaetigung zurueck, sonst gaebe sie
+    #: einen Stand frei, den niemand geprueft hat.
+    preflight_ack_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    preflight_ack_by_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+    )
     created_by_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
@@ -306,7 +328,9 @@ class Campaign(Base):
     template: Mapped["Template"] = relationship(back_populates="campaigns")
     sending_profile: Mapped["SendingProfile | None"] = relationship()
     landing_page: Mapped["LandingPage | None"] = relationship()
-    created_by: Mapped["User"] = relationship(back_populates="campaigns")
+    created_by: Mapped["User"] = relationship(
+        back_populates="campaigns", foreign_keys=[created_by_id]
+    )
     recipients: Mapped[list["Recipient"]] = relationship(back_populates="campaign", cascade="all, delete-orphan")
 
 
@@ -611,3 +635,143 @@ class DeliverySelfTest(Base):
     detected_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     campaign: Mapped["Campaign"] = relationship()
+
+
+class PreflightConfig(Base):
+    """Regeln fuer den Blast-Radius-Preflight (Welle 9.2, Singleton).
+
+    Der Pflichtdialog vor dem Kampagnenstart prueft gegen diese Werte. Alle
+    Vorgaben sind so gewaehlt, dass ein Update das Verhalten bestehender
+    Installationen nicht aendert: Quiet Hours aus, Cooldown 30 Tage wie in der
+    Roadmap, Zweitfreigabe beim Admin.
+    """
+
+    __tablename__ = "preflight_config"
+    __table_args__ = (
+        Index("uq_preflight_config_singleton", text("(true)"), unique=True),
+        CheckConstraint("cooldown_days >= 0", name="ck_preflight_cooldown_min"),
+        CheckConstraint(
+            "second_approval_role IN ('admin', 'privacy_officer')",
+            name="ck_preflight_approval_role",
+        ),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    #: Beide NULL = keine Ruhezeiten. Ein Fenster ueber Mitternacht (22:00-06:00)
+    #: ist erlaubt und wird beim Pruefen als solches behandelt.
+    quiet_hours_start: Mapped[time | None] = mapped_column(Time, nullable=True)
+    quiet_hours_end: Mapped[time | None] = mapped_column(Time, nullable=True)
+    #: IANA-Zeitzone fuer Ruhezeiten und Sperrfenster. Default UTC statt einer
+    #: konkreten Region - der Betreiber setzt seine eigene, wir verdrahten keine.
+    timezone: Mapped[str] = mapped_column(String(64), default="UTC", nullable=False)
+    #: Mindestabstand zwischen zwei Simulationen fuer dieselbe Person. 0 = aus.
+    cooldown_days: Mapped[int] = mapped_column(Integer, default=30, nullable=False)
+    #: Wer die Zweitfreigabe bei hoher Risikoklasse erteilt. Auf
+    #: ``privacy_officer`` gestellt liegt sie bei der Betriebsratsrolle - genau
+    #: die Verzahnung mit dem Mitbestimmungs-Modus aus Welle 2.
+    second_approval_role: Mapped[str] = mapped_column(String(32), default="admin", nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+
+class BlackoutWindow(Base):
+    """Organisationsweites Sperrfenster (Welle 9.2).
+
+    Zeitraum, in dem keine Simulation starten soll - Betriebsversammlung,
+    Jahresabschluss, Systemumstellung. Anders als die Ruhezeiten ist das ein
+    einmaliger Zeitraum mit Anlass.
+    """
+
+    __tablename__ = "blackout_windows"
+    __table_args__ = (CheckConstraint("ends_at > starts_at", name="ck_blackout_order"),)
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    label: Mapped[str] = mapped_column(String(255), nullable=False)
+    starts_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True, nullable=False)
+    ends_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class CampaignGroupExclusion(Base):
+    """Von einer Kampagne ausgenommene Gruppe (Welle 9.2).
+
+    **Hier steht bewusst kein Grund.** Ausgeschlossen wird ausschliesslich ueber
+    die Gruppenzugehoerigkeit; warum jemand in dieser Gruppe ist, geht das
+    System nichts an. Eine Spalte ``reason`` waere schnell ergaenzt und wuerde
+    genauso schnell mit Elternzeit, Krankheit oder einem laufenden Verfahren
+    gefuellt - besonders schutzwuerdige Daten, fuer die es keinen Zweck gibt.
+    Wer sie braucht, fuehrt sie ausserhalb dieses Systems.
+    """
+
+    __tablename__ = "campaign_group_exclusions"
+    __table_args__ = (
+        Index("uq_campaign_group_exclusion", "campaign_id", "group_id", unique=True),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    campaign_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("campaigns.id", ondelete="CASCADE"), index=True, nullable=False
+    )
+    group_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("recipient_groups.id", ondelete="CASCADE"), index=True, nullable=False
+    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class CampaignApprovalStatus(str, enum.Enum):
+    PENDING = "pending"
+    APPROVED = "approved"
+    REJECTED = "rejected"
+
+
+class CampaignApproval(Base):
+    """Zweitfreigabe fuer eine Kampagne hoher Risikoklasse (Welle 9.2).
+
+    Vier-Augen-Prinzip wie bei der Datenschutz-Freigabe aus Welle 2: Wer
+    beantragt, entscheidet nicht. Gesichert an drei Stellen - durch die
+    Rollenpruefung, durch eine explizite Pruefung im Endpunkt und durch einen
+    CheckConstraint. Die Regel darf nicht allein an der Anwendungslogik haengen.
+
+    Wer entscheiden darf, steht in ``PreflightConfig.second_approval_role``:
+    ``admin`` oder ``privacy_officer``. Auf die Betriebsratsrolle gelegt ist das
+    die vorgesehene Verzahnung mit dem Mitbestimmungs-Modus.
+    """
+
+    __tablename__ = "campaign_approvals"
+    __table_args__ = (
+        CheckConstraint(
+            "decided_by_id IS NULL OR decided_by_id <> requested_by_id",
+            name="ck_campaign_approval_four_eyes",
+        ),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    campaign_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("campaigns.id", ondelete="CASCADE"), index=True, nullable=False
+    )
+    requested_by_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+    )
+    #: Snapshot wie im Audit-Log: ein geloeschtes Konto darf die Historie des
+    #: Freigabeverfahrens nicht unlesbar machen.
+    requested_by_email: Mapped[str] = mapped_column(String(320), default="", nullable=False)
+    reason: Mapped[str] = mapped_column(Text, nullable=False)
+    status: Mapped[CampaignApprovalStatus] = mapped_column(
+        Enum(
+            CampaignApprovalStatus,
+            name="campaign_approval_status",
+            values_callable=lambda enum_cls: [e.value for e in enum_cls],
+        ),
+        default=CampaignApprovalStatus.PENDING,
+        nullable=False,
+    )
+    decided_by_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+    )
+    decided_by_email: Mapped[str] = mapped_column(String(320), default="", nullable=False)
+    decided_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    note: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), index=True, nullable=False
+    )

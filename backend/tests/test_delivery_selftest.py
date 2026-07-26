@@ -13,7 +13,8 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
-from app.models import Campaign, DeliverySelfTest, Template, UserRole
+from app.models import Campaign, DeliverySelfTest, Recipient, Template, UserRole
+from app.utils.security import generate_tracking_token
 from app.services import delivery_selftest as svc
 from app.utils.crypto import decrypt
 
@@ -28,6 +29,14 @@ def campaign(db, make_user):
     db.flush()
     row = Campaign(name="Testkampagne", template_id=template.id, created_by_id=user.id)
     db.add(row)
+    db.flush()
+    # Mindestens ein Empfaenger: Seit Welle 9.2 ist eine Kampagne ohne
+    # Empfaenger ein blockierender Preflight-Befund.
+    db.add(
+        Recipient(
+            campaign_id=row.id, email="empfaenger@example.de", tracking_token=generate_tracking_token()
+        )
+    )
     db.commit()
     db.refresh(row)
     return row
@@ -249,6 +258,13 @@ def test_campaign_send_is_not_blocked_by_a_failed_selftest(client, db, make_user
     db.commit()
 
     admin = make_user(email="deliv-send@example.com")
+    # Seit Welle 9.2 blockiert ein unbestaetigter Preflight den Start. Damit
+    # dieser Test weiter genau das prueft, was er pruefen soll - dass der
+    # gescheiterte Selbsttest nicht blockiert - wird der Preflight zuerst
+    # bestaetigt.
+    ack = client.post(f"/campaigns/{campaign.id}/preflight/ack", headers=auth_headers(admin))
+    assert ack.status_code == 200
+
     res = client.post(f"/campaigns/{campaign.id}/send", headers=auth_headers(admin))
     # Der Versand darf an SMTP scheitern, aber nicht am Selbsttest.
     assert res.status_code != 409

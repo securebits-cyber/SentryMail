@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-import { BadgeCheck, Cloud, FileText, FileSignature, Fingerprint, GraduationCap, KeyRound, KeySquare, Lock, MailCheck, MousePointerClick, Network, PackageCheck, Palette, Radar, ScanSearch, ScrollText, SendHorizontal, Share2, ShieldAlert, Smartphone, ShieldCheck, Sparkles, Users, Webhook, type LucideIcon } from 'lucide-react'
+import { BadgeCheck, Cloud, FileText, FileSignature, Fingerprint, GraduationCap, KeyRound, KeySquare, ListChecks, Lock, MailCheck, MousePointerClick, Network, PackageCheck, Palette, Radar, ScanSearch, ScrollText, SendHorizontal, Share2, ShieldAlert, Smartphone, ShieldCheck, Sparkles, Users, Webhook, type LucideIcon } from 'lucide-react'
 import { NavLink, Outlet } from 'react-router'
 import TierBadge from './TierBadge'
 import { useFeatures } from '../hooks/useFeatures'
@@ -18,7 +18,9 @@ interface NavItem {
 
 // Der Datenschutzbeauftragte sieht nur seine Kontrollbereiche - die uebrigen
 // Einstellungen sind Betrieb und gehen ihn nichts an (Rollentrennung, Welle 2).
-const privacyOfficerRoutes = ['/settings/privacy', '/settings/audit-events']
+// Der Preflight steht mit drin, weil die Zweitfreigabe bei hoher Risikoklasse
+// auf seine Rolle gelegt werden kann - er muss sehen, was fuer ihn gilt.
+const privacyOfficerRoutes = ['/settings/privacy', '/settings/preflight', '/settings/audit-events']
 
 // Einstellungs-Nav in Gruppen (Netbird-Stil). Neue Bereiche hier ergaenzen.
 // `feature` verweist auf ein Lizenz-Entitlement; ohne gültige Lizenz gesperrt.
@@ -46,6 +48,7 @@ const groups: { labelKey: string | null; items: NavItem[] }[] = [
       { to: '/settings/oidc', labelKey: 'settings.oidc', icon: KeyRound },
       { to: '/settings/smtp', labelKey: 'settings.smtp', icon: MailCheck },
       { to: '/settings/delivery', labelKey: 'settings.delivery', icon: SendHorizontal },
+      { to: '/settings/preflight', labelKey: 'settings.preflight', icon: ListChecks },
       { to: '/settings/security', labelKey: 'settings.security', icon: ShieldCheck },
       { to: '/settings/privacy', labelKey: 'settings.privacy', icon: Fingerprint },
       { to: '/settings/updates', labelKey: 'settings.updates', icon: PackageCheck },
