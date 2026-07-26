@@ -535,3 +535,36 @@ export interface QuarantineRun {
   started_at: string
   executed_at: string | null
 }
+
+/** Signierte Offline-Update-Bundles (Welle 8, air-gapped Installationen). */
+export type BundleErrorCode =
+  | 'no_key'
+  | 'not_a_bundle'
+  | 'signature_mismatch'
+  | 'content_mismatch'
+  | 'unsafe_archive'
+  | 'format_unsupported'
+  | 'min_version'
+  | 'downgrade'
+
+export interface BundleStatus {
+  keys_configured: number
+  code: BundleErrorCode | null
+}
+
+export interface BundleInfo {
+  target_version: string
+  min_version: string
+  created_at: string | null
+  key_id: string
+  file_count: number
+  total_bytes: number
+  current_version: string
+  notes: string[]
+}
+
+export interface BundleVerifyResult {
+  valid: boolean
+  code: BundleErrorCode | null
+  info: BundleInfo | null
+}

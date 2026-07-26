@@ -26,6 +26,7 @@ import ReportButtonSettingsPage from './pages/settings/report-button'
 import ThreatScanSettingsPage from './pages/settings/threat-scan'
 import LicenseSettingsPage from './pages/settings/license'
 import PrivacySettingsPage from './pages/settings/privacy'
+import UpdatesSettingsPage from './pages/settings/updates'
 import SecuritySettingsPage from './pages/settings/security'
 import CampaignsPage from './pages/campaigns'
 import GroupsPage from './pages/groups'
@@ -116,6 +117,7 @@ export default function App() {
             <Route path="smtp" element={<SmtpSettingsPage />} />
             <Route path="security" element={<SecuritySettingsPage />} />
             <Route path="privacy" element={<PrivacySettingsPage />} />
+            <Route path="updates" element={<UpdatesSettingsPage />} />
             <Route path="license" element={<LicenseSettingsPage />} />
             <Route path="audit-events" element={<AuditEventsPage />} />
           </Route>

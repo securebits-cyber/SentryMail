@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-import { BadgeCheck, Cloud, FileText, FileSignature, Fingerprint, GraduationCap, KeyRound, KeySquare, Lock, MailCheck, MousePointerClick, Network, Palette, Radar, ScanSearch, ScrollText, Share2, ShieldAlert, Smartphone, ShieldCheck, Sparkles, Users, Webhook, type LucideIcon } from 'lucide-react'
+import { BadgeCheck, Cloud, FileText, FileSignature, Fingerprint, GraduationCap, KeyRound, KeySquare, Lock, MailCheck, MousePointerClick, Network, PackageCheck, Palette, Radar, ScanSearch, ScrollText, Share2, ShieldAlert, Smartphone, ShieldCheck, Sparkles, Users, Webhook, type LucideIcon } from 'lucide-react'
 import { NavLink, Outlet } from 'react-router-dom'
 import TierBadge from './TierBadge'
 import { useFeatures } from '../hooks/useFeatures'
@@ -47,6 +47,7 @@ const groups: { labelKey: string | null; items: NavItem[] }[] = [
       { to: '/settings/smtp', labelKey: 'settings.smtp', icon: MailCheck },
       { to: '/settings/security', labelKey: 'settings.security', icon: ShieldCheck },
       { to: '/settings/privacy', labelKey: 'settings.privacy', icon: Fingerprint },
+      { to: '/settings/updates', labelKey: 'settings.updates', icon: PackageCheck },
       { to: '/settings/license', labelKey: 'settings.license', icon: BadgeCheck },
     ],
   },
