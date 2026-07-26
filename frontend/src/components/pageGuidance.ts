@@ -490,6 +490,17 @@ const de: Record<string, Guidance> = {
     ],
     note: 'Der Fingerabdruck ist auch bei aktivierter Erfassung nie Bestandteil von Einzelpersonen-Reports. Anträge, Freigaben, Ablehnungen und Widerrufe stehen samt Begründung im Audit-Log.',
   },
+  'settings-updates': {
+    intro:
+      'Installationen ohne Internetzugang werden nicht per git aktualisiert, sondern über ein signiertes Bundle. Diese Seite prüft ein Bundle, sie spielt es nicht ein — das Einspielen tauscht Quelltext aus und startet den Stack neu und gehört deshalb auf die Kommandozeile.',
+    steps: [
+      'Signaturschlüssel in der .env hinterlegen (UPDATE_BUNDLE_PUBKEYS) — ohne Schlüssel wird jedes Bundle abgelehnt.',
+      'Bundle-Datei hier hochladen: geprüft werden Ed25519-Signatur, SHA-256 je Datei und die Versionskette.',
+      'Bei „gültig“ das Bundle auf den Server kopieren und dort mit ./update.sh --bundle einspielen.',
+      'Bei „abgelehnt“ nichts einspielen, sondern das Bundle erneut von der Quelle beziehen.',
+    ],
+    note: 'Geprüft wird immer vollständig vor dem Entpacken: Schlägt eine Prüfung fehl, bleibt der Bestand unberührt. Ein Downgrade wird abgelehnt, und ein Bundle, das eine höhere Mindestversion voraussetzt, verlangt zuerst das Zwischenrelease. Geprüfte und abgelehnte Bundles stehen im Audit-Log.',
+  },
   'settings-license': {
     intro:
       'Über die Lizenz schaltest du die Business- und Enterprise-Funktionen frei. Ohne Lizenz läuft die Open-Core-Version vollständig.',
@@ -985,6 +996,17 @@ const en: Record<string, Guidance> = {
       'Set a retention period — without one nothing is deleted automatically. With a period, completed campaigns are checked hourly and anonymised; the metrics stay, the people disappear.',
     ],
     note: 'Even when enabled, the fingerprint is never part of individual-person reports. Requests, approvals, rejections and revocations are recorded in the audit log together with their reason.',
+  },
+  'settings-updates': {
+    intro:
+      'Installations without internet access are not updated via git but through a signed bundle. This page verifies a bundle, it does not apply it — applying replaces source code and restarts the stack, which belongs on the command line.',
+    steps: [
+      'Configure a signing key in the .env (UPDATE_BUNDLE_PUBKEYS) — without a key every bundle is rejected.',
+      'Upload the bundle file here: the Ed25519 signature, the SHA-256 of every file and the version chain are verified.',
+      'On "valid", copy the bundle to the server and apply it there with ./update.sh --bundle.',
+      'On "rejected", apply nothing and obtain the bundle from the source again.',
+    ],
+    note: 'Verification is always complete before anything is extracted: if a check fails, the installation is left untouched. A downgrade is rejected, and a bundle requiring a higher minimum version asks for the intermediate release first. Verified and rejected bundles are recorded in the audit log.',
   },
   'settings-license': {
     intro:

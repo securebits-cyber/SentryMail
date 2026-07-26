@@ -28,6 +28,30 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 : "${ENV_FILE:=${SCRIPT_DIR}/.env}"
 : "${BACKUP_DIR:=${SCRIPT_DIR}/backups}"
 
+# --- Argumente / arguments ---------------------------------------------------
+# DE: --bundle <datei> spielt ein signiertes Offline-Bundle ein statt per git zu
+#     aktualisieren (air-gapped Installationen).
+# EN: --bundle <file> applies a signed offline bundle instead of updating via git
+#     (air-gapped installations).
+BUNDLE_FILE=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --bundle)
+      [ $# -ge 2 ] || { printf 'Fehlender Dateiname nach --bundle / missing file after --bundle\n' >&2; exit 2; }
+      BUNDLE_FILE="$2"; shift 2 ;;
+    --bundle=*)
+      BUNDLE_FILE="${1#--bundle=}"; shift ;;
+    -h|--help)
+      printf 'Aufruf / usage: %s [--bundle <datei.tar.gz>]\n' "$(basename "$0")"; exit 0 ;;
+    *)
+      printf 'Unbekannte Option / unknown option: %s\n' "$1" >&2; exit 2 ;;
+  esac
+done
+if [ -n "$BUNDLE_FILE" ]; then
+  [ -f "$BUNDLE_FILE" ] || { printf 'Bundle nicht gefunden / bundle not found: %s\n' "$BUNDLE_FILE" >&2; exit 2; }
+  BUNDLE_FILE="$(cd "$(dirname "$BUNDLE_FILE")" && pwd)/$(basename "$BUNDLE_FILE")"
+fi
+
 # --- Nicht-interaktiver Modus / non-interactive mode -------------------------
 # ASSUME_DEFAULTS=1 uebernimmt bei jeder Frage die Vorgabe (fuer Tests/CI).
 : "${ASSUME_DEFAULTS:=0}"
@@ -125,7 +149,48 @@ printf '\n'
 
 # --- 3. Code aktualisieren / update code ------------------------------------
 printf '%s%s%s\n' "$BOLD" "$(msg '3) Code aktualisieren' '3) Update code')" "$RESET"
-if [ "$HAVE_GIT" = "1" ]; then
+if [ -n "$BUNDLE_FILE" ]; then
+  # DE: Offline-Bundle. Erst vollstaendig pruefen (Signatur, Pruefsummen,
+  #     Versionskette), dann erst entpacken. Schlaegt die Pruefung fehl, bleibt
+  #     der Bestand unberuehrt.
+  # EN: Offline bundle. Verify completely (signature, checksums, version chain)
+  #     before extracting anything. On failure the installation is left untouched.
+  printf '   %s %s\n' "$(msg 'Offline-Bundle:' 'Offline bundle:')" "$BUNDLE_FILE"
+  ( cd "$SCRIPT_DIR" && docker compose ps backend 2>/dev/null | grep -q "Up\|running" ) \
+    || die "$(msg 'backend laeuft nicht - fuer die Bundle-Pruefung zuerst "docker compose up -d" ausfuehren.' 'backend is not running - run "docker compose up -d" first so the bundle can be verified.')"
+
+  printf '   %s' "$(msg 'Signatur und Pruefsummen pruefen ...' 'Verifying signature and checksums ...')"
+  ( cd "$SCRIPT_DIR" && docker compose cp "$BUNDLE_FILE" backend:/tmp/update-bundle.tar.gz >/dev/null ) \
+    || die "$(msg 'Bundle konnte nicht in den Container kopiert werden.' 'Could not copy the bundle into the container.')"
+  VERIFY_OUT=""
+  VERIFY_RC=0
+  VERIFY_OUT="$( cd "$SCRIPT_DIR" && docker compose exec -T backend \
+      python -m app.services.update_bundle /tmp/update-bundle.tar.gz 2>&1 )" || VERIFY_RC=$?
+  ( cd "$SCRIPT_DIR" && docker compose exec -T backend rm -f /tmp/update-bundle.tar.gz >/dev/null 2>&1 ) || true
+
+  if [ "$VERIFY_RC" != "0" ]; then
+    printf ' %s✗%s\n' "$RED" "$RESET"
+    printf '%s\n' "$VERIFY_OUT" >&2
+    die "$(msg 'Bundle abgelehnt - es wurde nichts veraendert.' 'Bundle rejected - nothing was changed.')"
+  fi
+  printf ' %s✓%s\n' "$GREEN" "$RESET"
+  printf '%s\n' "$VERIFY_OUT"
+
+  if yesno 'Bundle jetzt einspielen (vorhandene Dateien werden ueberschrieben)?' 'Apply the bundle now (existing files will be overwritten)?' y; then
+    TMP_EXTRACT="$(mktemp -d)"
+    if tar -xzf "$BUNDLE_FILE" -C "$TMP_EXTRACT" payload \
+       && cp -a "$TMP_EXTRACT/payload/." "$SCRIPT_DIR/"; then
+      rm -rf "$TMP_EXTRACT"
+      printf '   %s✓%s %s\n' "$GREEN" "$RESET" "$(msg 'Bundle eingespielt. Die .env wurde nicht angefasst.' 'Bundle applied. The .env was left untouched.')"
+    else
+      rm -rf "$TMP_EXTRACT"
+      die "$(msg 'Entpacken fehlgeschlagen - Installation pruefen (Backup aus Schritt 2).' 'Extraction failed - check the installation (backup from step 2).')"
+    fi
+  else
+    printf '   %s\n' "$(msg 'Uebersprungen - nichts veraendert.' 'Skipped - nothing changed.')"
+    exit 0
+  fi
+elif [ "$HAVE_GIT" = "1" ]; then
   git -C "$SCRIPT_DIR" fetch --tags --quiet || true
   if BRANCH="$(git -C "$SCRIPT_DIR" symbolic-ref --short -q HEAD)"; then
     UPSTREAM="$(git -C "$SCRIPT_DIR" rev-parse --abbrev-ref --symbolic-full-name '@{u}' 2>/dev/null || true)"
