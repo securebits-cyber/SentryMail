@@ -21,6 +21,9 @@ export interface Template {
   attachments: TemplateAttachment[]
   markdown_source: string | null
   logo_b64: string | null
+  // Risikoklasse des Köder-Themas (Welle 9.2). 'high' erzwingt vor dem
+  // Kampagnenstart eine Zweitfreigabe.
+  risk_class: RiskClass
   created_by_id: string
   created_at: string
   updated_at: string
@@ -651,4 +654,71 @@ export interface DeliveryDiagnosis {
     unknown: number
     codes: Record<string, number>
   }
+}
+
+/** Blast-Radius-Preflight (Welle 9.2). */
+export type RiskClass = 'low' | 'medium' | 'high'
+
+export interface PreflightConfig {
+  // Beide null = keine Ruhezeiten.
+  quiet_hours_start: string | null
+  quiet_hours_end: string | null
+  timezone: string
+  cooldown_days: number
+  second_approval_role: 'admin' | 'privacy_officer'
+}
+
+export interface BlackoutWindow {
+  id: string
+  label: string
+  starts_at: string
+  ends_at: string
+}
+
+export interface RiskThemeClass {
+  id: RiskClass
+  label: LocalizedText
+  description: LocalizedText
+  themes: { de: string[]; en: string[] }
+}
+
+export type PreflightSeverity = 'ok' | 'info' | 'warn' | 'block'
+
+export interface PreflightFinding {
+  code: string
+  severity: PreflightSeverity
+  params: Record<string, string | number>
+}
+
+export interface PreflightResult {
+  campaign_id: string
+  recipients_total: number
+  recipients_excluded: number
+  recipients_effective: number
+  groups: { id: string; name: string; recipients: number }[]
+  excluded_group_ids: string[]
+  send_window: string | null
+  risk_class: RiskClass
+  requires_second_approval: boolean
+  second_approval_role: 'admin' | 'privacy_officer'
+  cooldown_days: number
+  selftest_status: string | null
+  approval_status: 'pending' | 'approved' | 'rejected' | null
+  approval_granted: boolean
+  acknowledged_at: string | null
+  findings: PreflightFinding[]
+  // Nur ein harter Befund hält den Start auf. Warnungen sind Warnungen.
+  blocked: boolean
+}
+
+export interface CampaignApproval {
+  id: string
+  campaign_id: string
+  requested_by_email: string
+  reason: string
+  status: 'pending' | 'approved' | 'rejected'
+  decided_by_email: string | null
+  decided_at: string | null
+  note: string | null
+  created_at: string
 }

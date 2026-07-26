@@ -4,7 +4,7 @@
 
 """Pydantic Schemas fuer Request/Response-Validierung."""
 import uuid
-from datetime import datetime
+from datetime import datetime, time
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
@@ -203,6 +203,9 @@ class TemplateBase(BaseModel):
     attachments: list[TemplateAttachment] = []
     markdown_source: str | None = None
     logo_b64: str | None = None
+    #: Risikoklasse des Koeder-Themas (Welle 9.2). ``high`` erzwingt vor dem
+    #: Kampagnenstart eine Zweitfreigabe.
+    risk_class: Literal["low", "medium", "high"] = "low"
 
     _v_logo = field_validator("logo_b64")(_validate_logo)
 
@@ -756,5 +759,77 @@ class DeliverySelfTestOut(BaseModel):
     sent_at: datetime
     checked_at: datetime | None
     detected_at: datetime | None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+# --- Blast-Radius-Preflight (Welle 9.2) -------------------------------------
+
+
+class PreflightConfigOut(BaseModel):
+    quiet_hours_start: time | None
+    quiet_hours_end: time | None
+    timezone: str
+    cooldown_days: int
+    second_approval_role: Literal["admin", "privacy_officer"]
+
+
+class PreflightConfigUpdate(BaseModel):
+    #: Beide leer = keine Ruhezeiten. Ein Fenster ueber Mitternacht ist erlaubt.
+    quiet_hours_start: time | None = None
+    quiet_hours_end: time | None = None
+    timezone: str = Field(default="UTC", max_length=64)
+    #: 0 = kein Cooldown. Obergrenze bewusst grosszuegig, aber endlich.
+    cooldown_days: int = Field(default=30, ge=0, le=3650)
+    second_approval_role: Literal["admin", "privacy_officer"] = "admin"
+
+
+class BlackoutWindowCreate(BaseModel):
+    label: str = Field(min_length=1, max_length=255)
+    starts_at: datetime
+    ends_at: datetime
+
+
+class BlackoutWindowOut(BaseModel):
+    id: uuid.UUID
+    label: str
+    starts_at: datetime
+    ends_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class CampaignExclusions(BaseModel):
+    """Ausgeschlossene Gruppen einer Kampagne.
+
+    Bewusst nur IDs: Es gibt kein Feld fuer den Grund eines Ausschlusses, und
+    es soll auch keines geben.
+    """
+
+    group_ids: list[uuid.UUID] = Field(default_factory=list)
+
+
+class CampaignApprovalCreate(BaseModel):
+    """Antrag auf Zweitfreigabe. Die Begruendung ist Pflicht - eine Freigabe
+    ohne Anlass waere eine Formalie."""
+
+    reason: str = Field(min_length=10, max_length=2000)
+
+
+class CampaignApprovalDecision(BaseModel):
+    approve: bool
+    note: str | None = Field(default=None, max_length=2000)
+
+
+class CampaignApprovalOut(BaseModel):
+    id: uuid.UUID
+    campaign_id: uuid.UUID
+    requested_by_email: str
+    reason: str
+    status: str
+    decided_by_email: str | None
+    decided_at: datetime | None
+    note: str | None
+    created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
