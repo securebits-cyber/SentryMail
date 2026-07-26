@@ -10,7 +10,7 @@ import TierBadge from './TierBadge'
 import { mdToHtml } from '../utils/markdown'
 import { useFeatures } from '../hooks/useFeatures'
 import { useI18n } from '../i18n'
-import type { Template, TemplateAttachment } from '../types'
+import type { RiskClass, Template, TemplateAttachment } from '../types'
 
 export interface TemplateFormValues {
   name: string
@@ -20,6 +20,8 @@ export interface TemplateFormValues {
   attachments: TemplateAttachment[]
   markdown_source: string | null
   logo_b64: string | null
+  //: Risikoklasse des Köder-Themas (Welle 9.2). Steuert den Preflight.
+  risk_class: RiskClass
 }
 
 function formatSize(b64: string): string {
@@ -69,6 +71,7 @@ export default function TemplateForm({ initial, isEdit, onSubmit, onCancel, subm
   const businessLicensed = Boolean(features?.features?.business)
   const [name, setName] = useState('')
   const [subject, setSubject] = useState('')
+  const [riskClass, setRiskClass] = useState<RiskClass>('low')
   const [htmlContent, setHtmlContent] = useState('')
   const [textContent, setTextContent] = useState('')
   const [attachments, setAttachments] = useState<TemplateAttachment[]>([])
@@ -84,6 +87,7 @@ export default function TemplateForm({ initial, isEdit, onSubmit, onCancel, subm
     setTextContent(initial?.text_content ?? '')
     setAttachments(initial?.attachments ?? [])
     setLogoB64(initial?.logo_b64 ?? null)
+    setRiskClass(initial?.risk_class ?? 'low')
     setMarkdown(initial?.markdown_source ?? '')
     setEditorMode(initial?.markdown_source ? 'markdown' : 'html')
   }, [initial])
@@ -144,6 +148,7 @@ export default function TemplateForm({ initial, isEdit, onSubmit, onCancel, subm
       attachments,
       markdown_source: editorMode === 'markdown' ? markdown : null,
       logo_b64: logoB64,
+      risk_class: riskClass,
     })
   }
 
@@ -167,6 +172,20 @@ export default function TemplateForm({ initial, isEdit, onSubmit, onCancel, subm
       <label className={labelClass}>
         {t('common.subject')}
         <input value={subject} onChange={(e) => setSubject(e.target.value)} required className={fieldClass} />
+      </label>
+
+      <label className={labelClass}>
+        {t('tpl.riskClass')}
+        <select
+          value={riskClass}
+          onChange={(e) => setRiskClass(e.target.value as RiskClass)}
+          className={fieldClass}
+        >
+          <option value="low">{t('tpl.risk.low')}</option>
+          <option value="medium">{t('tpl.risk.medium')}</option>
+          <option value="high">{t('tpl.risk.high')}</option>
+        </select>
+        <span className="text-sm font-normal text-text-secondary">{t('tpl.riskClass.desc')}</span>
       </label>
 
       <div className="rounded-md border border-border bg-bg px-3 py-2 text-xs text-text-secondary">

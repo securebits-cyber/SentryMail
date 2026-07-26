@@ -490,6 +490,18 @@ const de: Record<string, Guidance> = {
     ],
     note: 'Der Fingerabdruck ist auch bei aktivierter Erfassung nie Bestandteil von Einzelpersonen-Reports. Anträge, Freigaben, Ablehnungen und Widerrufe stehen samt Begründung im Audit-Log.',
   },
+  'settings-preflight': {
+    intro:
+      'Der Preflight ist der Pflichtdialog vor dem Kampagnenstart. Hier stehen die Regeln, gegen die er prüft. Alle Vorgaben sind so gewählt, dass ein Update das Verhalten bestehender Installationen nicht ändert.',
+    steps: [
+      'Zeitzone auf die eigene setzen — voreingestellt ist UTC, sonst greifen Ruhezeiten zur falschen Tageszeit.',
+      'Ruhezeiten festlegen: kein Versand außerhalb der Arbeitszeit. Ein Fenster über Mitternacht (22:00–06:00) ist ausdrücklich möglich.',
+      'Cooldown je Person setzen — 30 Tage sind die Vorgabe. Wer alle zwei Wochen getestet wird, lernt nichts dazu.',
+      'Sperrfenster für Betriebsversammlung, Jahresabschluss oder Systemumstellung eintragen.',
+      'Zweitfreigabe zuordnen: auf den Datenschutzbeauftragten gestellt liegt sie bei der Betriebsratsrolle.',
+    ],
+    note: 'Die Risikoklasse wird an der Vorlage gepflegt, nicht hier — das Thema hängt am Template und nicht an der einzelnen Kampagne. Nur die Klasse „Hoch“ erzwingt eine Zweitfreigabe: Würde jede Klasse eine verlangen, wird sie zur Formalie, die man wegklickt.',
+  },
   'settings-delivery': {
     intro:
       'Die häufigste Ursache für eine Kampagne, die scheinbar nicht ankommt, ist nicht die Software, sondern das Mail-Gateway davor: Es hält die Simulation zurück — oder der Linkscanner klickt sie selbst an und erzeugt Klicks, die nie eine Person ausgelöst hat.',
@@ -1008,6 +1020,18 @@ const en: Record<string, Guidance> = {
       'Set a retention period — without one nothing is deleted automatically. With a period, completed campaigns are checked hourly and anonymised; the metrics stay, the people disappear.',
     ],
     note: 'Even when enabled, the fingerprint is never part of individual-person reports. Requests, approvals, rejections and revocations are recorded in the audit log together with their reason.',
+  },
+  'settings-preflight': {
+    intro:
+      'The preflight is the mandatory dialog before a campaign starts. This page holds the rules it checks against. All defaults are chosen so that an update does not change the behaviour of an existing installation.',
+    steps: [
+      'Set your own time zone — the default is UTC, otherwise quiet hours take effect at the wrong time of day.',
+      'Define quiet hours: no sending outside working hours. A window across midnight (22:00–06:00) is explicitly supported.',
+      'Set the per-person cooldown — 30 days is the default. Being tested every other week teaches nothing.',
+      'Add blackout windows for works meetings, year-end closing or system migrations.',
+      'Assign the second approval: set to the data protection officer it sits with the works council role.',
+    ],
+    note: 'The risk class is maintained on the template, not here — the theme belongs to the template, not to an individual campaign. Only the "high" class requires a second approval: if every class demanded one, it would become a formality people click away.',
   },
   'settings-delivery': {
     intro:
