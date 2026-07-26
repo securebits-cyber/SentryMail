@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.37.1](https://github.com/securebits-cyber/SentryMail/compare/v0.37.0...v0.37.1) (2026-07-26)
+
+
+### Bug Fixes
+
+* **security:** Kontaktadresse und Repo-Links auf die neue Marke / Security contact and repo links updated to the new brand ([#150](https://github.com/securebits-cyber/SentryMail/issues/150)) ([2cf232d](https://github.com/securebits-cyber/SentryMail/commit/2cf232d913e48b074eff0b38146cc31ff52f1475))
+
 ## [0.37.0](https://github.com/securebits-cyber/SentryMail/compare/v0.36.0...v0.37.0) (2026-07-25)
 
 
