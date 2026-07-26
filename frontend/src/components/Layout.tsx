@@ -5,6 +5,7 @@
 import { ArrowUpCircle, Blocks, BookOpen, ChevronDown, CircleUser, ExternalLink, FileBarChart, FileText, Globe, GraduationCap, Layers, LayoutDashboard, LifeBuoy, ListChecks, LogOut, Mail, MailWarning, Moon, Plus, Radar, Repeat, Server, Settings, Smartphone, Sun, UserCog, Users, type LucideIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
+import BrandLockup from './BrandLockup'
 import LanguageSwitcher from './LanguageSwitcher'
 import { useI18n } from '../i18n'
 import { useFeatures } from '../hooks/useFeatures'
@@ -177,11 +178,9 @@ export default function Layout() {
             <span className="text-lg font-bold tracking-tight">{branding.app_name}</span>
           </>
         ) : (
-          <img
-            src={theme === 'dark' ? '/brand/logo-wordmark.svg' : '/brand/logo-wordmark-dark.svg'}
-            alt={branding.app_name}
-            className="h-6 object-contain"
-          />
+          // 20px Wortmarke: Die Unterzeile liegt damit auf ihrer Untergrenze
+          // von 8px. Kleiner ginge nur, indem man sie unleserlich macht.
+          <BrandLockup size={20} />
         )}
         <span className="mx-auto hidden select-none font-mono text-xs uppercase tracking-[0.14em] text-text-secondary sm:block">
           {t('header.slogan')}

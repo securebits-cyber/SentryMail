@@ -6,6 +6,7 @@ import { KeyRound, ShieldCheck } from 'lucide-react'
 import { FormEvent, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import TwoFASetup from '../components/TwoFASetup'
+import BrandLockup from '../components/BrandLockup'
 import LanguageSwitcher from '../components/LanguageSwitcher'
 import { useBranding, brandingLogoFor } from '../components/BrandingProvider'
 import { useTheme } from '../hooks/useTheme'
@@ -115,14 +116,16 @@ export default function LoginPage() {
           <>
             <img src={loginLogo} alt="" className="h-12 max-w-[240px] object-contain" />
             <h1 className="text-2xl font-bold">{branding.app_name}</h1>
+            {/* Ein hochgeladenes Logo bringt keine Unterzeile mit — hier bleibt
+                der Slogan die einzige Einordnung und wird deshalb angezeigt. */}
+            <span className="eyebrow">{t('header.slogan')}</span>
           </>
         ) : (
-          <>
-            <img src="/brand/logo-wordmark-dark.svg" alt={branding.app_name} className="h-9 object-contain dark:hidden" />
-            <img src="/brand/logo-wordmark.svg" alt={branding.app_name} className="hidden h-9 object-contain dark:block" />
-          </>
+          // Das Lockup traegt die Unterzeile bereits. Der Slogan darunter
+          // waere die zweite gesperrte Versalzeile in Folge und wuerde die
+          // Unterzeile eher entwerten als ergaenzen.
+          <BrandLockup size={40} className="mt-1" />
         )}
-        <span className="eyebrow">{t('header.slogan')}</span>
       </div>
 
       {stage === 'password' && (
