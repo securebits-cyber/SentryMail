@@ -30,12 +30,19 @@ Bundle bauen::
 Der oeffentliche Schluessel wird beim Bau ausgegeben; er gehoert in
 ``RELEASE_PUBLIC_KEY`` (offizielle Releases) oder beim Betreiber in
 ``UPDATE_BUNDLE_PUBKEYS``.
+
+Byte-identisch reproduzierbar wird ein Bundle mit gesetztem
+``SOURCE_DATE_EPOCH`` - dann ist auch ``created_at`` deterministisch und damit
+das signierte Manifest::
+
+    SOURCE_DATE_EPOCH=$(git log -1 --format=%ct) python tools/build_update_bundle.py build ...
 """
 from __future__ import annotations
 
 import argparse
 import base64
 import fnmatch
+import gzip
 import hashlib
 import io
 import json
@@ -162,12 +169,20 @@ def cmd_build(args: argparse.Namespace) -> int:
         digest, size = _sha256(path)
         entries.append({"path": arcname, "sha256": digest, "size": size})
 
+    # SOURCE_DATE_EPOCH (Konvention reproduzierbarer Builds) macht den einzigen
+    # veraenderlichen Wert im Manifest deterministisch. Ohne die Variable steht
+    # hier die aktuelle Zeit - dann ist das Bundle nicht byte-identisch
+    # reproduzierbar, was fuer den Normalbetrieb genuegt.
+    epoch = os.environ.get("SOURCE_DATE_EPOCH", "").strip()
+    created = (
+        datetime.fromtimestamp(int(epoch), timezone.utc) if epoch.isdigit() else datetime.now(timezone.utc)
+    )
     manifest = {
         "format": BUNDLE_FORMAT,
         "product": "sentrymail",
         "target_version": args.target_version,
         "min_version": args.min_version,
-        "created_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "created_at": created.isoformat(timespec="seconds"),
         "files": entries,
     }
     # sort_keys + feste Trennzeichen: Die Bytes, die signiert werden, muessen
@@ -177,7 +192,18 @@ def cmd_build(args: argparse.Namespace) -> int:
 
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
-    with tarfile.open(out, "w:gz") as tar:
+    # Der gzip-Container traegt einen eigenen Zeitstempel im Header. Wird er
+    # nicht festgenagelt, unterscheiden sich zwei Baeufe derselben Quelle trotz
+    # identischem tar-Inhalt. Ueber ein GzipFile mit mtime=0 statt "w:gz";
+    # ausserdem schreibt der fileobj-Weg keinen Dateinamen in den Header.
+    with (
+        out.open("wb") as raw,
+        # filename="" unterdrueckt das FNAME-Feld: sonst uebernimmt GzipFile den
+        # Namen des fileobj, und zwei Baeufe mit verschiedenem Ausgabenamen
+        # unterscheiden sich im Header trotz identischem Inhalt.
+        gzip.GzipFile(filename="", fileobj=raw, mode="wb", mtime=0) as gz,
+        tarfile.open(fileobj=gz, mode="w", format=tarfile.PAX_FORMAT) as tar,
+    ):
         _add_bytes(tar, "manifest.json", manifest_bytes)
         _add_bytes(tar, "manifest.sig", signature + b"\n")
         for path, arcname in files:

@@ -178,7 +178,14 @@ if [ -n "$BUNDLE_FILE" ]; then
 
   if yesno 'Bundle jetzt einspielen (vorhandene Dateien werden ueberschrieben)?' 'Apply the bundle now (existing files will be overwritten)?' y; then
     TMP_EXTRACT="$(mktemp -d)"
+    # DE: .env-Dateien werden vor dem Kopieren entfernt. Die Pruefung weist ein
+    #     Bundle mit .env bereits ab; diese Zeile sorgt dafuer, dass die Zusage
+    #     unten auch dann stimmt, wenn hier je ein anderer Pruefpfad greift.
+    # EN: Remove .env files before copying. Verification already rejects a bundle
+    #     containing one; this line keeps the promise below true even if a
+    #     different verification path is ever used here.
     if tar -xzf "$BUNDLE_FILE" -C "$TMP_EXTRACT" payload \
+       && find "$TMP_EXTRACT/payload" \( -name '.env' -o -name '.env.*' \) -type f -delete \
        && cp -a "$TMP_EXTRACT/payload/." "$SCRIPT_DIR/"; then
       rm -rf "$TMP_EXTRACT"
       printf '   %s✓%s %s\n' "$GREEN" "$RESET" "$(msg 'Bundle eingespielt. Die .env wurde nicht angefasst.' 'Bundle applied. The .env was left untouched.')"

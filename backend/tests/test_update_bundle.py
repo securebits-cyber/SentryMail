@@ -404,3 +404,56 @@ def test_rejection_response_carries_no_exception_text(tmp_path, keypair, client,
     # Kein Freitext, kein Pfad, kein Dateiname irgendwo in der Antwort.
     assert "/tmp" not in res.text
     assert "Signatur" not in res.text
+
+
+# --- .env darf nie in einer Nutzlast stecken --------------------------------
+
+
+@pytest.mark.parametrize(
+    "env_path",
+    [
+        "payload/.env",
+        "payload/.env.production",
+        "payload/backend/.env",
+        "payload/tief/verschachtelt/.env.local",
+    ],
+)
+def test_env_file_in_payload_is_rejected(tmp_path, keypair, env_path):
+    """Auch ein korrekt signiertes Bundle darf keine .env mitbringen.
+
+    Die Betreiber-.env traegt DB-Passwort und SECRET_KEY. Wuerde sie beim
+    Einspielen ueberschrieben, waere die Instanz im guenstigsten Fall kaputt und
+    im schlechtesten mit den Entwicklungswerten des Erstellers besetzt.
+    """
+    private, public_b64 = keypair
+    files = {"payload/app.py": b"ok\n", env_path: b"SECRET_KEY=leak\n"}
+    path = make_bundle(tmp_path, private, files=files)
+    with pytest.raises(BundleError, match="\\.env-Datei") as excinfo:
+        verify_bundle(path, extra_keys=public_b64, current_version=CURRENT)
+    assert excinfo.value.code == ERR_UNSAFE
+
+
+def test_env_only_in_manifest_is_rejected_with_clear_reason(tmp_path, keypair):
+    """Steht die .env nur im Manifest, darf das nicht als Inhalts-Abweichung
+    durchgehen - der Grund waere irrefuehrend."""
+    private, public_b64 = keypair
+    files = {"payload/app.py": b"ok\n", "payload/.env": b"SECRET_KEY=leak\n"}
+    path = make_bundle(tmp_path, private, files=files, drop_files=("payload/.env",))
+    with pytest.raises(BundleError, match="\\.env-Datei"):
+        verify_bundle(path, extra_keys=public_b64, current_version=CURRENT)
+
+
+def test_harmless_env_lookalikes_stay_allowed(tmp_path, keypair):
+    """Nur .env und .env.* sind gemeint - nicht jede Datei mit "env" im Namen."""
+    private, public_b64 = keypair
+    files = {
+        "payload/.env.example": b"x\n",  # .env.* -> abgelehnt, siehe unten
+    }
+    with pytest.raises(BundleError, match="\\.env-Datei"):
+        verify_bundle(make_bundle(tmp_path, private, files=files), extra_keys=public_b64, current_version=CURRENT)
+
+    ok = {"payload/environment.py": b"x\n", "payload/app.env.json": b"x\n", "payload/env": b"x\n"}
+    info = verify_bundle(
+        make_bundle(tmp_path, private, files=ok), extra_keys=public_b64, current_version=CURRENT
+    )
+    assert info.file_count == 3

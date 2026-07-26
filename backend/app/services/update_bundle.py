@@ -185,6 +185,22 @@ def _safe_member_name(name: str) -> str:
     return name
 
 
+def _reject_env_file(name: str) -> None:
+    """Weist ``.env`` und ``.env.*`` an jeder Stelle der Nutzlast zurueck.
+
+    Das Bau-Werkzeug schliesst diese Dateien bereits aus, aber ein Bundle kann
+    von einem beliebigen Werkzeug erzeugt worden sein. Die Pruefung ist die
+    einzige Stelle, die das erzwingen kann, und sie muss es erzwingen: Die
+    Betreiber-``.env`` traegt DB-Passwort, ``SECRET_KEY`` und die
+    Fernet-abgeleiteten Laufzeit-Credentials. Ein Bundle, das sie mitbringt,
+    wuerde sie beim Einspielen ueberschreiben - im harmlosen Fall versehentlich
+    mit den Entwicklungswerten des Erstellers.
+    """
+    leaf = name.rsplit("/", 1)[-1]
+    if leaf == ".env" or leaf.startswith(".env."):
+        raise BundleError(ERR_UNSAFE, f"Bundle enthaelt eine .env-Datei: {name}")
+
+
 def _read_member(tar: tarfile.TarFile, member: tarfile.TarInfo, limit: int) -> bytes:
     if member.size > limit:
         raise BundleError(ERR_UNSAFE, f"{member.name} ist groesser als erlaubt ({member.size} > {limit} Bytes)")
@@ -276,6 +292,7 @@ def verify_bundle(path: str, *, extra_keys: str | None = None, current_version: 
                 elif name == SIGNATURE_NAME:
                     signature_raw = _read_member(tar, member, MAX_SIGNATURE_BYTES)
                 elif name.startswith(PAYLOAD_PREFIX):
+                    _reject_env_file(name)
                     payload[name] = member
                 else:
                     raise BundleError(ERR_CONTENT, f"Unerwartete Datei im Archiv: {name}")
@@ -320,6 +337,10 @@ def verify_bundle(path: str, *, extra_keys: str | None = None, current_version: 
                 digest = str(entry.get("sha256", "")).lower()
                 if not name.startswith(PAYLOAD_PREFIX):
                     raise BundleError(ERR_UNSAFE, f"Manifest listet eine Datei ausserhalb von {PAYLOAD_PREFIX}: {name}")
+                # Auch im Manifest, nicht nur im Archiv: sonst faellt eine
+                # gelistete .env erst als Inhalts-Abweichung auf, mit
+                # irrefuehrendem Grund.
+                _reject_env_file(name)
                 if len(digest) != 64 or not all(c in "0123456789abcdef" for c in digest):
                     raise BundleError(ERR_NOT_A_BUNDLE, f"Ungueltiger SHA-256-Wert fuer {name}")
                 expected[name] = digest
