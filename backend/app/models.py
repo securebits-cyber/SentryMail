@@ -14,7 +14,7 @@ import enum
 import uuid
 from datetime import datetime, time
 
-from sqlalchemy import Boolean, CheckConstraint, DateTime, Enum, ForeignKey, Index, Integer, String, Text, Time, text
+from sqlalchemy import BigInteger, Boolean, CheckConstraint, DateTime, Enum, ForeignKey, Index, Integer, String, Text, Time, text
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
@@ -98,6 +98,15 @@ class AuditEvent(Base):
 
     Actor-E-Mail/-Name werden als Snapshot gespeichert, damit ein geloeschter
     Nutzer das Log nicht unlesbar macht (FK ist ON DELETE SET NULL).
+
+    **Hash-Verkettung (Welle 9.3).** Jeder Eintrag traegt den Hash seines
+    Vorgaengers. Wer einen Eintrag nachtraeglich aendert oder entfernt, bricht
+    die Kette ab dieser Stelle sichtbar - genau das macht "revisionssicher"
+    ueberpruefbar statt behauptet.
+
+    ``actor_id`` ist bewusst **nicht** Teil des Hashes: Der Fremdschluessel ist
+    ON DELETE SET NULL, ein geloeschtes Konto wuerde die Kette rueckwirkend
+    zerreissen. Gehasht werden die Schnappschuesse, die genau dafuer existieren.
     """
 
     __tablename__ = "audit_events"
@@ -115,6 +124,21 @@ class AuditEvent(Base):
     action: Mapped[str] = mapped_column(String(64), nullable=False)
     description: Mapped[str] = mapped_column(String(512), default="", nullable=False)
     ip: Mapped[str | None] = mapped_column(String(64), nullable=True)
+
+    #: Lueckenlos aufsteigende Position in der Kette. Eine Luecke ist ein
+    #: entfernter Eintrag - der Verifier meldet sie.
+    seq: Mapped[int] = mapped_column(BigInteger, unique=True, index=True, nullable=False)
+    #: Hash des Vorgaengers; beim ersten Eintrag der Genesis-Wert.
+    prev_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    entry_hash: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
+    #: Gesetzt, wenn der Inhalt wegen einer Aufbewahrungsfrist geloescht wurde
+    #: (Welle 2 hat Vorrang vor der Kette). Der Eintrag bleibt als Tombstone
+    #: stehen: Hash und Verkettung ueberdauern, der Inhalt nicht. Der Verifier
+    #: rechnet den Inhalts-Hash solcher Eintraege nicht nach - er kann nicht
+    #: mehr stimmen und soll es auch nicht.
+    content_purged_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
 
 
 class SecurityConfig(Base):
@@ -158,6 +182,10 @@ class PrivacyConfig(Base):
         CheckConstraint(
             "retention_days IS NULL OR retention_days >= 1", name="ck_privacy_config_retention_min"
         ),
+        CheckConstraint(
+            "audit_retention_days IS NULL OR audit_retention_days >= 1",
+            name="ck_privacy_config_audit_retention_min",
+        ),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -171,6 +199,13 @@ class PrivacyConfig(Base):
     retention_last_run_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
     )
+    #: Eigene Frist fuer die Inhalte des Audit-Logs (Welle 9.3). Bewusst
+    #: getrennt von ``retention_days``: Das Audit-Log ist der Nachweis, den ein
+    #: Kunde im Pruefungsfall braucht - es zusammen mit den Kampagnendaten
+    #: stillschweigend mitzuloeschen waere eine boese Ueberraschung.
+    #: ``None`` = die Inhalte bleiben. Ist eine Frist gesetzt, gilt die
+    #: Konfliktregel: Der Inhalt geht, Hash und Verkettung bleiben (Tombstone).
+    audit_retention_days: Mapped[int | None] = mapped_column(Integer, nullable=True)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
 
