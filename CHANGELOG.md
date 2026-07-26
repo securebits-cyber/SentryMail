@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.41.0](https://github.com/securebits-cyber/SentryMail/compare/v0.40.0...v0.41.0) (2026-07-26)
+
+
+### Features
+
+* **preflight:** Blast-Radius-Preflight (Welle 9.2) / Blast radius preflight (wave 9.2) ([#159](https://github.com/securebits-cyber/SentryMail/issues/159)) ([64045aa](https://github.com/securebits-cyber/SentryMail/commit/64045aad6c5c4cbdfc0355f5128e019169481efe))
+
 ## [0.40.0](https://github.com/securebits-cyber/SentryMail/compare/v0.39.0...v0.40.0) (2026-07-26)
 
 
