@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.40.0](https://github.com/securebits-cyber/SentryMail/compare/v0.39.0...v0.40.0) (2026-07-26)
+
+
+### Features
+
+* **delivery:** Allowlisting-Generator fuer Mail-Gateways / Allowlist… ([#157](https://github.com/securebits-cyber/SentryMail/issues/157)) ([9f5a4db](https://github.com/securebits-cyber/SentryMail/commit/9f5a4dbe6d5ea38bb0178ee4e0106d3f2eca7371))
+
 ## [0.39.0](https://github.com/securebits-cyber/SentryMail/compare/v0.38.0...v0.39.0) (2026-07-26)
 
 
