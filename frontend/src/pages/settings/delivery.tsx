@@ -7,7 +7,14 @@ import { useEffect, useState } from 'react'
 import PageScaffold from '../../components/PageScaffold'
 import { useI18n } from '../../i18n'
 import { api } from '../../services/api'
-import type { AllowlistResult, GatewayList, LocalizedText } from '../../types'
+import type {
+  AllowlistResult,
+  Campaign,
+  DeliveryConfig,
+  DeliverySelfTest,
+  GatewayList,
+  LocalizedText,
+} from '../../types'
 
 /** Allowlisting-Generator (Welle 9.1).
  *
@@ -24,6 +31,16 @@ export default function DeliverySettingsPage() {
   const [copied, setCopied] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
+  // Kanarienpostfach (Selbsttest)
+  const [config, setConfig] = useState<DeliveryConfig | null>(null)
+  const [password, setPassword] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
+  const [campaigns, setCampaigns] = useState<Campaign[]>([])
+  const [testCampaign, setTestCampaign] = useState('')
+  const [test, setTest] = useState<DeliverySelfTest | null>(null)
+  const [testing, setTesting] = useState(false)
+
   // Die Oberflaechensprache waehlt aus den zweisprachigen Texten des Profils.
   const pick = (text: LocalizedText | null | undefined): string =>
     !text ? '' : lang === 'en' ? text.en : text.de
@@ -37,7 +54,55 @@ export default function DeliverySettingsPage() {
         if (res.data.gateways.length > 0) setGateway(res.data.gateways[0].id)
       })
       .catch(() => setError(t('deliv.err.load')))
+
+    api.get<DeliveryConfig>('/delivery/config').then((res) => setConfig(res.data)).catch(() => undefined)
+    api
+      .get<Campaign[]>('/campaigns')
+      .then((res) => {
+        setCampaigns(res.data)
+        if (res.data.length > 0) setTestCampaign(res.data[0].id)
+      })
+      .catch(() => undefined)
   }, [])
+
+  async function saveConfig() {
+    if (!config) return
+    setSaving(true)
+    setSaved(false)
+    try {
+      // Leeres Feld = Passwort unveraendert lassen. Nur ein bewusstes Leeren
+      // ueber den Knopf loescht es - sonst verliert jedes Speichern das Passwort.
+      const res = await api.put<DeliveryConfig>('/delivery/config', {
+        ...config,
+        imap_password: password === '' ? null : password,
+      })
+      setConfig(res.data)
+      setPassword('')
+      setSaved(true)
+    } catch {
+      setError(t('deliv.err.save'))
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  async function runSelfTest() {
+    setTesting(true)
+    setError(null)
+    try {
+      const res = await api.post<DeliverySelfTest>(`/delivery/selftest/${testCampaign}`)
+      setTest(res.data)
+    } catch {
+      setError(t('deliv.err.selftest'))
+    } finally {
+      setTesting(false)
+    }
+  }
+
+  async function refreshSelfTest() {
+    const res = await api.get<DeliverySelfTest | null>(`/delivery/selftest/${testCampaign}`)
+    setTest(res.data)
+  }
 
   const current = list?.gateways.find((g) => g.id === gateway)
 
@@ -69,6 +134,136 @@ export default function DeliverySettingsPage() {
     >
       <div className="flex max-w-3xl flex-col gap-4">
         {error && <p className="text-sm text-status-danger">{error}</p>}
+
+        {/* Kanarienpostfach: Probemail vor dem Kampagnenstart. */}
+        {config && (
+          <div className="rounded-lg border border-border bg-surface p-4">
+            <p className="text-sm font-medium">{t('deliv.canary.title')}</p>
+            <p className="mt-1 text-sm text-text-secondary">{t('deliv.canary.desc')}</p>
+
+            <label className="mt-3 flex flex-col gap-1 text-sm">
+              <span className="font-medium">{t('deliv.canary.address')}</span>
+              <input
+                value={config.canary_address}
+                onChange={(e) => setConfig({ ...config, canary_address: e.target.value })}
+                placeholder="kanarienvogel@example.de"
+                className="w-full rounded-md border border-border bg-bg px-3 py-2 font-mono text-text-primary"
+              />
+              <span className="text-sm text-text-secondary">{t('deliv.canary.addressHint')}</span>
+            </label>
+
+            <p className="mt-4 text-sm font-medium">{t('deliv.canary.imap')}</p>
+            <p className="mt-1 text-sm text-text-secondary">{t('deliv.canary.imapHint')}</p>
+            <div className="mt-2 grid gap-3 sm:grid-cols-2">
+              <input
+                value={config.imap_host}
+                onChange={(e) => setConfig({ ...config, imap_host: e.target.value })}
+                placeholder="imap.example.de"
+                className="rounded-md border border-border bg-bg px-3 py-2 font-mono text-text-primary"
+              />
+              <input
+                type="number"
+                value={config.imap_port}
+                onChange={(e) => setConfig({ ...config, imap_port: Number(e.target.value) })}
+                className="rounded-md border border-border bg-bg px-3 py-2 font-mono text-text-primary"
+              />
+              <input
+                value={config.imap_username}
+                onChange={(e) => setConfig({ ...config, imap_username: e.target.value })}
+                placeholder={t('deliv.canary.user')}
+                className="rounded-md border border-border bg-bg px-3 py-2 font-mono text-text-primary"
+              />
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder={config.has_imap_password ? t('deliv.canary.pwSet') : t('deliv.canary.pw')}
+                className="rounded-md border border-border bg-bg px-3 py-2 font-mono text-text-primary"
+              />
+              <input
+                value={config.imap_mailbox}
+                onChange={(e) => setConfig({ ...config, imap_mailbox: e.target.value })}
+                className="rounded-md border border-border bg-bg px-3 py-2 font-mono text-text-primary"
+              />
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={config.imap_use_ssl}
+                  onChange={(e) => setConfig({ ...config, imap_use_ssl: e.target.checked })}
+                  className="accent-accent"
+                />
+                {t('deliv.canary.ssl')}
+              </label>
+            </div>
+
+            <div className="mt-4 flex items-center gap-3">
+              <button
+                onClick={saveConfig}
+                disabled={saving}
+                className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+              >
+                {t('common.save')}
+              </button>
+              {saved && <span className="text-sm text-text-secondary">{t('deliv.saved')}</span>}
+            </div>
+
+            {config.canary_address && campaigns.length > 0 && (
+              <div className="mt-5 border-t border-border pt-4">
+                <p className="text-sm font-medium">{t('deliv.test.title')}</p>
+                <p className="mt-1 text-sm text-text-secondary">{t('deliv.test.desc')}</p>
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <select
+                    value={testCampaign}
+                    onChange={(e) => {
+                      setTestCampaign(e.target.value)
+                      setTest(null)
+                    }}
+                    className="rounded-md border border-border bg-bg px-3 py-2 text-sm text-text-primary"
+                  >
+                    {campaigns.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    onClick={runSelfTest}
+                    disabled={testing || !testCampaign}
+                    className="rounded-md border border-border px-3 py-2 text-sm disabled:opacity-60"
+                  >
+                    {t('deliv.test.run')}
+                  </button>
+                  {test?.status === 'pending' && (
+                    <button
+                      onClick={refreshSelfTest}
+                      className="rounded-md border border-border px-3 py-2 text-sm"
+                    >
+                      {t('deliv.test.refresh')}
+                    </button>
+                  )}
+                </div>
+
+                {test && (
+                  <p
+                    className={`mt-3 text-sm ${
+                      test.status === 'passed'
+                        ? 'text-status-success'
+                        : test.status === 'failed'
+                          ? 'text-status-danger'
+                          : 'text-text-secondary'
+                    }`}
+                  >
+                    {t(`deliv.test.${test.status}`)}
+                    {test.error && <span className="block text-text-secondary">{test.error}</span>}
+                    <span className="block text-text-secondary">
+                      {t('deliv.test.route', { route: test.route })}
+                    </span>
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="rounded-lg border border-border bg-surface p-4">
           <label className="flex flex-col gap-1 text-sm">

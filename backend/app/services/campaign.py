@@ -19,8 +19,13 @@ logger = logging.getLogger(__name__)
 settings = get_settings()
 
 
-def _smtp_params(db: Session, campaign: Campaign) -> dict:
-    """SMTP-Parameter aus dem Sending Profile der Kampagne, sonst globales Fallback-SMTP (DB)."""
+def smtp_params(db: Session, campaign: Campaign) -> dict:
+    """SMTP-Parameter aus dem Sending Profile der Kampagne, sonst globales Fallback-SMTP (DB).
+
+    Oeffentlich, weil der Zustell-Selbsttest (Welle 9.1) die Probemail ueber
+    denselben Weg schicken muss wie die Kampagne - ein Test ueber einen anderen
+    Absender wuerde genau das nicht pruefen, worum es geht.
+    """
     profile = campaign.sending_profile
     if profile is not None:
         return {
@@ -52,7 +57,7 @@ class SmtpNotConfiguredError(Exception):
 
 async def send_campaign(db: Session, campaign: Campaign) -> dict[str, int]:
     """Versendet eine Kampagne an alle noch nicht versendeten Empfaenger."""
-    smtp = _smtp_params(db, campaign)
+    smtp = smtp_params(db, campaign)
     # Absendername = Name der Kampagne (z. B. "Microsoft"), niemals der Software-/
     # Profilname. Die Absenderadresse bleibt die des Sending Profiles.
     smtp["from_name"] = campaign.name

@@ -604,3 +604,25 @@ export interface AllowlistResult {
   missing_inputs: string[]
   snippets: AllowlistSnippet[]
 }
+
+/** Zustell-Selbsttest gegen ein Kanarienpostfach (Welle 9.1). */
+export interface DeliveryConfig {
+  canary_address: string
+  imap_host: string
+  imap_port: number
+  imap_username: string
+  has_imap_password: boolean
+  imap_use_ssl: boolean
+  imap_mailbox: string
+}
+
+export interface DeliverySelfTest {
+  id: string
+  campaign_id: string
+  status: 'pending' | 'passed' | 'failed'
+  route: string
+  error: string | null
+  sent_at: string
+  checked_at: string | null
+  detected_at: string | null
+}
