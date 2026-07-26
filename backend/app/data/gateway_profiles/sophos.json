@@ -1,0 +1,34 @@
+{
+  "id": "sophos",
+  "order": 40,
+  "label": { "de": "Sophos Email Security", "en": "Sophos Email Security" },
+  "vendor_docs": "https://docs.sophos.com/",
+  "inputs": ["sender_domain", "sender_ips", "tracking_domain"],
+  "snippets": [
+    {
+      "id": "allow-list",
+      "title": { "de": "Simulationsabsender freistellen", "en": "Exempt the simulation sender" },
+      "kind": "steps",
+      "steps": {
+        "de": [
+          "In der Verwaltungskonsole die Einstellungen fuer eingehende E-Mail oeffnen.",
+          "Die Absenderdomain {{sender_domain}} und die Absender-IP {{sender_ips}} gemeinsam als zulaessigen Absender eintragen.",
+          "Fuer diesen Absender Spam- und Phishing-Pruefung sowie Quarantaene deaktivieren.",
+          "Time-of-Click-Schutz fuer die Tracking-Domain {{tracking_domain}} ausnehmen.",
+          "Pruefen, ob eine uebergeordnete Richtlinie die Ausnahme wieder aufhebt — die zuerst greifende Richtlinie gewinnt."
+        ],
+        "en": [
+          "Open the inbound email settings in the management console.",
+          "Add the sender domain {{sender_domain}} together with the sender IP {{sender_ips}} as an allowed sender.",
+          "Disable spam and phishing scanning and quarantine for that sender.",
+          "Exempt the tracking domain {{tracking_domain}} from time-of-click protection.",
+          "Check whether a higher-level policy overrides the exemption — the first matching policy wins."
+        ]
+      },
+      "note": {
+        "de": "Eine Freistellung nur ueber die Domain ist zu weit gefasst: Sie wirkt auch fuer jeden Fremden, der diese Domain faelscht. Immer Domain und IP zusammen eintragen.",
+        "en": "An exemption by domain alone is too broad: it also applies to anyone spoofing that domain. Always combine domain and IP."
+      }
+    }
+  ]
+}

@@ -490,6 +490,18 @@ const de: Record<string, Guidance> = {
     ],
     note: 'Der Fingerabdruck ist auch bei aktivierter Erfassung nie Bestandteil von Einzelpersonen-Reports. Anträge, Freigaben, Ablehnungen und Widerrufe stehen samt Begründung im Audit-Log.',
   },
+  'settings-delivery': {
+    intro:
+      'Die häufigste Ursache für eine Kampagne, die scheinbar nicht ankommt, ist nicht die Software, sondern das Mail-Gateway davor: Es hält die Simulation zurück — oder der Linkscanner klickt sie selbst an und erzeugt Klicks, die nie eine Person ausgelöst hat.',
+    steps: [
+      'Gateway auswählen. Absenderdomain und Tracking-Domain sind aus der Instanz vorbefüllt.',
+      'Absender-IP ergänzen: bei externem SMTP-Anbieter dessen Ausgangs-IP, nicht die dieser Instanz.',
+      'Konfiguration erzeugen und dem Mailadministrator geben — er setzt sie um, nicht das Dashboard.',
+      'Immer Domain UND IP eintragen. Eine Freistellung nur über die Domain gilt auch für jeden, der sie fälscht.',
+      'Die Tracking-Domain von der automatischen Linkprüfung ausnehmen, sonst sind die Klickzahlen zu hoch.',
+    ],
+    note: 'Die Ausgabe ist ein Vorschlag, keine fertige Konfiguration: Menüs und Befehle unterscheiden sich je nach Produktvariante und Version, maßgeblich bleibt die Herstellerdoku. Neue Gateways werden als Datendatei im Repo gepflegt — kein Anbieter ist im Code verdrahtet.',
+  },
   'settings-updates': {
     intro:
       'Installationen ohne Internetzugang werden nicht per git aktualisiert, sondern über ein signiertes Bundle. Diese Seite prüft ein Bundle, sie spielt es nicht ein — das Einspielen tauscht Quelltext aus und startet den Stack neu und gehört deshalb auf die Kommandozeile.',
@@ -996,6 +1008,18 @@ const en: Record<string, Guidance> = {
       'Set a retention period — without one nothing is deleted automatically. With a period, completed campaigns are checked hourly and anonymised; the metrics stay, the people disappear.',
     ],
     note: 'Even when enabled, the fingerprint is never part of individual-person reports. Requests, approvals, rejections and revocations are recorded in the audit log together with their reason.',
+  },
+  'settings-delivery': {
+    intro:
+      'The most common reason a campaign seems not to arrive is not the software but the mail gateway in front of it: it holds the simulation back — or the link scanner clicks it itself and produces clicks no person ever triggered.',
+    steps: [
+      'Pick the gateway. Sender domain and tracking domain are prefilled from the instance.',
+      'Add the sender IP: with an external SMTP provider that is their outbound IP, not this instance.',
+      'Generate the configuration and hand it to the mail administrator — they apply it, not the dashboard.',
+      'Always enter domain AND IP. An exemption by domain alone also covers anyone spoofing it.',
+      'Exempt the tracking domain from automatic link scanning, otherwise the click rates come out too high.',
+    ],
+    note: 'The output is a suggestion, not a finished configuration: menus and commands differ between product variants and versions, and the vendor documentation stays authoritative. New gateways are maintained as data files in the repo — no vendor is hard-wired into the code.',
   },
   'settings-updates': {
     intro:

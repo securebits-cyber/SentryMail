@@ -568,3 +568,87 @@ export interface BundleVerifyResult {
   code: BundleErrorCode | null
   info: BundleInfo | null
 }
+
+/** Zustellungs-Assistent: Allowlisting-Generator (Welle 9.1). */
+export interface LocalizedText {
+  de: string
+  en: string
+}
+
+export interface GatewayInfo {
+  id: string
+  label: LocalizedText
+  inputs: string[]
+  vendor_docs: string | null
+}
+
+export interface GatewayList {
+  gateways: GatewayInfo[]
+  defaults: Record<string, string>
+}
+
+export interface AllowlistSnippet {
+  id: string
+  title: LocalizedText
+  kind: 'code' | 'steps'
+  note: LocalizedText | null
+  language?: string
+  code?: string
+  steps?: { de: string[]; en: string[] }
+}
+
+export interface AllowlistResult {
+  gateway: string
+  label: LocalizedText
+  vendor_docs: string | null
+  missing_inputs: string[]
+  snippets: AllowlistSnippet[]
+}
+
+/** Zustell-Selbsttest gegen ein Kanarienpostfach (Welle 9.1). */
+export interface DeliveryConfig {
+  canary_address: string
+  imap_host: string
+  imap_port: number
+  imap_username: string
+  has_imap_password: boolean
+  imap_use_ssl: boolean
+  imap_mailbox: string
+}
+
+export interface DeliverySelfTest {
+  id: string
+  campaign_id: string
+  status: 'pending' | 'passed' | 'failed'
+  route: string
+  error: string | null
+  sent_at: string
+  checked_at: string | null
+  detected_at: string | null
+}
+
+/** Zustelldiagnose (Welle 9.1). Befunde kommen als stabile Codes, die
+ *  Übersetzung macht das Frontend — sonst stünde deutscher Text in der
+ *  englischen Oberfläche. */
+export type DiagSeverity = 'ok' | 'info' | 'warn' | 'error'
+
+export interface DiagFinding {
+  code: string
+  severity: DiagSeverity
+  params: Record<string, string | number>
+}
+
+export interface DeliveryDiagnosis {
+  campaign_id: string
+  sender_domain: string
+  dns: DiagFinding[]
+  delivery: DiagFinding[]
+  stats: {
+    total: number
+    sent: number
+    deferred: number
+    failed: number
+    unknown: number
+    codes: Record<string, number>
+  }
+}

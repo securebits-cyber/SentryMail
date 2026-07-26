@@ -1,0 +1,31 @@
+{
+  "id": "postfix",
+  "order": 20,
+  "label": { "de": "Postfix", "en": "Postfix" },
+  "vendor_docs": "https://www.postfix.org/postconf.5.html",
+  "inputs": ["sender_domain", "sender_ips"],
+  "snippets": [
+    {
+      "id": "client-access",
+      "title": { "de": "Absender-Host zulassen", "en": "Permit the sending host" },
+      "kind": "code",
+      "language": "bash",
+      "code": "# /etc/postfix/sentrymail_clients\n{{sender_ips}}   OK\n\n# Danach die Map uebersetzen:\npostmap /etc/postfix/sentrymail_clients",
+      "note": {
+        "de": "Nur noetig, wenn SentryMail ueber dieses Postfix ausliefert. Nutzt die Instanz einen externen SMTP-Anbieter, ist stattdessen dessen Ausgangs-IP einzutragen — die steht beim Anbieter, nicht bei uns.",
+        "en": "Only needed when SentryMail relays through this Postfix. If the instance uses an external SMTP provider, enter that provider's outbound IP instead — which the provider documents, not us."
+      }
+    },
+    {
+      "id": "bypass-filter",
+      "title": { "de": "Inhaltsfilter fuer die Simulation umgehen", "en": "Bypass content filtering for the simulation" },
+      "kind": "code",
+      "language": "bash",
+      "code": "# /etc/postfix/main.cf\nsmtpd_client_restrictions =\n    check_client_access hash:/etc/postfix/sentrymail_clients\n    permit_mynetworks\n    reject_unauth_destination\n\n# Amavis/SpamAssassin fuer die Simulationsdomain ueberspringen:\n# /etc/postfix/sentrymail_bypass\n{{sender_domain}}   FILTER smtp:\n\npostmap /etc/postfix/sentrymail_bypass\nsystemctl reload postfix",
+      "note": {
+        "de": "Die Reihenfolge der Restrictions entscheidet: check_client_access muss vor den ablehnenden Regeln stehen, sonst greift die Ausnahme nie. Vor dem Reload immer postfix check laufen lassen.",
+        "en": "The order of restrictions decides the outcome: check_client_access must come before the rejecting rules, otherwise the exception never applies. Always run postfix check before reloading."
+      }
+    }
+  ]
+}

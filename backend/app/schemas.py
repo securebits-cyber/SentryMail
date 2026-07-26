@@ -706,3 +706,55 @@ class ManagementReport(BaseModel):
     # Im Datenschutzmodus leer - die Kennzahlen des Reports bleiben nutzbar.
     top_failed: list[FailedRecipient]
     individuals_locked: bool = False
+
+
+# --- Zustellungs-Assistent (Welle 9.1) --------------------------------------
+
+
+class AllowlistRequest(BaseModel):
+    """Anfrage an den Allowlisting-Generator.
+
+    ``inputs`` ist bewusst ein freies Mapping: Welche Schluessel ein Gateway
+    braucht, steht im Profil und nicht im Code. Der Service verwirft alles,
+    was nicht zu den bekannten Eingaben gehoert.
+    """
+
+    gateway: str = Field(min_length=1, max_length=64)
+    inputs: dict[str, str] = Field(default_factory=dict)
+
+
+class DeliveryConfigOut(BaseModel):
+    """Kanarienpostfach. Das IMAP-Passwort wird nie zurueckgegeben - nur, ob eines gesetzt ist."""
+
+    canary_address: str
+    imap_host: str
+    imap_port: int
+    imap_username: str
+    has_imap_password: bool
+    imap_use_ssl: bool
+    imap_mailbox: str
+
+
+class DeliveryConfigUpdate(BaseModel):
+    canary_address: str = Field(default="", max_length=320)
+    imap_host: str = Field(default="", max_length=255)
+    imap_port: int = Field(default=993, ge=1, le=65535)
+    imap_username: str = Field(default="", max_length=255)
+    #: None = unveraendert lassen, "" = loeschen. Ohne diese Unterscheidung
+    #: wuerde jedes Speichern der Seite das Passwort verwerfen.
+    imap_password: str | None = Field(default=None, max_length=512)
+    imap_use_ssl: bool = True
+    imap_mailbox: str = Field(default="INBOX", max_length=255)
+
+
+class DeliverySelfTestOut(BaseModel):
+    id: uuid.UUID
+    campaign_id: uuid.UUID
+    status: str
+    route: str
+    error: str | None
+    sent_at: datetime
+    checked_at: datetime | None
+    detected_at: datetime | None
+
+    model_config = ConfigDict(from_attributes=True)

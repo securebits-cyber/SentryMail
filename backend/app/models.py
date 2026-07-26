@@ -329,6 +329,17 @@ class Recipient(Base):
     #: des gesonderten Nachweises der Schulungspflicht nach Paragraf 38 BSIG.
     is_management: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    #: Zustellergebnis des letzten Versandversuchs (Welle 9.1). ``None`` = noch
+    #: nicht versucht. Ohne diese Spalten bliebe vom Fehlschlag nur eine Zahl
+    #: uebrig, und die beantwortet die Frage "warum kam die Mail nicht an" nicht.
+    delivery_status: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    #: SMTP-Statuscode: 4xx voruebergehend (Greylisting, Rate Control),
+    #: 5xx dauerhaft. Ein Verbindungsfehler hat keinen Code.
+    delivery_code: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    delivery_error: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    delivery_checked_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
     #: Zeitpunkt der Anonymisierung durch die Retention (Welle 2). Gesetzt heisst:
     #: E-Mail und Name sind unwiederbringlich ersetzt. Dient zugleich als Marker,
     #: damit ein erneuter Lauf dieselben Zeilen nicht noch einmal anfasst.
@@ -532,3 +543,71 @@ class GroupMember(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     group: Mapped["Group"] = relationship(back_populates="members")
+
+
+class DeliveryConfig(Base):
+    """Kanarienpostfach fuer den Zustell-Selbsttest (Welle 9.1, Singleton).
+
+    Vor dem Kampagnenstart geht eine Probemail ueber denselben Weg wie die
+    Kampagne an ein eigenes Postfach. Kommt sie dort an, ist der Weg frei;
+    kommt sie nicht an, ist es das Gateway und nicht die Software - genau die
+    Frage, die sonst zwei Wochen Support kostet.
+
+    Ohne ``canary_address`` entfaellt der Test kommentarlos: Er ist eine Hilfe,
+    keine Voraussetzung, und darf niemanden am Arbeiten hindern.
+
+    Die IMAP-Zugangsdaten sind laufzeitverwaltete Credentials und liegen daher
+    verschluesselt in der DB (Fernet, abgeleitet aus SECRET_KEY), nie im
+    Klartext und nie in einer API-Antwort.
+    """
+
+    __tablename__ = "delivery_config"
+    __table_args__ = (Index("uq_delivery_config_singleton", text("(true)"), unique=True),)
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    canary_address: Mapped[str] = mapped_column(String(320), default="", nullable=False)
+    #: Ohne IMAP wird die Probemail zwar versendet, aber nicht bestaetigt - der
+    #: Test bleibt dann bei "gesendet, Ankunft unbestaetigt" stehen. Bewusst
+    #: erlaubt: Der Versandfehler ist schon die haelfte der Diagnose.
+    imap_host: Mapped[str] = mapped_column(String(255), default="", nullable=False)
+    imap_port: Mapped[int] = mapped_column(Integer, default=993, nullable=False)
+    imap_username: Mapped[str] = mapped_column(String(255), default="", nullable=False)
+    imap_password_encrypted: Mapped[str | None] = mapped_column(Text, nullable=True)
+    imap_use_ssl: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    imap_mailbox: Mapped[str] = mapped_column(String(255), default="INBOX", nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+
+class DeliverySelfTest(Base):
+    """Ergebnis eines Zustell-Selbsttests (Welle 9.1).
+
+    ``status``: ``pending`` = versendet, Ankunft noch nicht bestaetigt;
+    ``passed`` = im Kanarienpostfach gefunden; ``failed`` = Versand gescheitert
+    oder Suchfrist abgelaufen.
+
+    Ein Fehlschlag blockiert den Kampagnenstart **nicht**. Er warnt - die
+    Entscheidung, trotzdem zu starten, bleibt beim Betreiber, der sein Gateway
+    besser kennt als wir.
+    """
+
+    __tablename__ = "delivery_self_tests"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    campaign_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("campaigns.id", ondelete="CASCADE"), index=True, nullable=False
+    )
+    #: Eindeutiger Marker im Betreff. Ueber ihn wird die Mail im Postfach
+    #: wiedergefunden, ohne fremde Nachrichten anzufassen.
+    token: Mapped[str] = mapped_column(String(64), unique=True, index=True, nullable=False)
+    status: Mapped[str] = mapped_column(String(16), default="pending", nullable=False)
+    #: Schnappschuss des genutzten Absenderwegs - das Sending Profile kann
+    #: spaeter umbenannt oder geloescht werden, der Befund bleibt lesbar.
+    route: Mapped[str] = mapped_column(String(255), default="", nullable=False)
+    error: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    sent_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    checked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    detected_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+    campaign: Mapped["Campaign"] = relationship()
