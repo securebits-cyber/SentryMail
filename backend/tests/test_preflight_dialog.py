@@ -265,7 +265,8 @@ def test_warnings_can_be_acknowledged(client, db, owner, template, auth_headers)
     db.add(BlackoutWindow(label="Sperrzeit", starts_at=now - timedelta(hours=1), ends_at=now + timedelta(hours=2)))
     db.commit()
     campaign = _campaign(db, owner, template)
-    assert client.post(f"/campaigns/{campaign.id}/preflight/ack", headers=auth_headers(owner)).status_code == 200
+    ack = client.post(f"/campaigns/{campaign.id}/preflight/ack", headers=auth_headers(owner))
+    assert ack.status_code == 200
 
 
 def test_changing_the_campaign_revokes_the_acknowledgement(client, db, owner, template, auth_headers):
@@ -276,7 +277,8 @@ def test_changing_the_campaign_revokes_the_acknowledgement(client, db, owner, te
     client.patch(f"/campaigns/{campaign.id}", json={"name": "Anders"}, headers=auth_headers(owner))
     db.expire_all()
     assert db.get(Campaign, campaign.id).preflight_ack_at is None
-    assert client.post(f"/campaigns/{campaign.id}/send", headers=auth_headers(owner)).status_code == 409
+    send = client.post(f"/campaigns/{campaign.id}/send", headers=auth_headers(owner))
+    assert send.status_code == 409
 
 
 def test_changing_exclusions_revokes_the_acknowledgement(client, db, owner, template, auth_headers):

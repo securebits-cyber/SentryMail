@@ -284,7 +284,8 @@ def test_blackout_crud(client, db, make_user, auth_headers):
     listed = client.get("/preflight/blackouts", headers=auth_headers(admin)).json()
     assert [w["label"] for w in listed] == ["Jahresabschluss"]
 
-    assert client.delete(f"/preflight/blackouts/{window_id}", headers=auth_headers(admin)).status_code == 204
+    deleted = client.delete(f"/preflight/blackouts/{window_id}", headers=auth_headers(admin))
+    assert deleted.status_code == 204
     assert client.get("/preflight/blackouts", headers=auth_headers(admin)).json() == []
 
 
