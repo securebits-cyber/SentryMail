@@ -46,17 +46,85 @@ class ProfileError(Exception):
     """Profil ist unbrauchbar oder unbekannt."""
 
 
+def _bilingual(value, where: str) -> dict:
+    """Prueft ein ``{"de": …, "en": …}``-Feld."""
+    if not isinstance(value, dict):
+        raise ProfileError(f"{where}: muss ein Objekt mit de und en sein")
+    for lang in ("de", "en"):
+        if not isinstance(value.get(lang), str) or not value[lang].strip():
+            raise ProfileError(f"{where}: '{lang}' fehlt oder ist kein Text")
+    return value
+
+
+def _check_snippet(snippet, where: str) -> None:
+    if not isinstance(snippet, dict):
+        raise ProfileError(f"{where}: Snippet ist kein Objekt")
+    if not isinstance(snippet.get("id"), str) or not snippet["id"].strip():
+        raise ProfileError(f"{where}: Snippet ohne id")
+    _bilingual(snippet.get("title"), f"{where}.title")
+
+    kind = snippet.get("kind", "code")
+    if kind not in ("code", "steps"):
+        raise ProfileError(f"{where}: unbekannte Art '{kind}'")
+    if kind == "code":
+        if not isinstance(snippet.get("code"), str) or not snippet["code"].strip():
+            raise ProfileError(f"{where}: code fehlt oder ist kein Text")
+        if not isinstance(snippet.get("language", "text"), str):
+            raise ProfileError(f"{where}: language ist kein Text")
+    else:
+        steps = snippet.get("steps")
+        if not isinstance(steps, dict):
+            raise ProfileError(f"{where}: steps fehlt")
+        for lang in ("de", "en"):
+            entries = steps.get(lang)
+            if not isinstance(entries, list) or not entries:
+                raise ProfileError(f"{where}.steps.{lang}: keine Schritte")
+            if not all(isinstance(step, str) for step in entries):
+                raise ProfileError(f"{where}.steps.{lang}: Schritte muessen Text sein")
+
+    if snippet.get("note") is not None:
+        _bilingual(snippet["note"], f"{where}.note")
+
+
 def _load_one(path: Path) -> dict:
+    """Laedt und **validiert** ein Profil vollstaendig.
+
+    Streng, weil ein Profil eine Datendatei ist, an der jemand ohne
+    Codekenntnis arbeitet. Wuerde hier ein falscher Typ durchrutschen, faellt er
+    erst beim Sortieren oder Rendern auf - und dann als ``TypeError``, der den
+    ganzen Assistenten mitreisst statt nur diese eine Datei.
+    """
     data = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(data, dict):
         raise ProfileError(f"{path.name}: kein JSON-Objekt")
     if data.get("id") != path.stem:
         raise ProfileError(f"{path.name}: id '{data.get('id')}' passt nicht zum Dateinamen")
-    unknown = set(data.get("inputs", [])) - set(KNOWN_INPUTS)
+
+    order = data.get("order", 1000)
+    # bool ist in Python ein int - hier waere es fast sicher ein Versehen.
+    if not isinstance(order, int) or isinstance(order, bool):
+        raise ProfileError(f"{path.name}: order muss eine ganze Zahl sein")
+    data["order"] = order
+
+    _bilingual(data.get("label"), f"{path.name}.label")
+
+    inputs = data.get("inputs", [])
+    if not isinstance(inputs, list) or not all(isinstance(i, str) for i in inputs):
+        raise ProfileError(f"{path.name}: inputs muss eine Liste von Texten sein")
+    unknown = set(inputs) - set(KNOWN_INPUTS)
     if unknown:
         raise ProfileError(f"{path.name}: unbekannte Eingaben {sorted(unknown)}")
-    if not data.get("snippets"):
+    data["inputs"] = inputs
+
+    docs = data.get("vendor_docs")
+    if docs is not None and not isinstance(docs, str):
+        raise ProfileError(f"{path.name}: vendor_docs ist kein Text")
+
+    snippets = data.get("snippets")
+    if not isinstance(snippets, list) or not snippets:
         raise ProfileError(f"{path.name}: keine Snippets")
+    for i, snippet in enumerate(snippets):
+        _check_snippet(snippet, f"{path.name}.snippets[{i}]")
     return data
 
 
@@ -74,9 +142,15 @@ def load_profiles() -> list[dict]:
     for path in sorted(PROFILE_DIR.glob("*.json")):
         try:
             profiles.append(_load_one(path))
-        except (ProfileError, ValueError, OSError) as exc:
+        except Exception as exc:  # noqa: BLE001 - eine kaputte Datei darf nie den Rest kippen
+            # Bewusst breit: Die Validierung soll jeden Fehler in einer
+            # Datendatei auf genau diese Datei begrenzen. Eine engere Klausel
+            # hat hier schon einmal einen TypeError durchgelassen, der alle
+            # Profile mitgerissen hat.
             logger.error("Gateway-Profil %s uebersprungen: %s", path.name, exc)
-    profiles.sort(key=lambda p: (p.get("order", 1000), p["id"]))
+    # order ist durch _load_one garantiert ein int - sonst waere die Datei
+    # gar nicht erst in der Liste.
+    profiles.sort(key=lambda p: (p["order"], p["id"]))
     return profiles
 
 

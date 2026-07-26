@@ -252,3 +252,11 @@ def test_campaign_send_is_not_blocked_by_a_failed_selftest(client, db, make_user
     res = client.post(f"/campaigns/{campaign.id}/send", headers=auth_headers(admin))
     # Der Versand darf an SMTP scheitern, aber nicht am Selbsttest.
     assert res.status_code != 409
+
+
+def test_reading_the_selftest_requires_admin(client, make_user, auth_headers, campaign):
+    """Die Antwort nennt Versandweg und ggf. SMTP-/IMAP-Fehlertexte - interne
+    Infrastruktur. Ausserdem loest der Aufruf ein IMAP-Polling aus."""
+    user = make_user(email="deliv-read-plain@example.com", role=UserRole.USER)
+    res = client.get(f"/delivery/selftest/{campaign.id}", headers=auth_headers(user))
+    assert res.status_code == 403

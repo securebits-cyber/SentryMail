@@ -23,7 +23,7 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
-from app.auth.permissions import get_current_user, require_admin
+from app.auth.permissions import require_admin
 from app.config import get_settings
 from app.database import get_db
 from app.models import Campaign, DeliverySelfTest, User
@@ -58,8 +58,13 @@ def _defaults(db: Session) -> dict[str, str]:
 
 
 @router.get("/gateways")
-def list_gateways(db: Session = Depends(get_db), _: User = Depends(get_current_user)) -> dict:
-    """Verfuegbare Gateway-Profile plus Vorbefuellung."""
+def list_gateways(db: Session = Depends(get_db), _: User = Depends(require_admin)) -> dict:
+    """Verfuegbare Gateway-Profile plus Vorbefuellung.
+
+    Admin-only wie der Rest des Assistenten: Ohne das ebenfalls admin-only
+    ``/allowlist`` ist die Liste fuer andere Nutzer ohnehin ohne Zweck, und die
+    Vorbefuellung nennt die Absenderdomain der Instanz.
+    """
     return {
         "gateways": [
             {
@@ -166,9 +171,15 @@ async def start_selftest(
 def read_selftest(
     campaign_id: uuid.UUID,
     db: Session = Depends(get_db),
-    _: User = Depends(get_current_user),
+    _: User = Depends(require_admin),
 ) -> DeliverySelfTest | None:
-    """Letztes Ergebnis. Ein noch offener Test wird dabei nachgeprueft."""
+    """Letztes Ergebnis. Ein noch offener Test wird dabei nachgeprueft.
+
+    Admin-only wie die uebrigen Zustellungs-Endpunkte: Die Antwort nennt den
+    Versandweg und ggf. SMTP-/IMAP-Fehlertexte - interne Infrastruktur, die
+    nicht jeder angemeldete Nutzer sehen muss. Ausserdem loest der Aufruf ein
+    IMAP-Polling aus.
+    """
     _campaign_or_404(db, campaign_id)
     record = selftest.latest_for_campaign(db, campaign_id)
     if record is None:

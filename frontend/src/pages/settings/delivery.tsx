@@ -16,11 +16,14 @@ import type {
   LocalizedText,
 } from '../../types'
 
-/** Allowlisting-Generator (Welle 9.1).
+/** Zustellungs-Assistent (Welle 9.1).
  *
- * Erzeugt aus den Gateway-Profilen des Backends fertige Schnipsel bzw.
- * Schrittfolgen. Die Profile sind Datendateien - neue Gateways erscheinen hier
- * ohne Frontend-Aenderung.
+ * Zwei Teile: das Kanarienpostfach fuer den Zustell-Selbsttest und der
+ * Allowlisting-Generator. Dessen Gateway-Profile sind Datendateien im
+ * Backend - neue Gateways erscheinen hier ohne Frontend-Aenderung.
+ *
+ * Die Diagnose des dritten Teils sitzt bewusst nicht hier, sondern auf der
+ * Ergebnisseite der Kampagne, wo die Frage aufkommt.
  */
 export default function DeliverySettingsPage() {
   const { t, lang } = useI18n()
@@ -69,6 +72,8 @@ export default function DeliverySettingsPage() {
     if (!config) return
     setSaving(true)
     setSaved(false)
+    // Alte Meldung raeumen, sonst bleibt sie trotz Erfolg stehen.
+    setError(null)
     try {
       // Leeres Feld = Passwort unveraendert lassen. Nur ein bewusstes Leeren
       // ueber den Knopf loescht es - sonst verliert jedes Speichern das Passwort.
@@ -100,6 +105,7 @@ export default function DeliverySettingsPage() {
   }
 
   async function refreshSelfTest() {
+    setError(null)
     const res = await api.get<DeliverySelfTest | null>(`/delivery/selftest/${testCampaign}`)
     setTest(res.data)
   }
@@ -145,7 +151,7 @@ export default function DeliverySettingsPage() {
               <span className="font-medium">{t('deliv.canary.address')}</span>
               <input
                 value={config.canary_address}
-                onChange={(e) => setConfig({ ...config, canary_address: e.target.value })}
+                onChange={(e) => setConfig((prev) => (prev ? { ...prev, canary_address: e.target.value } : prev))}
                 placeholder="kanarienvogel@example.de"
                 className="w-full rounded-md border border-border bg-bg px-3 py-2 font-mono text-text-primary"
               />
@@ -157,19 +163,19 @@ export default function DeliverySettingsPage() {
             <div className="mt-2 grid gap-3 sm:grid-cols-2">
               <input
                 value={config.imap_host}
-                onChange={(e) => setConfig({ ...config, imap_host: e.target.value })}
+                onChange={(e) => setConfig((prev) => (prev ? { ...prev, imap_host: e.target.value } : prev))}
                 placeholder="imap.example.de"
                 className="rounded-md border border-border bg-bg px-3 py-2 font-mono text-text-primary"
               />
               <input
                 type="number"
                 value={config.imap_port}
-                onChange={(e) => setConfig({ ...config, imap_port: Number(e.target.value) })}
+                onChange={(e) => setConfig((prev) => (prev ? { ...prev, imap_port: Number(e.target.value) } : prev))}
                 className="rounded-md border border-border bg-bg px-3 py-2 font-mono text-text-primary"
               />
               <input
                 value={config.imap_username}
-                onChange={(e) => setConfig({ ...config, imap_username: e.target.value })}
+                onChange={(e) => setConfig((prev) => (prev ? { ...prev, imap_username: e.target.value } : prev))}
                 placeholder={t('deliv.canary.user')}
                 className="rounded-md border border-border bg-bg px-3 py-2 font-mono text-text-primary"
               />
@@ -182,14 +188,14 @@ export default function DeliverySettingsPage() {
               />
               <input
                 value={config.imap_mailbox}
-                onChange={(e) => setConfig({ ...config, imap_mailbox: e.target.value })}
+                onChange={(e) => setConfig((prev) => (prev ? { ...prev, imap_mailbox: e.target.value } : prev))}
                 className="rounded-md border border-border bg-bg px-3 py-2 font-mono text-text-primary"
               />
               <label className="flex items-center gap-2 text-sm">
                 <input
                   type="checkbox"
                   checked={config.imap_use_ssl}
-                  onChange={(e) => setConfig({ ...config, imap_use_ssl: e.target.checked })}
+                  onChange={(e) => setConfig((prev) => (prev ? { ...prev, imap_use_ssl: e.target.checked } : prev))}
                   className="accent-accent"
                 />
                 {t('deliv.canary.ssl')}
@@ -289,7 +295,7 @@ export default function DeliverySettingsPage() {
               <span className="font-medium">{t(`deliv.input.${key}`)}</span>
               <input
                 value={values[key] ?? ''}
-                onChange={(e) => setValues({ ...values, [key]: e.target.value })}
+                onChange={(e) => setValues((prev) => ({ ...prev, [key]: e.target.value }))}
                 placeholder={t(`deliv.placeholder.${key}`)}
                 className="w-full rounded-md border border-border bg-bg px-3 py-2 font-mono text-text-primary"
               />
