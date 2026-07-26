@@ -11,7 +11,7 @@ labels: security
 
 Instead, please follow our responsible disclosure process:
 
-📧 **Email:** security@humanshield-awareness.de
+📧 **Email:** security@sentrymail.de
 
 **What to include in your email:**
 1. Clear description of the vulnerability

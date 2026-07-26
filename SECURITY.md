@@ -28,8 +28,6 @@ XkvwX0GgjtXqXLhcadG+wWa+LBlO90F7PY/2AQCYycosKm8np5DdNE6m4J87
 3LXcT4P3JXaiNwip/xy/Dw==
 =Aetf
 -----END PGP PUBLIC KEY BLOCK-----
-
-
 **Response Time**: Acknowledgment within 24 hours  
 **Patch Timeline**: 30–90 days depending on severity
  
@@ -46,5 +44,5 @@ XkvwX0GgjtXqXLhcadG+wWa+LBlO90F7PY/2AQCYycosKm8np5DdNE6m4J87
  
 1. **No public disclosures** before fix is released
 2. **Proof-of-concept only when necessary**
-3. **Coordinate with security@humanshield-awareness.de** before public disclosure
+3. **Coordinate with security@sentrymail.de** before public disclosure
 4. **Acknowledgment in security advisories** (anonymous or attributed, your choice)
