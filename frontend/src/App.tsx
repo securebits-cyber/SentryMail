@@ -3,7 +3,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
 import { type ReactElement } from 'react'
-import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom'
+import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router'
 import IntegrationsLayout from './components/IntegrationsLayout'
 import Layout from './components/Layout'
 import SettingsLayout from './components/SettingsLayout'

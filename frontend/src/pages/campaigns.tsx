@@ -3,7 +3,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
 import { useEffect, useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router'
 import Badge, { BadgeTone } from '../components/Badge'
 import CampaignWizard, { CampaignWizardValues } from '../components/CampaignWizard'
 import Card from '../components/Card'

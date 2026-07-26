@@ -3,7 +3,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
 import { Briefcase, Building2, LayoutGrid, Lock, PackageOpen, type LucideIcon } from 'lucide-react'
-import { NavLink, Outlet } from 'react-router-dom'
+import { NavLink, Outlet } from 'react-router'
 import TierBadge, { type Tier } from './TierBadge'
 import { useFeatures } from '../hooks/useFeatures'
 import { useI18n } from '../i18n'

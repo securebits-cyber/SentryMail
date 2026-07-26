@@ -3,7 +3,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
 import { BadgeCheck, Cloud, FileText, FileSignature, Fingerprint, GraduationCap, KeyRound, KeySquare, Lock, MailCheck, MousePointerClick, Network, PackageCheck, Palette, Radar, ScanSearch, ScrollText, Share2, ShieldAlert, Smartphone, ShieldCheck, Sparkles, Users, Webhook, type LucideIcon } from 'lucide-react'
-import { NavLink, Outlet } from 'react-router-dom'
+import { NavLink, Outlet } from 'react-router'
 import TierBadge from './TierBadge'
 import { useFeatures } from '../hooks/useFeatures'
 import { useMe } from '../hooks/useMe'

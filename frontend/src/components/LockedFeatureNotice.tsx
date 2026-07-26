@@ -3,7 +3,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
 import { Lock } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 import TierBadge from './TierBadge'
 import ComingSoonBadge from './ComingSoonBadge'
 import { COMING_SOON } from '../comingSoon'

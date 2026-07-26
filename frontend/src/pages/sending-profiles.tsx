@@ -3,7 +3,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
 import { useEffect, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router'
 import Card from '../components/Card'
 import PageScaffold from '../components/PageScaffold'
 import SendingProfileForm, { SendingProfileFormValues } from '../components/SendingProfileForm'

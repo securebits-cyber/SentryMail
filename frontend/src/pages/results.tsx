@@ -4,7 +4,7 @@
 
 import { FileText, Lock } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 import Card from '../components/Card'
 import PageScaffold from '../components/PageScaffold'
 import ResultsTable from '../components/ResultsTable'

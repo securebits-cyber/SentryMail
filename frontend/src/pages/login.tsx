@@ -4,7 +4,7 @@
 
 import { KeyRound, ShieldCheck } from 'lucide-react'
 import { FormEvent, useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 import TwoFASetup from '../components/TwoFASetup'
 import BrandLockup from '../components/BrandLockup'
 import LanguageSwitcher from '../components/LanguageSwitcher'
