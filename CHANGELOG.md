@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.42.0](https://github.com/securebits-cyber/SentryMail/compare/v0.41.0...v0.42.0) (2026-07-26)
+
+
+### Features
+
+* **audit:** Nachweiskette (Welle 9.3 Core) / Evidence chain (wave 9.3 core) ([#161](https://github.com/securebits-cyber/SentryMail/issues/161)) ([e233b8e](https://github.com/securebits-cyber/SentryMail/commit/e233b8e0ca1f4d3b7072796031990a20fd70f6b4))
+
 ## [0.41.0](https://github.com/securebits-cyber/SentryMail/compare/v0.40.0...v0.41.0) (2026-07-26)
 
 
