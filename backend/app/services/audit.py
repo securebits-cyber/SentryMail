@@ -6,6 +6,9 @@
 
 Fehler beim Schreiben eines Audit-Ereignisses duerfen den eigentlichen
 Vorgang (Login, Speichern) niemals brechen.
+
+Seit Welle 9.3 ist jeder Eintrag in eine Hash-Kette eingehaengt - siehe
+``audit_chain``. Das Anhaengen laeuft deshalb unter einer Sperre.
 """
 from __future__ import annotations
 
@@ -15,6 +18,7 @@ from fastapi import Request
 from sqlalchemy.orm import Session
 
 from app.models import AuditEvent, User
+from app.services import audit_chain
 
 logger = logging.getLogger(__name__)
 
@@ -40,6 +44,10 @@ def record_audit(
     ip: str | None = None,
 ) -> None:
     try:
+        # Serialisiert das Anhaengen bis zum Commit weiter unten. Ohne die
+        # Sperre lesen zwei parallele Anhaenger denselben Vorgaenger und die
+        # Kette gabelt sich (Welle 9.3).
+        audit_chain.lock_chain(db)
         event = AuditEvent(
             actor_id=actor.id if actor else None,
             actor_email=(actor.email if actor else actor_email) or "",
@@ -49,6 +57,7 @@ def record_audit(
             description=description,
             ip=ip,
         )
+        audit_chain.prepare(db, event)
         db.add(event)
         db.commit()
     except Exception:  # noqa: BLE001

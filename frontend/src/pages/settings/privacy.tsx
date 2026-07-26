@@ -20,6 +20,7 @@ export default function PrivacySettingsPage() {
   const [modeEnabled, setModeEnabled] = useState(false)
   const [kThreshold, setKThreshold] = useState(5)
   const [retentionDays, setRetentionDays] = useState('')
+  const [auditRetentionDays, setAuditRetentionDays] = useState('')
   const [lastRun, setLastRun] = useState<string | null>(null)
   const [preview, setPreview] = useState<RetentionPreview | null>(null)
   const [purging, setPurging] = useState(false)
@@ -35,6 +36,9 @@ export default function PrivacySettingsPage() {
         setModeEnabled(res.data.privacy_mode_enabled)
         setKThreshold(res.data.k_anonymity_threshold)
         setRetentionDays(res.data.retention_days === null ? '' : String(res.data.retention_days))
+        setAuditRetentionDays(
+          res.data.audit_retention_days === null ? '' : String(res.data.audit_retention_days),
+        )
         setLastRun(res.data.retention_last_run_at)
       })
       .finally(() => setLoaded(true))
@@ -57,6 +61,7 @@ export default function PrivacySettingsPage() {
         privacy_mode_enabled: modeEnabled,
         k_anonymity_threshold: kThreshold,
         retention_days: retentionDays === '' ? null : Number(retentionDays),
+        audit_retention_days: auditRetentionDays === '' ? null : Number(auditRetentionDays),
       })
       setMessage({ kind: 'info', text: t('priv.saved') })
       loadPreview()
@@ -154,6 +159,23 @@ export default function PrivacySettingsPage() {
               />
             </label>
             <p className="mt-1.5 text-sm text-text-secondary">{t('priv.ret.desc')}</p>
+
+            {/* Eigene Frist fuer das Audit-Log: Es ist der Nachweis im
+                Pruefungsfall und darf nicht stillschweigend mitverschwinden. */}
+            <label className="mt-4 flex flex-col gap-1 text-sm">
+              <span className="font-medium">{t('priv.auditRet.label')}</span>
+              <input
+                type="number"
+                min={1}
+                max={3650}
+                value={auditRetentionDays}
+                disabled={readOnly}
+                placeholder={t('priv.ret.placeholder')}
+                onChange={(e) => setAuditRetentionDays(e.target.value)}
+                className="w-40 rounded-md border border-border bg-bg px-3 py-2 text-text-primary disabled:opacity-60"
+              />
+            </label>
+            <p className="mt-1.5 text-sm text-text-secondary">{t('priv.auditRet.desc')}</p>
 
             {/* Der wichtigste Satz der Seite: solange nichts eingetragen ist,
                 loescht die Anwendung nichts. Das darf niemand uebersehen. */}

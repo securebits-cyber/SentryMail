@@ -166,6 +166,10 @@ def _describe_privacy_changes(config: PrivacyConfig, payload: PrivacyConfigUpdat
         parts.append(
             f"k-Anonymitaet {config.k_anonymity_threshold} → {payload.k_anonymity_threshold}"
         )
+    if payload.audit_retention_days != config.audit_retention_days:
+        alt = f"{config.audit_retention_days} Tage" if config.audit_retention_days else "aus"
+        neu = f"{payload.audit_retention_days} Tage" if payload.audit_retention_days else "aus"
+        parts.append(f"Audit-Aufbewahrung {alt} → {neu}")
     if payload.retention_days != config.retention_days:
         old = f"{config.retention_days} Tage" if config.retention_days else "aus"
         new = f"{payload.retention_days} Tage" if payload.retention_days else "aus"
@@ -186,6 +190,7 @@ def update_privacy(
     config.privacy_mode_enabled = payload.privacy_mode_enabled
     config.k_anonymity_threshold = payload.k_anonymity_threshold
     config.retention_days = payload.retention_days
+    config.audit_retention_days = payload.audit_retention_days
     db.commit()
     db.refresh(config)
     record_audit(

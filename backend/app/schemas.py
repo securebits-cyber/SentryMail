@@ -92,6 +92,9 @@ class PrivacyConfigOut(BaseModel):
     k_anonymity_threshold: int
     # None = keine automatische Loeschung (Auslieferungszustand).
     retention_days: int | None
+    #: Eigene Frist fuer die Inhalte des Audit-Logs. Getrennt, weil das
+    #: Audit-Log der Nachweis im Pruefungsfall ist (Welle 9.3).
+    audit_retention_days: int | None = None
     retention_last_run_at: datetime | None
 
 
@@ -155,6 +158,10 @@ class PrivacyConfigUpdate(BaseModel):
     # None = automatische Loeschung aus. Obergrenze 10 Jahre - laenger ist keine
     # Aufbewahrungsfrist mehr, sondern ein Archiv.
     retention_days: int | None = Field(default=None, ge=1, le=3650)
+    # Eigene Frist fuer die Inhalte des Audit-Logs (Welle 9.3). Getrennt, weil
+    # das Audit-Log der Nachweis im Pruefungsfall ist und nicht stillschweigend
+    # mit den Kampagnendaten verschwinden darf. None = Inhalte bleiben.
+    audit_retention_days: int | None = Field(default=None, ge=1, le=3650)
 
 
 # --- User ---

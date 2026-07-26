@@ -264,6 +264,8 @@ export interface PrivacyConfig {
   k_anonymity_threshold: number
   // null = keine automatische Loeschung (Auslieferungszustand).
   retention_days: number | null
+  // Eigene Frist für die Inhalte des Audit-Logs (Welle 9.3).
+  audit_retention_days: number | null
   retention_last_run_at: string | null
 }
 
@@ -721,4 +723,19 @@ export interface CampaignApproval {
   decided_at: string | null
   note: string | null
   created_at: string
+}
+
+/** Nachweiskette des Audit-Logs (Welle 9.3). */
+export interface ChainProblem {
+  seq: number
+  code: 'gap' | 'broken_link' | 'content_altered'
+  detail: string
+}
+
+export interface ChainStatus {
+  entries: number
+  head_seq: number | null
+  head_hash: string | null
+  intact: boolean
+  problems: ChainProblem[]
 }
