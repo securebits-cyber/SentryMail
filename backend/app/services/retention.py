@@ -25,6 +25,7 @@ from sqlalchemy.orm import Session
 
 from app.models import Campaign, CampaignStatus, PrivacyConfig, Recipient, TrackingEvent, User
 from app.services.audit import record_audit
+from app.services import audit_chain
 from app.utils.singleton import get_or_create_singleton
 
 logger = logging.getLogger(__name__)
@@ -116,7 +117,21 @@ def purge_expired(
     zweiter Lauf findet sie nicht mehr.
     """
     config: PrivacyConfig = get_or_create_singleton(db, PrivacyConfig)
+
+    # Eigene Frist, eigener Lauf: Das Audit-Log ist der Nachweis im
+    # Pruefungsfall und darf nicht stillschweigend mit den Kampagnendaten
+    # verschwinden. Geloescht wird nur der Inhalt - die Kette bleibt (9.3).
+    if config.audit_retention_days is not None:
+        purged = audit_chain.purge_content(
+            db, cutoff_for(config.audit_retention_days, now or datetime.now(timezone.utc))
+        )
+        if purged:
+            db.commit()
+            logger.info("Audit-Inhalte aelter als %s Tage geleert: %s Eintraege",
+                        config.audit_retention_days, purged)
+
     if config.retention_days is None:
+        db.commit()
         return RetentionStats()
 
     moment = now or datetime.now(timezone.utc)
