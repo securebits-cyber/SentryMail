@@ -4,7 +4,7 @@
 
 import { Download, FileText, Lock, Sparkles } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 import Card from '../components/Card'
 import { RiskMeter, type RiskSummary } from '../components/DashboardCharts'
 import PageScaffold from '../components/PageScaffold'

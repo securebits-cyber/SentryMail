@@ -3,7 +3,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
 import { Blocks, Briefcase, Building2, LayoutGrid, Lock, PackageOpen, type LucideIcon } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 import { tierStyles, type Tier } from '../../components/AddonPage'
 import PageScaffold from '../../components/PageScaffold'
 import { useFeatures } from '../../hooks/useFeatures'

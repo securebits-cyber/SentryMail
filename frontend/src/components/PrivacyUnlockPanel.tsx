@@ -4,7 +4,7 @@
 
 import { AlertTriangle } from 'lucide-react'
 import { FormEvent, useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 import Badge from './Badge'
 import { useMe } from '../hooks/useMe'
 import { useI18n } from '../i18n'

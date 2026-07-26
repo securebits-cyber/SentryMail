@@ -4,7 +4,7 @@
 
 import { BookOpen, Globe, Lock } from 'lucide-react'
 import { useEffect, useRef, useState, type ChangeEvent } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router'
 import Card from '../components/Card'
 import PageScaffold from '../components/PageScaffold'
 import TemplateForm, { TemplateFormValues } from '../components/TemplateForm'

@@ -4,7 +4,7 @@
 
 import { ArrowLeft, CheckCircle2, FileDown } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router'
 import BetaBadge from '../components/BetaBadge'
 import Card from '../components/Card'
 import LmsQuiz from '../components/LmsQuiz'

@@ -3,7 +3,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 import { GraduationCap, KeyRound, Mail, MailOpen, MousePointerClick, Send, Users, type LucideIcon } from 'lucide-react'
 import Badge from '../components/Badge'
 import Card from '../components/Card'
