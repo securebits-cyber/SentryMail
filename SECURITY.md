@@ -11,7 +11,15 @@
 Security vulnerabilities can be reported confidentially to:
  
 **Email**: security@sentrymail.de  
-**PGP Key**: -----BEGIN PGP PUBLIC KEY BLOCK-----
+**Response Time**: Acknowledgment within 24 hours  
+**Patch Timeline**: 30–90 days depending on severity
+
+**PGP Key** — save to a file and import with `gpg --import`.
+Fingerprint: `E76E B82D D51E 880D 2309 B471 9BD0 2E65 9361 A33B`
+(the key carries the user ID `md@secure-bits.org`; it is the correct key for the address above).
+
+```text
+-----BEGIN PGP PUBLIC KEY BLOCK-----
 
 xjMEaZk+sRYJKwYBBAHaRw8BAQdAz6rf3rkWb8q7/r57zjh5/Go7QZcyaFJr
 PqINvrsB2CjNJ21kQHNlY3VyZS1iaXRzLm9yZyA8bWRAc2VjdXJlLWJpdHMu
@@ -28,8 +36,7 @@ XkvwX0GgjtXqXLhcadG+wWa+LBlO90F7PY/2AQCYycosKm8np5DdNE6m4J87
 3LXcT4P3JXaiNwip/xy/Dw==
 =Aetf
 -----END PGP PUBLIC KEY BLOCK-----
-**Response Time**: Acknowledgment within 24 hours  
-**Patch Timeline**: 30–90 days depending on severity
+```
  
 ### Vulnerability Severity Classification
  

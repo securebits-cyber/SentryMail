@@ -7,7 +7,7 @@ assignees: ''
 ---
 
 ## Integration Request
-What system or API would you like to integrate with HumanShield?
+What system or API would you like to integrate with SentryMail?
 
 ## System/Service Details
 - **Name:** [e.g., Slack, Microsoft Teams, Jira]
@@ -18,7 +18,7 @@ What system or API would you like to integrate with HumanShield?
 Describe the integration scenario:
 
 ## Expected Benefits
-How would this integration improve HumanShield?
+How would this integration improve SentryMail?
 
 ## Scope
 - [ ] Notifications/Alerts

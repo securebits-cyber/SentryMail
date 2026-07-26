@@ -1,6 +1,6 @@
 ---
 name: Documentation Improvement
-about: Suggest improvements to HumanShield documentation
+about: Suggest improvements to SentryMail documentation
 title: '[DOCS] '
 labels: documentation
 assignees: ''

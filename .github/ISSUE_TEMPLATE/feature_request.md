@@ -1,6 +1,6 @@
 ---
 name: Feature Request
-about: Suggest an enhancement or new feature for HumanShield
+about: Suggest an enhancement or new feature for SentryMail
 title: '[FEATURE] '
 labels: enhancement
 ---
@@ -13,7 +13,7 @@ Describe the solution you'd like.
 
 ## Target Audience
 - [ ] End Users (Security Awareness Participants)
-- [ ] Administrators (HumanShield Platform Users)
+- [ ] Administrators (SentryMail Platform Users)
 - [ ] Integrators (API/Custom Implementations)
 - [ ] Security Teams (Reporting/Analytics)
 - [ ] All of the above

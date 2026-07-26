@@ -10,7 +10,7 @@ contact_links:
     url: mailto:security@sentrymail.de
     about: Report security vulnerabilities via email (NOT GitHub Issues)
   - name: Commercial Support
-    url: https://humanshield-awareness.de/support
+    url: mailto:support@sentrymail.de
     about: Enterprise support and consulting
   - name: BSI Compliance Question
     url: https://github.com/securebits-cyber/SentryMail/discussions/categories/compliance
