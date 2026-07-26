@@ -10,7 +10,7 @@
  
 Security vulnerabilities can be reported confidentially to:
  
-**Email**: security@humanshield-awareness.de  
+**Email**: security@sentrymail.de  
 **PGP Key**: [GPG-Fingerprint to be added]  
 **Response Time**: Acknowledgment within 24 hours  
 **Patch Timeline**: 30–90 days depending on severity
@@ -28,5 +28,5 @@ Security vulnerabilities can be reported confidentially to:
  
 1. **No public disclosures** before fix is released
 2. **Proof-of-concept only when necessary**
-3. **Coordinate with security@humanshield-awareness.de** before public disclosure
+3. **Coordinate with security@sentrymail.de** before public disclosure
 4. **Acknowledgment in security advisories** (anonymous or attributed, your choice)
