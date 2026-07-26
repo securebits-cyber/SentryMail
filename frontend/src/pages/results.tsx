@@ -6,6 +6,7 @@ import { FileText, Lock } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router'
 import Card from '../components/Card'
+import DeliveryDiagnosisCard from '../components/DeliveryDiagnosisCard'
 import PageScaffold from '../components/PageScaffold'
 import ResultsTable from '../components/ResultsTable'
 import TierBadge from '../components/TierBadge'
@@ -118,6 +119,8 @@ export default function ResultsPage() {
           </div>
         </Card>
       )}
+
+      {campaignId && <DeliveryDiagnosisCard campaignId={campaignId} />}
 
       {error && <p className="mt-4 text-sm text-status-danger">{error}</p>}
       <div className="mt-4 flex items-center gap-4">

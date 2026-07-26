@@ -19,7 +19,7 @@ from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-from aiosmtplib import SMTP
+from aiosmtplib import SMTP, SMTPRecipientsRefused, SMTPResponseException
 from jinja2 import Template
 
 from app.config import get_settings
@@ -28,6 +28,22 @@ from app.utils.images import svg_to_png
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
+
+
+def smtp_status_code(exc: BaseException) -> int | None:
+    """SMTP-Statuscode aus einer aiosmtplib-Ausnahme, sonst ``None``.
+
+    Der Code traegt die entscheidende Information: 4xx ist voruebergehend
+    (Greylisting, Rate Control), 5xx dauerhaft (abgelehnt, Postfach unbekannt).
+    Ein Verbindungsfehler hat gar keinen Code - dann bleibt es bei ``None``,
+    statt eine Zahl zu erfinden.
+    """
+    if isinstance(exc, SMTPResponseException):
+        return exc.code
+    if isinstance(exc, SMTPRecipientsRefused) and exc.recipients:
+        first = exc.recipients[0]
+        return getattr(first, "code", None)
+    return None
 
 
 async def _open_smtp(
@@ -148,7 +164,10 @@ async def send_campaign_messages(
     # sent_tokens: Tracking-Tokens der tatsaechlich erfolgreich zugestellten
     # Empfaenger. Der Aufrufer markiert nur diese als versendet, damit
     # Fehlversaende nicht faelschlich als "Abgeschickt" zaehlen.
-    results: dict = {"success": 0, "failed": 0, "sent_tokens": []}
+    # failures: je gescheitertem Empfaenger Token, SMTP-Statuscode und Text.
+    # Grundlage der Zustelldiagnose - ohne diese Angaben bliebe vom Fehlschlag
+    # nur eine Zahl uebrig, und die beantwortet keine einzige Frage.
+    results: dict = {"success": 0, "failed": 0, "sent_tokens": [], "failures": []}
 
     # Optionales Logo einmal dekodieren und als Inline-Bild (CID) vorbereiten.
     # Im HTML über {{ logo }} platzierbar; rendert zuverlässig in Mail-Clients
@@ -255,6 +274,13 @@ async def send_campaign_messages(
                 results["sent_tokens"].append(token)
             except Exception as e:  # noqa: BLE001
                 results["failed"] += 1
+                # Den SMTP-Statuscode festhalten, nicht nur den Text: Er
+                # unterscheidet die dauerhafte Ablehnung (5xx) von der
+                # voruebergehenden (4xx, typisch Greylisting) - genau die
+                # Unterscheidung, an der die spaetere Diagnose haengt.
+                results["failures"].append(
+                    {"token": token, "code": smtp_status_code(e), "message": str(e)[:512]}
+                )
                 logger.error("Zustellung an %s fehlgeschlagen: %s", recipient["email"], e)
 
             if (i + 1) % 5 == 0:

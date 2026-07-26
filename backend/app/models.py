@@ -329,6 +329,17 @@ class Recipient(Base):
     #: des gesonderten Nachweises der Schulungspflicht nach Paragraf 38 BSIG.
     is_management: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    #: Zustellergebnis des letzten Versandversuchs (Welle 9.1). ``None`` = noch
+    #: nicht versucht. Ohne diese Spalten bliebe vom Fehlschlag nur eine Zahl
+    #: uebrig, und die beantwortet die Frage "warum kam die Mail nicht an" nicht.
+    delivery_status: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    #: SMTP-Statuscode: 4xx voruebergehend (Greylisting, Rate Control),
+    #: 5xx dauerhaft. Ein Verbindungsfehler hat keinen Code.
+    delivery_code: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    delivery_error: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    delivery_checked_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
     #: Zeitpunkt der Anonymisierung durch die Retention (Welle 2). Gesetzt heisst:
     #: E-Mail und Name sind unwiederbringlich ersetzt. Dient zugleich als Marker,
     #: damit ein erneuter Lauf dieselben Zeilen nicht noch einmal anfasst.

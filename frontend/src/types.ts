@@ -626,3 +626,29 @@ export interface DeliverySelfTest {
   checked_at: string | null
   detected_at: string | null
 }
+
+/** Zustelldiagnose (Welle 9.1). Befunde kommen als stabile Codes, die
+ *  Übersetzung macht das Frontend — sonst stünde deutscher Text in der
+ *  englischen Oberfläche. */
+export type DiagSeverity = 'ok' | 'info' | 'warn' | 'error'
+
+export interface DiagFinding {
+  code: string
+  severity: DiagSeverity
+  params: Record<string, string | number>
+}
+
+export interface DeliveryDiagnosis {
+  campaign_id: string
+  sender_domain: string
+  dns: DiagFinding[]
+  delivery: DiagFinding[]
+  stats: {
+    total: number
+    sent: number
+    deferred: number
+    failed: number
+    unknown: number
+    codes: Record<string, number>
+  }
+}

@@ -2,11 +2,17 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-"""Zustellungs-Assistent: Allowlisting-Generator (Welle 9.1, Core).
+"""Zustellungs-Assistent (Welle 9.1, Core).
 
-Rein rechnend - kein Zustand, keine Migration. Der Assistent erzeugt aus den
-Gateway-Profilen fertige Schnipsel bzw. Schrittfolgen, die der Mailadministrator
-des Kunden umsetzt.
+Drei Bausteine gegen den groessten Supportkostentreiber der ersten zwei Wochen
+beim Kunden - das Mail-Gateway vor der Instanz:
+
+* **Allowlisting-Generator** - erzeugt aus pflegbaren Gateway-Profilen fertige
+  Schnipsel bzw. Schrittfolgen fuer den Mailadministrator des Kunden.
+* **Zustell-Selbsttest** - Probemail ueber den Weg der Kampagne an ein
+  Kanarienpostfach. Warnt, blockiert nie.
+* **Diagnose** - warum eine Mail nicht ankam: SPF/DKIM/DMARC der
+  Absenderdomain, Bounce-Auswertung, Greylisting-Erkennung.
 
 Die Vorbefuellung kommt aus der Instanz selbst (Absenderdomain aus dem
 Fallback-SMTP, Tracking-Domain aus ``APP_DOMAIN``), damit niemand Werte
@@ -29,6 +35,7 @@ from app.schemas import (
 )
 from app.services import delivery_selftest as selftest
 from app.services.audit import client_ip, record_audit
+from app.services.delivery_diag import diagnose
 from app.services.delivery_profiles import ProfileError, load_profiles, render
 from app.services.smtp_config import get_or_create_smtp_config
 from app.utils.crypto import encrypt
@@ -167,3 +174,19 @@ def read_selftest(
     if record is None:
         return None
     return selftest.poll(db, record)
+
+
+@router.get("/diagnosis/{campaign_id}")
+def read_diagnosis(
+    campaign_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    _: User = Depends(require_admin),
+) -> dict:
+    """Diagnose "Warum kam die Mail nicht an".
+
+    Wertet Zustellstatus und die DNS-Eintraege der Absenderdomain aus. Das ist
+    eine Zustellungs-, keine Personenauswertung - die k-Anonymitaetsschwelle aus
+    Welle 2 greift hier deshalb nicht.
+    """
+    campaign = _campaign_or_404(db, campaign_id)
+    return diagnose(db, campaign)
