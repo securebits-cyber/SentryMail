@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.39.0](https://github.com/securebits-cyber/SentryMail/compare/v0.38.0...v0.39.0) (2026-07-26)
+
+
+### Features
+
+* **update:** Signierte Offline-Bundles fuer abgeschottete Instanzen … ([#154](https://github.com/securebits-cyber/SentryMail/issues/154)) ([62bd601](https://github.com/securebits-cyber/SentryMail/commit/62bd60133e2b744c97a266a958e25e2a1c19db05))
+
 ## [0.38.0](https://github.com/securebits-cyber/SentryMail/compare/v0.37.1...v0.38.0) (2026-07-26)
 
 
