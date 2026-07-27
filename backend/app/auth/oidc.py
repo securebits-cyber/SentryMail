@@ -21,6 +21,7 @@ from app.database import get_db
 from app.models import OidcConfig, User
 from app.utils.crypto import decrypt
 from app.utils.security import create_access_token, issue_session
+from app.services import session_policy
 
 logger = logging.getLogger(__name__)
 
@@ -137,7 +138,8 @@ async def callback(request: Request, db: Session = Depends(get_db)):
 
     # Session als httpOnly-Cookie setzen und ohne Token in der URL zur App
     # zurückleiten (kein Token in Fragment/Logs, nicht per JS lesbar).
-    session_token = create_access_token(subject=str(user.id))
+    minutes = session_policy.idle_minutes(db)
+    session_token = create_access_token(subject=str(user.id), expires_minutes=minutes)
     redirect = RedirectResponse(url="/")
-    issue_session(redirect, session_token)
+    issue_session(redirect, session_token, max_age_minutes=minutes)
     return redirect

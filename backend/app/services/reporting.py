@@ -16,6 +16,7 @@ from sqlalchemy.orm import Session
 
 from app.models import Campaign, Recipient, TrackingEvent, TrackingEventType
 from app.services import privacy
+from app.services.campaign import UNDELIVERABLE_SUFFIX
 from app.schemas import (
     ActivityHeatmap,
     BreakdownSlice,
@@ -34,6 +35,32 @@ from app.schemas import (
 )
 
 _ENGAGED = [TrackingEventType.CLICKED, TrackingEventType.SUBMITTED]
+
+
+def drop_campaign_ids(db: Session) -> set:
+    """Kampagnen, die keine Mail versenden - erkennbar an den Empfaengerzeilen.
+
+    Ein USB-Drop legt je Fundort eine Zeile an, deren Adresse auf ``.invalid``
+    endet (RFC 2606, nie zustellbar). Wo **alle** Zeilen so aussehen, steht
+    hinter keiner davon eine Person - dort sind es Datentraeger.
+
+    Bewusst ueber dieses Merkmal und nicht ueber den Kanal: Der Kanal gehoert
+    zum Enterprise-Add-on, und die Auswertung im Core darf davon nicht
+    abhaengen. Die Adresse steht dagegen in der Core-Tabelle und sagt genau
+    das, worauf es hier ankommt - dass niemand dahintersteht.
+    """
+    rows = db.query(Recipient.campaign_id, Recipient.email).all()
+    seen: dict = {}
+    for campaign_id, email in rows:
+        placeholder = (email or "").lower().endswith(UNDELIVERABLE_SUFFIX)
+        # Sobald eine echte Adresse dabei ist, ist es keine reine Drop-Kampagne.
+        seen[campaign_id] = seen.get(campaign_id, True) and placeholder
+    return {cid for cid, only_drops in seen.items() if only_drops}
+
+
+def is_placeholder(email: str | None) -> bool:
+    """Empfaengerzeile ohne Person dahinter (Fundort statt Postfach)."""
+    return (email or "").lower().endswith(UNDELIVERABLE_SUFFIX)
 
 
 def risk_points(types) -> int:

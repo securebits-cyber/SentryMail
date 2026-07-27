@@ -114,10 +114,11 @@ const de: Record<string, Guidance> = {
       'Vorher sicherstellen, dass Vorlage, Gruppe und (optional) Landing Page angelegt sind.',
       'Neue Kampagne anlegen und die Bausteine im Assistenten auswählen.',
       'Absender über ein Sending Profile festlegen — sonst wird das globale Fallback-SMTP genutzt.',
-      'Kampagne speichern und anschließend über „Senden“ den Versand starten.',
+      'Kampagne speichern und anschließend über „Senden“ den Versand starten. „Senden“ verschickt noch nichts, sondern öffnet den Preflight — den Pflichtdialog vor dem Start.',
+      'Im Preflight prüfen, wen die Kampagne trifft: Empfängerzahl nach Abzug der Ausschlüsse, betroffene Gruppen, Versandzeitpunkt und Risikoklasse. Erst die Bestätigung dort löst den Versand aus.',
       'Nach dem Versand die Ergebnisse (Öffnungen, Klicks, Eingaben) auswerten.',
     ],
-    note: 'Starte im Zweifel mit einer kleinen Testgruppe.',
+    note: 'Starte im Zweifel mit einer kleinen Testgruppe. Ohne bestätigten Preflight startet keine Kampagne — und jede Änderung an Kampagne oder Ausschlüssen setzt die Bestätigung zurück, weil sie für einen Stand galt, den niemand mehr sieht.',
   },
   results: {
     intro:
@@ -635,10 +636,11 @@ const en: Record<string, Guidance> = {
       'First make sure template, group and (optionally) landing page are created.',
       'Create a new campaign and select the building blocks in the wizard.',
       'Set the sender via a sending profile — otherwise the global fallback SMTP is used.',
-      'Save the campaign and then start delivery via “Send”.',
+      'Save the campaign and then start delivery via “Send”. “Send” does not dispatch anything yet — it opens the preflight, the mandatory dialog before a start.',
+      'In the preflight, check who the campaign reaches: recipient count after exclusions, affected groups, send time and risk class. Only confirming there triggers delivery.',
       'After sending, evaluate the results (opens, clicks, input).',
     ],
-    note: 'When in doubt, start with a small test group.',
+    note: 'When in doubt, start with a small test group. No campaign starts without a confirmed preflight — and any change to the campaign or its exclusions resets the confirmation, because it applied to a state nobody sees any more.',
   },
   results: {
     intro:

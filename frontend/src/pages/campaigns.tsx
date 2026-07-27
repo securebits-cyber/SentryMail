@@ -71,6 +71,18 @@ export default function CampaignsPage() {
   // Fundorten - ohne Umweg ueber eine zweite Seite.
   const [usbCampaignId, setUsbCampaignId] = useState<string | null>(null)
 
+  // Kampagnen, die nicht per Mail laufen (Enterprise-Kanaele). Ohne Add-on
+  // oder ohne Lizenz antwortet der Endpunkt nicht - dann ist die Zuordnung
+  // leer und alles gilt als Mail. Genau das ist im Core auch richtig.
+  const [channels, setChannels] = useState<Record<string, string>>({})
+
+  useEffect(() => {
+    api
+      .get<{ campaign_id: string; channel: string }[]>('/channels/campaigns')
+      .then((res) => setChannels(Object.fromEntries(res.data.map((c) => [c.campaign_id, c.channel]))))
+      .catch(() => setChannels({}))
+  }, [])
+
   async function handleCreate(values: CampaignWizardValues) {
     setSubmitting(true)
     setMessage(null)
@@ -252,9 +264,24 @@ export default function CampaignsPage() {
                     <Badge tone={statusTone[campaign.status]}>{t(statusKeys[campaign.status])}</Badge>
                   </td>
                   <td className="py-2 text-right whitespace-nowrap">
-                    <button onClick={() => setPreflightFor(campaign)} className="mr-3 text-status-success hover:underline">
-                      {t('camp.send')}
-                    </button>
+                    {channels[campaign.id] ? (
+                      // Kein Senden-Knopf fuer andere Kanaele. Beim USB-Drop
+                      // gibt es nichts zu versenden; bei SMS, Matrix und Talk
+                      // wuerde dieser Knopf **Mail** verschicken, weil der
+                      // Core-Versand keine Kanaele kennt. Der Weg dorthin
+                      // fuehrt ueber "Weitere Kanaele".
+                      <Link
+                        to="/channel-campaigns"
+                        className="mr-3 text-text-secondary hover:underline"
+                        title={t('camp.channelHint')}
+                      >
+                        {t(`cw.channel.${channels[campaign.id]}`)}
+                      </Link>
+                    ) : (
+                      <button onClick={() => setPreflightFor(campaign)} className="mr-3 text-status-success hover:underline">
+                        {t('camp.send')}
+                      </button>
+                    )}
                     {(campaign.status === 'draft' || campaign.status === 'scheduled') && (
                       <button
                         onClick={() => setEditing(campaign)}

@@ -78,10 +78,14 @@ class SecurityConfigOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     require_2fa: str  # off | admins | all
+    idle_logout_minutes: int  # 0 = aus
 
 
 class SecurityConfigUpdate(BaseModel):
     require_2fa: str
+    # Obergrenze 1440 (24 h): Alles darueber waere keine automatische Abmeldung
+    # mehr, sondern eine Sitzung ohne Ende mit einer Zahl davor.
+    idle_logout_minutes: int = Field(default=0, ge=0, le=1440)
 
 
 class PrivacyConfigOut(BaseModel):

@@ -60,6 +60,18 @@ class TemplateMissingError(Exception):
     """Mailversand ohne Vorlage angefordert."""
 
 
+class NothingToSendError(Exception):
+    """Kein zustellbarer Empfaenger uebrig."""
+
+
+#: Nach RFC 2606 reservierte Endung: Adressen darauf koennen nie zugestellt
+#: werden. Sie entstehen, wo eine Empfaengerzeile technisch gebraucht wird,
+#: aber kein Postfach dahintersteht - beim USB-Drop steht dort ein Fundort,
+#: keine Person. Der Versand ueberspringt sie, statt sie einem SMTP-Server
+#: anzubieten, der sie ohnehin ablehnt.
+UNDELIVERABLE_SUFFIX = ".invalid"
+
+
 async def send_campaign(db: Session, campaign: Campaign) -> dict[str, int]:
     """Versendet eine Kampagne an alle noch nicht versendeten Empfaenger."""
     # Seit die Vorlage optional ist, traegt der Versand die Bedingung: Ohne
@@ -93,6 +105,18 @@ async def send_campaign(db: Session, campaign: Campaign) -> dict[str, int]:
     dropped = preflight.excluded_emails(db, campaign.id)
     if dropped:
         recipients = [r for r in recipients if r.email.lower() not in dropped]
+
+    # Nicht zustellbare Platzhalter aussortieren - siehe UNDELIVERABLE_SUFFIX.
+    # Bleibt danach niemand uebrig, ist der Mailversand fuer diese Kampagne der
+    # falsche Weg; das zu melden ist ehrlicher, als eine Runde ins Leere zu
+    # drehen und alle Zeilen als "versendet" zu markieren.
+    deliverable = [r for r in recipients if not r.email.lower().endswith(UNDELIVERABLE_SUFFIX)]
+    if recipients and not deliverable:
+        raise NothingToSendError(
+            "Diese Kampagne hat keine zustellbaren Empfänger. Kampagnen ohne Mailversand "
+            "werden nicht über diesen Weg gestartet."
+        )
+    recipients = deliverable
 
     recipient_payload = [
         {

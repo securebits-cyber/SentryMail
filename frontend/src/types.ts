@@ -220,6 +220,8 @@ export interface TwoFAActivated {
 
 export interface SecurityConfig {
   require_2fa: string // "off" | "admins" | "all"
+  /** Automatische Abmeldung nach Untätigkeit, in Minuten. 0 = aus. */
+  idle_logout_minutes: number
 }
 
 // Vier-Augen-Freigabe: Ein Admin beantragt, der Datenschutzbeauftragte

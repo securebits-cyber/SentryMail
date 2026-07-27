@@ -34,7 +34,12 @@ from app.schemas import (
 )
 from app.services import preflight
 from app.services.audit import client_ip, record_audit
-from app.services.campaign import SmtpNotConfiguredError, TemplateMissingError, send_campaign
+from app.services.campaign import (
+    NothingToSendError,
+    SmtpNotConfiguredError,
+    TemplateMissingError,
+    send_campaign,
+)
 from app.utils.security import generate_tracking_token
 
 router = APIRouter(prefix="/campaigns", tags=["campaigns"])
@@ -169,7 +174,7 @@ async def trigger_campaign(campaign_id: uuid.UUID, db: Session = Depends(get_db)
 
     try:
         results = await send_campaign(db, campaign)
-    except (SmtpNotConfiguredError, TemplateMissingError) as e:
+    except (SmtpNotConfiguredError, TemplateMissingError, NothingToSendError) as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except SMTPException as e:
         raise HTTPException(

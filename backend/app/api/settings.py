@@ -126,6 +126,7 @@ def update_security(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Ungültiger Wert für require_2fa")
     config = get_or_create_security_config(db)
     config.require_2fa = payload.require_2fa
+    config.idle_logout_minutes = payload.idle_logout_minutes
     db.commit()
     db.refresh(config)
     policy_label = {"off": "freiwillig", "admins": "für Admins verpflichtend", "all": "für alle verpflichtend"}
