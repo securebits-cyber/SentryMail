@@ -94,8 +94,6 @@ SentryMail ist eine selbstgehostete Phishing-Awareness-Plattform nach dem Open-C
 - **Docker Compose** (rootless, gehärtet), Caddy als Reverse Proxy mit automatischem TLS.
 - **PostgreSQL** und **Redis**; alle Daten bleiben in der eigenen Installation.
 - Oberfläche in **Deutsch und Englisch**, mit Light- und Dark-Mode.
-- **Signierte Offline-Update-Bundles** für abgeschottete Instanzen ohne Internetzugang: Ed25519-Signatur über die rohen Manifest-Bytes, SHA-256 je Datei, Vollständigkeitsprüfung in **beide** Richtungen sowie `min_version` und Downgrade-Sperre. Kein Durchwinken bei fehlgeschlagener Prüfung; die Bundles sind **reproduzierbar** baubar.
-- Eine `.env` im Bundle wird **erzwungen abgewiesen**, nicht nur ausgeschlossen — ein Update darf die Konfiguration der Instanz nie überschreiben.
 
 ---
 

@@ -88,11 +88,6 @@ class Settings(BaseSettings):
     UPDATE_CHECK_INTERVAL_HOURS: int = 6
     UPDATE_CHECK_TIMEOUT: int = 4  # Sekunden fuer den externen Request
 
-    # Offline-Update-Bundles (air-gapped Installationen): zusaetzlich akzeptierte
-    # Ed25519-Signaturschluessel, base64-kodiert (32 Rohbytes), mehrere kommagetrennt.
-    # Ergaenzt den eingebauten Release-Schluessel, ersetzt ihn nicht. Leer und ohne
-    # eingebauten Schluessel = es wird kein Bundle akzeptiert (kein stilles Durchwinken).
-    UPDATE_BUNDLE_PUBKEYS: str = ""
 
     # Lizenzierung / Add-ons (Online-Aktivierung). Leer = reiner Open-Core-Betrieb ohne Add-ons.
     LICENSE_SERVER_URL: str = ""
