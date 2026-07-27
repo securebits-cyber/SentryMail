@@ -17,7 +17,6 @@ from starlette.middleware.sessions import SessionMiddleware
 from app.api import audit, campaigns, dashboard, groups, health, landing_pages, license as license_api, me as me_api, privacy as privacy_api, reports, results, sending_profiles, settings as settings_api, templates, tracking
 from app.api import delivery as delivery_api
 from app.api import preflight as preflight_api
-from app.api import updates as updates_api
 from app.api import users as users_api
 from app.api import version as version_api
 from app.addon_loader import load_addons
@@ -179,7 +178,6 @@ app.include_router(reports.router)
 app.include_router(tracking.router)
 app.include_router(license_api.router)
 app.include_router(version_api.router)
-app.include_router(updates_api.router)
 app.include_router(delivery_api.router)
 app.include_router(preflight_api.router)
 

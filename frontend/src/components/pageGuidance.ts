@@ -514,17 +514,6 @@ const de: Record<string, Guidance> = {
     ],
     note: 'Die Ausgabe ist ein Vorschlag, keine fertige Konfiguration: Menüs und Befehle unterscheiden sich je nach Produktvariante und Version, maßgeblich bleibt die Herstellerdoku. Neue Gateways werden als Datendatei im Repo gepflegt — kein Anbieter ist im Code verdrahtet.',
   },
-  'settings-updates': {
-    intro:
-      'Installationen ohne Internetzugang werden nicht per git aktualisiert, sondern über ein signiertes Bundle. Diese Seite prüft ein Bundle, sie spielt es nicht ein — das Einspielen tauscht Quelltext aus und startet den Stack neu und gehört deshalb auf die Kommandozeile.',
-    steps: [
-      'Signaturschlüssel in der .env hinterlegen (UPDATE_BUNDLE_PUBKEYS) — ohne Schlüssel wird jedes Bundle abgelehnt.',
-      'Bundle-Datei hier hochladen: geprüft werden Ed25519-Signatur, SHA-256 je Datei und die Versionskette.',
-      'Bei „gültig“ das Bundle auf den Server kopieren und dort mit ./update.sh --bundle einspielen.',
-      'Bei „abgelehnt“ nichts einspielen, sondern das Bundle erneut von der Quelle beziehen.',
-    ],
-    note: 'Geprüft wird immer vollständig vor dem Entpacken: Schlägt eine Prüfung fehl, bleibt der Bestand unberührt. Ein Downgrade wird abgelehnt, und ein Bundle, das eine höhere Mindestversion voraussetzt, verlangt zuerst das Zwischenrelease. Geprüfte und abgelehnte Bundles stehen im Audit-Log.',
-  },
   'settings-license': {
     intro:
       'Über die Lizenz schaltest du die Business- und Enterprise-Funktionen frei. Ohne Lizenz läuft die Open-Core-Version vollständig.',
@@ -1044,17 +1033,6 @@ const en: Record<string, Guidance> = {
       'Exempt the tracking domain from automatic link scanning, otherwise the click rates come out too high.',
     ],
     note: 'The output is a suggestion, not a finished configuration: menus and commands differ between product variants and versions, and the vendor documentation stays authoritative. New gateways are maintained as data files in the repo — no vendor is hard-wired into the code.',
-  },
-  'settings-updates': {
-    intro:
-      'Installations without internet access are not updated via git but through a signed bundle. This page verifies a bundle, it does not apply it — applying replaces source code and restarts the stack, which belongs on the command line.',
-    steps: [
-      'Configure a signing key in the .env (UPDATE_BUNDLE_PUBKEYS) — without a key every bundle is rejected.',
-      'Upload the bundle file here: the Ed25519 signature, the SHA-256 of every file and the version chain are verified.',
-      'On "valid", copy the bundle to the server and apply it there with ./update.sh --bundle.',
-      'On "rejected", apply nothing and obtain the bundle from the source again.',
-    ],
-    note: 'Verification is always complete before anything is extracted: if a check fails, the installation is left untouched. A downgrade is rejected, and a bundle requiring a higher minimum version asks for the intermediate release first. Verified and rejected bundles are recorded in the audit log.',
   },
   'settings-license': {
     intro:

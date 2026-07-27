@@ -51,7 +51,6 @@ const groups: { labelKey: string | null; items: NavItem[] }[] = [
       { to: '/settings/preflight', labelKey: 'settings.preflight', icon: ListChecks },
       { to: '/settings/security', labelKey: 'settings.security', icon: ShieldCheck },
       { to: '/settings/privacy', labelKey: 'settings.privacy', icon: Fingerprint },
-      { to: '/settings/updates', labelKey: 'settings.updates', icon: PackageCheck },
       { to: '/settings/license', labelKey: 'settings.license', icon: BadgeCheck },
     ],
   },
