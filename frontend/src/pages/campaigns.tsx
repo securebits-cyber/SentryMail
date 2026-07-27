@@ -10,6 +10,7 @@ import Card from '../components/Card'
 import PageScaffold from '../components/PageScaffold'
 import { useI18n } from '../i18n'
 import PreflightDialog from '../components/PreflightDialog'
+import UsbDropPanel from '../components/UsbDropPanel'
 import { api } from '../services/api'
 import type { Campaign, GroupSummary, LandingPage, SendingProfile, Template } from '../types'
 
@@ -66,14 +67,30 @@ export default function CampaignsPage() {
     }
   }, [searchParams, setSearchParams])
 
+  // Nach dem Anlegen einer USB-Kampagne geht es direkt weiter mit den
+  // Fundorten - ohne Umweg ueber eine zweite Seite.
+  const [usbCampaignId, setUsbCampaignId] = useState<string | null>(null)
+
   async function handleCreate(values: CampaignWizardValues) {
     setSubmitting(true)
     setMessage(null)
     try {
-      await api.post('/campaigns', values)
+      // Der Kanal gehoert zum Enterprise-Add-on und ist deshalb kein Feld des
+      // Kampagnen-Endpunkts. Erst die Kampagne anlegen, dann den Kanal
+      // dranhaengen - schlaegt das fehl, steht die Kampagne trotzdem und laesst
+      // sich nachtraeglich zuordnen.
+      const { channel, ...payload } = values
+      const res = await api.post('/campaigns', payload)
+      if (channel !== 'email') {
+        await api.put(`/channels/campaigns/${res.data.id}`, { channel, message_text: '' })
+      }
+      setUsbCampaignId(channel === 'usb' ? String(res.data.id) : null)
       setCreating(false)
       await loadCampaigns()
-      setMessage({ kind: 'info', text: t('camp.created') })
+      setMessage({
+        kind: 'info',
+        text: channel === 'usb' ? t('camp.createdUsb') : t('camp.created'),
+      })
     } catch {
       setMessage({ kind: 'error', text: t('camp.err.create') })
     } finally {
@@ -171,6 +188,7 @@ export default function CampaignsPage() {
             landing_page_id: editing.landing_page_id,
             group_ids: [],
             scheduled_at: editing.scheduled_at,
+            channel: 'email',
           }}
           templates={templates}
           profiles={profiles}
@@ -202,6 +220,21 @@ export default function CampaignsPage() {
         <p className={`mb-3 text-sm ${message.kind === 'error' ? 'text-status-danger' : 'text-text-secondary'}`}>
           {message.text}
         </p>
+      )}
+
+      {/* Direkt nach dem Anlegen einer USB-Kampagne: Fundorte anlegen und das
+          Paket holen, ohne die Seite zu wechseln. */}
+      {usbCampaignId && (
+        <div className="mb-6 flex flex-col gap-2">
+          <UsbDropPanel campaignId={usbCampaignId} />
+          <button
+            type="button"
+            onClick={() => setUsbCampaignId(null)}
+            className="self-start text-sm text-text-secondary underline"
+          >
+            {t('camp.usbDone')}
+          </button>
+        </div>
       )}
 
       {loading ? (
