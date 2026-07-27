@@ -113,3 +113,52 @@ async def test_the_check_runs_before_anything_is_sent(db, owner, monkeypatch):
 
     with pytest.raises(TemplateMissingError):
         await send_campaign(db, _campaign(db, owner))
+
+
+# --- Nicht zustellbare Platzhalter ------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_a_campaign_of_only_placeholder_recipients_is_refused(db, owner, template, monkeypatch):
+    """USB-Drops legen je Fundort eine Empfaengerzeile an, deren Adresse auf
+    ``.invalid`` endet - nach RFC 2606 nie zustellbar. Ein Mailversand darauf
+    drehte eine Runde ins Leere und markierte alle Zeilen als versendet."""
+    import app.services.campaign as mod
+    from app.services.campaign import NothingToSendError
+
+    monkeypatch.setattr(mod, "smtp_params", lambda *_a, **_kw: {"host": "smtp.example.de"})
+
+    campaign = _campaign(db, owner, template=template)
+    for i in range(3):
+        db.add(Recipient(campaign_id=campaign.id, email=f"drop-{i}@usb-drop.invalid",
+                         first_name="Parkplatz", tracking_token=generate_tracking_token()))
+    db.commit()
+
+    with pytest.raises(NothingToSendError):
+        await send_campaign(db, campaign)
+
+
+@pytest.mark.asyncio
+async def test_placeholders_do_not_block_a_normal_campaign(db, owner, template, monkeypatch):
+    """Eine Mail-Kampagne mit einer einzelnen Platzhalter-Zeile laeuft weiter -
+    die Zeile wird uebersprungen, nicht der ganze Versand."""
+    import app.services.campaign as mod
+
+    sent: dict = {}
+
+    async def _fake_send(**kwargs):
+        sent["recipients"] = kwargs["recipients"]
+        return {"success": len(kwargs["recipients"]), "failed": 0, "details": []}
+
+    monkeypatch.setattr(mod, "smtp_params", lambda *_a, **_kw: {"host": "smtp.example.de"})
+    monkeypatch.setattr(mod, "send_campaign_messages", _fake_send)
+
+    campaign = _campaign(db, owner, template=template)
+    db.add(Recipient(campaign_id=campaign.id, email="echt@example.de",
+                     tracking_token=generate_tracking_token()))
+    db.add(Recipient(campaign_id=campaign.id, email="drop-1@usb-drop.invalid",
+                     tracking_token=generate_tracking_token()))
+    db.commit()
+
+    await send_campaign(db, campaign)
+    assert [r["email"] for r in sent["recipients"]] == ["echt@example.de"]

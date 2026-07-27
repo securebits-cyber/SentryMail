@@ -22,6 +22,7 @@ from app.services import ratelimit, twofa
 from app.services.audit import client_ip, record_audit
 from app.utils.passwords import hash_password, verify_password
 from app.utils.security import clear_session, create_access_token, issue_session
+from app.services import session_policy
 
 router = APIRouter(prefix="/auth/local", tags=["auth"])
 
@@ -137,8 +138,9 @@ def login(payload: LocalLoginRequest, request: Request, response: Response, db: 
     if twofa.twofa_required_for(user, policy):
         return LoginResult(twofa_required=True, setup_required=True, pre_auth_token=_pre_auth_token(user))
 
-    token = create_access_token(subject=str(user.id))
-    issue_session(response, token)
+    minutes = session_policy.idle_minutes(db)
+    token = create_access_token(subject=str(user.id), expires_minutes=minutes)
+    issue_session(response, token, max_age_minutes=minutes)
     record_audit(db, action="login.success", category="auth", description="Erfolgreiche Anmeldung", actor=user, ip=ip)
     return LoginResult(access_token=token)
 
@@ -163,8 +165,9 @@ def login_verify_2fa(
     if twofa.verify_second_factor(user, payload.code):
         ratelimit.reset(twofa_key)
         db.commit()  # verbrauchten Backup-Code / geleerten E-Mail-Code persistieren
-        token = create_access_token(subject=str(user.id))
-        issue_session(response, token)
+        minutes = session_policy.idle_minutes(db)
+        token = create_access_token(subject=str(user.id), expires_minutes=minutes)
+        issue_session(response, token, max_age_minutes=minutes)
         record_audit(db, action="login.success", category="auth", description="Erfolgreiche Anmeldung (2FA)", actor=user, ip=ip)
         return LoginResult(access_token=token)
 

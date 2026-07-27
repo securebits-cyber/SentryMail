@@ -26,9 +26,15 @@ def _cookie_common() -> dict[str, Any]:
     return {"secure": settings.COOKIE_SECURE, "samesite": "lax", "path": "/"}
 
 
-def issue_session(response: Response, token: str) -> None:
-    """Setzt Session- (httpOnly) und CSRF-Cookie auf die Antwort."""
-    max_age = settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
+def issue_session(response: Response, token: str, max_age_minutes: int | None = None) -> None:
+    """Setzt Session- (httpOnly) und CSRF-Cookie auf die Antwort.
+
+    ``max_age_minutes`` weicht von der festen Laufzeit ab, wenn die automatische
+    Abmeldung nach Untaetigkeit eingeschaltet ist. Cookie-Laufzeit und
+    Token-Gueltigkeit muessen zusammenpassen: Ein laengeres Cookie haette ein
+    totes Token darin, ein kuerzeres wuerfe frueher raus als eingestellt.
+    """
+    max_age = (max_age_minutes or settings.ACCESS_TOKEN_EXPIRE_MINUTES) * 60
     common = _cookie_common()
     response.set_cookie(SESSION_COOKIE, token, httponly=True, max_age=max_age, **common)
     response.set_cookie(CSRF_COOKIE, secrets.token_urlsafe(32), httponly=False, max_age=max_age, **common)
@@ -40,8 +46,14 @@ def clear_session(response: Response) -> None:
     response.delete_cookie(CSRF_COOKIE, path="/")
 
 
-def create_access_token(subject: str, extra_claims: dict[str, Any] | None = None) -> str:
-    expire = datetime.now(timezone.utc) + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+def create_access_token(
+    subject: str,
+    extra_claims: dict[str, Any] | None = None,
+    expires_minutes: int | None = None,
+) -> str:
+    expire = datetime.now(timezone.utc) + timedelta(
+        minutes=expires_minutes or settings.ACCESS_TOKEN_EXPIRE_MINUTES
+    )
     payload: dict[str, Any] = {"sub": subject, "exp": expire}
     if extra_claims:
         payload.update(extra_claims)

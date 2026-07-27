@@ -9,13 +9,14 @@ Token-Arten:
 - 2FA-Pre-Auth-Token: ``scope="2fa"``. Nur zum Abschliessen des Logins bzw.
   fuer die 2FA-Einrichtung bei erzwungener Aktivierung. Kein API-Zugriff.
 """
-from fastapi import Depends, HTTPException, Request, status
+from fastapi import Depends, HTTPException, Request, Response, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models import User, UserRole
-from app.utils.security import SESSION_COOKIE, decode_access_token
+from app.services import session_policy
+from app.utils.security import SESSION_COOKIE, create_access_token, decode_access_token, issue_session
 
 bearer_scheme = HTTPBearer(auto_error=False)
 
@@ -44,13 +45,35 @@ def _user_from_credentials(
     return user
 
 
+def _renew_session_if_configured(request: Request, response: Response, db: Session, user: User) -> None:
+    """Gleitende Sitzung: Bei jeder Anfrage die Restlaufzeit neu setzen.
+
+    Damit laeuft die Anmeldung N Minuten nach der **letzten** Aktion ab statt
+    N Minuten nach dem Login. Erzwungen ueber die Gueltigkeit des Tokens, nicht
+    ueber einen Timer im Browser - ein Timer im Browser waere eine Bitte, keine
+    Grenze.
+
+    Nur fuer den Cookie-Weg. Ein API-Client mit Bearer-Token bekommt kein
+    Cookie gesetzt und soll auch keins bekommen.
+    """
+    if SESSION_COOKIE not in request.cookies:
+        return
+    minutes = session_policy.idle_minutes(db)
+    if minutes is None:
+        return
+    issue_session(response, create_access_token(str(user.id), expires_minutes=minutes), max_age_minutes=minutes)
+
+
 def get_current_user(
     request: Request,
+    response: Response,
     credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
     db: Session = Depends(get_db),
 ) -> User:
     """Regulaerer API-Zugriff - nur Voll-Token (ohne scope)."""
-    return _user_from_credentials(request, credentials, db, allowed_scopes={None})
+    user = _user_from_credentials(request, credentials, db, allowed_scopes={None})
+    _renew_session_if_configured(request, response, db, user)
+    return user
 
 
 def get_twofa_pending_user(

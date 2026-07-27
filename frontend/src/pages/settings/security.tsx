@@ -18,6 +18,7 @@ const options = [
 export default function SecuritySettingsPage() {
   const { t } = useI18n()
   const [value, setValue] = useState<string>('off')
+  const [idleMinutes, setIdleMinutes] = useState<number>(0)
   const [loaded, setLoaded] = useState(false)
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState<{ kind: 'error' | 'info'; text: string } | null>(null)
@@ -25,7 +26,10 @@ export default function SecuritySettingsPage() {
   useEffect(() => {
     api
       .get<SecurityConfig>('/settings/security')
-      .then((res) => setValue(res.data.require_2fa))
+      .then((res) => {
+        setValue(res.data.require_2fa)
+        setIdleMinutes(res.data.idle_logout_minutes ?? 0)
+      })
       .finally(() => setLoaded(true))
   }, [])
 
@@ -33,7 +37,7 @@ export default function SecuritySettingsPage() {
     setSaving(true)
     setMessage(null)
     try {
-      await api.put('/settings/security', { require_2fa: value })
+      await api.put('/settings/security', { require_2fa: value, idle_logout_minutes: idleMinutes })
       setMessage({ kind: 'info', text: t('sec.saved') })
     } catch {
       setMessage({ kind: 'error', text: t('sec.err.save') })
@@ -87,6 +91,27 @@ export default function SecuritySettingsPage() {
             ))}
           </div>
           <p className="text-xs text-text-secondary">{t('sec.note')}</p>
+
+          <div className="mt-2 border-t border-border pt-4">
+            <div className="text-sm font-medium">{t('sec.idle')}</div>
+            <p className="mt-1 text-sm text-text-secondary">{t('sec.idleDesc')}</p>
+            <label className="mt-3 flex items-center gap-2 text-sm">
+              <input
+                type="number"
+                min={0}
+                max={1440}
+                value={idleMinutes}
+                onChange={(e) => setIdleMinutes(Math.max(0, Math.min(1440, Number(e.target.value) || 0)))}
+                className="w-28 rounded-md border border-border bg-surface px-3 py-2 text-text-primary"
+              />
+              <span className="text-text-secondary">{t('sec.idleUnit')}</span>
+            </label>
+            <p className="mt-2 text-xs text-text-secondary">
+              {idleMinutes === 0 ? t('sec.idleOff') : t('sec.idleOn', { minutes: String(idleMinutes) })}
+            </p>
+            <p className="mt-2 text-xs text-text-secondary">{t('sec.idleNote')}</p>
+          </div>
+
           <div>
             <button onClick={save} disabled={saving} className="rounded-full bg-accent px-5 py-2.5 font-medium text-white disabled:opacity-60">
               {saving ? t('common.saving') : t('common.save')}

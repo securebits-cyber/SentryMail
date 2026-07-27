@@ -16,11 +16,13 @@ from sqlalchemy.orm import Session
 
 from app.models import Campaign, Recipient, TrackingEvent, TrackingEventType
 from app.services import privacy
+from app.services.campaign import UNDELIVERABLE_SUFFIX
 from app.schemas import (
     ActivityHeatmap,
     BreakdownSlice,
     CampaignRisk,
     DashboardSummary,
+    DropSummary,
     EngagementAnalytics,
     FailedRecipient,
     HeatmapCell,
@@ -34,6 +36,43 @@ from app.schemas import (
 )
 
 _ENGAGED = [TrackingEventType.CLICKED, TrackingEventType.SUBMITTED]
+
+
+def is_placeholder(email: str | None, anonymized_at=None) -> bool:
+    """Empfaengerzeile ohne Person dahinter (Fundort statt Postfach).
+
+    Erkannt an der reservierten Endung ``.invalid`` (RFC 2606) - eine Adresse
+    darauf kann nie zugestellt werden, es steht also kein Postfach dahinter.
+
+    **Anonymisierte Zeilen sind ausgenommen.** Die Aufbewahrungsfrist schreibt
+    Adressen ebenfalls auf ``.invalid`` um; dort *stand* aber eine Person, und
+    ihre Statistik gehoert weiter in die Mail-Zahlen. Ohne diese Ausnahme
+    waeren anonymisierte Kampagnen ploetzlich Datentraeger - und ihre
+    Kennzahlen aus der Auswertung verschwunden.
+    """
+    if anonymized_at is not None:
+        return False
+    return (email or "").lower().endswith(UNDELIVERABLE_SUFFIX)
+
+
+def drop_campaign_ids(db: Session) -> set:
+    """Kampagnen, hinter deren Empfaengerzeilen niemand steht.
+
+    Ein USB-Drop legt je Fundort eine solche Zeile an. Wo **alle** Zeilen so
+    aussehen, sind es Datentraeger und keine Menschen.
+
+    Bewusst ueber dieses Merkmal und nicht ueber den Kanal: Der Kanal gehoert
+    zum Enterprise-Add-on, und die Auswertung im Core darf davon nicht
+    abhaengen. Die Adresse steht dagegen in der Core-Tabelle und sagt genau
+    das, worauf es hier ankommt.
+    """
+    rows = db.query(Recipient.campaign_id, Recipient.email, Recipient.anonymized_at).all()
+    seen: dict = {}
+    for campaign_id, email, anonymized_at in rows:
+        placeholder = is_placeholder(email, anonymized_at)
+        # Sobald eine echte Adresse dabei ist, ist es keine reine Drop-Kampagne.
+        seen[campaign_id] = seen.get(campaign_id, True) and placeholder
+    return {cid for cid, only_drops in seen.items() if only_drops}
 
 
 def risk_points(types) -> int:
@@ -72,25 +111,58 @@ def _events_by_recipient(db: Session) -> dict:
 
 
 def overall_summary(db: Session) -> DashboardSummary:
-    """KPI-Kennzahlen: eindeutige Empfaenger je Ereignistyp."""
+    """KPI-Kennzahlen der Mail-Kampagnen, plus ein eigener Block fuer Drops.
 
-    def distinct_recipients(event_type: TrackingEventType) -> int:
-        return (
+    Die beiden Arten werden getrennt gefuehrt. Zusammengezaehlt entstuenden
+    Zahlen, die nichts bedeuten: Ein Datentraeger wird nicht "zugestellt", und
+    eine Oeffnungsrate ueber Postfaecher und Parkplaetze hinweg ist keine
+    Kennzahl, sondern ein Mittelwert aus zwei Einheiten.
+    """
+    drops = drop_campaign_ids(db)
+
+    def distinct_recipients(event_type: TrackingEventType, *, in_drops: bool) -> int:
+        q = (
             db.query(func.count(func.distinct(TrackingEvent.recipient_id)))
+            .join(Recipient, Recipient.id == TrackingEvent.recipient_id)
             .filter(TrackingEvent.event_type == event_type)
-            .scalar()
-            or 0
         )
+        q = q.filter(Recipient.campaign_id.in_(drops)) if in_drops else q.filter(
+            Recipient.campaign_id.notin_(drops) if drops else True
+        )
+        return q.scalar() or 0
+
+    def campaign_count(*, in_drops: bool) -> int:
+        q = db.query(func.count(Campaign.id))
+        q = q.filter(Campaign.id.in_(drops)) if in_drops else q.filter(
+            Campaign.id.notin_(drops) if drops else True
+        )
+        return q.scalar() or 0
+
+    def recipient_count(*, in_drops: bool, sent_only: bool = False) -> int:
+        q = db.query(func.count(Recipient.id))
+        q = q.filter(Recipient.campaign_id.in_(drops)) if in_drops else q.filter(
+            Recipient.campaign_id.notin_(drops) if drops else True
+        )
+        if sent_only:
+            q = q.filter(Recipient.sent_at.isnot(None))
+        return q.scalar() or 0
 
     return DashboardSummary(
-        campaigns=db.query(func.count(Campaign.id)).scalar() or 0,
-        recipients=db.query(func.count(Recipient.id)).scalar() or 0,
+        campaigns=campaign_count(in_drops=False),
+        recipients=recipient_count(in_drops=False),
         # "Abgeschickt" = Empfaenger mit gesetztem sent_at (Single Source of Truth,
         # deckt sich mit der Kampagnen-Ergebnisseite und dem Management-Report).
-        sent=db.query(func.count(Recipient.id)).filter(Recipient.sent_at.isnot(None)).scalar() or 0,
-        opened=distinct_recipients(TrackingEventType.OPENED),
-        clicked=distinct_recipients(TrackingEventType.CLICKED),
-        submitted=distinct_recipients(TrackingEventType.SUBMITTED),
+        sent=recipient_count(in_drops=False, sent_only=True),
+        opened=distinct_recipients(TrackingEventType.OPENED, in_drops=False),
+        clicked=distinct_recipients(TrackingEventType.CLICKED, in_drops=False),
+        submitted=distinct_recipients(TrackingEventType.SUBMITTED, in_drops=False),
+        drops=DropSummary(
+            campaigns=campaign_count(in_drops=True),
+            media=recipient_count(in_drops=True),
+            # Beim Datentraeger ist das Oeffnen der Datei das Ereignis. Es kommt
+            # als Klick herein, weil die HTML-Datei den Tracking-Link aufruft.
+            opened=distinct_recipients(TrackingEventType.CLICKED, in_drops=True),
+        ),
     )
 
 
@@ -179,11 +251,19 @@ def human_risk(
         Recipient.position,
         Recipient.criticality,
         Recipient.id,
+        Recipient.anonymized_at,
     ).all()
 
     # Je Person sammeln: Punkte je Kampagne, Fails, beste bekannte Attribute.
     people: dict[str, dict] = {}
-    for email, first, last, dept, pos, crit, rid in rows:
+    for email, first, last, dept, pos, crit, rid, anonymized_at in rows:
+        # Datentraeger sind keine Personen. Ein USB-Drop legt je Fundort eine
+        # Empfaengerzeile an; im Vornamen steht der Ort, nicht ein Mensch.
+        # Liefe sie hier mit, stuende "Parkplatz" in einer personenbezogenen
+        # Risiko-Rangliste - und der Score jeder echten Person verschoebe sich
+        # gegen einen Eintrag, hinter dem niemand steht.
+        if is_placeholder(email, anonymized_at):
+            continue
         key = email.lower()
         p = people.setdefault(
             key,
@@ -374,6 +454,7 @@ def failed_recipients(db: Session, limit: int | None = None) -> list[FailedRecip
             Recipient.email,
             Recipient.first_name,
             Recipient.last_name,
+            Recipient.anonymized_at,
             Campaign.id.label("campaign_id"),
             Campaign.name.label("campaign_name"),
             TrackingEvent.event_type,
@@ -387,7 +468,11 @@ def failed_recipients(db: Session, limit: int | None = None) -> list[FailedRecip
 
     severity = {TrackingEventType.CLICKED: 1, TrackingEventType.SUBMITTED: 2}
     best: dict[tuple[str, str], dict] = {}
-    for email, first, last, camp_id, camp_name, event_type, occurred in rows:
+    for email, first, last, anonymized_at, camp_id, camp_name, event_type, occurred in rows:
+        # "Nicht bestanden" ist eine Personenliste - Fundorte gehoeren nicht
+        # hinein. Wer den Datentraeger geoeffnet hat, weiss das System nicht.
+        if is_placeholder(email, anonymized_at):
+            continue
         key = (email, str(camp_id))
         sev = severity[event_type]
         cur = best.get(key)
@@ -415,6 +500,7 @@ def management_report(db: Session, user=None) -> ManagementReport:
     recipients = db.query(Recipient.id, Recipient.campaign_id, Recipient.sent_at).all()
     types_by_recipient = _events_by_recipient(db)
     campaign_names = dict(db.query(Campaign.id, Campaign.name).all())
+    drops = drop_campaign_ids(db)
 
     zero = lambda: {"recipients": 0, "sent": 0, "opened": 0, "clicked": 0, "submitted": 0, "points": 0}  # noqa: E731
     per_campaign: dict = {}
@@ -429,8 +515,10 @@ def management_report(db: Session, user=None) -> ManagementReport:
         # Einheitliche "Abgeschickt"-Definition: allein sent_at (nicht das SENT-Event).
         sent = sent_at is not None
         pts = risk_points(types)
-        dist[_band(pts)] += 1
+        if campaign_id not in drops:
+            dist[_band(pts)] += 1
 
+        is_drop = campaign_id in drops
         acc = per_campaign.setdefault(campaign_id, zero())
         for bucket, hit in (
             ("recipients", True),
@@ -440,9 +528,15 @@ def management_report(db: Session, user=None) -> ManagementReport:
             ("submitted", submitted),
         ):
             acc[bucket] += 1 if hit else 0
-            tot[bucket] += 1 if hit else 0
+            # Gesamtzahlen und Raten gelten fuer Mail-Kampagnen. Ein Fundort
+            # zaehlt nicht als Empfaenger, und ein geoeffneter Datentraeger ist
+            # keine Oeffnungsrate - beides zusammenzuzaehlen ergaebe Zahlen, die
+            # niemand deuten kann.
+            if not is_drop:
+                tot[bucket] += 1 if hit else 0
         acc["points"] += pts
-        tot["points"] += pts
+        if not is_drop:
+            tot["points"] += pts
 
     pol = privacy.policy(db)
     individuals_locked = not privacy.individual_view_allowed(db, user)
@@ -458,6 +552,7 @@ def management_report(db: Session, user=None) -> ManagementReport:
                 ReportCampaignRow(
                     campaign_id=campaign_id,
                     name=campaign_names.get(campaign_id, "—"),
+                    kind="drop" if campaign_id in drops else "mail",
                     recipients=a["recipients"],
                     sent=0, opened=0, clicked=0, submitted=0,
                     open_rate=0, click_rate=0, submit_rate=0,
@@ -471,6 +566,7 @@ def management_report(db: Session, user=None) -> ManagementReport:
             ReportCampaignRow(
                 campaign_id=campaign_id,
                 name=campaign_names.get(campaign_id, "—"),
+                kind="drop" if campaign_id in drops else "mail",
                 recipients=a["recipients"],
                 sent=a["sent"],
                 opened=a["opened"],

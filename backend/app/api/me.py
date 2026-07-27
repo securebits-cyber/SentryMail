@@ -25,6 +25,7 @@ from app.services.audit import client_ip, record_audit
 from app.utils.crypto import decrypt, encrypt
 from app.utils.passwords import hash_password, verify_password
 from app.utils.security import create_access_token, issue_session
+from app.services import session_policy
 
 router = APIRouter(prefix="/me", tags=["me"])
 
@@ -110,8 +111,9 @@ def totp_confirm(
     twofa.set_backup_codes(user, codes)
     db.commit()
     record_audit(db, action="twofa.enabled", description="Zwei-Faktor-Authentifizierung (App) aktiviert", actor=user, ip=client_ip(request))
-    token = create_access_token(subject=str(user.id))
-    issue_session(response, token)
+    minutes = session_policy.idle_minutes(db)
+    token = create_access_token(subject=str(user.id), expires_minutes=minutes)
+    issue_session(response, token, max_age_minutes=minutes)
     return TwoFAActivated(backup_codes=codes, access_token=token)
 
 
@@ -143,8 +145,9 @@ def email_confirm(
     twofa.set_backup_codes(user, codes)
     db.commit()
     record_audit(db, action="twofa.enabled", description="Zwei-Faktor-Authentifizierung (E-Mail) aktiviert", actor=user, ip=client_ip(request))
-    token = create_access_token(subject=str(user.id))
-    issue_session(response, token)
+    minutes = session_policy.idle_minutes(db)
+    token = create_access_token(subject=str(user.id), expires_minutes=minutes)
+    issue_session(response, token, max_age_minutes=minutes)
     return TwoFAActivated(backup_codes=codes, access_token=token)
 
 

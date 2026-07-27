@@ -142,7 +142,7 @@ class AuditEvent(Base):
 
 
 class SecurityConfig(Base):
-    """Sicherheits-Policy (Singleton). Steuert die 2FA-Pflicht."""
+    """Sicherheits-Policy (Singleton). Steuert 2FA-Pflicht und Sitzungsdauer."""
 
     __tablename__ = "security_config"
     # Hoechstens eine Zeile (Singleton) - siehe app/utils/singleton.py.
@@ -151,6 +151,11 @@ class SecurityConfig(Base):
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     # require_2fa: "off" (freiwillig) | "admins" (nur Admin-Konten) | "all" (alle)
     require_2fa: Mapped[str] = mapped_column(String(16), default="off", nullable=False)
+    # Automatische Abmeldung nach Untaetigkeit, in Minuten. 0 = aus; dann gilt
+    # allein die feste Token-Laufzeit aus der .env wie bisher. Bei > 0 wird die
+    # Sitzung bei jeder Anfrage erneuert und laeuft N Minuten nach der letzten
+    # ab - erzwungen ueber die Token-Gueltigkeit, nicht nur im Browser.
+    idle_logout_minutes: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
 
