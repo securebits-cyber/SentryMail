@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.43.0](https://github.com/securebits-cyber/SentryMail/compare/v0.42.1...v0.43.0) (2026-07-27)
+
+
+### Features
+
+* **campaigns:** Kanal im Assistenten / Channel in the campaign wizard ([#166](https://github.com/securebits-cyber/SentryMail/issues/166)) ([fb76a79](https://github.com/securebits-cyber/SentryMail/commit/fb76a799a97eb72cd2591d02b0bca63be529f796))
+* **campaigns:** Kanal im Assistenten / Channel in the campaign wizard ([#168](https://github.com/securebits-cyber/SentryMail/issues/168)) ([0fe2240](https://github.com/securebits-cyber/SentryMail/commit/0fe2240b84eca88293963e98ef93640b552c1ee7))
+
 ## [0.42.1](https://github.com/securebits-cyber/SentryMail/compare/v0.42.0...v0.42.1) (2026-07-26)
 
 
