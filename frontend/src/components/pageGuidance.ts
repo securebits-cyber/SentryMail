@@ -97,10 +97,11 @@ const de: Record<string, Guidance> = {
     intro:
       'Eine Kampagne bündelt Vorlage, Absender, Landing Page und Empfängergruppen. Der Versand wird danach separat über „Senden“ gestartet.',
     steps: [
-      'Namen vergeben und die E-Mail-Vorlage auswählen (Pflicht) — sie muss vorher unter „Vorlagen“ angelegt sein.',
+      'Namen vergeben und den Kanal wählen. E-Mail ist der Regelfall; SMS, Matrix, Nextcloud Talk und USB-Drop gehören zum Enterprise-Add-on.',
+      'Bei E-Mail die Vorlage auswählen (Pflicht) — sie muss vorher unter „Vorlagen“ angelegt sein. Bei anderen Kanälen entfällt sie und sperrt sich selbst.',
       'Sending Profile für die Absender-Identität wählen; ohne Auswahl greift das globale Fallback-SMTP.',
-      'Optional eine Landing Page hinterlegen, auf der Empfänger nach dem Klick landen.',
-      'Eine oder mehrere Empfängergruppen auswählen (unter „Gruppen“ anlegen oder importieren).',
+      'Optional eine Landing Page hinterlegen, auf der Empfänger nach dem Klick landen. Beim USB-Drop bleibt sie wählbar — sie ist das Ziel, wenn jemand die Datei auf dem Datenträger öffnet.',
+      'Eine oder mehrere Empfängergruppen auswählen (unter „Gruppen“ anlegen oder importieren). Beim USB-Drop entfallen sie: Dort sind die Fundorte die Empfänger, und die legst du direkt nach dem Anlegen an.',
       'Optional Datum und Uhrzeit für einen geplanten Start setzen.',
       'Kampagne anlegen und anschließend in der Übersicht über „Senden“ starten — danach die Ergebnisse auswerten.',
     ],
@@ -617,10 +618,11 @@ const en: Record<string, Guidance> = {
     intro:
       'A campaign bundles template, sender, landing page and recipient groups. Delivery is then started separately via “Send”.',
     steps: [
-      'Give it a name and select the email template (required) — it must be created under “Templates” first.',
+      'Give it a name and pick the channel. Email is the normal case; SMS, Matrix, Nextcloud Talk and USB drop belong to the Enterprise add-on.',
+      'For email, select the template (required) — it must be created under “Templates” first. Other channels do not use it and disable the field.',
       'Choose a sending profile for the sender identity; without a selection the global fallback SMTP is used.',
-      'Optionally add a landing page recipients land on after clicking.',
-      'Select one or more recipient groups (create or import them under “Groups”).',
+      'Optionally add a landing page recipients land on after clicking. For a USB drop it stays selectable — it is the target when somebody opens the file on the medium.',
+      'Select one or more recipient groups (create or import them under “Groups”). A USB drop needs none: there the locations are the recipients, and you add them right after creating the campaign.',
       'Optionally set a date and time for a scheduled start.',
       'Create the campaign and then start it from the overview via “Send” — afterwards evaluate the results.',
     ],
