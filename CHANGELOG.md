@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.43.2](https://github.com/securebits-cyber/SentryMail/compare/v0.43.1...v0.43.2) (2026-07-27)
+
+
+### Bug Fixes
+
+* **campaigns:** Senden-Knopf ohne Wirkung / Send button did nothing ([#171](https://github.com/securebits-cyber/SentryMail/issues/171)) ([eb8ddaa](https://github.com/securebits-cyber/SentryMail/commit/eb8ddaa36cce6b117e8e923631fb2a6afc95f788))
+
 ## [0.43.1](https://github.com/securebits-cyber/SentryMail/compare/v0.43.0...v0.43.1) (2026-07-27)
 
 
