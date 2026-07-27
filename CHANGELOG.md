@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.42.1](https://github.com/securebits-cyber/SentryMail/compare/v0.42.0...v0.42.1) (2026-07-26)
+
+
+### Dokumentation
+
+* Funktionsliste fuer Welle 9 / Feature list for wave 9 ([#163](https://github.com/securebits-cyber/SentryMail/issues/163)) ([d30ff72](https://github.com/securebits-cyber/SentryMail/commit/d30ff72d181025105ea895f878e4ed136295463b))
+
 ## [0.42.0](https://github.com/securebits-cyber/SentryMail/compare/v0.41.0...v0.42.0) (2026-07-26)
 
 
