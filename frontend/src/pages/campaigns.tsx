@@ -165,14 +165,7 @@ export default function CampaignsPage() {
           onCancel={() => setCreating(false)}
           submitting={submitting}
         />
-        {preflightFor && (
-        <PreflightDialog
-          campaign={preflightFor}
-          onCancel={() => setPreflightFor(null)}
-          onConfirmed={startAfterPreflight}
-        />
-      )}
-    </PageScaffold>
+      </PageScaffold>
     )
   }
 
@@ -282,6 +275,17 @@ export default function CampaignsPage() {
             </tbody>
           </table>
         </Card>
+      )}
+
+      {/* Gehoert in die Listenansicht, denn hier steht der Senden-Knopf. Stand
+          der Dialog im Anlege-Zweig, setzte "Senden" nur den Zustand und es
+          erschien nichts - der Knopf sah kaputt aus. */}
+      {preflightFor && (
+        <PreflightDialog
+          campaign={preflightFor}
+          onCancel={() => setPreflightFor(null)}
+          onConfirmed={startAfterPreflight}
+        />
       )}
     </PageScaffold>
   )
