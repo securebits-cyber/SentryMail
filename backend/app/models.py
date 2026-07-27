@@ -335,7 +335,12 @@ class Campaign(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
-    template_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("templates.id"), nullable=False)
+    # Optional seit dem USB-Drop: Eine Kampagne, die nicht per Mail laeuft, hat
+    # keinen Betreff und kein HTML. Ob eine Vorlage noetig ist, entscheidet der
+    # Versandpfad - nicht das Anlegen.
+    template_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("templates.id"), nullable=True
+    )
     # Optional: ohne Sending Profile faellt der Versand auf das globale .env-SMTP
     # zurueck; ohne Landing Page zeigt der Klick-Link auf keine eigene Seite.
     sending_profile_id: Mapped[uuid.UUID | None] = mapped_column(

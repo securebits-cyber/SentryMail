@@ -3,17 +3,42 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
 import { FormEvent, useState } from 'react'
+import { useFeatures } from '../hooks/useFeatures'
 import { useI18n } from '../i18n'
-import type { GroupSummary, LandingPage, SendingProfile, Template } from '../types'
+import type { ChannelKind, GroupSummary, LandingPage, SendingProfile, Template } from '../types'
+import TierBadge from './TierBadge'
+
+/** Kanal einer Kampagne. ``email`` ist der Core-Weg und braucht keine Lizenz;
+ *  alles Weitere gehört zum Enterprise-Add-on. */
+export type WizardChannel = 'email' | ChannelKind
 
 export interface CampaignWizardValues {
   name: string
-  template_id: string
+  template_id: string | null
   sending_profile_id: string | null
   landing_page_id: string | null
   group_ids: string[]
   scheduled_at: string | null
+  /** Nicht Teil des Kampagnen-Endpunkts — die Seite legt damit hinterher den
+   *  Kanal über das Add-on an. ``email`` heißt: nichts anzulegen. */
+  channel: WizardChannel
 }
+
+/** Was ein Kanal braucht. Der USB-Drop ist der Sonderfall, für den es diese
+ *  Tabelle überhaupt gibt: Er legt Datenträger aus, statt etwas zu versenden.
+ *
+ *  Die Landing Page bleibt bei USB **aktiv** — die HTML-Datei auf dem Stick
+ *  verweist auf sie, und ohne sie liefe der Fund ins Leere. Genau hier wäre
+ *  „alles ausgrauen, was nicht nach Mail aussieht" ein Fehler. */
+const NEEDS: Record<WizardChannel, { template: boolean; profile: boolean; groups: boolean; schedule: boolean }> = {
+  email: { template: true, profile: true, groups: true, schedule: true },
+  sms: { template: false, profile: false, groups: true, schedule: true },
+  matrix: { template: false, profile: false, groups: true, schedule: true },
+  talk: { template: false, profile: false, groups: true, schedule: true },
+  usb: { template: false, profile: false, groups: false, schedule: false },
+}
+
+const CHANNELS: WizardChannel[] = ['email', 'sms', 'matrix', 'talk', 'usb']
 
 interface CampaignWizardProps {
   templates: Template[]
@@ -57,9 +82,13 @@ export default function CampaignWizard({
   mode = 'create',
 }: CampaignWizardProps) {
   const { t } = useI18n()
+  const features = useFeatures()
+  const enterprise = Boolean(features?.features?.enterprise)
   const isEdit = mode === 'edit'
   const initialSchedule = splitSchedule(initialValues?.scheduled_at ?? null)
   const [name, setName] = useState(initialValues?.name ?? '')
+  const [channel, setChannel] = useState<WizardChannel>(initialValues?.channel ?? 'email')
+  const needs = NEEDS[channel]
   const [templateId, setTemplateId] = useState(initialValues?.template_id ?? templates[0]?.id ?? '')
   const [profileId, setProfileId] = useState(initialValues?.sending_profile_id ?? '')
   const [pageId, setPageId] = useState(initialValues?.landing_page_id ?? '')
@@ -77,13 +106,18 @@ export default function CampaignWizard({
     const scheduledAt = scheduleDate
       ? new Date(`${scheduleDate}T${scheduleTime || '00:00'}`).toISOString()
       : null
+    // Was der Kanal nicht braucht, wird nicht mitgeschickt statt nur
+    // ausgegraut: Ein ausgegrautes Feld behält sonst den Wert, den es vor dem
+    // Umschalten hatte, und die Kampagne trüge eine Vorlage, die niemand
+    // ausgewählt hat.
     onSubmit({
       name,
-      template_id: templateId,
-      sending_profile_id: profileId || null,
+      template_id: needs.template ? templateId : null,
+      sending_profile_id: needs.profile ? profileId || null : null,
       landing_page_id: pageId || null,
-      group_ids: groupIds,
-      scheduled_at: scheduledAt,
+      group_ids: needs.groups ? groupIds : [],
+      scheduled_at: needs.schedule ? scheduledAt : null,
+      channel,
     })
   }
 
@@ -94,9 +128,43 @@ export default function CampaignWizard({
         <input value={name} onChange={(e) => setName(e.target.value)} required className={fieldClass} />
       </label>
 
+      {/* Nur beim Anlegen. Der Kanal liegt im Enterprise-Add-on, der Core kennt
+          ihn nicht — ein Auswahlfeld beim Bearbeiten müsste raten und zeigte
+          bei einer USB-Kampagne „E-Mail" an. Lieber gar nichts als das. */}
+      {!isEdit && (
+        <label className={labelClass}>
+          <span className="inline-flex items-center gap-2">
+            {t('cw.channel')}
+            <TierBadge tier="enterprise" locked={enterprise ? false : undefined} />
+          </span>
+          <select
+            value={channel}
+            onChange={(e) => setChannel(e.target.value as WizardChannel)}
+            className={fieldClass}
+          >
+            {CHANNELS.map((item) => (
+              // Ohne Enterprise-Lizenz sichtbar, aber nicht wählbar: Die
+              // Funktion zu verschweigen wäre unehrlich, sie anzubieten und
+              // dann beim Speichern abzulehnen ärgerlich.
+              <option key={item} value={item} disabled={item !== 'email' && !enterprise}>
+                {t(`cw.channel.${item}`)}
+              </option>
+            ))}
+          </select>
+          <span className="text-sm text-text-secondary">{t(`cw.channelHint.${channel}`)}</span>
+        </label>
+      )}
+
       <label className={labelClass}>
         {t('cw.template')}
-        <select value={templateId} onChange={(e) => setTemplateId(e.target.value)} required className={fieldClass}>
+        <select
+          value={needs.template ? templateId : ''}
+          onChange={(e) => setTemplateId(e.target.value)}
+          required={needs.template}
+          disabled={!needs.template}
+          className={`${fieldClass} disabled:opacity-50`}
+        >
+          {!needs.template && <option value="">{t('cw.notNeeded')}</option>}
           {templates.map((tpl) => (
             <option key={tpl.id} value={tpl.id}>
               {tpl.name}
@@ -107,8 +175,13 @@ export default function CampaignWizard({
 
       <label className={labelClass}>
         {t('cw.sendingProfile')}
-        <select value={profileId} onChange={(e) => setProfileId(e.target.value)} className={fieldClass}>
-          <option value="">{t('cw.globalSmtp')}</option>
+        <select
+          value={needs.profile ? profileId : ''}
+          onChange={(e) => setProfileId(e.target.value)}
+          disabled={!needs.profile}
+          className={`${fieldClass} disabled:opacity-50`}
+        >
+          <option value="">{needs.profile ? t('cw.globalSmtp') : t('cw.notNeeded')}</option>
           {profiles.map((p) => (
             <option key={p.id} value={p.id}>
               {p.name}
@@ -129,7 +202,11 @@ export default function CampaignWizard({
         </select>
       </label>
 
-      {isEdit ? (
+      {!needs.groups ? (
+        // Beim USB-Drop sind die Fundorte die Empfänger — sie entstehen nach
+        // dem Anlegen als Datenträger, nicht hier aus einer Gruppe.
+        <p className="text-sm text-text-secondary">{t('cw.groupsNotNeeded')}</p>
+      ) : isEdit ? (
         <p className="text-sm text-text-secondary">{t('cw.groupsLocked')}</p>
       ) : (
         <div className="flex flex-col gap-1 text-sm">
@@ -152,27 +229,32 @@ export default function CampaignWizard({
 
       <div className="flex flex-col gap-1 text-sm">
         <span>{t('cw.schedule')}</span>
-        <div className="flex gap-3">
-          <input
-            type="date"
-            value={scheduleDate}
-            onChange={(e) => setScheduleDate(e.target.value)}
-            className={`${fieldClass} flex-1`}
-          />
-          <input
-            type="time"
-            value={scheduleTime}
-            onChange={(e) => setScheduleTime(e.target.value)}
-            disabled={!scheduleDate}
-            className={`${fieldClass} w-36 disabled:opacity-50`}
-          />
-        </div>
+        {needs.schedule ? (
+          <div className="flex gap-3">
+            <input
+              type="date"
+              value={scheduleDate}
+              onChange={(e) => setScheduleDate(e.target.value)}
+              className={`${fieldClass} flex-1`}
+            />
+            <input
+              type="time"
+              value={scheduleTime}
+              onChange={(e) => setScheduleTime(e.target.value)}
+              disabled={!scheduleDate}
+              className={`${fieldClass} w-36 disabled:opacity-50`}
+            />
+          </div>
+        ) : (
+          <span className="text-text-secondary">{t('cw.scheduleNotNeeded')}</span>
+        )}
       </div>
 
       <div className="flex gap-2">
         <button
           type="submit"
-          disabled={submitting || (!isEdit && groupIds.length === 0)}
+          // Ohne Gruppen kein Versand - ausser der Kanal braucht keine.
+          disabled={submitting || (!isEdit && needs.groups && groupIds.length === 0)}
           className="rounded-md bg-accent px-5 py-2 font-medium text-white disabled:opacity-60"
         >
           {isEdit

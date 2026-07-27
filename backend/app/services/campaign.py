@@ -56,8 +56,22 @@ class SmtpNotConfiguredError(Exception):
     """Kein gueltiges SMTP fuer den Versand hinterlegt (Profil oder Fallback)."""
 
 
+class TemplateMissingError(Exception):
+    """Mailversand ohne Vorlage angefordert."""
+
+
 async def send_campaign(db: Session, campaign: Campaign) -> dict[str, int]:
     """Versendet eine Kampagne an alle noch nicht versendeten Empfaenger."""
+    # Seit die Vorlage optional ist, traegt der Versand die Bedingung: Ohne
+    # Vorlage gibt es keinen Betreff und kein HTML, und die Zugriffe weiter
+    # unten liefen in einen AttributeError - also 500 statt einer Auskunft.
+    # Kampagnen ohne Mailversand (USB-Drop) landen hier gar nicht erst.
+    if campaign.template is None:
+        raise TemplateMissingError(
+            "Diese Kampagne hat keine Vorlage. Für den Mailversand ist eine nötig; "
+            "Kampagnen ohne Mailversand starten nicht über diesen Weg."
+        )
+
     smtp = smtp_params(db, campaign)
     # Absendername = Name der Kampagne (z. B. "Microsoft"), niemals der Software-/
     # Profilname. Die Absenderadresse bleibt die des Sending Profiles.

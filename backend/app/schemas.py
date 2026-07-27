@@ -271,7 +271,9 @@ class RecipientOut(BaseModel):
 
 class CampaignBase(BaseModel):
     name: str
-    template_id: uuid.UUID
+    # Ohne Vorlage anlegbar (USB-Drop und andere Kanaele ohne Mailversand).
+    # Der Versand prueft sie, weil erst dort feststeht, dass eine gebraucht wird.
+    template_id: uuid.UUID | None = None
     sending_profile_id: uuid.UUID | None = None
     landing_page_id: uuid.UUID | None = None
     scheduled_at: datetime | None = None
