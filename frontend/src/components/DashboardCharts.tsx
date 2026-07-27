@@ -9,13 +9,30 @@ import PrivacyLockNotice from './PrivacyLockNotice'
 import RiskBadge from './RiskBadge'
 import { useI18n } from '../i18n'
 
-export interface Summary {
+export interface DropSummary {
+  campaigns: number
+  /** Ausgelegte Datenträger, je Fundort einer. */
+  media: number
+  opened: number
+}
+
+/** Die reinen Zahlen der Mail-Kampagnen.
+ *
+ *  Bewusst als eigener Typ: Über diese Felder wird generisch iteriert und
+ *  gerechnet (Kacheln, Trichter). Läge `drops` mit darin, wäre `keyof` plötzlich
+ *  auch ein Objekt — genau daran ist der Build einmal gescheitert. */
+export interface MailMetrics {
   campaigns: number
   recipients: number
   sent: number
   opened: number
   clicked: number
   submitted: number
+}
+
+export interface Summary extends MailMetrics {
+  /** USB-Drops, getrennt geführt. */
+  drops: DropSummary
 }
 
 export interface RiskSummary {
@@ -92,7 +109,7 @@ export function RiskMeter({ risk }: { risk: RiskSummary }) {
 export function Funnel({ summary }: { summary: Summary }) {
   const { t } = useI18n()
   const base = summary.sent || summary.recipients || 0
-  const stages: { key: keyof Summary; labelKey: string }[] = [
+  const stages: { key: keyof MailMetrics; labelKey: string }[] = [
     { key: 'sent', labelKey: 'dash.tile.sent' },
     { key: 'opened', labelKey: 'dash.tile.opened' },
     { key: 'clicked', labelKey: 'dash.tile.clicked' },

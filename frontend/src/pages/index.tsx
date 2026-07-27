@@ -4,7 +4,7 @@
 
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
-import { GraduationCap, KeyRound, Mail, MailOpen, MousePointerClick, Send, Users, type LucideIcon } from 'lucide-react'
+import { GraduationCap, KeyRound, Mail, MailOpen, MousePointerClick, Send, Usb, Users, type LucideIcon } from 'lucide-react'
 import Badge from '../components/Badge'
 import Card from '../components/Card'
 import GettingStarted from '../components/GettingStarted'
@@ -19,6 +19,7 @@ import {
   type ActivityHeatmap,
   type EngagementAnalytics,
   type HumanRiskSummary,
+  type MailMetrics,
   type RiskSummary,
   type Summary,
   type TimelinePoint,
@@ -39,7 +40,7 @@ interface Failed {
   occurred_at: string
 }
 
-const tiles: { key: keyof Summary; labelKey: string; tone: StatTone; icon: LucideIcon }[] = [
+const tiles: { key: keyof MailMetrics; labelKey: string; tone: StatTone; icon: LucideIcon }[] = [
   { key: 'campaigns', labelKey: 'dash.tile.campaigns', tone: 'neutral', icon: Send },
   { key: 'recipients', labelKey: 'dash.tile.recipients', tone: 'neutral', icon: Users },
   { key: 'sent', labelKey: 'dash.tile.sent', tone: 'accent', icon: Mail },
@@ -91,6 +92,25 @@ export default function DashboardPage() {
           <StatCard key={key} label={t(labelKey)} value={summary?.[key] ?? 0} tone={tone} icon={icon} />
         ))}
       </div>
+
+      {/* USB-Drops getrennt. Sie haben weder Zustellung noch Oeffnungsrate im
+          Sinne der Mail-Kennzahlen: Gezaehlt werden ausgelegte Datentraeger und
+          wie viele davon geoeffnet wurden. In dieselben Kacheln gemischt waeren
+          beide Zahlen unbrauchbar. */}
+      {(summary?.drops.campaigns ?? 0) > 0 && (
+        <div className="mb-6 rounded-lg border border-border bg-surface p-4">
+          <div className="mb-3 flex items-center gap-2 text-sm font-medium">
+            <Usb size={16} />
+            {t('dash.drops.title')}
+          </div>
+          <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(170px, 1fr))' }}>
+            <StatCard label={t('dash.drops.campaigns')} value={summary?.drops.campaigns ?? 0} tone="neutral" icon={Usb} />
+            <StatCard label={t('dash.drops.media')} value={summary?.drops.media ?? 0} tone="neutral" icon={Users} />
+            <StatCard label={t('dash.drops.opened')} value={summary?.drops.opened ?? 0} tone="warning" icon={MousePointerClick} />
+          </div>
+          <p className="mt-3 text-xs text-text-secondary">{t('dash.drops.note')}</p>
+        </div>
+      )}
 
       <div className="mb-6 grid gap-4 lg:grid-cols-2">
         {risk && <RiskMeter risk={risk} />}

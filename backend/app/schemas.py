@@ -566,13 +566,30 @@ class LandingPageOut(LandingPageBase):
 
 # --- Dashboard / Uebersicht ---
 
+class DropSummary(BaseModel):
+    """Kennzahlen der USB-Drop-Kampagnen.
+
+    Bewusst eigene Felder statt der Mail-Begriffe: "Zugestellt" gibt es nicht,
+    wenn ein Datentraeger ausgelegt wird, und eine Oeffnungsrate ueber beide
+    Arten zusammen waere eine Zahl ohne Bedeutung.
+    """
+
+    campaigns: int
+    media: int  # ausgelegte Datentraeger (je Fundort einer)
+    opened: int  # davon geoeffnet
+
+
 class DashboardSummary(BaseModel):
+    # Alle Zahlen hier beziehen sich auf Mail-Kampagnen. Die Datentraeger
+    # stehen getrennt darunter - zusammengezaehlt ergaebe weder die
+    # Empfaengerzahl noch eine Rate etwas Sinnvolles.
     campaigns: int
     recipients: int
     sent: int
     opened: int
     clicked: int
     submitted: int
+    drops: DropSummary
 
 
 class FailedRecipient(BaseModel):
@@ -689,6 +706,9 @@ class EngagementAnalytics(BaseModel):
 class ReportCampaignRow(BaseModel):
     campaign_id: uuid.UUID
     name: str
+    #: "mail" oder "drop". Trennt die beiden Arten in der Auswertung, ohne dass
+    #: der Core den Kanal kennen muss - siehe reporting.drop_campaign_ids().
+    kind: str = "mail"
     recipients: int
     sent: int
     opened: int
