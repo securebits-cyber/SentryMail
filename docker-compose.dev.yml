@@ -1,0 +1,48 @@
+# Entwicklungs-Aufsatz auf docker-compose.yml.
+#
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+#
+# Bequemer ist ein Eintrag in der .env, dann genuegt weiter "docker compose up -d":
+#
+#   COMPOSE_FILE=docker-compose.yml:docker-compose.dev.yml
+#
+# Was hier zugeschaltet wird - Vite-Devserver mit HMR, uvicorn --reload, Quelltext
+# als Bind-Mount und die direkt veroeffentlichten Ports 5173/8000 - gehoert
+# ausdruecklich NICHT auf eine Maschine, die aus dem Internet erreichbar ist:
+#
+#   * Der Vite-Devserver liefert /src im Klartext aus (der gesamte Frontend-Code
+#     ist damit unauthentifiziert abrufbar) und meldet jeden serverseitigen
+#     Ladefehler per HMR-WebSocket an ALLE verbundenen Browser. Ein Portscanner,
+#     der nach /wormhole.config.js sucht, laesst so beim angemeldeten Nutzer ein
+#     Fehler-Overlay aufpoppen.
+#   * uvicorn --reload und die Bind-Mounts machen aus jedem Schreibzugriff auf
+#     das Verzeichnis einen Neustart mit dem geaenderten Code.
+services:
+  backend:
+    ports:
+      - "${DEV_BIND_ADDRESS:-127.0.0.1}:8000:8000"
+    volumes:
+      - ./backend:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  frontend:
+    # Der Devserver liest die VITE_*-Werte zur Laufzeit aus der Umgebung, nicht
+    # zur Bauzeit. Die build args aus docker-compose.yml laufen hier deshalb ins
+    # Leere - Docker meldet beim Bauen "build-args were not consumed". Das ist
+    # erwartet und ohne Folgen.
+    build:
+      dockerfile: Dockerfile.dev
+    environment:
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
+      VITE_WIKI_URL: ${VITE_WIKI_URL:-}
+      VITE_SUPPORT_EMAIL: ${VITE_SUPPORT_EMAIL:-}
+      # Vite blockt sonst per Default jeden Host, der nicht localhost/eine
+      # bekannte IP ist (Schutz vor DNS-Rebinding).
+      APP_DOMAIN: ${APP_DOMAIN:-localhost}
+    ports:
+      - "${DEV_BIND_ADDRESS:-127.0.0.1}:5173:5173"
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/index.html:/app/index.html
+      - ./frontend/public:/app/public
+    command: npm run dev
