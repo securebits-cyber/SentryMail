@@ -100,6 +100,22 @@ docker compose up -d
 
 Database migrations run automatically on startup. Then open the dashboard at your configured domain (or `https://localhost`) and sign in with the initial admin defined in `.env`.
 
+### Operating modes
+
+`docker compose up -d` starts the **production setup**: the frontend is built and served as static files, reachable only through Caddy. Backend and frontend ports are not published on the host.
+
+For **development**, add `docker-compose.dev.yml` — Vite with hot reload, `uvicorn --reload`, sources as bind mounts:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+# or permanently in .env:
+#   COMPOSE_FILE=docker-compose.yml:docker-compose.dev.yml
+```
+
+> ⚠️ The development stack does not belong on a machine reachable from the internet. The Vite dev server serves the entire frontend source unauthenticated and pushes every server-side load error over a WebSocket to all connected browsers — including errors triggered by a stranger's port scanner. That is why ports 5173/8000 listen on `127.0.0.1` only (`DEV_BIND_ADDRESS`).
+
+Which network interfaces the dashboard answers on is controlled by `FRONTEND_BIND_ADDRESS`. Without it, all of them — on a machine with a public IP that means exposed to the internet. If access is meant to happen over a VPN only, put the VPN interface's IP there.
+
 > 📌 **Tracking note:** Opens/clicks are only recorded when recipients can reach the address set in `APP_DOMAIN`. Since many mail clients block the open-tracking pixel, **clicks** are the more reliable signal.
 
 ## 🏗️ Architecture

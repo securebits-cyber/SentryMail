@@ -1,0 +1,26 @@
+# Liefert die gebauten Frontend-Dateien im Produktions-Image aus. Haengt hinter
+# dem Haupt-Caddy (Service "caddy") und ist nur im Compose-Netz erreichbar -
+# darum bewusst ohne TLS und ohne Host-Bindung.
+:5173 {
+	root * /srv
+	encode gzip
+
+	# Der React-Router kennt Pfade wie /campaigns, auf der Platte liegt dafuer
+	# aber keine Datei. Unbekannte Pfade gehen deshalb an die index.html, statt
+	# 404 zu liefern.
+	try_files {path} /index.html
+	file_server
+
+	# Gebaute Assets tragen einen Hash im Dateinamen und koennen dauerhaft
+	# gecacht werden. Alles Uebrige ausdruecklich nicht: sonst zieht der Browser
+	# nach einem Update weiter die alte index.html und verweist auf Asset-Namen,
+	# die es nicht mehr gibt.
+	#
+	# Der Matcher sieht den Pfad, mit dem der Browser angefragt hat - also "/"
+	# oder "/campaigns", noch vor dem Rewrite durch try_files. Ein Matcher auf
+	# /index.html wuerde deshalb ins Leere laufen.
+	@assets path /assets/*
+	@rest not path /assets/*
+	header @assets Cache-Control "public, max-age=31536000, immutable"
+	header @rest Cache-Control "no-cache"
+}

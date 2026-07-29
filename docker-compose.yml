@@ -71,38 +71,38 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    ports:
-      - "8000:8000"
     volumes:
-      - ./backend:/app
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+      # Vom Backend geschriebene Dateien (z. B. LMS-Videos bei
+      # LMS_STORAGE_BACKEND=filesystem). Ohne eigenes Volume laegen sie in der
+      # Container-Schicht und waeren nach jedem Rebuild weg.
+      - backend_data:/app/data
     networks:
       - humanshield
 
+  # Gebautes Frontend, statisch ausgeliefert. Der Port wird bewusst nicht auf
+  # den Host veroeffentlicht - erreichbar ist das Frontend nur ueber Caddy.
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
+      # Vite setzt diese Werte zur Bauzeit fest ein. Aenderungen in der .env
+      # wirken deshalb erst nach "docker compose build frontend".
+      args:
+        VITE_API_URL: ${VITE_API_URL:-/api}
+        VITE_WIKI_URL: ${VITE_WIKI_URL:-}
+        VITE_SUPPORT_EMAIL: ${VITE_SUPPORT_EMAIL:-}
     container_name: humanshield-web
-    environment:
-      VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
-      VITE_WIKI_URL: ${VITE_WIKI_URL:-}
-      APP_DOMAIN: ${APP_DOMAIN:-localhost}
     depends_on:
       - backend
-    ports:
-      - "${FRONTEND_BIND_ADDRESS:-0.0.0.0}:5173:5173"
-    volumes:
-      - ./frontend/src:/app/src
-      - ./frontend/index.html:/app/index.html
-      - ./frontend/public:/app/public
-    command: npm run dev
     networks:
       - humanshield
 
   caddy:
     image: caddy:2-alpine
     container_name: humanshield-proxy
+    # FRONTEND_BIND_ADDRESS begrenzt, auf welcher Netzwerkschnittstelle das
+    # Dashboard ueberhaupt antwortet. Ohne Angabe hoert es auf allen - bei einer
+    # Maschine mit oeffentlicher IP heisst das: offen im Internet.
     ports:
       - "${FRONTEND_BIND_ADDRESS:-0.0.0.0}:80:80"
       - "${FRONTEND_BIND_ADDRESS:-0.0.0.0}:443:443"
@@ -122,6 +122,7 @@ services:
 
 volumes:
   postgres_data:
+  backend_data:
   caddy_data:
   caddy_config:
   # Signaturdatenbank von ClamAV - ohne eigenes Volume laedt sie der

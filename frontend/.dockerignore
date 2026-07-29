@@ -1,0 +1,9 @@
+# node_modules gehoert nicht in den Build-Kontext: das Image installiert selbst
+# per "npm ci". Kaeme das Verzeichnis vom Host mit, wuerde das nachfolgende
+# "COPY . ." die frisch installierten Pakete ueberschreiben - inklusive der
+# nativen Binaries (z. B. @tailwindcss/oxide), die auf dem Host gegen glibc und
+# im Alpine-Image gegen musl gebaut sind.
+node_modules
+dist
+.env
+.env.*
