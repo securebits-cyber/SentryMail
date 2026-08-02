@@ -4,10 +4,10 @@
 
 import { Plus, Trash2 } from 'lucide-react'
 import { FormEvent, useEffect, useState } from 'react'
+import AddonNotice from '../components/AddonNotice'
 import Card from '../components/Card'
-import LockedFeatureNotice from '../components/LockedFeatureNotice'
 import PageScaffold from '../components/PageScaffold'
-import { useFeatures } from '../hooks/useFeatures'
+import { useAddonState } from '../hooks/useFeatures'
 import { useI18n } from '../i18n'
 import { api } from '../services/api'
 
@@ -29,8 +29,8 @@ const fieldClass = 'rounded-md border border-border bg-surface px-3 py-2 text-sm
 
 export default function RecurringPage() {
   const { t } = useI18n()
-  const features = useFeatures()
-  const licensed = Boolean(features?.features?.business)
+  const addon = useAddonState('business')
+  const licensed = addon === 'ready'
   const [items, setItems] = useState<Recurring[]>([])
   const [templates, setTemplates] = useState<Opt[]>([])
   const [groups, setGroups] = useState<Opt[]>([])
@@ -89,11 +89,11 @@ export default function RecurringPage() {
     setGroupIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]))
   }
 
-  if (features === null) return <p className="text-text-secondary">{t('dash.loading')}</p>
+  if (addon === 'loading') return <p className="text-text-secondary">{t('dash.loading')}</p>
   if (!licensed)
     return (
       <PageScaffold title={t('rec.title')} subtitle={t('rec.subtitle')} guidanceKey="recurring">
-        <LockedFeatureNotice tier="business" />
+        <AddonNotice tier="business" state={addon === 'missing' ? 'missing' : 'locked'} />
       </PageScaffold>
     )
 

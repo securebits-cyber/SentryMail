@@ -8,6 +8,7 @@ import RiskBadge from './RiskBadge'
 import TierBadge from './TierBadge'
 import { useI18n } from '../i18n'
 import { api } from '../services/api'
+import type { AddonState } from '../hooks/useFeatures'
 import type { MailAnalysis } from '../types'
 
 /** Ampel für ein einzelnes Authentifizierungsergebnis. */
@@ -32,8 +33,9 @@ function AuthResult({ label, value }: { label: string; value: string }) {
 }
 
 /** Auswertung einer gemeldeten Mail (Enterprise). */
-export default function MailAnalysisPanel({ mailId, licensed }: { mailId: string; licensed: boolean }) {
+export default function MailAnalysisPanel({ mailId, addon }: { mailId: string; addon: AddonState }) {
   const { t } = useI18n()
+  const licensed = addon === 'ready'
   const [analysis, setAnalysis] = useState<MailAnalysis | null>(null)
   const [state, setState] = useState<'loading' | 'ready' | 'missing'>('loading')
 
@@ -52,7 +54,9 @@ export default function MailAnalysisPanel({ mailId, licensed }: { mailId: string
     return (
       <div className="flex items-center gap-2 rounded-lg border border-border bg-bg p-3 text-sm text-text-secondary">
         <TierBadge tier="enterprise" locked />
-        {t('ma.locked')}
+        {/* Lizenziert, aber Paket nicht installiert: Der Hinweis auf die Lizenz
+            waere hier falsch - abhelfen muss der Betreiber, nicht der Kunde. */}
+        {addon === 'missing' ? t('missing.title') : t('ma.locked')}
       </div>
     )
   if (state === 'loading') return <p className="p-3 text-sm text-text-secondary">{t('ma.loading')}</p>

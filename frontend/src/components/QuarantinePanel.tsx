@@ -7,6 +7,7 @@ import { useState } from 'react'
 import TierBadge from './TierBadge'
 import { useI18n } from '../i18n'
 import { api } from '../services/api'
+import type { AddonState } from '../hooks/useFeatures'
 import type { QuarantineRun } from '../types'
 
 /**
@@ -17,7 +18,8 @@ import type { QuarantineRun } from '../types'
  * was der Server ohnehin erzwingt — ohne Vorschau-Datensatz gibt es nichts
  * auszuführen.
  */
-export default function QuarantinePanel({ mailId, licensed }: { mailId: string; licensed: boolean }) {
+export default function QuarantinePanel({ mailId, addon }: { mailId: string; addon: AddonState }) {
+  const licensed = addon === 'ready'
   const { t } = useI18n()
   const [run, setRun] = useState<QuarantineRun | null>(null)
   const [busy, setBusy] = useState(false)
@@ -41,7 +43,9 @@ export default function QuarantinePanel({ mailId, licensed }: { mailId: string; 
     return (
       <div className="flex items-center gap-2 rounded-lg border border-border bg-bg p-3 text-sm text-text-secondary">
         <TierBadge tier="enterprise" locked />
-        {t('qr.locked')}
+        {/* Lizenziert, aber Paket nicht installiert: Der Hinweis auf die Lizenz
+            waere hier falsch - abhelfen muss der Betreiber, nicht der Kunde. */}
+        {addon === 'missing' ? t('missing.title') : t('qr.locked')}
       </div>
     )
 

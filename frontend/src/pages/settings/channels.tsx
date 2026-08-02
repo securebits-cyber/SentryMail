@@ -4,11 +4,11 @@
 
 import { AlertTriangle, Plus, Send, Settings, Smartphone, Trash2 } from 'lucide-react'
 import { FormEvent, useCallback, useEffect, useState } from 'react'
+import AddonNotice from '../../components/AddonNotice'
 import Card from '../../components/Card'
-import LockedFeatureNotice from '../../components/LockedFeatureNotice'
 import PageScaffold from '../../components/PageScaffold'
 import Toggle from '../../components/Toggle'
-import { useFeatures } from '../../hooks/useFeatures'
+import { useAddonState } from '../../hooks/useFeatures'
 import { useI18n } from '../../i18n'
 import { api } from '../../services/api'
 import type { ChannelAddress, ChannelGateway, DeliverableChannel } from '../../types'
@@ -20,8 +20,8 @@ const CHANNELS: DeliverableChannel[] = ['sms', 'matrix', 'talk']
 
 export default function ChannelSettingsPage() {
   const { t } = useI18n()
-  const features = useFeatures()
-  const licensed = Boolean(features?.features?.enterprise)
+  const addon = useAddonState('enterprise')
+  const licensed = addon === 'ready'
   const [channel, setChannel] = useState<DeliverableChannel>('sms')
   const [form, setForm] = useState<ChannelGateway | null>(null)
   const [secret, setSecret] = useState('')
@@ -129,7 +129,7 @@ export default function ChannelSettingsPage() {
     { label: t('settings.channels'), icon: Smartphone },
   ]
 
-  if (features === null) return <p className="text-text-secondary">{t('common.loadingSettings')}</p>
+  if (addon === 'loading') return <p className="text-text-secondary">{t('common.loadingSettings')}</p>
   if (!licensed)
     return (
       <PageScaffold
@@ -138,7 +138,7 @@ export default function ChannelSettingsPage() {
         breadcrumb={breadcrumb}
         guidanceKey="settings-channels"
       >
-        <LockedFeatureNotice tier="enterprise" />
+        <AddonNotice tier="enterprise" state={addon === 'missing' ? 'missing' : 'locked'} />
       </PageScaffold>
     )
 

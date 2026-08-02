@@ -4,11 +4,11 @@
 
 import { AlertTriangle, Copy, RefreshCw, Settings, Users } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import AddonNotice from '../../components/AddonNotice'
 import Card from '../../components/Card'
-import LockedFeatureNotice from '../../components/LockedFeatureNotice'
 import PageScaffold from '../../components/PageScaffold'
 import Toggle from '../../components/Toggle'
-import { useFeatures } from '../../hooks/useFeatures'
+import { useAddonState } from '../../hooks/useFeatures'
 import { useI18n } from '../../i18n'
 import { api } from '../../services/api'
 import type { ScimConfig } from '../../types'
@@ -17,8 +17,8 @@ const fieldClass = 'rounded-md border border-border bg-surface px-3 py-2 text-te
 
 export default function ScimSettingsPage() {
   const { t } = useI18n()
-  const features = useFeatures()
-  const licensed = Boolean(features?.features?.business)
+  const addon = useAddonState('business')
+  const licensed = addon === 'ready'
   const [config, setConfig] = useState<ScimConfig | null>(null)
   // Nur direkt nach dem Erzeugen bekannt: danach liegt das Token verschlüsselt
   // in der Datenbank und wird nie wieder ausgegeben.
@@ -71,11 +71,11 @@ export default function ScimSettingsPage() {
     { label: t('settings.scim'), icon: Users },
   ]
 
-  if (features === null) return <p className="text-text-secondary">{t('common.loadingSettings')}</p>
+  if (addon === 'loading') return <p className="text-text-secondary">{t('common.loadingSettings')}</p>
   if (!licensed)
     return (
       <PageScaffold title={t('scim.title')} subtitle={t('scim.subtitle')} breadcrumb={breadcrumb} guidanceKey="settings-scim">
-        <LockedFeatureNotice tier="business" />
+        <AddonNotice tier="business" state={addon === 'missing' ? 'missing' : 'locked'} />
       </PageScaffold>
     )
   if (!config) return <p className="text-text-secondary">{t('common.loadingSettings')}</p>

@@ -5,11 +5,11 @@
 import { Palette, Settings } from 'lucide-react'
 import { FormEvent, useEffect, useState } from 'react'
 import { useBranding } from '../../components/BrandingProvider'
+import AddonNotice from '../../components/AddonNotice'
 import Card from '../../components/Card'
-import LockedFeatureNotice from '../../components/LockedFeatureNotice'
 import LogoUploadField from '../../components/LogoUploadField'
 import PageScaffold from '../../components/PageScaffold'
-import { useFeatures } from '../../hooks/useFeatures'
+import { useAddonState } from '../../hooks/useFeatures'
 import { useI18n } from '../../i18n'
 import { api } from '../../services/api'
 
@@ -27,8 +27,8 @@ const labelClass = 'flex flex-col gap-1 text-sm'
 export default function WhitelabelSettingsPage() {
   const { t } = useI18n()
   const { refresh } = useBranding()
-  const features = useFeatures()
-  const licensed = Boolean(features?.features?.enterprise)
+  const addon = useAddonState('enterprise')
+  const licensed = addon === 'ready'
   const [form, setForm] = useState<Whitelabel | null>(null)
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
@@ -63,11 +63,11 @@ export default function WhitelabelSettingsPage() {
     { label: t('settings.whitelabel'), icon: Palette },
   ]
 
-  if (features === null) return <p className="text-text-secondary">{t('common.loadingSettings')}</p>
+  if (addon === 'loading') return <p className="text-text-secondary">{t('common.loadingSettings')}</p>
   if (!licensed)
     return (
       <PageScaffold title={t('wl.title')} subtitle={t('wl.subtitle')} breadcrumb={breadcrumb} guidanceKey="settings-whitelabel">
-        <LockedFeatureNotice tier="enterprise" />
+        <AddonNotice tier="enterprise" state={addon === 'missing' ? 'missing' : 'locked'} />
       </PageScaffold>
     )
   if (!form) return <p className="text-text-secondary">{t('common.loadingSettings')}</p>

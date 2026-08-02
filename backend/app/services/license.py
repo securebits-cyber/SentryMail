@@ -22,6 +22,7 @@ import jwt
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
+from app.addon_loader import loaded_addons
 from app.auth.permissions import get_current_user
 from app.config import get_settings
 from app.database import get_db
@@ -222,8 +223,15 @@ def features_map(db: Session) -> dict:
     """Kompakte Feature-/Lizenz-Antwort fuer das Frontend."""
     state = get_or_create_license_state(db)
     active = set(active_features(db))
+    # Lizenz und Paket sind zwei unabhaengige Bedingungen: Das Lease kann ein
+    # Feature fuehren, ohne dass das zugehoerige private Paket im Container
+    # liegt (frische Installation, fehlgeschlagenes Add-on-Update, defektes
+    # Paket). Ohne diese Unterscheidung kann das Frontend einen
+    # Installationsfehler nicht von einer fehlenden Lizenz trennen.
+    installed = loaded_addons()
     return {
         "features": {name: (name in active) for name in KNOWN_FEATURES},
+        "installed": {name: (name in installed) for name in KNOWN_FEATURES},
         "license": {
             "status": state.last_status,
             "customer": state.customer,

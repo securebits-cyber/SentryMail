@@ -5,10 +5,10 @@
 import { Plus } from 'lucide-react'
 import { FormEvent, useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router'
+import AddonNotice from '../../components/AddonNotice'
 import Card from '../../components/Card'
-import LockedFeatureNotice from '../../components/LockedFeatureNotice'
 import PageScaffold from '../../components/PageScaffold'
-import { useFeatures } from '../../hooks/useFeatures'
+import { useAddonState } from '../../hooks/useFeatures'
 import { useI18n } from '../../i18n'
 import { api } from '../../services/api'
 import type { User } from '../../types'
@@ -44,8 +44,8 @@ const fieldClass = 'rounded-md border border-border bg-surface px-3 py-2 text-sm
 
 export default function LmsAssignmentsPage() {
   const { t, lang } = useI18n()
-  const features = useFeatures()
-  const licensed = Boolean(features?.features?.enterprise)
+  const addon = useAddonState('enterprise')
+  const licensed = addon === 'ready'
   const [searchParams] = useSearchParams()
   const [items, setItems] = useState<LmsAssignment[]>([])
   const [users, setUsers] = useState<User[]>([])
@@ -150,11 +150,11 @@ export default function LmsAssignmentsPage() {
     }
   }
 
-  if (features === null) return <p className="text-text-secondary">{t('dash.loading')}</p>
+  if (addon === 'loading') return <p className="text-text-secondary">{t('dash.loading')}</p>
   if (!licensed)
     return (
       <PageScaffold title={t('nav.lmsAssignments')} subtitle={t('lms.assign.subtitle')} guidanceKey="lms-assignments">
-        <LockedFeatureNotice tier="enterprise" />
+        <AddonNotice tier="enterprise" state={addon === 'missing' ? 'missing' : 'locked'} />
       </PageScaffold>
     )
 

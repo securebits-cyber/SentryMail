@@ -5,10 +5,10 @@
 import { FileDown, PlayCircle } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
+import AddonNotice from '../components/AddonNotice'
 import Card from '../components/Card'
-import LockedFeatureNotice from '../components/LockedFeatureNotice'
 import PageScaffold from '../components/PageScaffold'
-import { useFeatures } from '../hooks/useFeatures'
+import { useAddonState } from '../hooks/useFeatures'
 import { useI18n } from '../i18n'
 import { api } from '../services/api'
 
@@ -56,8 +56,8 @@ export function StatusBadge({ status }: { status: string }) {
 
 export default function TrainingsPage() {
   const { t, lang } = useI18n()
-  const features = useFeatures()
-  const licensed = Boolean(features?.features?.enterprise)
+  const addon = useAddonState('enterprise')
+  const licensed = addon === 'ready'
   const [items, setItems] = useState<MyAssignment[]>([])
 
   useEffect(() => {
@@ -65,11 +65,11 @@ export default function TrainingsPage() {
     api.get<MyAssignment[]>('/lms/my/assignments').then((r) => setItems(r.data))
   }, [licensed])
 
-  if (features === null) return <p className="text-text-secondary">{t('dash.loading')}</p>
+  if (addon === 'loading') return <p className="text-text-secondary">{t('dash.loading')}</p>
   if (!licensed)
     return (
       <PageScaffold title={t('lms.myTitle')} subtitle={t('lms.mySubtitle')} guidanceKey="trainings">
-        <LockedFeatureNotice tier="enterprise" />
+        <AddonNotice tier="enterprise" state={addon === 'missing' ? 'missing' : 'locked'} />
       </PageScaffold>
     )
 

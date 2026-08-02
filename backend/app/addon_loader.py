@@ -25,6 +25,20 @@ logger = logging.getLogger(__name__)
 # ausgelieferte Add-on-Pakete nach dem Rebranding weiter funktionieren.
 ADDON_GROUPS = ("sentrymail.addons", "humanshield.addons")
 
+#: FEATURE_IDs der Pakete, die beim Start tatsaechlich registriert wurden.
+#:
+#: Prozessweiter Zustand, weil "ist das Paket installiert?" fuer den ganzen
+#: Prozess gilt und weder pro Request noch pro Nutzer variiert. Das Frontend
+#: braucht die Angabe, um "nicht lizenziert" von "lizenziert, aber Paket fehlt"
+#: zu unterscheiden - ohne sie haengt eine lizenzierte Add-on-Seite ohne Paket
+#: dauerhaft im Ladezustand, weil ihr GET ins Leere laeuft.
+LOADED_ADDONS: set[str] = set()
+
+
+def loaded_addons() -> set[str]:
+    """FEATURE_IDs der registrierten Add-on-Pakete (Kopie, damit niemand mutiert)."""
+    return set(LOADED_ADDONS)
+
 
 def load_addons(app) -> list[str]:
     """Entdeckt und registriert installierte Add-on-Pakete. Gibt geladene FEATURE_IDs zurueck."""
@@ -57,4 +71,11 @@ def load_addons(app) -> list[str]:
 
     if not loaded:
         logger.info("Keine Add-ons installiert (reiner Open-Core-Betrieb)")
+
+    # Ein defektes Add-on ist oben in der Ausnahmebehandlung gelandet und steht
+    # deshalb nicht in `loaded` - es gilt hier bewusst als "nicht installiert",
+    # damit das Frontend den Installationshinweis zeigt statt eines Formulars,
+    # dessen Endpunkte gar nicht gemountet sind.
+    LOADED_ADDONS.clear()
+    LOADED_ADDONS.update(loaded)
     return loaded

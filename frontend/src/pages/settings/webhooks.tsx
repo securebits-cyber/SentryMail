@@ -4,10 +4,10 @@
 
 import { Plus, Settings, Trash2, Webhook } from 'lucide-react'
 import { FormEvent, useEffect, useState } from 'react'
+import AddonNotice from '../../components/AddonNotice'
 import Card from '../../components/Card'
-import LockedFeatureNotice from '../../components/LockedFeatureNotice'
 import PageScaffold from '../../components/PageScaffold'
-import { useFeatures } from '../../hooks/useFeatures'
+import { useAddonState } from '../../hooks/useFeatures'
 import { useI18n } from '../../i18n'
 import { api } from '../../services/api'
 
@@ -19,8 +19,8 @@ interface WebhookItem {
 
 export default function WebhooksSettingsPage() {
   const { t } = useI18n()
-  const features = useFeatures()
-  const licensed = Boolean(features?.features?.business)
+  const addon = useAddonState('business')
+  const licensed = addon === 'ready'
   const [items, setItems] = useState<WebhookItem[]>([])
   const [url, setUrl] = useState('')
   const [busy, setBusy] = useState(false)
@@ -60,12 +60,12 @@ export default function WebhooksSettingsPage() {
     { label: t('settings.webhooks'), icon: Webhook },
   ]
 
-  if (features === null) return <p className="text-text-secondary">{t('common.loadingSettings')}</p>
+  if (addon === 'loading') return <p className="text-text-secondary">{t('common.loadingSettings')}</p>
 
   if (!licensed)
     return (
       <PageScaffold title={t('wh.title')} subtitle={t('wh.subtitle')} breadcrumb={breadcrumb} guidanceKey="settings-webhooks">
-        <LockedFeatureNotice tier="business" />
+        <AddonNotice tier="business" state={addon === 'missing' ? 'missing' : 'locked'} />
       </PageScaffold>
     )
 

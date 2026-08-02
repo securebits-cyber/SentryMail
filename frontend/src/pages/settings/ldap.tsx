@@ -4,11 +4,11 @@
 
 import { Network, Settings } from 'lucide-react'
 import { FormEvent, useEffect, useState } from 'react'
+import AddonNotice from '../../components/AddonNotice'
 import Card from '../../components/Card'
-import LockedFeatureNotice from '../../components/LockedFeatureNotice'
 import PageScaffold from '../../components/PageScaffold'
 import Toggle from '../../components/Toggle'
-import { useFeatures } from '../../hooks/useFeatures'
+import { useAddonState } from '../../hooks/useFeatures'
 import { useI18n } from '../../i18n'
 import { api } from '../../services/api'
 import type { LdapConfig } from '../../types'
@@ -22,8 +22,8 @@ type LdapForm = Omit<LdapConfig, 'has_bind_password'> & { bind_password: string 
 export default function LdapSettingsPage() {
   const { t } = useI18n()
   // LDAP ist ein Business-Feature: ohne gültige Business-Lizenz gesperrt.
-  const features = useFeatures()
-  const licensed = Boolean(features?.features?.business)
+  const addon = useAddonState('business')
+  const licensed = addon === 'ready'
   const [form, setForm] = useState<LdapForm | null>(null)
   const [hasPassword, setHasPassword] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -85,7 +85,7 @@ export default function LdapSettingsPage() {
     }
   }
 
-  if (features === null) return <p className="text-text-secondary">{t('common.loadingSettings')}</p>
+  if (addon === 'loading') return <p className="text-text-secondary">{t('common.loadingSettings')}</p>
 
   if (!licensed)
     return (
@@ -97,7 +97,7 @@ export default function LdapSettingsPage() {
           { label: t('settings.ldap'), icon: Network },
         ]}
       >
-        <LockedFeatureNotice tier="business" />
+        <AddonNotice tier="business" state={addon === 'missing' ? 'missing' : 'locked'} />
       </PageScaffold>
     )
 

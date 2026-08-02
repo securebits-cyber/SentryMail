@@ -5,14 +5,14 @@
 import { ArrowLeft, CheckCircle2, FileDown } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router'
+import AddonNotice from '../components/AddonNotice'
 import BetaBadge from '../components/BetaBadge'
 import Card from '../components/Card'
 import LmsQuiz from '../components/LmsQuiz'
 import LmsScormPlayer from '../components/LmsScormPlayer'
 import LmsVideoPlayer from '../components/LmsVideoPlayer'
-import LockedFeatureNotice from '../components/LockedFeatureNotice'
 import PageScaffold from '../components/PageScaffold'
-import { useFeatures } from '../hooks/useFeatures'
+import { useAddonState } from '../hooks/useFeatures'
 import { useI18n } from '../i18n'
 import { api } from '../services/api'
 import { StatusBadge, downloadCertificate } from './trainings'
@@ -46,8 +46,8 @@ interface MyAssignmentDetail {
 export default function TrainingPlayerPage() {
   const { t } = useI18n()
   const { assignmentId } = useParams<{ assignmentId: string }>()
-  const features = useFeatures()
-  const licensed = Boolean(features?.features?.enterprise)
+  const addon = useAddonState('enterprise')
+  const licensed = addon === 'ready'
   const [detail, setDetail] = useState<MyAssignmentDetail | null>(null)
   const [activeModuleId, setActiveModuleId] = useState<string | null>(null)
 
@@ -64,11 +64,11 @@ export default function TrainingPlayerPage() {
     if (licensed && assignmentId) void load()
   }, [licensed, assignmentId, load])
 
-  if (features === null) return <p className="text-text-secondary">{t('dash.loading')}</p>
+  if (addon === 'loading') return <p className="text-text-secondary">{t('dash.loading')}</p>
   if (!licensed)
     return (
       <PageScaffold title={t('lms.myTitle')}>
-        <LockedFeatureNotice tier="enterprise" />
+        <AddonNotice tier="enterprise" state={addon === 'missing' ? 'missing' : 'locked'} />
       </PageScaffold>
     )
   if (!detail) return <p className="text-text-secondary">{t('dash.loading')}</p>
