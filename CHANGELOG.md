@@ -3,8 +3,18 @@
 ## [0.44.0](https://github.com/securebits-cyber/SentryMail/compare/v0.43.2...v0.44.0) (2026-08-02)
 
 
+### Features
+
+* **security:** Automatisches Abmelden / Automatic sign-out ([#173](https://github.com/securebits-cyber/SentryMail/issues/173)) ([6d3d870](https://github.com/securebits-cyber/SentryMail/commit/6d3d8703243e233f63ddaf65b3f39d228432ae10))
+* **reporting:** USB-Drops getrennt auswerten / Report USB drops apart ([#173](https://github.com/securebits-cyber/SentryMail/issues/173)) ([6d3d870](https://github.com/securebits-cyber/SentryMail/commit/6d3d8703243e233f63ddaf65b3f39d228432ae10))
+* **docker:** Produktions-Stack als Standard / Production stack by default ([#174](https://github.com/securebits-cyber/SentryMail/issues/174)) ([9519f69](https://github.com/securebits-cyber/SentryMail/commit/9519f6930b2fcf696e2fa291d5f102f9e7f8d0d5))
+* **license:** Installierte Add-ons in /features / Report installed add-ons in /features ([#177](https://github.com/securebits-cyber/SentryMail/issues/177)) ([9be3cf0](https://github.com/securebits-cyber/SentryMail/commit/9be3cf0a3a83c50c701b576fe37bc64e650d7ec6))
+
+
 ### Bug Fixes
 
+* **campaigns:** Senden-Knopf ohne Wirkung in der Listenansicht / Send button did nothing in the list view ([#173](https://github.com/securebits-cyber/SentryMail/issues/173)) ([6d3d870](https://github.com/securebits-cyber/SentryMail/commit/6d3d8703243e233f63ddaf65b3f39d228432ae10))
+* **settings:** Hinweis statt Endlos-Ladezustand ohne Add-on-Paket / Notice instead of endless loading without the add-on package ([#177](https://github.com/securebits-cyber/SentryMail/issues/177)) ([9be3cf0](https://github.com/securebits-cyber/SentryMail/commit/9be3cf0a3a83c50c701b576fe37bc64e650d7ec6))
 * **settings:** Fehlermeldung statt Endlos-Ladezustand bei Ladefehler / Error message instead of endless loading on load failure ([#178](https://github.com/securebits-cyber/SentryMail/issues/178)) ([c4d3604](https://github.com/securebits-cyber/SentryMail/commit/c4d36042c08b199c87963cab3741ec5f021a556d))
 
 ## [0.43.2](https://github.com/securebits-cyber/SentryMail/compare/v0.43.1...v0.43.2) (2026-07-27)
