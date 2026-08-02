@@ -33,17 +33,26 @@ from app.version import APP_VERSION
 
 logger = logging.getLogger(__name__)
 
-# Eingebauter Public Key des Anbieters (oeffentlich, unkritisch). Produktiv durch
-# den eigenen Public Key ersetzen; der zugehoerige Private Key liegt nur auf dem
-# Lizenzserver.
+# Eingebauter Ed25519-Public-Key des Anbieters (oeffentlich, unkritisch). Er
+# verifiziert die Leases, die license.sentrymail.de ausstellt; der zugehoerige
+# Private Key liegt ausschliesslich dort und hat den Server nie verlassen.
+#
+# Bewusst im Code statt in der .env: Ein Betreiber, der ihn austauschen koennte,
+# koennte sich auch selbst Leases ausstellen. Die Huerde ist damit ein
+# Neu-Uebersetzen des Images statt einer Konfigurationszeile.
 LICENSE_PUBLIC_KEY = """-----BEGIN PUBLIC KEY-----
-MCowBQYDK2VwAyEAPoHQaIQm81BBLDoj2gLB3cmgcij/lZrojZonkYw/oAg=
+MCowBQYDK2VwAyEAWZuMxtN5BdSG2w2mMpUdK5ykazhio2w5R0ZDvkczfkg=
 -----END PUBLIC KEY-----"""
 
 # Bekannte Add-on-Features (fuer die /features-Antwort ans Frontend).
 # Genau zwei kostenpflichtige Add-ons: Business und Enterprise. Enterprise
 # impliziert Business (das Enterprise-Lease fuehrt beide Feature-IDs).
 KNOWN_FEATURES = ["business", "enterprise"]
+
+# Zugestandener Uhrenversatz beim Pruefen eines Lease (Sekunden). Der
+# Lizenzserver datiert iat/nbf um dieselbe Spanne zurueck; beides zusammen
+# haelt kurzzeitige Zeitabweichungen zwischen den Maschinen unschaedlich.
+LEASE_CLOCK_SKEW = 120
 
 
 def get_or_create_license_state(db: Session) -> LicenseState:
@@ -74,7 +83,13 @@ def verify_lease(lease_jwt: str | None) -> dict | None:
     if not lease_jwt:
         return None
     try:
-        return jwt.decode(lease_jwt, LICENSE_PUBLIC_KEY, algorithms=["EdDSA"])
+        # leeway federt den Uhrenversatz zwischen dieser Installation und dem
+        # Lizenzserver ab. Ohne ihn wuerde ein frisch geholtes Lease bei einer
+        # nachgehenden Uhr als "noch nicht gueltig" verworfen und die Instanz
+        # liefe trotz gueltiger Lizenz in den Fehlerzustand.
+        return jwt.decode(
+            lease_jwt, LICENSE_PUBLIC_KEY, algorithms=["EdDSA"], leeway=LEASE_CLOCK_SKEW
+        )
     except jwt.PyJWTError:
         return None
 
