@@ -55,9 +55,14 @@ Thumbs.db
 *.log
 tmp/
 *.tmp
+# Agentenregeln mit Preismodell, Wettbewerbsanalyse und den URLs der privaten
+# Add-on-Repos - gehoert nicht ins oeffentliche Core-Repo. Beide Schreibweisen,
+# weil Linux case-sensitiv vergleicht: Eine Umbenennung .MD -> .md wuerde die
+# Datei sonst still in den naechsten Commit ziehen.
 CLAUDE.MD
-# Arbeitsunterlagen: eigenes lokales Repo (docs/.git), gehoert nicht in den Core.
-# Vorlagen, die mit ausgeliefert werden, liegen deshalb unter compliance/.
+CLAUDE.md
+# Arbeitsunterlagen, gehoeren nicht in den Core. Vorlagen, die mit ausgeliefert
+# werden, liegen deshalb unter compliance/.
 docs
 Screenshots/
 # Claude Code – persönliche lokale Einstellungen
