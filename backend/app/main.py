@@ -79,9 +79,22 @@ async def _retention_loop() -> None:
 
 
 @asynccontextmanager
-async def lifespan(_: FastAPI):
+async def lifespan(app: FastAPI):
     # Core-Schema beim Start automatisch auf head bringen (vor dem ersten DB-Zugriff).
     run_core_migrations()
+
+    # Add-ons ERST danach laden. Jedes Add-on fuehrt in register() seine eigene
+    # Alembic-Kette aus; geschieht das vor den Core-Migrationen, legt das
+    # Business-Add-on auf einer frischen Datenbank ldap_config an, bevor die
+    # Core-Kette startet - deren historische Migration 5714a734a300 will
+    # dieselbe Tabelle anlegen und bricht mit DuplicateTable ab. Eine
+    # Neuinstallation mit Business-Add-on startet dann nie. Gewachsene
+    # Installationen merken davon nichts, weil sie die Core-Kette abgeschlossen
+    # hatten, bevor LDAP ins Add-on gewandert ist.
+    #
+    # Bewusst hier statt beim Import: Beim Import liefe die Registrierung auch
+    # in Testlaeufen, die ihr Schema selbst per create_all aufbauen.
+    load_addons(app)
 
     db = SessionLocal()
     try:
@@ -181,5 +194,5 @@ app.include_router(version_api.router)
 app.include_router(delivery_api.router)
 app.include_router(preflight_api.router)
 
-# Private Add-on-Pakete (falls installiert) registrieren. Ohne Paket ein No-Op.
-load_addons(app)
+# Private Add-on-Pakete werden im Lifespan registriert - nach den
+# Core-Migrationen, siehe Begruendung dort.
