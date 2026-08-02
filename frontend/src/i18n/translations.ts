@@ -827,6 +827,8 @@ export const translations: Record<Lang, Record<string, string>> = {
     // Gemeinsam (Settings)
     'common.saving': 'Speichern...',
     'common.loadingSettings': 'Lade Einstellungen...',
+    'common.loadFailed':
+      'Die Einstellungen konnten nicht geladen werden. Bitte den Serverzustand und das Protokoll prüfen, dann die Seite neu laden.',
 
     // Audit Events
     'audit.subtitle': 'Anmeldeaktivitäten und Änderungen am System — chronologisch, neueste zuerst.',
@@ -2373,6 +2375,8 @@ export const translations: Record<Lang, Record<string, string>> = {
     // Common (settings)
     'common.saving': 'Saving...',
     'common.loadingSettings': 'Loading settings...',
+    'common.loadFailed':
+      'The settings could not be loaded. Please check the server status and log, then reload the page.',
 
     // Audit events
     'audit.subtitle': 'Sign-in activity and system changes — chronological, newest first.',

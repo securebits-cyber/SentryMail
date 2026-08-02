@@ -21,13 +21,17 @@ export default function PdfSigningSettingsPage() {
   const addon = useAddonState('business')
   const licensed = addon === 'ready'
   const [form, setForm] = useState<PdfSigningConfig | null>(null)
+  const [loadError, setLoadError] = useState(false)
   const [commonName, setCommonName] = useState('')
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState<{ kind: 'error' | 'info'; text: string } | null>(null)
 
   useEffect(() => {
     if (!licensed) return
-    api.get<PdfSigningConfig>('/settings/pdf-signing').then((res) => setForm(res.data))
+    api
+      .get<PdfSigningConfig>('/settings/pdf-signing')
+      .then((res) => setForm(res.data))
+      .catch(() => setLoadError(true))
   }, [licensed])
 
   async function save(event: FormEvent) {
@@ -86,6 +90,8 @@ export default function PdfSigningSettingsPage() {
         <AddonNotice tier="business" state={addon === 'missing' ? 'missing' : 'locked'} />
       </PageScaffold>
     )
+  if (loadError)
+    return <p className="text-status-danger">{t('common.loadFailed')}</p>
   if (!form) return <p className="text-text-secondary">{t('common.loadingSettings')}</p>
 
   const expired = form.valid_until ? new Date(form.valid_until) < new Date() : false

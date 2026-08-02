@@ -28,6 +28,7 @@ export default function AiSettingsPage() {
   const addon = useAddonState('business')
   const licensed = addon === 'ready'
   const [form, setForm] = useState<AiConfig | null>(null)
+  const [loadError, setLoadError] = useState(false)
   const [hasKey, setHasKey] = useState(false)
   const [apiKey, setApiKey] = useState('')
   const [busy, setBusy] = useState(false)
@@ -35,10 +36,13 @@ export default function AiSettingsPage() {
 
   useEffect(() => {
     if (!licensed) return
-    api.get<AiConfig>('/settings/ai').then((res) => {
-      setHasKey(res.data.has_api_key)
-      setForm(res.data)
-    })
+    api
+      .get<AiConfig>('/settings/ai')
+      .then((res) => {
+        setHasKey(res.data.has_api_key)
+        setForm(res.data)
+      })
+      .catch(() => setLoadError(true))
   }, [licensed])
 
   function set<K extends keyof AiConfig>(key: K, value: AiConfig[K]) {
@@ -101,6 +105,8 @@ export default function AiSettingsPage() {
         <AddonNotice tier="business" state={addon === 'missing' ? 'missing' : 'locked'} />
       </PageScaffold>
     )
+  if (loadError)
+    return <p className="text-status-danger">{t('common.loadFailed')}</p>
   if (!form) return <p className="text-text-secondary">{t('common.loadingSettings')}</p>
 
   return (

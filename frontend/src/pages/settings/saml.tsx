@@ -31,12 +31,16 @@ export default function SamlSettingsPage() {
   const addon = useAddonState('enterprise')
   const licensed = addon === 'ready'
   const [form, setForm] = useState<SamlConfig | null>(null)
+  const [loadError, setLoadError] = useState(false)
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState<{ kind: 'error' | 'info'; text: string } | null>(null)
 
   useEffect(() => {
     if (!licensed) return
-    api.get<SamlConfig>('/settings/saml').then((res) => setForm(res.data))
+    api
+      .get<SamlConfig>('/settings/saml')
+      .then((res) => setForm(res.data))
+      .catch(() => setLoadError(true))
   }, [licensed])
 
   function set<K extends keyof SamlConfig>(key: K, value: SamlConfig[K]) {
@@ -70,6 +74,8 @@ export default function SamlSettingsPage() {
         <AddonNotice tier="enterprise" state={addon === 'missing' ? 'missing' : 'locked'} />
       </PageScaffold>
     )
+  if (loadError)
+    return <p className="text-status-danger">{t('common.loadFailed')}</p>
   if (!form) return <p className="text-text-secondary">{t('common.loadingSettings')}</p>
 
   return (

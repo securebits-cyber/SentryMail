@@ -20,13 +20,17 @@ export default function QuarantineSettingsPage() {
   const addon = useAddonState('enterprise')
   const licensed = addon === 'ready'
   const [form, setForm] = useState<QuarantineConfig | null>(null)
+  const [loadError, setLoadError] = useState(false)
   const [secret, setSecret] = useState('')
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState<{ kind: 'error' | 'info'; text: string } | null>(null)
 
   useEffect(() => {
     if (!licensed) return
-    api.get<QuarantineConfig>('/settings/quarantine').then((res) => setForm(res.data))
+    api
+      .get<QuarantineConfig>('/settings/quarantine')
+      .then((res) => setForm(res.data))
+      .catch(() => setLoadError(true))
   }, [licensed])
 
   function set<K extends keyof QuarantineConfig>(key: K, value: QuarantineConfig[K]) {
@@ -70,6 +74,8 @@ export default function QuarantineSettingsPage() {
         <AddonNotice tier="enterprise" state={addon === 'missing' ? 'missing' : 'locked'} />
       </PageScaffold>
     )
+  if (loadError)
+    return <p className="text-status-danger">{t('common.loadFailed')}</p>
   if (!form) return <p className="text-text-secondary">{t('common.loadingSettings')}</p>
 
   return (

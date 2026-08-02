@@ -21,12 +21,16 @@ export default function ThreatScanSettingsPage() {
   const addon = useAddonState('enterprise')
   const licensed = addon === 'ready'
   const [form, setForm] = useState<ThreatScanConfig | null>(null)
+  const [loadError, setLoadError] = useState(false)
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState<{ kind: 'error' | 'info'; text: string } | null>(null)
 
   useEffect(() => {
     if (!licensed) return
-    api.get<ThreatScanConfig>('/settings/threat-scan').then((res) => setForm(res.data))
+    api
+      .get<ThreatScanConfig>('/settings/threat-scan')
+      .then((res) => setForm(res.data))
+      .catch(() => setLoadError(true))
   }, [licensed])
 
   function set<K extends keyof ThreatScanConfig>(key: K, value: ThreatScanConfig[K]) {
@@ -75,6 +79,8 @@ export default function ThreatScanSettingsPage() {
         <AddonNotice tier="enterprise" state={addon === 'missing' ? 'missing' : 'locked'} />
       </PageScaffold>
     )
+  if (loadError)
+    return <p className="text-status-danger">{t('common.loadFailed')}</p>
   if (!form) return <p className="text-text-secondary">{t('common.loadingSettings')}</p>
 
   return (

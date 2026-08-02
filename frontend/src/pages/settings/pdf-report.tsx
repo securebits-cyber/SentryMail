@@ -46,12 +46,16 @@ export default function PdfReportSettingsPage() {
   const addon = useAddonState('business')
   const licensed = addon === 'ready'
   const [form, setForm] = useState<PdfBranding | null>(null)
+  const [loadError, setLoadError] = useState(false)
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
 
   useEffect(() => {
     if (!licensed) return
-    api.get<PdfBranding>('/settings/pdf-branding').then((res) => setForm(toForm(res.data)))
+    api
+      .get<PdfBranding>('/settings/pdf-branding')
+      .then((res) => setForm(toForm(res.data)))
+      .catch(() => setLoadError(true))
   }, [licensed])
 
   function setField(key: keyof PdfBranding, value: string | null) {
@@ -89,6 +93,8 @@ export default function PdfReportSettingsPage() {
         <AddonNotice tier="business" state={addon === 'missing' ? 'missing' : 'locked'} />
       </PageScaffold>
     )
+  if (loadError)
+    return <p className="text-status-danger">{t('common.loadFailed')}</p>
   if (!form) return <p className="text-text-secondary">{t('common.loadingSettings')}</p>
 
   return (
