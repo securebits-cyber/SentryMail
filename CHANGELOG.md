@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.45.0](https://github.com/securebits-cyber/SentryMail/compare/v0.44.1...v0.45.0) (2026-08-02)
+
+
+### Features
+
+* **license:** Produktionsschluessel und Uhrentoleranz fuer Leases / … ([#184](https://github.com/securebits-cyber/SentryMail/issues/184)) ([c1c3275](https://github.com/securebits-cyber/SentryMail/commit/c1c3275dcab181ae4a72f702d2a71d24e53c82fb))
+* **license:** Produktionsschluessel und Uhrentoleranz fuer Leases / Production key and clock tolerance for leases ([c1c3275](https://github.com/securebits-cyber/SentryMail/commit/c1c3275dcab181ae4a72f702d2a71d24e53c82fb))
+
 ## [0.44.1](https://github.com/securebits-cyber/SentryMail/compare/v0.44.0...v0.44.1) (2026-08-02)
 
 
