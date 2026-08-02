@@ -4,11 +4,11 @@
 
 import { FileText, Settings } from 'lucide-react'
 import { FormEvent, useEffect, useState } from 'react'
+import AddonNotice from '../../components/AddonNotice'
 import Card from '../../components/Card'
-import LockedFeatureNotice from '../../components/LockedFeatureNotice'
 import LogoUploadField from '../../components/LogoUploadField'
 import PageScaffold from '../../components/PageScaffold'
-import { useFeatures } from '../../hooks/useFeatures'
+import { useAddonState } from '../../hooks/useFeatures'
 import { useI18n } from '../../i18n'
 import { api } from '../../services/api'
 
@@ -43,8 +43,8 @@ function toForm(data: PdfBranding): PdfBranding {
 
 export default function PdfReportSettingsPage() {
   const { t } = useI18n()
-  const features = useFeatures()
-  const licensed = Boolean(features?.features?.business)
+  const addon = useAddonState('business')
+  const licensed = addon === 'ready'
   const [form, setForm] = useState<PdfBranding | null>(null)
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
@@ -82,11 +82,11 @@ export default function PdfReportSettingsPage() {
     { label: t('settings.pdfReport'), icon: FileText },
   ]
 
-  if (features === null) return <p className="text-text-secondary">{t('common.loadingSettings')}</p>
+  if (addon === 'loading') return <p className="text-text-secondary">{t('common.loadingSettings')}</p>
   if (!licensed)
     return (
       <PageScaffold title={t('pdfReport.title')} subtitle={t('pdfReport.subtitle')} breadcrumb={breadcrumb}>
-        <LockedFeatureNotice tier="business" />
+        <AddonNotice tier="business" state={addon === 'missing' ? 'missing' : 'locked'} />
       </PageScaffold>
     )
   if (!form) return <p className="text-text-secondary">{t('common.loadingSettings')}</p>

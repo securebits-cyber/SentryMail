@@ -4,11 +4,11 @@
 
 import { GraduationCap, Send, Settings } from 'lucide-react'
 import { FormEvent, useEffect, useState } from 'react'
+import AddonNotice from '../../components/AddonNotice'
 import Card from '../../components/Card'
-import LockedFeatureNotice from '../../components/LockedFeatureNotice'
 import PageScaffold from '../../components/PageScaffold'
 import Toggle from '../../components/Toggle'
-import { useFeatures } from '../../hooks/useFeatures'
+import { useAddonState } from '../../hooks/useFeatures'
 import { useI18n } from '../../i18n'
 import { api } from '../../services/api'
 import type { LmsXapiConfig } from '../../types'
@@ -18,8 +18,8 @@ const labelClass = 'flex flex-col gap-1 text-sm'
 
 export default function LmsXapiSettingsPage() {
   const { t } = useI18n()
-  const features = useFeatures()
-  const licensed = Boolean(features?.features?.enterprise)
+  const addon = useAddonState('enterprise')
+  const licensed = addon === 'ready'
   const [form, setForm] = useState<LmsXapiConfig | null>(null)
   const [secret, setSecret] = useState('')
   const [busy, setBusy] = useState(false)
@@ -88,7 +88,7 @@ export default function LmsXapiSettingsPage() {
     { label: t('settings.lmsXapi'), icon: GraduationCap },
   ]
 
-  if (features === null) return <p className="text-text-secondary">{t('common.loadingSettings')}</p>
+  if (addon === 'loading') return <p className="text-text-secondary">{t('common.loadingSettings')}</p>
   if (!licensed)
     return (
       <PageScaffold
@@ -97,7 +97,7 @@ export default function LmsXapiSettingsPage() {
         breadcrumb={breadcrumb}
         guidanceKey="settings-lms-xapi"
       >
-        <LockedFeatureNotice tier="enterprise" />
+        <AddonNotice tier="enterprise" state={addon === 'missing' ? 'missing' : 'locked'} />
       </PageScaffold>
     )
   if (!form) return <p className="text-text-secondary">{t('common.loadingSettings')}</p>

@@ -4,11 +4,11 @@
 
 import { ExternalLink, ListChecks, Package, Plus, Trash2, Upload } from 'lucide-react'
 import { FormEvent, useCallback, useEffect, useRef, useState } from 'react'
+import AddonNotice from '../../components/AddonNotice'
 import BetaBadge from '../../components/BetaBadge'
 import Card from '../../components/Card'
-import LockedFeatureNotice from '../../components/LockedFeatureNotice'
 import PageScaffold from '../../components/PageScaffold'
-import { useFeatures } from '../../hooks/useFeatures'
+import { useAddonState } from '../../hooks/useFeatures'
 import { useI18n } from '../../i18n'
 import { api } from '../../services/api'
 
@@ -334,8 +334,8 @@ function ModuleRow({ courseId, module, onChanged }: { courseId: string; module: 
 
 export default function LmsCoursesPage() {
   const { t } = useI18n()
-  const features = useFeatures()
-  const licensed = Boolean(features?.features?.enterprise)
+  const addon = useAddonState('enterprise')
+  const licensed = addon === 'ready'
   const [courses, setCourses] = useState<LmsCourse[]>([])
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [detail, setDetail] = useState<LmsCourseDetail | null>(null)
@@ -401,11 +401,11 @@ export default function LmsCoursesPage() {
     if (selectedId === course.id) loadDetail(course.id)
   }
 
-  if (features === null) return <p className="text-text-secondary">{t('dash.loading')}</p>
+  if (addon === 'loading') return <p className="text-text-secondary">{t('dash.loading')}</p>
   if (!licensed)
     return (
       <PageScaffold title={t('nav.lmsCourses')} subtitle={t('lms.courses.subtitle')} guidanceKey="lms-courses">
-        <LockedFeatureNotice tier="enterprise" />
+        <AddonNotice tier="enterprise" state={addon === 'missing' ? 'missing' : 'locked'} />
       </PageScaffold>
     )
 

@@ -4,13 +4,13 @@
 
 import { ChevronDown, ChevronRight, MailWarning, Paperclip, Upload } from 'lucide-react'
 import { ChangeEvent, Fragment, useEffect, useState } from 'react'
+import AddonNotice from '../components/AddonNotice'
 import Badge from '../components/Badge'
 import Card from '../components/Card'
-import LockedFeatureNotice from '../components/LockedFeatureNotice'
 import MailAnalysisPanel from '../components/MailAnalysisPanel'
 import PageScaffold from '../components/PageScaffold'
 import QuarantinePanel from '../components/QuarantinePanel'
-import { useFeatures } from '../hooks/useFeatures'
+import { addonStateFrom, useFeaturesResult } from '../hooks/useFeatures'
 import { useI18n } from '../i18n'
 import { api } from '../services/api'
 import RiskBadge from '../components/RiskBadge'
@@ -18,10 +18,11 @@ import type { MailCluster, ReportedMail } from '../types'
 
 export default function ReportedMailsPage() {
   const { t } = useI18n()
-  const features = useFeatures()
-  const licensed = Boolean(features?.features?.business)
-  // Die Auswertung ist Enterprise; der Meldeweg selbst bleibt Business.
-  const analysisLicensed = Boolean(features?.features?.enterprise)
+  // Ein Abruf, zwei Tiers: Der Meldeweg ist Business, die Auswertung Enterprise.
+  const { features, settled } = useFeaturesResult()
+  const addon = addonStateFrom(features, settled, 'business')
+  const analysisAddon = addonStateFrom(features, settled, 'enterprise')
+  const licensed = addon === 'ready'
   const [openRow, setOpenRow] = useState<string | null>(null)
   const [rows, setRows] = useState<ReportedMail[]>([])
   const [clusters, setClusters] = useState<MailCluster[]>([])
@@ -87,11 +88,11 @@ export default function ReportedMailsPage() {
 
   const breadcrumb = [{ label: t('nav.reportedMails'), icon: MailWarning }]
 
-  if (features === null) return <p className="text-text-secondary">{t('common.loadingSettings')}</p>
+  if (addon === 'loading') return <p className="text-text-secondary">{t('common.loadingSettings')}</p>
   if (!licensed)
     return (
       <PageScaffold title={t('rm.title')} subtitle={t('rm.subtitle')} breadcrumb={breadcrumb} guidanceKey="reported-mails">
-        <LockedFeatureNotice tier="business" />
+        <AddonNotice tier="business" state={addon === 'missing' ? 'missing' : 'locked'} />
       </PageScaffold>
     )
 
@@ -202,8 +203,8 @@ export default function ReportedMailsPage() {
                   <tr className="border-b border-border">
                     <td colSpan={7} className="py-3">
                       <div className="flex flex-col gap-3">
-                        <MailAnalysisPanel mailId={mail.id} licensed={analysisLicensed} />
-                        <QuarantinePanel mailId={mail.id} licensed={analysisLicensed} />
+                        <MailAnalysisPanel mailId={mail.id} addon={analysisAddon} />
+                        <QuarantinePanel mailId={mail.id} addon={analysisAddon} />
                       </div>
                     </td>
                   </tr>

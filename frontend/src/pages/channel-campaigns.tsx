@@ -4,11 +4,11 @@
 
 import { Download, Send, Smartphone, Usb } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
+import AddonNotice from '../components/AddonNotice'
 import Badge from '../components/Badge'
 import Card from '../components/Card'
-import LockedFeatureNotice from '../components/LockedFeatureNotice'
 import PageScaffold from '../components/PageScaffold'
-import { useFeatures } from '../hooks/useFeatures'
+import { useAddonState } from '../hooks/useFeatures'
 import { useI18n } from '../i18n'
 import { api } from '../services/api'
 import type { CampaignChannel, ChannelKind, ChannelSendResult, UsbDrop } from '../types'
@@ -26,8 +26,8 @@ interface CampaignOption {
 
 export default function ChannelCampaignsPage() {
   const { t } = useI18n()
-  const features = useFeatures()
-  const licensed = Boolean(features?.features?.enterprise)
+  const addon = useAddonState('enterprise')
+  const licensed = addon === 'ready'
 
   const [campaigns, setCampaigns] = useState<CampaignOption[]>([])
   const [campaignId, setCampaignId] = useState('')
@@ -145,11 +145,11 @@ export default function ChannelCampaignsPage() {
     }
   }
 
-  if (features === null) return <p className="text-text-secondary">{t('dash.loading')}</p>
+  if (addon === 'loading') return <p className="text-text-secondary">{t('dash.loading')}</p>
   if (!licensed)
     return (
       <PageScaffold title={t('cc.title')} subtitle={t('cc.subtitle')} guidanceKey="channel-campaigns">
-        <LockedFeatureNotice tier="enterprise" />
+        <AddonNotice tier="enterprise" state={addon === 'missing' ? 'missing' : 'locked'} />
       </PageScaffold>
     )
 

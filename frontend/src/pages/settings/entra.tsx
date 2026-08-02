@@ -4,11 +4,11 @@
 
 import { Cloud, Settings } from 'lucide-react'
 import { FormEvent, useEffect, useState } from 'react'
+import AddonNotice from '../../components/AddonNotice'
 import Card from '../../components/Card'
-import LockedFeatureNotice from '../../components/LockedFeatureNotice'
 import PageScaffold from '../../components/PageScaffold'
 import Toggle from '../../components/Toggle'
-import { useFeatures } from '../../hooks/useFeatures'
+import { useAddonState } from '../../hooks/useFeatures'
 import { useI18n } from '../../i18n'
 import { api } from '../../services/api'
 
@@ -24,8 +24,8 @@ const labelClass = 'flex flex-col gap-1 text-sm'
 
 export default function EntraSettingsPage() {
   const { t } = useI18n()
-  const features = useFeatures()
-  const licensed = Boolean(features?.features?.business)
+  const addon = useAddonState('business')
+  const licensed = addon === 'ready'
   const [form, setForm] = useState<EntraConfig | null>(null)
   const [hasSecret, setHasSecret] = useState(false)
   const [secret, setSecret] = useState('')
@@ -92,11 +92,11 @@ export default function EntraSettingsPage() {
     { label: t('settings.entra'), icon: Cloud },
   ]
 
-  if (features === null) return <p className="text-text-secondary">{t('common.loadingSettings')}</p>
+  if (addon === 'loading') return <p className="text-text-secondary">{t('common.loadingSettings')}</p>
   if (!licensed)
     return (
       <PageScaffold title={t('entra.title')} subtitle={t('entra.subtitle')} breadcrumb={breadcrumb} guidanceKey="settings-entra">
-        <LockedFeatureNotice tier="business" />
+        <AddonNotice tier="business" state={addon === 'missing' ? 'missing' : 'locked'} />
       </PageScaffold>
     )
   if (!form) return <p className="text-text-secondary">{t('common.loadingSettings')}</p>
