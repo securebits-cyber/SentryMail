@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.45.1](https://github.com/securebits-cyber/SentryMail/compare/v0.45.0...v0.45.1) (2026-08-02)
+
+
+### Bug Fixes
+
+* **startup:** Add-ons erst nach den Core-Migrationen laden / Load add-ons after core migrations ([c6b32a4](https://github.com/securebits-cyber/SentryMail/commit/c6b32a4354e94ee4deecd85fcc97b4d39645bd66))
+* **startup:** Add-ons erst nach den Core-Migrationen laden / Load add… ([#186](https://github.com/securebits-cyber/SentryMail/issues/186)) ([c6b32a4](https://github.com/securebits-cyber/SentryMail/commit/c6b32a4354e94ee4deecd85fcc97b4d39645bd66))
+
 ## [0.45.0](https://github.com/securebits-cyber/SentryMail/compare/v0.44.1...v0.45.0) (2026-08-02)
 
 
