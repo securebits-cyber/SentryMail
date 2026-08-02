@@ -63,12 +63,16 @@ export default function LmsSettingsPage() {
   const addon = useAddonState('enterprise')
   const licensed = addon === 'ready'
   const [form, setForm] = useState<LmsSettings | null>(null)
+  const [loadError, setLoadError] = useState(false)
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState<{ kind: 'error' | 'info'; text: string } | null>(null)
 
   useEffect(() => {
     if (!licensed) return
-    api.get<LmsSettings>('/lms/settings').then((res) => setForm(res.data))
+    api
+      .get<LmsSettings>('/lms/settings')
+      .then((res) => setForm(res.data))
+      .catch(() => setLoadError(true))
   }, [licensed])
 
   function set<K extends keyof LmsSettings>(key: K, value: LmsSettings[K]) {
@@ -97,6 +101,8 @@ export default function LmsSettingsPage() {
         <AddonNotice tier="enterprise" state={addon === 'missing' ? 'missing' : 'locked'} />
       </PageScaffold>
     )
+  if (loadError)
+    return <p className="text-status-danger">{t('common.loadFailed')}</p>
   if (!form) return <p className="text-text-secondary">{t('dash.loading')}</p>
 
   return (

@@ -25,6 +25,7 @@ export default function LdapSettingsPage() {
   const addon = useAddonState('business')
   const licensed = addon === 'ready'
   const [form, setForm] = useState<LdapForm | null>(null)
+  const [loadError, setLoadError] = useState(false)
   const [hasPassword, setHasPassword] = useState(false)
   const [saving, setSaving] = useState(false)
   const [testing, setTesting] = useState(false)
@@ -32,11 +33,14 @@ export default function LdapSettingsPage() {
 
   useEffect(() => {
     if (!licensed) return
-    api.get<LdapConfig>('/settings/ldap').then((res) => {
-      const { has_bind_password, ...rest } = res.data
-      setHasPassword(has_bind_password)
-      setForm({ ...rest, bind_password: '' })
-    })
+    api
+      .get<LdapConfig>('/settings/ldap')
+      .then((res) => {
+        const { has_bind_password, ...rest } = res.data
+        setHasPassword(has_bind_password)
+        setForm({ ...rest, bind_password: '' })
+      })
+      .catch(() => setLoadError(true))
   }, [licensed])
 
   function set<K extends keyof LdapForm>(key: K, value: LdapForm[K]) {
@@ -101,6 +105,8 @@ export default function LdapSettingsPage() {
       </PageScaffold>
     )
 
+  if (loadError)
+    return <p className="text-status-danger">{t('common.loadFailed')}</p>
   if (!form) return <p className="text-text-secondary">{t('common.loadingSettings')}</p>
 
   return (

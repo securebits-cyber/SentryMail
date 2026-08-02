@@ -27,6 +27,7 @@ export default function EntraSettingsPage() {
   const addon = useAddonState('business')
   const licensed = addon === 'ready'
   const [form, setForm] = useState<EntraConfig | null>(null)
+  const [loadError, setLoadError] = useState(false)
   const [hasSecret, setHasSecret] = useState(false)
   const [secret, setSecret] = useState('')
   const [busy, setBusy] = useState(false)
@@ -34,10 +35,13 @@ export default function EntraSettingsPage() {
 
   useEffect(() => {
     if (!licensed) return
-    api.get<EntraConfig>('/settings/entra').then((res) => {
-      setHasSecret(res.data.has_client_secret)
-      setForm(res.data)
-    })
+    api
+      .get<EntraConfig>('/settings/entra')
+      .then((res) => {
+        setHasSecret(res.data.has_client_secret)
+        setForm(res.data)
+      })
+      .catch(() => setLoadError(true))
   }, [licensed])
 
   function set<K extends keyof EntraConfig>(key: K, value: EntraConfig[K]) {
@@ -99,6 +103,8 @@ export default function EntraSettingsPage() {
         <AddonNotice tier="business" state={addon === 'missing' ? 'missing' : 'locked'} />
       </PageScaffold>
     )
+  if (loadError)
+    return <p className="text-status-danger">{t('common.loadFailed')}</p>
   if (!form) return <p className="text-text-secondary">{t('common.loadingSettings')}</p>
 
   return (

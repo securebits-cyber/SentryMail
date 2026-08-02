@@ -35,6 +35,7 @@ export default function SiemSettingsPage() {
   const addon = useAddonState('enterprise')
   const licensed = addon === 'ready'
   const [form, setForm] = useState<SiemConfig | null>(null)
+  const [loadError, setLoadError] = useState(false)
   const [hasToken, setHasToken] = useState(false)
   const [token, setToken] = useState('')
   const [busy, setBusy] = useState(false)
@@ -42,10 +43,13 @@ export default function SiemSettingsPage() {
 
   useEffect(() => {
     if (!licensed) return
-    api.get<SiemConfig>('/settings/siem').then((res) => {
-      setHasToken(res.data.has_token)
-      setForm(res.data)
-    })
+    api
+      .get<SiemConfig>('/settings/siem')
+      .then((res) => {
+        setHasToken(res.data.has_token)
+        setForm(res.data)
+      })
+      .catch(() => setLoadError(true))
   }, [licensed])
 
   function set<K extends keyof SiemConfig>(key: K, value: SiemConfig[K]) {
@@ -108,6 +112,8 @@ export default function SiemSettingsPage() {
         <AddonNotice tier="enterprise" state={addon === 'missing' ? 'missing' : 'locked'} />
       </PageScaffold>
     )
+  if (loadError)
+    return <p className="text-status-danger">{t('common.loadFailed')}</p>
   if (!form) return <p className="text-text-secondary">{t('common.loadingSettings')}</p>
 
   return (
