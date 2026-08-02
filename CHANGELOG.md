@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.44.0](https://github.com/securebits-cyber/SentryMail/compare/v0.43.2...v0.44.0) (2026-08-02)
+
+
+### Bug Fixes
+
+* **settings:** Fehlermeldung statt Endlos-Ladezustand bei Ladefehler / Error message instead of endless loading on load failure ([#178](https://github.com/securebits-cyber/SentryMail/issues/178)) ([c4d3604](https://github.com/securebits-cyber/SentryMail/commit/c4d36042c08b199c87963cab3741ec5f021a556d))
+
 ## [0.43.2](https://github.com/securebits-cyber/SentryMail/compare/v0.43.1...v0.43.2) (2026-07-27)
 
 
