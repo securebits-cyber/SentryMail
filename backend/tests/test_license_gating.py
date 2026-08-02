@@ -10,8 +10,9 @@ ohne gueltige Lizenz (Default-Zustand ``no_license`` -> kein aktives Feature).""
 import pytest
 from fastapi import HTTPException
 
+from app import addon_loader
 from app.models import UserRole
-from app.services.license import require_feature
+from app.services.license import features_map, require_feature
 
 
 def test_require_feature_blocks_without_license(db, make_user):
@@ -27,3 +28,21 @@ def test_oidc_config_not_gated(client, make_user, auth_headers):
     admin = make_user(role=UserRole.ADMIN)
     resp = client.get("/settings/oidc", headers=auth_headers(admin))
     assert resp.status_code == 200
+
+
+def test_features_map_reports_missing_package(db):
+    """Ohne installiertes Paket meldet /features `installed = false`.
+
+    Lizenz und Paket sind unabhaengig voneinander: Das Frontend muss "nicht
+    lizenziert" von "lizenziert, aber Paket fehlt" trennen koennen, sonst haengt
+    eine lizenzierte Add-on-Seite ohne Paket dauerhaft im Ladezustand.
+    """
+    assert features_map(db)["installed"] == {"business": False, "enterprise": False}
+
+
+def test_features_map_reports_loaded_package(db, monkeypatch):
+    """Ein registriertes Add-on taucht in `installed` auf."""
+    monkeypatch.setattr(addon_loader, "LOADED_ADDONS", {"business"})
+    installed = features_map(db)["installed"]
+    assert installed["business"] is True
+    assert installed["enterprise"] is False

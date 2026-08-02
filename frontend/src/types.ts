@@ -91,7 +91,11 @@ export interface SeatStatus {
 }
 
 export interface FeaturesResponse {
+  /** Lizenzierte Add-ons laut Lease. */
   features: Record<string, boolean>
+  /** Tatsaechlich im Backend registrierte Add-on-Pakete. Unabhaengig von der
+   *  Lizenz - ein Feature kann lizenziert, das Paket aber nicht installiert sein. */
+  installed: Record<string, boolean>
   license: { status: string; customer: string | null; expires: string | null }
   seats: SeatStatus
 }

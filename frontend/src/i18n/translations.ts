@@ -1319,6 +1319,10 @@ export const translations: Record<Lang, Record<string, string>> = {
     'addon.notActivated': 'Dieses Add-on ist in dieser Installation nicht lizenziert. Über „Upgrade Lizenz“ freischalten.',
     'locked.body': 'Diese Funktion ist nicht lizenziert und daher deaktiviert.',
     'locked.toLicense': 'Zur Lizenz-Seite',
+    'missing.title': 'Add-on-Paket nicht installiert',
+    'missing.body':
+      'Diese Funktion ist lizenziert, das zugehörige Add-on-Paket ist in dieser Installation aber nicht eingerichtet. Die Funktion bleibt deaktiviert, bis das Paket installiert und der Dienst neu gestartet wurde.',
+    'missing.hint': 'Ist das Paket installiert, prüfen Sie das Server-Protokoll auf Fehler beim Laden des Add-ons.',
     comingSoon: 'Coming Soon',
     'comingSoon.body': 'Diese Funktion ist bald verfügbar…',
     'addon.ent.includesBusiness': 'Enthält alle Business-Funktionen — plus:',
@@ -2858,6 +2862,10 @@ export const translations: Record<Lang, Record<string, string>> = {
     'addon.notActivated': 'This add-on is not licensed in this installation. Unlock it via “Upgrade license”.',
     'locked.body': 'This feature is not licensed and therefore disabled.',
     'locked.toLicense': 'Go to license page',
+    'missing.title': 'Add-on package not installed',
+    'missing.body':
+      'This feature is licensed, but the matching add-on package is not set up in this installation. The feature stays disabled until the package has been installed and the service restarted.',
+    'missing.hint': 'If the package is installed, check the server log for errors while loading the add-on.',
     comingSoon: 'Coming Soon',
     'comingSoon.body': 'This feature will be available soon…',
     'addon.ent.includesBusiness': 'Includes all Business features — plus:',
