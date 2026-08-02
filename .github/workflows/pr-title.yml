@@ -1,0 +1,90 @@
+# PR-Titel-Check: verlangt einen Conventional Commit mit zweisprachigem Betreff.
+#
+# Warum der Titel und nicht die Commits: Beim Squash-Merge wird der PR-Titel zur
+# Betreffzeile des Commits auf main, und genau die liest release-please. Die
+# Betreffzeilen der Einzel-Commits landen nur im Body und werden nicht
+# ausgewertet. Ist der Titel kein Conventional Commit, findet release-please
+# nichts Releasebares, meldet trotzdem "success" und oeffnet keinen Release-PR -
+# der Fehler faellt also nicht auf, weil nichts rot wird. Zwischen 0.43.2 und
+# 0.44.0 sind so drei PRs ohne Changelog-Eintrag und ohne Versionssprung
+# durchgelaufen.
+#
+# Die Weboberflaeche fuellt den PR-Titel bei mehreren Commits aus dem
+# Branchnamen vor ("Fix/addon missing state"). Dieser Check erzwingt, dass er
+# vor dem Merge korrigiert wird.
+#
+# Bot-PRs (Dependabot, release-please) sind ausgenommen: ihre Titel sind
+# maschinell erzeugt, korrekt typisiert und bewusst einsprachig.
+#
+# Self-contained (keine Fremd-Action -> keine Supply-Chain-Flaeche),
+# read-only Token, kein Secret-Zugriff. Werte kommen ueber env ins Skript,
+# nicht per ${{ }}-Interpolation in die Shell (Script-Injection).
+name: PR Title Check
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+
+permissions:
+  contents: read
+
+jobs:
+  title:
+    runs-on: ubuntu-latest
+    steps:
+      - name: PR-Titel pruefen
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+          AUTHOR: ${{ github.event.pull_request.user.login }}
+        run: |
+          set -euo pipefail
+
+          case "$AUTHOR" in
+            *'[bot]')
+              echo "SKIP  Bot-PR von $AUTHOR - Titelpruefung entfaellt."
+              exit 0
+              ;;
+          esac
+
+          echo "Titel: $TITLE"
+          echo ""
+
+          # 1) Conventional Commit. Der Typ steuert die Versionierung durch
+          #    release-please und bleibt deshalb englisch und unveraendert.
+          types='build|chore|ci|docs|feat|fix|perf|refactor|revert|test'
+          if ! printf '%s' "$TITLE" | grep -qE "^($types)(\([a-zA-Z0-9._/-]+\))?!?: .+"; then
+            echo "::error::Der PR-Titel ist kein Conventional Commit."
+            echo ""
+            echo "Erwartet: type(scope): Deutscher Betreff / English subject"
+            echo "Erlaubte Typen: $(printf '%s' "$types" | tr '|' ' ')"
+            echo ""
+            echo "Haeufige Ursache: Die Weboberflaeche hat den Branchnamen als Titel"
+            echo "uebernommen (z. B. 'Fix/addon missing state'). Titel im PR bearbeiten."
+            exit 1
+          fi
+
+          # 2) Zweisprachigkeit. Trenner ist bewusst ' / ' mit Leerzeichen, damit
+          #    Schraegstriche im Text (z. B. 'SPF/DKIM') nicht faelschlich zaehlen.
+          description="${TITLE#*: }"
+          german="${description%% / *}"
+          english="${description#* / }"
+          if [ "$german" = "$description" ] || [ -z "${german// /}" ] || [ -z "${english// /}" ]; then
+            echo "::error::Der PR-Titel ist nicht zweisprachig."
+            echo ""
+            echo "Deutscher Teil zuerst, dann ' / ', dann der englische:"
+            echo "  fix(settings): Fehlermeldung statt Ladehaenger / Error instead of a hang"
+            echo ""
+            echo "Der Changelog wird aus dieser Zeile erzeugt - steht die Uebersetzung"
+            echo "nur im Body, bleibt CHANGELOG.md einsprachig."
+            exit 1
+          fi
+
+          # 3) Laenge nur anmerken, nicht erzwingen - eine lange, aber korrekte
+          #    Zeile soll keinen Merge blockieren.
+          for half in "$german" "$english"; do
+            if [ "${#half}" -gt 60 ]; then
+              echo "::warning::Betreffhaelfte ist ${#half} Zeichen lang (Richtwert ca. 50): $half"
+            fi
+          done
+
+          echo "PR-Titel OK - Conventional Commit und zweisprachig."
