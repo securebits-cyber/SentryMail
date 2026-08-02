@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.44.1](https://github.com/securebits-cyber/SentryMail/compare/v0.44.0...v0.44.1) (2026-08-02)
+
+
+### Dokumentation
+
+* **changelog:** Fehlende Eintraege fuer 0.44.0 nachgetragen / Add missing entries for 0.44.0 ([#182](https://github.com/securebits-cyber/SentryMail/issues/182)) ([2be52af](https://github.com/securebits-cyber/SentryMail/commit/2be52af8c7d10d30cceade4c9ffc5e22042c79a7))
+
 ## [0.44.0](https://github.com/securebits-cyber/SentryMail/compare/v0.43.2...v0.44.0) (2026-08-02)
 
 
