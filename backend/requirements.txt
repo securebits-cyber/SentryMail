@@ -16,7 +16,7 @@ email-validator==2.3.0
 authlib==1.7.2
 itsdangerous==2.2.0
 aiosmtplib==5.1.2
-cryptography==49.0.0
+cryptography==50.0.0
 pytest==9.1.1
 pytest-asyncio==1.4.0
 black==26.5.1
