@@ -21,7 +21,19 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
+RUN chmod +x /app/docker-entrypoint.sh
+
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
+# Der Entrypoint holt vor dem Start die lizenzierten Add-on-Pakete vom
+# Lizenzserver (siehe scripts/fetch_addons.py) und startet danach das CMD.
+# Ohne LICENSE_SERVER_URL und LICENSE_KEY passiert nichts - die Installation
+# laeuft dann als Open Core.
+#
+# start-period des Healthchecks bewusst unveraendert: Der Paketbezug laeuft
+# VOR uvicorn, der Container gilt also erst danach als gestartet. Ein langer
+# Erstdownload verzoegert den Start, laesst den Healthcheck aber nicht
+# fehlschlagen, weil dieser erst nach dem Start des Kommandos zaehlt.
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
