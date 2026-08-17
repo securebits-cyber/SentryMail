@@ -22,6 +22,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 RUN chmod +x /app/docker-entrypoint.sh
+# Der chmod allein genuegt NICHT: docker-compose.dev.yml bindet ./backend nach
+# /app, und die Host-Datei ueberdeckt dann die Image-Datei mitsamt ihrem
+# Ausfuehrbar-Bit. Deshalb wird der Entrypoint unten ueber "sh" aufgerufen -
+# damit ist das Bit unerheblich, gleich ob die Datei aus dem Image, aus einem
+# Bind-Mount oder aus einem Archiv stammt, das Modi nicht ueberliefert.
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
@@ -35,5 +40,5 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
 # VOR uvicorn, der Container gilt also erst danach als gestartet. Ein langer
 # Erstdownload verzoegert den Start, laesst den Healthcheck aber nicht
 # fehlschlagen, weil dieser erst nach dem Start des Kommandos zaehlt.
-ENTRYPOINT ["/app/docker-entrypoint.sh"]
+ENTRYPOINT ["/bin/sh", "/app/docker-entrypoint.sh"]
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
