@@ -186,6 +186,49 @@ else
 fi
 printf '\n'
 
-# --- 6. Hinweis Add-ons / add-on note ---------------------------------------
+# --- 6. Veraltete .env-Werte / stale .env values -----------------------------
+# DE: Werte aus der Zeit vor der Umbenennung bleiben beim Update stehen - die
+#     Vorgaben im Code greifen nur, wenn der Schluessel in der .env fehlt. Eine
+#     Altinstallation verliert dadurch stillschweigend die Update-Meldung bzw.
+#     erreicht den Lizenzserver nicht. Es wird nichts rot, es faellt nur nie auf.
+# EN: Values from before the rename survive an update - the defaults in code
+#     only apply when the key is absent from .env. An old installation silently
+#     loses update notifications or fails to reach the license server.
+#
+# Nur warnen, nicht aendern: Die .env wird von diesem Skript bewusst nicht
+# angefasst (siehe Kopf). Sie enthaelt SECRET_KEY, DB-Passwort und
+# Lizenzschluessel; ein fehlgeschlagenes sed darin waere teurer als der Fehler,
+# den es beheben soll. Der Betreiber entscheidet und fuehrt selbst aus.
+printf '%s%s%s\n' "$BOLD" "$(msg '6) Veraltete Werte in der .env' '6) Stale values in .env')" "$RESET"
+STALE=0
+# Format je Eintrag: SCHLUESSEL|Suchmuster|empfohlener Wert
+for eintrag in \
+  "UPDATE_CHECK_URL|HumanShield|https://api.github.com/repos/securebits-cyber/SentryMail/releases/latest" \
+  "LICENSE_SERVER_URL|humanshield|https://license.sentrymail.de"
+do
+  KEY="${eintrag%%|*}"; REST="${eintrag#*|}"
+  MUSTER="${REST%%|*}"; EMPFOHLEN="${REST#*|}"
+  WERT="$(get_env "$KEY")"
+  [ -n "$WERT" ] || continue
+  case "$WERT" in
+    *"$MUSTER"*)
+      STALE=1
+      printf '   %s!%s %s\n' "$YELLOW" "$RESET" \
+        "$(msg "$KEY zeigt noch auf die alte Marke:" "$KEY still points at the old brand:")"
+      printf '       %s\n' "$WERT"
+      printf '     %s\n' "$(msg 'Empfohlen:' 'Recommended:')"
+      printf '       %s=%s\n' "$KEY" "$EMPFOHLEN"
+      ;;
+  esac
+done
+if [ "$STALE" = "0" ]; then
+  printf '   %s✓%s %s\n' "$GREEN" "$RESET" "$(msg 'Keine veralteten Werte gefunden.' 'No stale values found.')"
+else
+  printf '\n   %s\n' "$(msg 'Bitte von Hand in der .env berichtigen und danach:' 'Please correct these in .env by hand, then run:')"
+  printf '       docker compose restart backend\n'
+fi
+printf '\n'
+
+# --- 7. Hinweis Add-ons / add-on note ---------------------------------------
 printf '%s%s%s\n' "$DIM" "$(msg 'Hinweis: Business-/Enterprise-Add-ons haben eigene Releases. In Produktion sind sie Teil des Backend-Images (Rebuild oben genuegt); im Dev-Mount aktualisierst du sie per git pull in ihren Repos + docker compose restart backend.' 'Note: Business/Enterprise add-ons have their own releases. In production they are part of the backend image (the rebuild above covers them); with the dev mount, update them via git pull in their repos + docker compose restart backend.')" "$RESET"
 printf '\n%s%s%s\n' "$GREEN$BOLD" "$(msg '✓ Update abgeschlossen.' '✓ Update complete.')" "$RESET"
