@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.46.0](https://github.com/securebits-cyber/SentryMail/compare/v0.45.1...v0.46.0) (2026-08-17)
+
+
+### Features
+
+* **addons:** Pakete beim Start vom Lizenzserver holen / Fetch packages from the license server at start ([#205](https://github.com/securebits-cyber/SentryMail/issues/205)) ([8e9b517](https://github.com/securebits-cyber/SentryMail/commit/8e9b517db186d226c1d4ccb7b4f94f7a82e0d1e4))
+
 ## [0.45.1](https://github.com/securebits-cyber/SentryMail/compare/v0.45.0...v0.45.1) (2026-08-02)
 
 
