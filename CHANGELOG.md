@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.46.1](https://github.com/securebits-cyber/SentryMail/compare/v0.46.0...v0.46.1) (2026-08-17)
+
+
+### Bug Fixes
+
+* **addons:** Entrypoint startet auch im Bind-Mount / Entrypoint also … ([#207](https://github.com/securebits-cyber/SentryMail/issues/207)) ([e1fe6da](https://github.com/securebits-cyber/SentryMail/commit/e1fe6daf1067aa7a8a0615adf79d6441a7efd15f))
+* **addons:** Entrypoint startet auch im Bind-Mount / Entrypoint also starts under a bind mount ([e1fe6da](https://github.com/securebits-cyber/SentryMail/commit/e1fe6daf1067aa7a8a0615adf79d6441a7efd15f))
+
 ## [0.46.0](https://github.com/securebits-cyber/SentryMail/compare/v0.45.1...v0.46.0) (2026-08-17)
 
 
