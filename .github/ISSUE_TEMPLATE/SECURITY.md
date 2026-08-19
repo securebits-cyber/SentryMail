@@ -25,7 +25,7 @@ Instead, please follow our responsible disclosure process:
 - Fix assessment: 7-14 days
 - Coordinated disclosure: Based on severity
 
-**Thank you for helping keep HumanShield secure!**
+**Thank you for helping keep SentryMail secure!**
 
 ---
 
