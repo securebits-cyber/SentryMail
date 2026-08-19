@@ -161,7 +161,17 @@ printf '\n'
 printf '%s%s%s\n' "$BOLD" "$(msg '4) Stack neu bauen und starten' '4) Rebuild and restart the stack')" "$RESET"
 printf '   %s\n' "$(msg 'DB-Migrationen laufen automatisch beim Backend-Start.' 'DB migrations run automatically on backend start.')"
 if yesno 'Jetzt "docker compose up -d --build" ausfuehren?' 'Run "docker compose up -d --build" now?' y; then
+  # Containernamen vor dem Update merken. Sie tragen seit dem Rebranding das
+  # Praefix "sentrymail-" statt "humanshield-"; compose ordnet Container ueber
+  # Projekt- und Service-Label zu, erstellt sie also regulaer neu. Die Volumes
+  # heissen unveraendert (postgres_data, backend_data, ...) und bleiben damit
+  # samt Daten erhalten - allein das alte Netz bleibt ungenutzt zurueck.
+  ALT_NETZ="$(docker network ls --format '{{.Name}}' 2>/dev/null | grep -E '_humanshield$' || true)"
   ( cd "$SCRIPT_DIR" && docker compose up -d --build )
+  if [ -n "$ALT_NETZ" ]; then
+    printf '   %s!%s %s\n' "$YELLOW" "$RESET" "$(msg "Die Container heissen jetzt sentrymail-*. Das alte Netz $ALT_NETZ wird nicht mehr benutzt und kann entfernt werden:" "Containers are now named sentrymail-*. The old network $ALT_NETZ is unused and can be removed:")"
+    printf '     %sdocker network rm %s%s\n' "$BOLD" "$ALT_NETZ" "$RESET"
+  fi
 else
   printf '   %s\n' "$(msg 'Uebersprungen. Spaeter:' 'Skipped. Later:')"
   printf '   %sdocker compose up -d --build%s\n' "$BOLD" "$RESET"
