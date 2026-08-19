@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.48.0](https://github.com/securebits-cyber/SentryMail/compare/v0.47.0...v0.48.0) (2026-08-19)
+
+
+### Features
+
+* **branding:** Rebranding auf SentryMail abschliessen / Complete the rename to SentryMail ([#211](https://github.com/securebits-cyber/SentryMail/issues/211)) ([4102c81](https://github.com/securebits-cyber/SentryMail/commit/4102c8195eab6d8689176d5366350c3f3f08e5c2))
+
 ## [0.47.0](https://github.com/securebits-cyber/SentryMail/compare/v0.46.1...v0.47.0) (2026-08-17)
 
 
