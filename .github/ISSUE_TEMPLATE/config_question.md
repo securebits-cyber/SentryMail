@@ -1,6 +1,6 @@
 ---
 name: Configuration Question
-about: Ask about HumanShield configuration, deployment, or compliance setup
+about: Ask about SentryMail configuration, deployment, or compliance setup
 title: '[CONFIG] '
 labels: question
 assignees: ''
@@ -11,7 +11,7 @@ What are you trying to configure or set up?
 
 ## Current Setup
 - **Deployment type:** [e.g., Docker, Kubernetes, VPS]
-- **HumanShield version:** [e.g., 1.0.0]
+- **SentryMail version:** [e.g., 1.0.0]
 - **Environment:** [e.g., Linux Ubuntu 22.04]
 - **Database:** [e.g., PostgreSQL, SQLite]
 

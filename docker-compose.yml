@@ -1,7 +1,7 @@
 services:
   postgres:
     image: postgres:18-alpine
-    container_name: humanshield-db
+    container_name: sentrymail-db
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-phishaware}
       POSTGRES_USER: ${POSTGRES_USER:-phishaware}
@@ -14,18 +14,18 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - humanshield
+      - sentrymail
 
   redis:
     image: redis:8-alpine
-    container_name: humanshield-cache
+    container_name: sentrymail-cache
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
-      - humanshield
+      - sentrymail
 
   # Anhang-Pruefung fuer gemeldete Mails (Enterprise). Bewusst hinter einem
   # Profil und damit standardmaessig AUS: clamd haelt die Signaturdatenbank
@@ -42,7 +42,7 @@ services:
   # Signaturdatenbank ist schlimmer als keine, weil sie Sicherheit vortaeuscht.
   clamav:
     image: clamav/clamav:stable
-    container_name: humanshield-clamav
+    container_name: sentrymail-clamav
     profiles:
       - scanning
     restart: unless-stopped
@@ -57,13 +57,13 @@ services:
     volumes:
       - clamav_data:/var/lib/clamav
     networks:
-      - humanshield
+      - sentrymail
 
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: humanshield-api
+    container_name: sentrymail-api
     env_file:
       - .env
     depends_on:
@@ -77,7 +77,7 @@ services:
       # Container-Schicht und waeren nach jedem Rebuild weg.
       - backend_data:/app/data
     networks:
-      - humanshield
+      - sentrymail
 
   # Gebautes Frontend, statisch ausgeliefert. Der Port wird bewusst nicht auf
   # den Host veroeffentlicht - erreichbar ist das Frontend nur ueber Caddy.
@@ -91,15 +91,15 @@ services:
         VITE_API_URL: ${VITE_API_URL:-/api}
         VITE_WIKI_URL: ${VITE_WIKI_URL:-}
         VITE_SUPPORT_EMAIL: ${VITE_SUPPORT_EMAIL:-}
-    container_name: humanshield-web
+    container_name: sentrymail-web
     depends_on:
       - backend
     networks:
-      - humanshield
+      - sentrymail
 
   caddy:
     image: caddy:2-alpine
-    container_name: humanshield-proxy
+    container_name: sentrymail-proxy
     # FRONTEND_BIND_ADDRESS begrenzt, auf welcher Netzwerkschnittstelle das
     # Dashboard ueberhaupt antwortet. Ohne Angabe hoert es auf allen - bei einer
     # Maschine mit oeffentlicher IP heisst das: offen im Internet.
@@ -118,7 +118,7 @@ services:
       - backend
       - frontend
     networks:
-      - humanshield
+      - sentrymail
 
 volumes:
   postgres_data:
@@ -130,5 +130,5 @@ volumes:
   clamav_data:
 
 networks:
-  humanshield:
+  sentrymail:
     driver: bridge

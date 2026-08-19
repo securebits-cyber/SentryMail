@@ -14,7 +14,7 @@ Ist kein Add-on installiert (unlizenzierter Kunde / reiner Open-Core), passiert
 hier nichts. Das Feature-Gate selbst liegt in den Add-on-Routern; dieser Loader
 entscheidet nur, ob ein Paket ueberhaupt vorhanden ist.
 
-Siehe docs/lizenz-addon-architektur.md (Abschnitt 6).
+Siehe docs/license-addon-architektur.md (Abschnitt 6).
 """
 import logging
 from importlib.metadata import entry_points

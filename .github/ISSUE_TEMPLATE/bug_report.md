@@ -28,7 +28,7 @@ If applicable, describe potential security implications.
 ## Environment
 - OS: [e.g., Linux, Windows]
 - Browser/Version: [if applicable]
-- HumanShield Version: [e.g., 1.0.0]
+- SentryMail Version: [e.g., 1.0.0]
 
 ## Screenshots
 [If applicable]

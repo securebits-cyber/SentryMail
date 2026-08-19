@@ -294,7 +294,7 @@ printf '\n'
 printf '%s%s%s\n' "$BOLD" "$(msg '7) Lizenz / Add-ons (optional)' '7) License / add-ons (optional)')" "$RESET"
 printf '   %s\n' "$(msg 'Leer lassen = reiner Open-Core-Betrieb ohne kostenpflichtige Add-ons.' 'Leave empty = pure Open Core without paid add-ons.')"
 if yesno 'Business-/Enterprise-Lizenz hinterlegen?' 'Configure a Business/Enterprise license?' n; then
-  ask LICENSE_SERVER_URL 'Lizenzserver-URL' 'License server URL' 'https://license.humanshield-awareness.de' >/dev/null
+  ask LICENSE_SERVER_URL 'Lizenzserver-URL' 'License server URL' 'https://license.sentrymail.de' >/dev/null
   ask LICENSE_KEY 'Lizenzschluessel' 'License key' '' >/dev/null
 else
   printf '   %s\n' "$(msg 'Ohne Lizenz (Open Core).' 'No license (Open Core).')"

@@ -10,7 +10,7 @@ Key. Solange die Lease nicht abgelaufen ist (exp = Grace-Ende, 7 Tage), sind die
 enthaltenen Features aktiv - auch wenn der Server zwischenzeitlich nicht
 erreichbar ist. Ohne Lizenz laeuft der Core als reiner Open-Core (keine Add-ons).
 
-Siehe docs/lizenz-addon-architektur.md.
+Siehe docs/license-addon-architektur.md.
 """
 from __future__ import annotations
 

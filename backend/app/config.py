@@ -92,7 +92,7 @@ class Settings(BaseSettings):
     # Lizenzierung / Add-ons (Online-Aktivierung). Leer = reiner Open-Core-Betrieb ohne Add-ons.
     LICENSE_SERVER_URL: str = ""
     LICENSE_KEY: str = ""  # optionaler .env-Seed; kann auch im Dashboard gepflegt werden
-    LICENSE_PRODUCT: str = "humanshield.app"
+    LICENSE_PRODUCT: str = "sentrymail"
     LICENSE_REFRESH_INTERVAL_HOURS: int = 24
 
 
