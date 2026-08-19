@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.47.0](https://github.com/securebits-cyber/SentryMail/compare/v0.46.1...v0.47.0) (2026-08-17)
+
+
+### Features
+
+* **update:** Vor veralteten .env-Werten warnen / Warn about stale .env values ([#209](https://github.com/securebits-cyber/SentryMail/issues/209)) ([68ecaf4](https://github.com/securebits-cyber/SentryMail/commit/68ecaf446c4b3b8afacadf84a0db586f934551d8))
+
 ## [0.46.1](https://github.com/securebits-cyber/SentryMail/compare/v0.46.0...v0.46.1) (2026-08-17)
 
 
