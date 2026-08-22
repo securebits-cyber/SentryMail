@@ -11,7 +11,7 @@ python-multipart==0.0.32
 httpx==0.28.1
 redis==8.1.0
 jinja2==3.1.6
-python-dotenv==1.2.2
+python-dotenv==1.2.3
 email-validator==2.3.0
 authlib==1.7.2
 itsdangerous==2.2.0
