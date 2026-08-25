@@ -52,8 +52,10 @@ import WhitelabelSettingsPage from './pages/settings/whitelabel'
 import TemplatesPage from './pages/templates'
 import TrainingsPage from './pages/trainings'
 import TrainingPlayerPage from './pages/trainings-player'
+import TrainingsNativePage from './pages/trainings-native'
 import LmsAssignmentsPage from './pages/lms/assignments'
 import LmsCoursesPage from './pages/lms/courses'
+import LmsNativePage from './pages/lms/native'
 import LmsReportsPage from './pages/lms/reports'
 import LmsSettingsPage from './pages/settings/lms'
 import UsersPage from './pages/users'
@@ -93,6 +95,9 @@ export default function App() {
           <Route path="/lms/courses" element={<LmsCoursesPage />} />
           <Route path="/lms/assignments" element={<LmsAssignmentsPage />} />
           <Route path="/lms/reports" element={<LmsReportsPage />} />
+          {/* Native Lernmodule: eigener Zweig, hinter dem Schalter der Installation. */}
+          <Route path="/lms/native" element={<LmsNativePage />} />
+          <Route path="/trainings/native/:assignmentId" element={<TrainingsNativePage />} />
           <Route path="/users" element={<UsersPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/settings" element={<SettingsLayout />}>
