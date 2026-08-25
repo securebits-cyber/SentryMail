@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.49.0](https://github.com/securebits-cyber/SentryMail/compare/v0.48.0...v0.49.0) (2026-08-25)
+
+
+### Features
+
+* **lms:** Oberflaeche der nativen Lernmodule / Native learning module UI ([#218](https://github.com/securebits-cyber/SentryMail/issues/218)) ([cf65a63](https://github.com/securebits-cyber/SentryMail/commit/cf65a639b8275b5bb2f5ea64223a9694bdf5cca6))
+
 ## [0.48.0](https://github.com/securebits-cyber/SentryMail/compare/v0.47.0...v0.48.0) (2026-08-19)
 
 
