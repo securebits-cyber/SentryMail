@@ -38,15 +38,33 @@ export interface NativeInteraction {
   expected_count?: number
 }
 
+export interface SequenceHit {
+  content_key: string
+  label: string
+  /** (x, y, Breite, Höhe) relativ 0..1 — nur für bereits gefundene Bereiche. */
+  rect: [number, number, number, number] | null
+}
+
 export interface InteractionVerdict {
   correct: boolean | null
   feedback: string
   next_content_key: string | null
+  hits?: SequenceHit[] | null
   unlocked: boolean
+}
+
+export interface ClickPoint {
+  x: number
+  y: number
 }
 
 interface LmsInteractionProps {
   interaction: NativeInteraction
+  /**
+   * Klickfläche der sequence-Form (Blob-URL, vom Aufrufer mit Auth geladen).
+   * Ohne Bild fällt sequence auf die Texteingabe für Textmarken zurück.
+   */
+  imageUrl?: string | null
   /** Bereits beantwortet? Dann steht das Ergebnis, nicht das Formular. */
   answered: boolean
   onAnswer: (response: Record<string, unknown>) => Promise<InteractionVerdict>
@@ -61,11 +79,13 @@ interface LmsInteractionProps {
     timeLeft: string
     pickAtLeastOne: string
     foundOf: string
+    undoClick: string
   }
 }
 
 export default function LmsInteraction({
   interaction,
+  imageUrl,
   answered,
   onAnswer,
   labels,
@@ -77,6 +97,7 @@ export default function LmsInteraction({
       : 0,
   )
   const [found, setFound] = useState<string[]>([])
+  const [clicks, setClicks] = useState<ClickPoint[]>([])
   const [verdict, setVerdict] = useState<InteractionVerdict | null>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -100,11 +121,14 @@ export default function LmsInteraction({
     }
     if (interaction.type === 'estimate') return { value }
     if (interaction.type === 'sequence') {
-      if (found.length === 0) return null
-      return { found }
+      if (clicks.length === 0 && found.length === 0) return null
+      const antwort: Record<string, unknown> = {}
+      if (clicks.length > 0) antwort.clicks = clicks
+      if (found.length > 0) antwort.found = found
+      return antwort
     }
     return null
-  }, [interaction.type, interaction.multiple, selected, value, found])
+  }, [interaction.type, interaction.multiple, selected, value, found, clicks])
 
   async function submit() {
     if (!response) {
@@ -189,33 +213,105 @@ export default function LmsInteraction({
         <div className="interaction__sequence">
           <p className="interaction__hint">
             {labels.foundOf
-              .replace('{found}', String(found.length))
+              .replace('{found}', String(verdict?.hits?.length ?? clicks.length + found.length))
               .replace('{total}', String(interaction.expected_count ?? 0))}
           </p>
-          {/*
-            Die Trefferbereiche kennt der Server, nicht der Browser. Bis die
-            Bildkoordinaten aus dem Manifest ausgeliefert werden, trägt die
-            lernende Person ihre Funde als Kennung ein — funktional vollständig,
-            optisch schlicht.
-          */}
-          <input
-            type="text"
-            placeholder="z. B. absender"
-            disabled={gesperrt}
-            onKeyDown={(e) => {
-              if (e.key !== 'Enter') return
-              const wert = (e.target as HTMLInputElement).value.trim()
-              if (!wert) return
-              setFound((cur) => (cur.includes(wert) ? cur : [...cur, wert]))
-              ;(e.target as HTMLInputElement).value = ''
-            }}
-          />
-          {found.length > 0 && (
-            <ul className="interaction__found" role="list">
-              {found.map((key) => (
-                <li key={key}>{key}</li>
-              ))}
-            </ul>
+
+          {imageUrl ? (
+            /*
+              Die Klickfläche. Der Browser kennt die Trefferbereiche nicht —
+              er sammelt nur Klickpunkte (relativ 0..1) und schickt sie zum
+              Server; der löst auf, was getroffen wurde. Erst in der Antwort
+              kommen die rects der GEFUNDENEN Bereiche zurück und werden
+              markiert. Nicht Gefundenes bleibt unsichtbar.
+            */
+            <div className="interaction__image-wrap" style={{ position: 'relative' }}>
+              <img
+                src={imageUrl}
+                alt={interaction.prompt}
+                draggable={false}
+                style={{ display: 'block', width: '100%', cursor: gesperrt ? 'default' : 'crosshair' }}
+                onClick={(e) => {
+                  if (gesperrt) return
+                  const box = (e.target as HTMLImageElement).getBoundingClientRect()
+                  const punkt = {
+                    x: Math.min(1, Math.max(0, (e.clientX - box.left) / box.width)),
+                    y: Math.min(1, Math.max(0, (e.clientY - box.top) / box.height)),
+                  }
+                  setClicks((cur) => [...cur, punkt])
+                }}
+              />
+              {/* Eigene Klickmarken — bis zum Urteil weiß niemand, was sie treffen. */}
+              {!verdict &&
+                clicks.map((punkt, i) => (
+                  <span
+                    key={i}
+                    className="interaction__click-mark"
+                    style={{
+                      position: 'absolute',
+                      left: `${punkt.x * 100}%`,
+                      top: `${punkt.y * 100}%`,
+                      transform: 'translate(-50%, -50%)',
+                    }}
+                    aria-hidden
+                  >
+                    ●
+                  </span>
+                ))}
+              {/* Gefundene Bereiche aus der Server-Antwort. */}
+              {verdict?.hits?.map(
+                (hit) =>
+                  hit.rect && (
+                    <span
+                      key={hit.content_key}
+                      className="interaction__hit-rect"
+                      style={{
+                        position: 'absolute',
+                        left: `${hit.rect[0] * 100}%`,
+                        top: `${hit.rect[1] * 100}%`,
+                        width: `${hit.rect[2] * 100}%`,
+                        height: `${hit.rect[3] * 100}%`,
+                        border: '2px solid var(--color-status-success)',
+                        borderRadius: '4px',
+                        pointerEvents: 'none',
+                      }}
+                      title={hit.label || hit.content_key}
+                    />
+                  ),
+              )}
+              {!verdict && clicks.length > 0 && (
+                <button
+                  type="button"
+                  className="btn btn--ghost interaction__undo"
+                  onClick={() => setClicks((cur) => cur.slice(0, -1))}
+                >
+                  {labels.undoClick}
+                </button>
+              )}
+            </div>
+          ) : (
+            /* Ohne Bild: Textmarken (Bereiche ohne rect) von Hand eintragen. */
+            <>
+              <input
+                type="text"
+                placeholder="z. B. absender"
+                disabled={gesperrt}
+                onKeyDown={(e) => {
+                  if (e.key !== 'Enter') return
+                  const wert = (e.target as HTMLInputElement).value.trim()
+                  if (!wert) return
+                  setFound((cur) => (cur.includes(wert) ? cur : [...cur, wert]))
+                  ;(e.target as HTMLInputElement).value = ''
+                }}
+              />
+              {found.length > 0 && (
+                <ul className="interaction__found" role="list">
+                  {found.map((key) => (
+                    <li key={key}>{key}</li>
+                  ))}
+                </ul>
+              )}
+            </>
           )}
         </div>
       )}
@@ -258,6 +354,8 @@ export default function LmsInteraction({
             className="btn btn--ghost"
             onClick={() => {
               setVerdict(null)
+              setClicks([])
+              setFound([])
               setSecondsLeft(interaction.time_limit_seconds ?? null)
             }}
           >

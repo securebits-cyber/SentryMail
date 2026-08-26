@@ -41,6 +41,7 @@ interface NativeLevel {
   has_video: boolean
   duration_seconds: number | null
   has_subtitle: boolean
+  has_image: boolean
   coverage_threshold_percent: number
   interaction: NativeInteraction | null
   interaction_answered: boolean | null
@@ -107,6 +108,27 @@ export default function TrainingsNativePage() {
   }, [licensed, load])
 
   const level = view?.levels.find((l) => l.id === activeId) ?? null
+
+  // Klickfläche der sequence-Form: per fetch mit Auth geladen und als
+  // Blob-URL angezeigt — ein <img src> kann keine Bearer-Header senden.
+  const [imageUrl, setImageUrl] = useState<string | null>(null)
+  useEffect(() => {
+    setImageUrl(null)
+    if (!level?.has_image || !assignmentId) return
+    let widerrufen: string | null = null
+    api
+      .get(`/lms/my/native/assignments/${assignmentId}/levels/${level.id}/image`, {
+        responseType: 'blob',
+      })
+      .then((res) => {
+        widerrufen = URL.createObjectURL(res.data as Blob)
+        setImageUrl(widerrufen)
+      })
+      .catch(() => setImageUrl(null))
+    return () => {
+      if (widerrufen) URL.revokeObjectURL(widerrufen)
+    }
+  }, [assignmentId, level?.id, level?.has_image])
 
   async function answer(response: Record<string, unknown>): Promise<InteractionVerdict> {
     const res = await api.post<InteractionVerdict>(
@@ -198,6 +220,7 @@ export default function TrainingsNativePage() {
           {level.interaction && (
             <LmsInteraction
               interaction={level.interaction}
+              imageUrl={imageUrl}
               answered={level.interaction_answered ?? false}
               onAnswer={answer}
               labels={{
@@ -211,6 +234,7 @@ export default function TrainingsNativePage() {
                 timeLeft: t('trainingsNative.timeLeft'),
                 pickAtLeastOne: t('trainingsNative.pickAtLeastOne'),
                 foundOf: t('trainingsNative.foundOf'),
+                undoClick: t('trainingsNative.undoClick'),
               }}
             />
           )}
