@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.50.0](https://github.com/securebits-cyber/SentryMail/compare/v0.49.0...v0.50.0) (2026-08-26)
+
+
+### Features
+
+* **lms:** sequence als Klick ins Bild / Sequence as click-in-image ([#220](https://github.com/securebits-cyber/SentryMail/issues/220)) ([a2ba1bf](https://github.com/securebits-cyber/SentryMail/commit/a2ba1bffa36dfcc5c57c378982882d96232f7be2))
+
 ## [0.49.0](https://github.com/securebits-cyber/SentryMail/compare/v0.48.0...v0.49.0) (2026-08-25)
 
 
