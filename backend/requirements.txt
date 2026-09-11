@@ -1,7 +1,7 @@
 fastapi==0.141.1
 uvicorn[standard]==0.52.4
 sqlalchemy==2.0.52
-psycopg[binary]==3.3.4
+psycopg[binary]==3.3.5
 alembic==1.19.1
 pydantic==2.13.5
 pydantic-settings==2.15.0
@@ -13,7 +13,7 @@ redis==8.1.0
 jinja2==3.1.6
 python-dotenv==1.2.3
 email-validator==2.3.0
-authlib==1.7.2
+authlib==1.8.0
 itsdangerous==2.2.0
 aiosmtplib==5.1.2
 cryptography==50.0.1
