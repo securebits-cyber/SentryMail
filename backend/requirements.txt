@@ -28,4 +28,4 @@ maxminddb==3.1.1
 # keine nativen Abhaengigkeiten. Kam bisher transitiv ueber email-validator mit;
 # hier explizit, weil das Projekt es jetzt direkt benutzt.
 dnspython==2.8.0
-cairosvg==2.9.0
+cairosvg==2.9.1
