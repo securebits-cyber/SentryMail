@@ -5,7 +5,7 @@ psycopg[binary]==3.3.5
 alembic==1.19.1
 pydantic==2.13.5
 pydantic-settings==2.15.0
-PyJWT==2.13.0
+PyJWT==2.15.0
 argon2-cffi==25.1.0
 python-multipart==0.0.32
 httpx==0.28.1
