@@ -4,7 +4,7 @@ sqlalchemy==2.1.9
 psycopg[binary]==3.3.8
 alembic==1.20.1
 pydantic==2.14.3
-pydantic-settings==2.16.2
+pydantic-settings==2.16.3
 PyJWT==2.15.1
 argon2-cffi==25.1.0
 python-multipart==0.0.33
