@@ -1,6 +1,6 @@
 fastapi==0.162.4
 uvicorn[standard]==0.54.0
-sqlalchemy==2.1.8
+sqlalchemy==2.1.9
 psycopg[binary]==3.3.8
 alembic==1.20.1
 pydantic==2.14.3
@@ -21,7 +21,7 @@ pytest==9.2.0
 pytest-asyncio==1.4.1.post1
 black==26.10.1
 ruff==0.17.4
-pyotp==2.10.0
+pyotp==2.12.0
 segno==1.6.6
 maxminddb==3.2.0
 # Zustelldiagnose: SPF/DKIM/DMARC der Absenderdomain nachschlagen. Reines Python,
