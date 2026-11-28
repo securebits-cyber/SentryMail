@@ -23,7 +23,7 @@ black==26.10.1
 ruff==0.17.4
 pyotp==2.12.0
 segno==1.6.6
-maxminddb==3.2.0
+maxminddb==3.3.0
 # Zustelldiagnose: SPF/DKIM/DMARC der Absenderdomain nachschlagen. Reines Python,
 # keine nativen Abhaengigkeiten. Kam bisher transitiv ueber email-validator mit;
 # hier explizit, weil das Projekt es jetzt direkt benutzt.
